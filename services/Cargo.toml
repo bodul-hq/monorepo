@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "retailer_sourcing",
+    "offers",
+    "customer_facing",
+]
