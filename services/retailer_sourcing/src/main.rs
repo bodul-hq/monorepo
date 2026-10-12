@@ -101,6 +101,12 @@ mod tests {
         assert_eq!(response.status(), StatusCode::OK);
         let spec: Value = serde_json::from_slice(&body(response).await).unwrap();
 
+        assert!(
+            spec["paths"]["/health"]["get"].is_object(),
+            "OpenAPI must document GET /health",
+        );
+        assert_eq!(spec["servers"][0]["url"], "/api");
+
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
         for path in spec["paths"].as_object().unwrap().keys() {
             let response = get(&format!("{server}{path}")).await;

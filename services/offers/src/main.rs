@@ -84,6 +84,12 @@ mod tests {
         response.assert_status_is_ok();
         let spec: Value = response.json().await.value().deserialize();
 
+        assert!(
+            spec["paths"]["/health"]["get"].is_object(),
+            "OpenAPI must document GET /health",
+        );
+        assert_eq!(spec["servers"][0]["url"], "/api");
+
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
         for path in spec["paths"].as_object().unwrap().keys() {
             let response = client.get(format!("{server}{path}")).send().await;
