@@ -13,7 +13,16 @@ fn app() -> Route {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+    let port = match std::env::var("PORT") {
+        Ok(value) => value.parse::<u16>().map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "PORT must be an integer between 0 and 65535",
+            )
+        })?,
+        Err(std::env::VarError::NotPresent) => 3000,
+        Err(error) => return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+    };
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run(app())
         .await
