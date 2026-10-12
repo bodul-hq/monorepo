@@ -59,7 +59,7 @@ Each Cargo workspace declares dependencies shared by its members under `[workspa
 
 ## Requirements
 
-- A Rust toolchain with Rust 2024 edition support
+- [rustup](https://rustup.rs). `rust-toolchain.toml` pins Rust 1.98.0 with rustfmt and clippy, and rustup installs it on the first cargo command in the repo (or run `rustup toolchain install`)
 - The PostgreSQL client library for diesel (`libpq-dev` on Debian/Ubuntu)
 - GNU Make
 - [cargo-audit](https://crates.io/crates/cargo-audit) for `make audit` (`cargo install cargo-audit`)
