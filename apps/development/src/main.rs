@@ -3,7 +3,7 @@ use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
 #[handler]
 fn index() -> Html<&'static str> {
     Html(
-        "<!DOCTYPE html><html><head><title>Development</title></head><body><h1>Development</h1></body></html>",
+        "<!DOCTYPE html><html lang=\"en\"><head><title>Development</title></head><body><h1>Development</h1></body></html>",
     )
 }
 
