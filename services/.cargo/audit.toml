@@ -1,0 +1,10 @@
+[advisories]
+# Poem 3.1.12 brings in quick-xml 0.36.2 through poem-openapi's XML feature.
+# No service uses the Poem Xml extractor or poem-openapi Xml payload, so the
+# affected XML parsing is unreachable. Do not add XML request handlers while
+# these exceptions are present. Reassess when upgrading Poem/poem-openapi and
+# remove the exceptions once quick-xml >= 0.41 is resolved.
+ignore = [
+    "RUSTSEC-2026-0194", # Quadratic duplicate-attribute checks.
+    "RUSTSEC-2026-0195", # Unbounded namespace-declaration allocation.
+]

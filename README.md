@@ -108,7 +108,7 @@ The shared targets live in `make/rust.mk`. `make/workspace.mk` runs a target acr
 
 ## Security audit
 
-`make audit` currently reports these issues in `services/`. All of them come from poem 3.1.12, which `customer_facing` and `offers` use. poem-openapi always enables poem's `xml` and `yaml` features, so they can't be turned off.
+`services/.cargo/audit.toml` temporarily ignores the two quick-xml advisories below because no service accepts XML request bodies. `make audit` still reports the unsafe-libyaml warning in `services/`. All of them come from poem 3.1.12, which `customer_facing` and `offers` use. poem-openapi always enables poem's `xml` and `yaml` features, so they can't be turned off.
 
 - [ ] **quick-xml 0.36.2: memory-exhaustion denial of service** ([RUSTSEC-2026-0195](https://rustsec.org/advisories/RUSTSEC-2026-0195), high). Fixed in quick-xml 0.41.
 - [ ] **quick-xml 0.36.2: quadratic run time on duplicate attribute checks** ([RUSTSEC-2026-0194](https://rustsec.org/advisories/RUSTSEC-2026-0194), high). Fixed in quick-xml 0.41.
@@ -118,7 +118,7 @@ Things to consider:
 
 - quick-xml only runs when a handler accepts an XML request body, through poem's `Xml` extractor or poem-openapi's `Xml` payload. No service does this today, so the vulnerable code is compiled in but unreachable.
 - poem's `master` branch moves to quick-xml 0.42 ahead of poem 4.0, which isn't released yet. async-graphql-poem still requires poem 3, so upgrading also needs a matching async-graphql-poem release.
-- Until then, we could ignore the two quick-xml advisories in `services/.cargo/audit.toml` and stop services from accepting XML request bodies, so `make audit` passes but still catches new advisories.
+- The exceptions in `services/.cargo/audit.toml` name only RUSTSEC-2026-0194 and RUSTSEC-2026-0195, so other advisories remain visible. Do not introduce XML request handlers while these exceptions are present. On each Poem or poem-openapi upgrade, check the resolved quick-xml version and remove the exceptions once it is at least 0.41. Track compatible Poem and async-graphql-poem releases for that upgrade.
 
 ## Decisions
 
