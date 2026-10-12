@@ -21,6 +21,7 @@ Guidance for AI agents working in this repository. For the layout, requirements 
 - Add the crate to its workspace's `members` in `Cargo.toml`, one entry per line.
 - Give it a Makefile that includes `make/rust.mk`. Add `serve` (`cargo run`) for services and apps, or `doc` (`cargo doc --no-deps`) for libraries.
 - Add the crate to the `MEMBERS` list in its folder's Makefile, and to the README.
+- Give a library crate a `README.md` that describes its purpose, like the others in `lib/`.
 
 ## Dependencies
 
