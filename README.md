@@ -52,6 +52,10 @@ All services also depend on diesel (PostgreSQL), diesel_migrations, serde, serde
 | `customers`   | poem      |
 | `development` | poem      |
 
+## Dependency conventions
+
+Each Cargo workspace declares dependencies shared by its members under `[workspace.dependencies]`. Member crates inherit them with `name.workspace = true`. Framework and runtime versions live in `services/Cargo.toml` and `apps/Cargo.toml`; the workspaces remain independent. Poem's `test` feature belongs in each member's dev-dependencies.
+
 ## Requirements
 
 - A Rust toolchain with Rust 2024 edition support
@@ -69,6 +73,8 @@ make serve # listens on port 3000
 # Set PORT to run another server alongside it:
 PORT=3001 make serve
 ```
+
+`PORT` must be an integer between 0 and 65535. Invalid or non-Unicode values cause startup to return an error before binding; an absent value uses the documented default. Port 0 asks the operating system to select an available port. Use distinct explicit ports when running several servers together.
 
 ## Tests
 
