@@ -403,6 +403,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
+ "shared",
  "tokio",
  "uuid",
 ]
@@ -1356,6 +1357,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
+ "shared",
  "tokio",
  "uuid",
 ]
@@ -1751,6 +1753,7 @@ dependencies = [
  "http-body-util",
  "serde",
  "serde_json",
+ "shared",
  "tokio",
  "tower",
  "utoipa",
@@ -1921,6 +1924,10 @@ dependencies = [
  "cpufeatures",
  "digest",
 ]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
 
 [[package]]
 name = "shlex"

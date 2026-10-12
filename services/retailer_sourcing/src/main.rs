@@ -11,7 +11,7 @@ struct ApiDoc;
 
 #[utoipa::path(get, path = "/health", responses((status = 200, body = String)))]
 async fn health() -> &'static str {
-    "ok"
+    shared::health()
 }
 
 struct Query;
@@ -19,7 +19,7 @@ struct Query;
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        "ok"
+        shared::health()
     }
 }
 
