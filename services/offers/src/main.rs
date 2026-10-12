@@ -44,7 +44,7 @@ fn app() -> Route {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let port = std::env::var("PORT").unwrap_or_else(|_| "80".into());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run(app())
         .await
