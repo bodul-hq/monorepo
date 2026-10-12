@@ -122,6 +122,8 @@ The shared targets live in `make/rust.mk`. `make/workspace.mk` runs a target acr
 
 `services/.cargo/audit.toml` temporarily ignores the two quick-xml advisories below because no service accepts XML request bodies. `make audit` still reports the unsafe-libyaml warning in `services/`. All of them come from poem 3.1.12, which `customer_facing` and `offers` use. poem-openapi always enables poem's `xml` and `yaml` features, so they can't be turned off.
 
+`apps/.cargo/audit.toml` ignores the same two advisories so both poem workspaces are treated alike. The apps workspace doesn't resolve quick-xml today. `apps/clippy.toml` disallows poem's `Xml` extractor, so `make lint` fails if an app starts parsing XML once poem's `xml` feature is enabled.
+
 - [ ] **quick-xml 0.36.2: memory-exhaustion denial of service** ([RUSTSEC-2026-0195](https://rustsec.org/advisories/RUSTSEC-2026-0195), high). Fixed in quick-xml 0.41.
 - [ ] **quick-xml 0.36.2: quadratic run time on duplicate attribute checks** ([RUSTSEC-2026-0194](https://rustsec.org/advisories/RUSTSEC-2026-0194), high). Fixed in quick-xml 0.41.
 - [ ] **unsafe-libyaml 0.2.11 is unmaintained** ([RUSTSEC-2024-0449](https://rustsec.org/advisories/RUSTSEC-2024-0449), warning). It comes in through serde_yaml, which poem's `master` branch still uses.
@@ -130,7 +132,7 @@ Things to consider:
 
 - quick-xml only runs when a handler accepts an XML request body, through poem's `Xml` extractor or poem-openapi's `Xml` payload. No service does this today, so the vulnerable code is compiled in but unreachable.
 - poem's `master` branch moves to quick-xml 0.42 ahead of poem 4.0, which isn't released yet. async-graphql-poem still requires poem 3, so upgrading also needs a matching async-graphql-poem release.
-- The exceptions in `services/.cargo/audit.toml` name only RUSTSEC-2026-0194 and RUSTSEC-2026-0195, so other advisories remain visible. Do not introduce XML request handlers while these exceptions are present: `services/clippy.toml` disallows poem's `Xml` extractor and poem-openapi's `Xml` payload, so `make lint` fails if either is used. On each Poem or poem-openapi upgrade, check the resolved quick-xml version and remove the exceptions, and the clippy entries, once it is at least 0.41. Track compatible Poem and async-graphql-poem releases for that upgrade.
+- The exceptions in `services/.cargo/audit.toml` name only RUSTSEC-2026-0194 and RUSTSEC-2026-0195, so other advisories remain visible. Do not introduce XML request handlers while these exceptions are present: `services/clippy.toml` disallows poem's `Xml` extractor and poem-openapi's `Xml` payload, so `make lint` fails if either is used. On each Poem or poem-openapi upgrade, check the resolved quick-xml version and remove the exceptions, and the clippy entries, in both `services/` and `apps/` once it is at least 0.41. Track compatible Poem and async-graphql-poem releases for that upgrade.
 
 ## Decisions
 

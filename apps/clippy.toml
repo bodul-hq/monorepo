@@ -1,0 +1,8 @@
+# quick-xml advisories are ignored in .cargo/audit.toml only while no app
+# parses XML request bodies. Remove this entry with those exceptions.
+# poem::web::Xml exists only when poem's xml feature is enabled, which the apps
+# don't do yet, so allow-invalid keeps clippy from warning about the path until
+# then; once the feature is on, the type resolves and the lint applies.
+disallowed-types = [
+    { path = "poem::web::Xml", reason = "quick-xml advisories are ignored on the assumption that no app parses XML; see .cargo/audit.toml", allow-invalid = true },
+]
