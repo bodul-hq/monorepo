@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+# fmt, clippy and test run as separate jobs for each workspace, so they run in
+# parallel and a failure names the check and workspace. The toolchain comes
+# from rust-toolchain.toml.
+jobs:
+  fmt:
+    name: fmt (${{ matrix.workspace }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [lib, services, apps]
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - run: make fmt-check
+        working-directory: ${{ matrix.workspace }}
+
+  clippy:
+    name: clippy (${{ matrix.workspace }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [lib, services, apps]
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - name: Install libpq for diesel
+        if: matrix.workspace == 'services'
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ matrix.workspace }}
+          key: ${{ matrix.workspace }}
+      - run: make lint
+        working-directory: ${{ matrix.workspace }}
+
+  test:
+    name: test (${{ matrix.workspace }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [lib, services, apps]
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - name: Install libpq for diesel
+        if: matrix.workspace == 'services'
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ matrix.workspace }}
+          key: ${{ matrix.workspace }}
+      - run: make test
+        working-directory: ${{ matrix.workspace }}
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      - run: make audit

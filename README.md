@@ -118,6 +118,10 @@ Some targets only exist in certain places:
 
 The shared targets live in `make/rust.mk`. `make/workspace.mk` runs a target across the crates listed in a folder's `MEMBERS`. To add a crate, give it a Makefile that includes `make/rust.mk` and add it to its folder's `MEMBERS`.
 
+## CI
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`. It runs `make fmt-check`, `make lint` and `make test` as separate jobs for each of `lib`, `services` and `apps`, all in parallel, plus `make audit` from the root. The jobs use the toolchain pinned in `rust-toolchain.toml`, so `make ci` locally runs the same checks.
+
 ## Security audit
 
 `services/.cargo/audit.toml` temporarily ignores the two quick-xml advisories below because no service accepts XML request bodies. `make audit` still reports the unsafe-libyaml warning in `services/`. All of them come from poem 3.1.12, which `customer_facing` and `offers` use. poem-openapi always enables poem's `xml` and `yaml` features, so they can't be turned off.
