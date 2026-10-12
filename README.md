@@ -24,7 +24,7 @@ Rust monorepo for Bodul. It contains three independent Cargo workspaces:
 | `retailers_ugreen`        | Ugreen retailer                             |
 | `retailers_wip`           | WIP retailer                                |
 
-All library crates are empty for now.
+`shared` provides the liveness response used by the services’ HTTP and GraphQL adapters. Other library crates are empty for now.
 
 ### services
 

@@ -9,7 +9,7 @@ struct Api;
 impl Api {
     #[oai(path = "/health", method = "get")]
     async fn health(&self) -> PlainText<&'static str> {
-        PlainText("ok")
+        PlainText(shared::health())
     }
 }
 
@@ -18,7 +18,7 @@ struct Query;
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        "ok"
+        shared::health()
     }
 }
 
