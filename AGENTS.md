@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guidance for AI agents working in this repository. For the layout, requirements and Make targets, read [README.md](README.md) first.
+Guidance for AI agents working in this repository. For the layout and requirements, read [README.md](README.md) first.
 
 ## Commits
 
@@ -19,8 +19,7 @@ Guidance for AI agents working in this repository. For the layout, requirements 
 - Create it with `cargo new` and remove the generated placeholder code. A library with no code yet keeps a placeholder test, like the other empty crates in `lib/`, until it has real tests.
 - Use snake_case for crate names.
 - Add the crate to its workspace's `members` in `Cargo.toml`, one entry per line.
-- Give it a Makefile that includes `make/rust.mk`. Add `serve` (`cargo run`) for services and apps, or `doc` (`cargo doc --no-deps`) for libraries.
-- Add the crate to the `MEMBERS` list in its folder's Makefile, and to the README.
+- Add the crate to the README.
 - Give a library crate a `README.md` that describes its purpose, like the others in `lib/`.
 
 ## Dependencies
@@ -40,7 +39,7 @@ Guidance for AI agents working in this repository. For the layout, requirements 
 
 - Record framework and architecture decisions as ADRs in `docs/adr/` and list them in `docs/adr/README.md`.
 - When a decision changes, write a new ADR that supersedes the old one instead of editing an accepted ADR, unless asked to merge them.
-- Update the README when crates, Make targets or requirements change.
+- Update the README when crates or requirements change.
 
 ## Asking first
 
