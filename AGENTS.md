@@ -13,6 +13,7 @@ Guidance for AI agents working in this repository. For the layout and requiremen
 - Run `make ci` in the folder you changed, or from the root, and make sure it passes. Run `make fmt` first, since unformatted code is the most common reason `ci` fails.
 - Run `make audit` only when Cargo dependencies change, that is when a `Cargo.toml` dependency or a `Cargo.lock` file is modified, and report any new advisories. Other changes don't need it.
 - When you change a service or app, keep its smoke tests passing and extend them for new routes. Also run it with `PORT=<port> make serve` and check that its health endpoint or page responds.
+- The repository has only Rust code today. If code in another language is added, document how to test it in that folder's README, and run those tests before finishing a change.
 
 ## Adding a crate
 
