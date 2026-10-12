@@ -61,11 +61,13 @@ All services also depend on diesel (PostgreSQL), diesel_migrations, serde, serde
 
 ## Running
 
-Services and apps read their listen port from the `PORT` environment variable and default to 80:
+Services and apps read their listen port from the `PORT` environment variable and default to 3000:
 
 ```sh
 cd services/offers
-PORT=3000 make serve
+make serve # listens on port 3000
+# Set PORT to run another server alongside it:
+PORT=3001 make serve
 ```
 
 ## Tests
