@@ -41,7 +41,8 @@ Every service exposes the same routes:
 | `/api/health`       | Health check                    |
 | `/api/openapi.json` | OpenAPI specification           |
 | `/api/docs`         | Swagger UI                      |
-| `/graphql`          | GraphQL (POST), GraphiQL (GET)  |
+| `/graphql`          | GraphQL (GET and POST)          |
+| `/graphql/ide`      | GraphiQL (debug builds only)    |
 
 All services also depend on diesel (PostgreSQL), diesel_migrations, serde, serde_json and uuid. Their versions are declared once in `services/Cargo.toml`.
 
@@ -134,3 +135,4 @@ Architecture decisions are recorded in [docs/adr](docs/adr/README.md):
 
 - [ADR 1](docs/adr/0001-web-frameworks-for-apps-and-services.md): web frameworks, routes, default port and bind address for apps and services
 - [ADR 2](docs/adr/0002-workspace-dependencies-and-port-validation.md): workspace dependency inheritance and `PORT` validation
+- [ADR 3](docs/adr/0003-graphql-over-get-and-debug-only-graphiql.md): GraphQL over `GET`, and GraphiQL only in debug builds

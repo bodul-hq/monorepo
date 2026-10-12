@@ -35,11 +35,15 @@ fn app() -> Route {
     let api = OpenApiService::new(Api, "Offers", env!("CARGO_PKG_VERSION")).server("/api");
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
-    Route::new()
+    let mut route = Route::new()
         .nest("/api/docs", api.swagger_ui())
         .at("/api/openapi.json", api.spec_endpoint())
         .nest("/api", api)
-        .at("/graphql", get(graphiql).post(GraphQL::new(schema)))
+        .at("/graphql", GraphQL::new(schema));
+    if cfg!(debug_assertions) {
+        route = route.at("/graphql/ide", get(graphiql));
+    }
+    route
 }
 
 #[tokio::main]
@@ -102,6 +106,29 @@ mod tests {
         response
             .assert_json(json!({ "data": { "health": "ok" } }))
             .await;
+    }
+
+    #[tokio::test]
+    async fn graphql_get_query_returns_ok() {
+        let response = TestClient::new(app())
+            .get("/graphql")
+            .query("query", &"{ health }")
+            .send()
+            .await;
+        response.assert_status_is_ok();
+        response
+            .assert_json(json!({ "data": { "health": "ok" } }))
+            .await;
+    }
+
+    #[tokio::test]
+    async fn graphiql_is_served_only_in_debug_builds() {
+        let response = TestClient::new(app()).get("/graphql/ide").send().await;
+        if cfg!(debug_assertions) {
+            response.assert_status_is_ok();
+        } else {
+            response.assert_status(StatusCode::NOT_FOUND);
+        }
     }
 
     #[tokio::test]

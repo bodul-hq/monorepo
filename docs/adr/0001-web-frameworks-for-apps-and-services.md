@@ -1,6 +1,6 @@
 # ADR 1: Web frameworks for apps and services
 
-- Status: Accepted
+- Status: Accepted; the `/graphql` route is superseded by [ADR 3](0003-graphql-over-get-and-debug-only-graphiql.md)
 - Date: 2026-10-12
 
 ## Context

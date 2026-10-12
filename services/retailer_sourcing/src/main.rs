@@ -33,10 +33,14 @@ fn app() -> Router {
         .split_for_parts();
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
-    Router::new()
+    let mut router = Router::new()
         .nest("/api", api)
         .merge(SwaggerUi::new("/api/docs").url("/api/openapi.json", openapi))
-        .route_service("/graphql", get(graphiql).post_service(GraphQL::new(schema)))
+        .route_service("/graphql", GraphQL::new(schema));
+    if cfg!(debug_assertions) {
+        router = router.route("/graphql/ide", get(graphiql));
+    }
+    router
 }
 
 #[tokio::main]
@@ -122,6 +126,25 @@ mod tests {
         assert_eq!(response.status(), StatusCode::OK);
         let json: Value = serde_json::from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
+    }
+
+    #[tokio::test]
+    async fn graphql_get_query_returns_ok() {
+        let response = get("/graphql?query=%7B%20health%20%7D").await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let json: Value = serde_json::from_slice(&body(response).await).unwrap();
+        assert_eq!(json, json!({ "data": { "health": "ok" } }));
+    }
+
+    #[tokio::test]
+    async fn graphiql_is_served_only_in_debug_builds() {
+        let response = get("/graphql/ide").await;
+        let expected = if cfg!(debug_assertions) {
+            StatusCode::OK
+        } else {
+            StatusCode::NOT_FOUND
+        };
+        assert_eq!(response.status(), expected);
     }
 
     #[tokio::test]
