@@ -4,14 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-async-graphql = "7.2.1"
+async-graphql.workspace = true
 async-graphql-axum = "7.2.1"
 axum = "0.8.9"
 diesel.workspace = true
 diesel_migrations.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread"] }
+tokio.workspace = true
 utoipa = "6.0.0"
 utoipa-axum = "0.3.0"
 utoipa-swagger-ui = { version = "10.0.1", features = ["axum", "vendored"] }
