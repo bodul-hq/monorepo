@@ -16,7 +16,7 @@ Guidance for AI agents working in this repository. For the layout, requirements 
 
 ## Adding a crate
 
-- Create it with `cargo new` and remove the generated placeholder code and tests.
+- Create it with `cargo new` and remove the generated placeholder code. A library with no code yet keeps a placeholder test, like the other empty crates in `lib/`, until it has real tests.
 - Use snake_case for crate names.
 - Add the crate to its workspace's `members` in `Cargo.toml`, one entry per line.
 - Give it a Makefile that includes `make/rust.mk`. Add `serve` (`cargo run`) for services and apps, or `doc` (`cargo doc --no-deps`) for libraries.

@@ -87,6 +87,8 @@ Each service and app has smoke tests in `src/main.rs`. They call the server's ro
 - every path in the OpenAPI spec is actually served (services)
 - the page renders (apps)
 
+Each library crate has at least one test in `src/lib.rs`. `shared` tests its liveness response; the crates without code have a placeholder test, so `make test` still builds and runs them until they get real tests.
+
 ## Make targets
 
 Every crate has a Makefile, and so do `lib/`, `services/`, `apps/` and the repo root. A target run in a folder runs in every crate below it. From the root, the order is `lib`, then `services`, then `apps`, and it stops at the first failure.
