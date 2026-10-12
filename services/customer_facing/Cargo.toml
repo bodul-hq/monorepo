@@ -4,8 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async-graphql = "7.2.1"
+async-graphql-poem = "7.2.1"
 diesel.workspace = true
 diesel_migrations.workspace = true
+poem = "3.1.12"
+poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
 serde.workspace = true
 serde_json.workspace = true
+tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread"] }
 uuid.workspace = true
+
+[dev-dependencies]
+poem = { version = "3.1.12", features = ["test"] }
