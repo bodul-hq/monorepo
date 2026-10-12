@@ -1,0 +1,6 @@
+# quick-xml advisories are ignored in .cargo/audit.toml only while no service
+# parses XML request bodies. Remove these entries with those exceptions.
+disallowed-types = [
+    { path = "poem::web::Xml", reason = "quick-xml advisories are ignored on the assumption that no service parses XML; see .cargo/audit.toml" },
+    { path = "poem_openapi::payload::Xml", reason = "quick-xml advisories are ignored on the assumption that no service parses XML; see .cargo/audit.toml" },
+]
