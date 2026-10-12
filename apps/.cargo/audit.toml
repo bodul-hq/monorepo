@@ -1,0 +1,12 @@
+[advisories]
+# Mirrors services/.cargo/audit.toml so both poem workspaces treat the
+# quick-xml advisories the same way. The apps workspace doesn't resolve
+# quick-xml today; these entries only apply if a poem feature or dependency
+# pulls it in. No app may parse XML request bodies while they are present:
+# apps/clippy.toml disallows poem's Xml extractor so `make lint` fails if one
+# is added. Remove these entries, and the clippy entry, with the ones in
+# services once quick-xml >= 0.41 is resolved.
+ignore = [
+    "RUSTSEC-2026-0194", # Quadratic duplicate-attribute checks.
+    "RUSTSEC-2026-0195", # Unbounded namespace-declaration allocation.
+]
