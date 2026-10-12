@@ -130,4 +130,7 @@ Things to consider:
 
 ## Decisions
 
-Architecture decisions are recorded in [docs/adr](docs/adr/README.md). The choice of frameworks for apps and services is explained in [ADR 1](docs/adr/0001-web-frameworks-for-apps-and-services.md).
+Architecture decisions are recorded in [docs/adr](docs/adr/README.md):
+
+- [ADR 1](docs/adr/0001-web-frameworks-for-apps-and-services.md): web frameworks, routes, default port and bind address for apps and services
+- [ADR 2](docs/adr/0002-workspace-dependencies-and-port-validation.md): workspace dependency inheritance and `PORT` validation
