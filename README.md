@@ -86,6 +86,7 @@ Each service and app has smoke tests in `src/main.rs`. They call the server's ro
 - the health endpoint, GraphQL and Swagger UI respond (services)
 - every path in the OpenAPI spec is actually served (services)
 - the page renders (apps)
+- `PORT` parsing returns the default when unset, accepts 0 to 65535, and rejects non-numeric, out-of-range, padded, non-ASCII-digit and non-Unicode values (services and apps)
 
 Each library crate has at least one test in `src/lib.rs`. `shared` tests its liveness response; the crates without code have a placeholder test, so `make test` still builds and runs them until they get real tests.
 
