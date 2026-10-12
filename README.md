@@ -76,6 +76,8 @@ PORT=3001 make serve
 
 `PORT` must be an integer between 0 and 65535. Invalid or non-Unicode values cause startup to return an error before binding; an absent value uses the documented default. Port 0 asks the operating system to select an available port. Use distinct explicit ports when running several servers together.
 
+On Ctrl+C or `SIGTERM`, a server stops accepting connections, finishes the requests in progress and exits with status 0. It waits for those requests without a time limit, so deployments rely on the orchestrator's grace period (for example, Kubernetes' `terminationGracePeriodSeconds`) to bound shutdown.
+
 ## Tests
 
 Each service and app has smoke tests in `src/main.rs`. They call the server's routes in memory, without opening a port, and check that:

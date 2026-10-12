@@ -24,8 +24,26 @@ async fn main() -> std::io::Result<()> {
         Err(error) => return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
     };
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run(app())
+        .run_with_graceful_shutdown(app(), shutdown_signal()?, None)
         .await
+}
+
+/// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
+/// before the server exits.
+fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+    #[cfg(unix)]
+    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    Ok(async move {
+        #[cfg(unix)]
+        tokio::select! {
+            Ok(()) = tokio::signal::ctrl_c() => {}
+            _ = terminate.recv() => {}
+        }
+        #[cfg(not(unix))]
+        if tokio::signal::ctrl_c().await.is_err() {
+            std::future::pending::<()>().await;
+        }
+    })
 }
 
 #[cfg(test)]
