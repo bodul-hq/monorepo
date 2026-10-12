@@ -7,7 +7,31 @@ name = "money"
 version = "0.1.0"
 
 [[package]]
+name = "retailer_data_extractor"
+version = "0.1.0"
+
+[[package]]
 name = "retailer_sauce"
+version = "0.1.0"
+
+[[package]]
+name = "retailers_anker"
+version = "0.1.0"
+
+[[package]]
+name = "retailers_mi"
+version = "0.1.0"
+
+[[package]]
+name = "retailers_minisforum"
+version = "0.1.0"
+
+[[package]]
+name = "retailers_ugreen"
+version = "0.1.0"
+
+[[package]]
+name = "retailers_wip"
 version = "0.1.0"
 
 [[package]]
