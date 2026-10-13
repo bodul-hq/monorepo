@@ -2,5 +2,13 @@
 name = "retailer_data_extractor"
 version = "0.1.0"
 edition = "2024"
+publish = ["null-labs-hq"]
 
 [dependencies]
+bodul_shared.workspace = true
+html-extractor.workspace = true
+retailers_anker = { path = "../retailers_anker" }
+retailers_mi = { path = "../retailers_mi" }
+retailers_minisforum = { path = "../retailers_minisforum" }
+retailers_ugreen = { path = "../retailers_ugreen" }
+retailers_wip = { path = "../retailers_wip" }

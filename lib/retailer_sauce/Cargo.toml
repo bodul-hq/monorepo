@@ -2,5 +2,8 @@
 name = "retailer_sauce"
 version = "0.1.0"
 edition = "2024"
+publish = ["null-labs-hq"]
 
 [dependencies]
+bodul_shared.workspace = true
+html-extractor.workspace = true
