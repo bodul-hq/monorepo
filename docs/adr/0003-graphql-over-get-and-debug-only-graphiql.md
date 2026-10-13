@@ -6,7 +6,10 @@
 
 ## Context
 
-ADR 1 served GraphiQL on `GET /graphql` and GraphQL queries only on `POST /graphql`. GraphQL clients and caches that send queries with `GET` received the GraphiQL page instead of a result, and every build, including production, served an interactive query editor to anyone who could reach the service.
+ADR 1 served GraphiQL on `GET /graphql` and GraphQL queries only on `POST
+/graphql`. GraphQL clients and caches that send queries with `GET` received the
+GraphiQL page instead of a result, and every build, including production, served
+an interactive query editor to anyone who could reach the service.
 
 ## Decision
 

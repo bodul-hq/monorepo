@@ -14,24 +14,25 @@ The monorepo has two kinds of HTTP crates:
 
 ### Services
 
-| Service             | HTTP framework | OpenAPI                                         | GraphQL                            |
-|---------------------|----------------|-------------------------------------------------|------------------------------------|
-| `customer_facing`   | poem           | poem-openapi, with Swagger UI                   | async-graphql, async-graphql-poem  |
-| `offers`            | poem           | poem-openapi, with Swagger UI                   | async-graphql, async-graphql-poem  |
-| `retailer_sourcing` | axum           | utoipa, utoipa-axum, with utoipa-swagger-ui     | async-graphql, async-graphql-axum  |
+| Service             | HTTP framework | OpenAPI                                     | GraphQL                           |
+| ------------------- | -------------- | ------------------------------------------- | --------------------------------- |
+| `customer_facing`   | poem           | poem-openapi, with Swagger UI               | async-graphql, async-graphql-poem |
+| `offers`            | poem           | poem-openapi, with Swagger UI               | async-graphql, async-graphql-poem |
+| `retailer_sourcing` | axum           | utoipa, utoipa-axum, with utoipa-swagger-ui | async-graphql, async-graphql-axum |
 
 Every service uses the same routes:
 
-| Path                | Purpose                         |
-|---------------------|---------------------------------|
-| `/api/...`          | REST endpoints                  |
-| `/api/openapi.json` | OpenAPI specification           |
-| `/api/docs`         | Swagger UI                      |
-| `/graphql`          | GraphQL (POST), GraphiQL (GET)  |
+| Path                | Purpose                        |
+| ------------------- | ------------------------------ |
+| `/api/...`          | REST endpoints                 |
+| `/api/openapi.json` | OpenAPI specification          |
+| `/api/docs`         | Swagger UI                     |
+| `/graphql`          | GraphQL (POST), GraphiQL (GET) |
 
 ### Apps
 
-`customers` and `development` are poem servers that render HTML on the server. No Rust is compiled to WebAssembly or runs in the browser.
+`customers` and `development` are poem servers that render HTML on the server.
+No Rust is compiled to WebAssembly or runs in the browser.
 
 ### Common
 
