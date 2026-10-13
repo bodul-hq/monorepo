@@ -6,3 +6,4 @@ publish = ["null-labs-hq"]
 
 [dependencies]
 bodul_shared.workspace = true
+html-extractor.workspace = true
