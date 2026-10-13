@@ -20,7 +20,7 @@ pub fn normalize_for(retailer: RetailerCode, json: &str) -> Option<Result<Normal
     }
 }
 
-pub fn sitemap_config_for(retailer: RetailerCode) -> Option<SitemapConfig> {
+pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
     match retailer {
         RetailerCode::MiCom => Some(micom::prelude::sitemap_config_v1()),
         _ => None,

@@ -80,7 +80,7 @@ pub fn normalize_for(retailer: RetailerCode, json: &str) -> Option<Result<Normal
     }
 }
 
-pub fn sitemap_config_for(retailer: RetailerCode) -> Option<SitemapConfig> {
+pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
     match retailer {
         RetailerCode::UgreenCa => Some(ugreenca::prelude::sitemap_config_v1()),
         RetailerCode::UgreenCom => Some(ugreencom::prelude::sitemap_config_v1()),

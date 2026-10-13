@@ -16,7 +16,7 @@ pub fn normalize_for(
     None
 }
 
-pub fn sitemap_config_for(_retailer: RetailerCode) -> Option<SitemapConfig> {
+pub fn sitemap_config_for(_retailer: &RetailerCode) -> Option<SitemapConfig> {
     None
 }
 

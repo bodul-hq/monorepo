@@ -1,6 +1,7 @@
-use bodul_shared::NormalizedData;
+use bodul_shared::link::LinkKind;
 /// Retailer identifier accepted by [`architecture_for`].
 use bodul_shared::prelude::RetailerCode;
+use bodul_shared::{NormalizedData, SitemapConfig};
 use html_extractor::io::Architecture;
 
 /// Returns the registered extraction architecture for a retailer.
@@ -29,6 +30,36 @@ pub fn normalize_for(
         .or_else(|| retailers_mi::prelude::normalize_for(retailer_code, json))
         .or_else(|| retailers_minisforum::prelude::normalize_for(retailer_code, json))
         .or_else(|| retailers_ugreen::prelude::normalize_for(retailer_code, json))
+}
+
+pub fn sitemap_config_for(retailer_code: &RetailerCode) -> Option<SitemapConfig> {
+    retailers_anker::prelude::sitemap_config_for(retailer_code)
+        .or_else(|| retailers_mi::prelude::sitemap_config_for(retailer_code))
+        .or_else(|| retailers_minisforum::prelude::sitemap_config_for(retailer_code))
+        .or_else(|| retailers_ugreen::prelude::sitemap_config_for(retailer_code))
+}
+
+pub fn classify_link_for(
+    retailer_code: RetailerCode,
+    url: &str,
+    source: &str,
+    image_count: usize,
+) -> Option<LinkKind> {
+    retailers_anker::prelude::classify_link_for(retailer_code, url, source, image_count)
+        .or_else(|| {
+            retailers_mi::prelude::classify_link_for(retailer_code, url, source, image_count)
+        })
+        .or_else(|| {
+            retailers_minisforum::prelude::classify_link_for(
+                retailer_code,
+                url,
+                source,
+                image_count,
+            )
+        })
+        .or_else(|| {
+            retailers_ugreen::prelude::classify_link_for(retailer_code, url, source, image_count)
+        })
 }
 
 #[cfg(test)]

@@ -47,7 +47,7 @@ pub fn normalize_for(retailer: RetailerCode, json: &str) -> Option<Result<Normal
     }
 }
 
-pub fn sitemap_config_for(retailer: RetailerCode) -> Option<SitemapConfig> {
+pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
     match retailer {
         RetailerCode::MinisForumAu => Some(minisforumau::prelude::sitemap_config_v1()),
         RetailerCode::MinisForumCa => Some(minisforumca::prelude::sitemap_config_v1()),
