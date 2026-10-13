@@ -1,6 +1,7 @@
 # AGENTS.md
 
-Guidance for AI agents working in this repository. For the layout and requirements, read [README.md](README.md) first.
+Guidance for AI agents working in this repository. For the layout and
+requirements, read [README.md](README.md) first.
 
 ## Commits
 
