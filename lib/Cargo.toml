@@ -11,3 +11,6 @@ members = [
     "retailers_ugreen",
     "retailers_wip",
 ]
+
+[workspace.dependencies]
+bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
