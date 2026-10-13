@@ -31,8 +31,6 @@ pub fn normalize_for(
         .or_else(|| retailers_ugreen::normalize_for(retailer_code, json))
 }
 
-
-
 #[cfg(test)]
 mod tests {
     // Placeholder until the crate has code, so `make test` still builds and
