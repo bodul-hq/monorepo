@@ -323,7 +323,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-traits",
+ "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -1286,6 +1289,88 @@ dependencies = [
 ]
 
 [[package]]
+name = "mulac-commanding"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "chrono",
+ "diesel",
+ "mulac-eventing",
+ "mulac_diesel",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "mulac-eventing"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "chrono",
+ "diesel",
+ "mulac_diesel",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "mulac-inbox"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "chrono",
+ "diesel",
+ "mulac-commanding",
+ "mulac_diesel",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "mulac-kernel"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
+ "mulac-outbox",
+ "mulac_diesel",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "mulac-outbox"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "mulac_diesel"
+version = "0.3.0"
+source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
+dependencies = [
+ "diesel",
+]
+
+[[package]]
 name = "multer"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1751,6 +1836,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "http-body-util",
+ "mulac-kernel",
  "serde",
  "serde_json",
  "shared",

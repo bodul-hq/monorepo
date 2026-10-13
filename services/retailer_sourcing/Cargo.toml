@@ -9,6 +9,7 @@ async-graphql-axum = "7.2.1"
 axum = "0.8.9"
 diesel.workspace = true
 diesel_migrations.workspace = true
+kernel = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-kernel", tag = "0.3.0" }
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
