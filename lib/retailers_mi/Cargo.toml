@@ -8,3 +8,4 @@ publish = ["null-labs-hq"]
 bodul_shared.workspace = true
 html-extractor.workspace = true
 retailer_sauce.workspace = true
+serde.workspace = true

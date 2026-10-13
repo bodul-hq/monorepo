@@ -16,3 +16,4 @@ members = [
 bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
 html-extractor = { version = "0.3.3-dev.2", registry = "null-labs-hq" }
 retailer_sauce = { path = "retailer_sauce" }
+serde = { version = "1.0.229", features = ["derive"] }

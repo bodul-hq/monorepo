@@ -865,6 +865,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "retailer_sauce",
+ "serde",
 ]
 
 [[package]]
@@ -874,6 +875,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "retailer_sauce",
+ "serde",
 ]
 
 [[package]]
@@ -883,6 +885,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "retailer_sauce",
+ "serde",
 ]
 
 [[package]]
@@ -892,6 +895,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "retailer_sauce",
+ "serde",
 ]
 
 [[package]]
@@ -901,6 +905,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "retailer_sauce",
+ "serde",
 ]
 
 [[package]]
