@@ -5,3 +5,16 @@ members = [
     "offers",
     "customer_facing",
 ]
+
+[workspace.dependencies]
+async-graphql = "7.2.1"
+async-graphql-poem = "7.2.1"
+diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json", "uuid"] }
+diesel_migrations = "2"
+poem = "3.1.12"
+poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+shared = { path = "../lib/shared" }
+tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }
+uuid = { version = "1", features = ["serde", "v4", "v7"] }

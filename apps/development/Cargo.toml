@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+poem.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+poem = { workspace = true, features = ["test"] }

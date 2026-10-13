@@ -4,3 +4,7 @@ members = [
     "customers",
     "development",
 ]
+
+[workspace.dependencies]
+poem = "3.1.12"
+tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }

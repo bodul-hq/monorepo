@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = [
+    "shared",
+    "money",
+    "retailer_sauce",
+    "retailer_data_extractor",
+    "retailers_anker",
+    "retailers_mi",
+    "retailers_minisforum",
+    "retailers_ugreen",
+    "retailers_wip",
+]

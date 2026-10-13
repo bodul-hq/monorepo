@@ -4,3 +4,20 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async-graphql.workspace = true
+async-graphql-axum = "7.2.1"
+axum = "0.8.9"
+diesel.workspace = true
+diesel_migrations.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+shared.workspace = true
+tokio.workspace = true
+utoipa = "6.0.0"
+utoipa-axum = "0.3.0"
+utoipa-swagger-ui = { version = "10.0.1", features = ["axum", "vendored"] }
+uuid.workspace = true
+
+[dev-dependencies]
+http-body-util = "0.1.5"
+tower = { version = "0.5.3", features = ["util"] }
