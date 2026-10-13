@@ -81,10 +81,20 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
         };
 
         // A problem with one sitemap file skips that file; the crawl goes on.
-        // The problems are dropped for now (v1 review, finding 1).
-        let (documents, _errors) = crawl(&self.fetcher, &root_urls);
+        let (documents, errors) = crawl(&self.fetcher, &root_urls);
+        for error in &errors {
+            tracing::warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");
+        }
 
         self.store.store_documents(retrieval_id, &documents)?;
+        tracing::info!(
+            %retrieval_id,
+            ?retailer_code,
+            documents = documents.len(),
+            skipped = errors.len(),
+            "sitemaps retrieved"
+        );
+
         Ok(vec![SitemapRetrieved {
             retrieval_id,
             retailer_code,

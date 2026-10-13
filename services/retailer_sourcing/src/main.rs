@@ -8,6 +8,8 @@ use std::io;
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema, http::GraphiQLSource};
 use async_graphql_axum::GraphQL;
 use axum::{Router, response::Html, routing::get};
+use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
@@ -55,7 +57,12 @@ fn app(bus: Option<BusHandle>) -> Router {
     if cfg!(debug_assertions) {
         router = router.route("/graphql/ide", get(graphiql));
     }
-    router
+    // One log line per request, with its status and latency.
+    router.layer(
+        TraceLayer::new_for_http()
+            .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+            .on_response(DefaultOnResponse::new().level(Level::INFO)),
+    )
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
@@ -95,6 +102,7 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Op
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
+    let _logs = platform::logging::init();
     let port = parse_port(std::env::var("PORT"))?;
     let features = start_features(std::env::var("DATABASE_URL")).await?;
 

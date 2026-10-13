@@ -77,6 +77,17 @@ impl<S: Store, C: ClassifyLink> Handle for Handler<S, C> {
         self.store.store_consolidated(&consolidated)?;
 
         let links = &consolidated.links;
+        tracing::info!(
+            retrieval_id = %consolidated.retrieval_id,
+            retailer_code = ?consolidated.retailer_code,
+            consolidated_sitemap_id = %consolidated.id,
+            products = links.product.len(),
+            catalogs = links.catalog.len(),
+            content = links.content.len(),
+            not_interested = links.not_interested.len(),
+            unknown = links.unknown.len(),
+            "sitemap consolidated"
+        );
         Ok(vec![SitemapConsolidated {
             consolidated_sitemap_id: consolidated.id,
             processed_sitemap_id: consolidated.processed_sitemap_id,

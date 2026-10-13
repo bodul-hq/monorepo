@@ -5,6 +5,7 @@ pub mod bus;
 pub mod bus_api;
 pub mod db;
 pub mod http;
+pub mod logging;
 
 /// The raw capabilities features are built from.
 pub struct Platform {

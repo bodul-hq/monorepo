@@ -9,6 +9,7 @@
 
 use std::fmt::Display;
 use std::sync::Arc;
+use std::time::Instant;
 
 use kernel::io::{
     CommandConsumer, CommandGateway, EventConsumer, NewCommand, NewCommandEnvelope,
@@ -23,6 +24,7 @@ use serde::de::DeserializeOwned;
 use uuid::Uuid;
 
 use super::db::DbPool;
+use super::logging::TIMING_TARGET;
 
 /// A request to change state, handled by exactly one handler.
 pub trait Command: Serialize + DeserializeOwned + Send + Sync + 'static {
@@ -225,12 +227,25 @@ struct HandlerPort<H>(H);
 
 impl<H: Handle> CommandHandlerPort<H::Command, Published<H::Event>> for HandlerPort<H> {
     fn execute(&self, command: H::Command) -> Result<Vec<Published<H::Event>>, CommandError> {
-        // Every failure is reported as a storage error, so Mulac retries all of
-        // them. Splitting retryable from permanent errors is a follow-up.
-        self.0
-            .handle(command)
-            .map(|events| events.into_iter().map(Published).collect())
-            .map_err(|error| CommandError::Storage(error.to_string()))
+        let name = <H::Command as Command>::NAME;
+        let start = Instant::now();
+        let result = self.0.handle(command);
+        let elapsed_ms = start.elapsed().as_millis() as u64;
+
+        match result {
+            Ok(events) => {
+                tracing::info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "ok");
+                Ok(events.into_iter().map(Published).collect())
+            }
+            Err(error) => {
+                tracing::info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "error");
+                tracing::error!(command = name, "command failed: {error}");
+                // Every failure is reported as a storage error, so Mulac
+                // retries all of them. Splitting retryable from permanent
+                // errors is a follow-up.
+                Err(CommandError::Storage(error.to_string()))
+            }
+        }
     }
 }
 
@@ -245,6 +260,35 @@ where
     C: Command,
 {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let start = Instant::now();
+        let result = self.react(envelope);
+        let elapsed_ms = start.elapsed().as_millis() as u64;
+        let status = if result.is_ok() { "ok" } else { "error" };
+        tracing::info!(
+            target: TIMING_TARGET,
+            kind = "event",
+            name = E::NAME,
+            reaction = C::NAME,
+            elapsed_ms,
+            status
+        );
+        if let Err(error) = &result {
+            tracing::error!(
+                event = E::NAME,
+                reaction = C::NAME,
+                "reaction failed: {error}"
+            );
+        }
+        result
+    }
+}
+
+impl<E, C> Reaction<E, C>
+where
+    E: Event,
+    C: Command,
+{
+    fn react(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         let event: E = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
         let Some(command) = (self.reaction)(&event) else {
             return Ok(());

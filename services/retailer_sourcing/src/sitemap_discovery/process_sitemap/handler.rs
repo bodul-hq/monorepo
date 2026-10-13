@@ -84,9 +84,11 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
             .ok_or(ProcessSitemapError::NoSitemapConfig(retailer_code))?;
         let raw_documents = self.store.raw_documents(retrieval_id)?;
 
-        // A root sitemap that can't be built is left out of the tree. The
-        // problems are dropped for now (v1 review, finding 1).
-        let (document, _errors) = build_tree(&root_urls, &raw_documents)?;
+        // A root sitemap that can't be built is left out of the tree.
+        let (document, errors) = build_tree(&root_urls, &raw_documents)?;
+        for error in &errors {
+            tracing::warn!(%retrieval_id, ?retailer_code, "sitemap left out of the tree: {error}");
+        }
 
         let url_count = document.all_urls(ROOT_SITEMAP_SOURCE).count();
         let stored_url_count = i32::try_from(url_count)
@@ -101,6 +103,14 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
             processed_at: Utc::now(),
         };
         self.store.store_processed(&processed)?;
+        tracing::info!(
+            %retrieval_id,
+            ?retailer_code,
+            processed_sitemap_id = %processed.id,
+            urls = url_count,
+            "sitemap processed"
+        );
+
         Ok(vec![SitemapProcessed {
             retrieval_id,
             processed_sitemap_id: processed.id,

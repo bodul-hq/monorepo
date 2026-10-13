@@ -5,8 +5,7 @@ use std::io::Read;
 
 use flate2::read::GzDecoder;
 
-/// The tracing target for timing records.
-const TIMING_TARGET: &str = "timing";
+use super::logging::TIMING_TARGET;
 
 /// A browser-like User-Agent. Many storefronts reject the default `reqwest/x.y`
 /// agent with `403 Forbidden`; sending a common one is enough for basic fetching.
