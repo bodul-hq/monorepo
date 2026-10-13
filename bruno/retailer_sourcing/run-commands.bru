@@ -30,4 +30,8 @@ docs {
   3. Run commands: `ProcessSitemap` builds the sitemap tree.
   4. Run events: `SitemapProcessed` queues `ConsolidateSitemap`.
   5. Run commands: `ConsolidateSitemap` sorts the URLs by kind of page.
+  6. Run events: `SitemapConsolidated` queues `DiscoverOffers`.
+  7. Run commands: `DiscoverOffers` records an offer per product URL.
+  8. Run events: each `OfferDiscovered` queues a `DownloadOfferPage`.
+  9. Run commands: each `DownloadOfferPage` downloads one offer's page.
 }

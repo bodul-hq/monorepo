@@ -36,11 +36,25 @@ pub trait Event: Serialize + DeserializeOwned + Send + Sync + 'static {
     const NAME: &'static str;
 }
 
+/// What a handler returns for the bus to store as an event: any [`Event`], or
+/// an enum of events when a handler can produce more than one kind. The enum
+/// must serialize as its variant's event alone (`#[serde(untagged)]`), so
+/// reactions read it as that event.
+pub trait Publish: Serialize + Send + Sync + 'static {
+    fn event_type(&self) -> &'static str;
+}
+
+impl<E: Event> Publish for E {
+    fn event_type(&self) -> &'static str {
+        E::NAME
+    }
+}
+
 /// Handles one command type and returns the events it produced. Handlers
 /// don't publish events themselves.
 pub trait Handle: Send + Sync + 'static {
     type Command: Command;
-    type Event: Event;
+    type Event: Publish;
     type Error: Display;
 
     fn handle(&self, command: Self::Command) -> Result<Vec<Self::Event>, Self::Error>;
@@ -201,9 +215,9 @@ impl Dispatcher {
 #[serde(transparent)]
 struct Published<E>(E);
 
-impl<E: Event> ApplicationEvent for Published<E> {
+impl<E: Publish> ApplicationEvent for Published<E> {
     fn event_type(&self) -> &'static str {
-        E::NAME
+        self.0.event_type()
     }
 }
 

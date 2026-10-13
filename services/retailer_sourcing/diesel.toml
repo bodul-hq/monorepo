@@ -10,5 +10,11 @@ filter = { only_tables = [
     "consolidated_sitemaps",
 ] }
 
+[print_schema.offer_discovery]
+file = "src/offer_discovery/schema.rs"
+filter = { only_tables = [
+    "raw_offers",
+] }
+
 [migrations_directory]
 dir = "migrations"

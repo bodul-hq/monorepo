@@ -1,3 +1,4 @@
+mod offer_discovery;
 mod platform;
 mod sitemap_discovery;
 
@@ -87,6 +88,7 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Op
 
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);
+    offer_discovery::prelude::register(&mut bus, &platform);
 
     bus.start(platform.db).map(Some).map_err(io::Error::other)
 }

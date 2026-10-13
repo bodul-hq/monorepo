@@ -7,10 +7,6 @@ use super::{consolidate_sitemap, process_sitemap, retrieve_sitemap};
 use crate::platform::Platform;
 use crate::platform::bus::{Bus, BusHandle};
 
-#[expect(
-    unused_imports,
-    reason = "the pipeline's final event; no other context reacts to it yet"
-)]
 pub use super::consolidate_sitemap::prelude::SitemapConsolidated;
 
 /// Registers every sitemap discovery slice.
