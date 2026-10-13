@@ -11,6 +11,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 ├── services/   Backend HTTP services (REST + GraphQL)
 ├── apps/       Web apps that render HTML on the server
 ├── make/       Shared Make targets
+├── bruno/      Bruno collections for calling the services by hand
 └── docs/adr/   Architecture decision records
 ```
 
@@ -51,6 +52,13 @@ Every service serves the same routes:
 
 The GraphQL schema has a single `health` query that returns `ok`.
 
+`retailer_sourcing` also runs the sitemap discovery pipeline: it crawls each
+retailer's sitemaps and sorts the page URLs into products, catalogs and other
+content. Offer discovery then records every product URL as an offer and
+downloads its page, skipping URLs downloaded in the last 6 hours. The code is organised as feature slices
+([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
+pipeline runs only when `DATABASE_URL` is set (see below).
+
 ### apps
 
 `customers` and `development` are poem servers that render HTML on the server.
@@ -61,6 +69,8 @@ Each serves an index page at `/`.
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
+- PostgreSQL, only to run the `retailer_sourcing` pipeline.
+- [Diesel CLI](https://diesel.rs/guides/getting-started) with PostgreSQL support, only for `make migrate` and `make migrate-redo`: `cargo install diesel_cli --no-default-features --features postgres --locked`.
 - [cargo-audit](https://crates.io/crates/cargo-audit), only for `make audit`: `cargo install cargo-audit --locked`.
 
 ## Make targets
@@ -69,22 +79,24 @@ Run targets from the root to cover every workspace, from a workspace folder
 (`lib`, `services`, `apps`) to cover its crates, or from a crate folder to cover
 that crate.
 
-| Target      | What it does                                                     |
-| ----------- | ---------------------------------------------------------------- |
-| `ci`        | `fmt-check`, `lint` and `test`; run it before finishing a change |
-| `test`      | `cargo test`                                                     |
-| `fmt`       | `cargo fmt`                                                      |
-| `fmt-check` | `cargo fmt --check`                                              |
-| `lint`      | `cargo clippy --all-targets -- -D warnings`                      |
-| `clippy`    | `cargo clippy`                                                   |
-| `check`     | `cargo check`                                                    |
-| `build`     | `cargo build`                                                    |
-| `release`   | `cargo build --release`                                          |
-| `fix`       | `cargo fix`                                                      |
-| `clean`     | `cargo clean`                                                    |
-| `audit`     | `cargo audit`, once per workspace                                |
-| `doc`       | `cargo doc --no-deps` (lib crates only)                          |
-| `serve`     | `cargo run` (service and app crates only)                        |
+| Target         | What it does                                                                     |
+| -------------- | -------------------------------------------------------------------------------- |
+| `ci`           | `fmt-check`, `lint` and `test`; run it before finishing a change                 |
+| `test`         | `cargo test`                                                                     |
+| `fmt`          | `cargo fmt`                                                                      |
+| `fmt-check`    | `cargo fmt --check`                                                              |
+| `lint`         | `cargo clippy --all-targets -- -D warnings`                                      |
+| `clippy`       | `cargo clippy`                                                                   |
+| `check`        | `cargo check`                                                                    |
+| `build`        | `cargo build`                                                                    |
+| `release`      | `cargo build --release`                                                          |
+| `fix`          | `cargo fix`                                                                      |
+| `clean`        | `cargo clean`                                                                    |
+| `audit`        | `cargo audit`, once per workspace                                                |
+| `doc`          | `cargo doc --no-deps` (lib crates only)                                          |
+| `serve`        | `cargo run` (service and app crates only)                                        |
+| `migrate`      | Apply pending migrations to `DATABASE_URL` (`retailer_sourcing` only)            |
+| `migrate-redo` | Revert and reapply every migration, deleting the data (`retailer_sourcing` only) |
 
 ## Running a service or app
 
@@ -98,6 +110,39 @@ curl localhost:3001/api/health
 ```
 
 Servers shut down gracefully on Ctrl+C or SIGTERM.
+
+`retailer_sourcing` starts its sitemap discovery workers when `DATABASE_URL`
+points at a PostgreSQL database. On startup it applies any pending migrations
+from `services/retailer_sourcing/migrations`. Without `DATABASE_URL` it serves
+HTTP only.
+
+Its Makefile reads `DATABASE_URL` from `services/retailer_sourcing/.env`
+(git-ignored) unless it is already set in your shell. `make .env` copies
+`.env.example`, which points at the `retailer_sourcing-db` container from the
+workspace's `compose-infra.yaml`:
+
+```sh
+cd services/retailer_sourcing
+make .env      # once
+make migrate   # optional; `make serve` also migrates on startup
+PORT=3002 make serve
+```
+
+Nothing processes the queues in the background. Queue retrievals, then run the
+queued commands and events in steps; each run waits for its batch to finish:
+
+| Route                          | Body                          | Purpose                                                            |
+| ------------------------------ | ----------------------------- | ------------------------------------------------------------------ |
+| `POST /api/sitemap-retrievals` | `{"retailers": ["ugreenca"]}` | Queue one sitemap retrieval per retailer                           |
+| `POST /api/commands/run`       | `{"limit": 10}`               | Process up to `limit` queued commands                              |
+| `POST /api/events/run`         | `{"limit": 10}`               | Process up to `limit` queued events, which queue the next commands |
+
+Without `DATABASE_URL` these routes return 503.
+
+The [Bruno](https://www.usebruno.com/) collection in `bruno/retailer_sourcing`
+has a request for each route. Open the folder in Bruno and pick the `local`
+environment, which targets the `retailer_sourcing` container from the
+workspace's `compose-apps.yaml` at `http://172.28.100.40:3000`.
 
 ## Security advisories
 
