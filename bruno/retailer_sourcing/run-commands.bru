@@ -1,0 +1,33 @@
+meta {
+  name: Run commands
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/commands/run
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "limit": 1
+  }
+}
+
+docs {
+  Runs up to `limit` queued commands (1 to 1000) and waits for them. Returns
+  `{"processed": n, "errors": []}`; when some fail, `processed` is `null`,
+  `errors` lists them, and they are retried on a later run.
+
+  A `RetrieveSitemap` command crawls a retailer's whole sitemap tree, which can
+  take minutes, so keep the limit small for those.
+
+  The pipeline, one step per call:
+  1. Run commands: `RetrieveSitemap` fetches and stores the sitemaps.
+  2. Run events: `SitemapRetrieved` queues `ProcessSitemap`.
+  3. Run commands: `ProcessSitemap` builds the sitemap tree.
+  4. Run events: `SitemapProcessed` queues `ConsolidateSitemap`.
+  5. Run commands: `ConsolidateSitemap` sorts the URLs by kind of page.
+}

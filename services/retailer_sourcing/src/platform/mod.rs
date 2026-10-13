@@ -2,6 +2,7 @@
 //! the command and event bus. Nothing here knows about the domain.
 
 pub mod bus;
+pub mod bus_api;
 pub mod db;
 pub mod http;
 

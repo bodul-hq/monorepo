@@ -3,21 +3,23 @@
 //! Features register handlers and reactions here and never touch Mulac
 //! directly. Mulac stores every command and event in Postgres, delivers each one
 //! at least once, and retries a failed command with backoff.
+//!
+//! Nothing processes the queues in the background: [`BusHandle::run_commands`]
+//! and [`BusHandle::run_events`] process a given number on request.
 
 use std::fmt::Display;
 use std::sync::Arc;
 
 use kernel::io::{
-    CommandGateway, NewCommand, NewCommandEnvelope, NewCommandMetadata, run_command_worker,
-    run_event_worker,
+    CommandConsumer, CommandGateway, EventConsumer, NewCommand, NewCommandEnvelope,
+    NewCommandMetadata, ReservableCommandSpec, ReservableEventSpec,
 };
 use kernel::{
     ApplicationEvent, CommandError, CommandHandlerPort, EventError, EventSubscriberPort,
-    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope, PersistentKernelHandle,
+    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope,
 };
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 use super::db::DbPool;
@@ -75,8 +77,9 @@ impl Bus {
         }));
     }
 
-    /// Starts the command and event workers.
-    pub fn start(self, pool: DbPool) -> Result<Running, KernelError> {
+    /// Builds the bus over `pool`. Queued work runs only through the returned
+    /// handle.
+    pub fn start(self, pool: DbPool) -> Result<BusHandle, KernelError> {
         let kernel = self
             .registrations
             .into_iter()
@@ -84,36 +87,112 @@ impl Bus {
                 register(kernel)
             });
         let handle = kernel.start_persistent(pool, 0)?;
-        let workers = vec![
-            tokio::spawn(run_command_worker(
-                handle.command_consumer(),
-                handle.child_token(),
-            )),
-            tokio::spawn(run_event_worker(
-                handle.event_consumer(),
-                handle.child_token(),
-            )),
-        ];
 
-        Ok(Running { handle, workers })
+        // Background workers are switched off: queued commands and events run
+        // only through `run_commands` and `run_events` (the `/api/commands/run`
+        // and `/api/events/run` routes). Uncomment to have Mulac poll both
+        // queues every second as well.
+        //
+        // tokio::spawn(kernel::io::run_command_worker(
+        //     handle.command_consumer(),
+        //     handle.child_token(),
+        // ));
+        // tokio::spawn(kernel::io::run_event_worker(
+        //     handle.event_consumer(),
+        //     handle.child_token(),
+        // ));
+
+        Ok(BusHandle {
+            dispatcher: Dispatcher {
+                gateway: handle.state().command_gateway(),
+            },
+            commands: handle.command_consumer(),
+            events: handle.event_consumer(),
+        })
     }
 }
 
-/// The running workers.
-pub struct Running {
-    handle: PersistentKernelHandle,
-    workers: Vec<JoinHandle<()>>,
+/// A started bus: queues commands and processes queued work on request.
+#[derive(Clone)]
+pub struct BusHandle {
+    dispatcher: Dispatcher,
+    commands: Arc<CommandConsumer>,
+    events: Arc<EventConsumer>,
 }
 
-impl Running {
-    /// Stops polling for work and waits for the batch in progress to finish.
-    pub async fn stop(self) {
-        self.handle.shutdown();
-        for worker in self.workers {
-            if let Err(error) = worker.await {
-                tracing::error!("bus worker failed: {error}");
-            }
+/// What one run of queued commands or events did.
+#[derive(Debug)]
+pub struct RunReport {
+    /// How many were processed, when all of them succeeded. Mulac doesn't
+    /// count the successes in a run that had failures.
+    pub processed: Option<usize>,
+    /// One message per failure. Failed commands are retried in a later run.
+    pub errors: Vec<String>,
+}
+
+impl RunReport {
+    fn from_result<E: Display>(result: Result<usize, Vec<E>>) -> Self {
+        match result {
+            Ok(processed) => Self {
+                processed: Some(processed),
+                errors: Vec::new(),
+            },
+            Err(errors) => Self {
+                processed: None,
+                errors: errors.iter().map(ToString::to_string).collect(),
+            },
         }
+    }
+}
+
+impl BusHandle {
+    pub fn dispatcher(&self) -> &Dispatcher {
+        &self.dispatcher
+    }
+
+    /// Processes up to `limit` queued commands that are due. Blocks on the
+    /// handlers and the database, so call it off the async runtime.
+    pub fn run_commands(&self, limit: usize) -> RunReport {
+        RunReport::from_result(self.commands.consume(&ReservableCommandSpec::new(limit)))
+    }
+
+    /// Processes up to `limit` queued events that are due. Blocks on the
+    /// reactions and the database, so call it off the async runtime.
+    pub fn run_events(&self, limit: usize) -> RunReport {
+        RunReport::from_result(self.events.consume(&ReservableEventSpec::new(limit)))
+    }
+}
+
+/// Queues commands from outside the bus, such as from an HTTP request.
+#[derive(Clone)]
+pub struct Dispatcher {
+    gateway: Arc<CommandGateway>,
+}
+
+/// A command that couldn't be queued.
+#[derive(Debug, thiserror::Error)]
+#[error("failed to queue command: {0}")]
+pub struct DispatchError(String);
+
+impl Dispatcher {
+    /// Stores `command` for the workers to handle. `source` says where it came
+    /// from, such as `api`. Blocks on a database insert, so call it off the
+    /// async runtime.
+    pub fn dispatch<C: Command>(&self, command: &C, source: &str) -> Result<(), DispatchError> {
+        let envelope = command_envelope(
+            command,
+            NewCommandMetadata {
+                command_id: Uuid::now_v7(),
+                correlation_id: None,
+                causation_id: None,
+                source: Some(source.to_string()),
+            },
+        )
+        .map_err(|error| DispatchError(error.to_string()))?;
+
+        self.gateway
+            .dispatch(envelope)
+            .map_err(|error| DispatchError(error.to_string()))
     }
 }
 

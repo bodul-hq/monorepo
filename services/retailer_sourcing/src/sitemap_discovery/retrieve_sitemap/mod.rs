@@ -3,6 +3,7 @@
 
 pub mod prelude;
 
+mod api;
 mod command;
 mod crawl;
 mod event;

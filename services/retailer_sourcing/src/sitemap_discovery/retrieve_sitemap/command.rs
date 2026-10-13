@@ -13,7 +13,6 @@ pub struct RetrieveSitemap {
 
 impl RetrieveSitemap {
     /// Starts a new retrieval for `retailer_code`, with a fresh retrieval id.
-    #[cfg_attr(not(test), expect(dead_code, reason = "nothing queues retrievals yet"))]
     pub fn new(retailer_code: RetailerCode) -> Self {
         Self {
             retrieval_id: Uuid::now_v7(),

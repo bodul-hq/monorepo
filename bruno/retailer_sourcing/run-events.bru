@@ -1,0 +1,23 @@
+meta {
+  name: Run events
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/events/run
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "limit": 1
+  }
+}
+
+docs {
+  Runs up to `limit` queued events (1 to 1000) and waits for them. Each event's
+  reactions queue the next command, so follow it with **Run commands**. Same
+  response shape as **Run commands**.
+}
