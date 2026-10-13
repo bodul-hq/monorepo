@@ -7,10 +7,10 @@ use html_extractor::io::Architecture;
 ///
 /// Returns an I/O error with kind `NotFound` when no architecture is registered.
 pub fn architecture_for(retailer_code: RetailerCode) -> Result<Architecture, std::io::Error> {
-    let architecture = retailers_anker::architecture_for(retailer_code)
-        .or_else(|| retailers_mi::architecture_for(retailer_code))
-        .or_else(|| retailers_minisforum::architecture_for(retailer_code))
-        .or_else(|| retailers_ugreen::architecture_for(retailer_code))
+    let architecture = retailers_anker::prelude::architecture_for(retailer_code)
+        .or_else(|| retailers_mi::prelude::architecture_for(retailer_code))
+        .or_else(|| retailers_minisforum::prelude::architecture_for(retailer_code))
+        .or_else(|| retailers_ugreen::prelude::architecture_for(retailer_code))
         .ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
@@ -25,10 +25,10 @@ pub fn normalize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<NormalizedData, String>> {
-    retailers_anker::normalize_for(retailer_code, json)
-        .or_else(|| retailers_mi::normalize_for(retailer_code, json))
-        .or_else(|| retailers_minisforum::normalize_for(retailer_code, json))
-        .or_else(|| retailers_ugreen::normalize_for(retailer_code, json))
+    retailers_anker::prelude::normalize_for(retailer_code, json)
+        .or_else(|| retailers_mi::prelude::normalize_for(retailer_code, json))
+        .or_else(|| retailers_minisforum::prelude::normalize_for(retailer_code, json))
+        .or_else(|| retailers_ugreen::prelude::normalize_for(retailer_code, json))
 }
 
 #[cfg(test)]
