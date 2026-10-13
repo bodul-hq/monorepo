@@ -1,0 +1,14 @@
+# Diesel CLI settings. Regenerate the schemas with `diesel print-schema` against
+# a database migrated with `diesel migration run`. Each context gets its own
+# schema file with only its own tables.
+
+[print_schema.sitemap_discovery]
+file = "src/sitemap_discovery/schema.rs"
+filter = { only_tables = [
+    "raw_sitemap_documents",
+    "processed_sitemaps",
+    "consolidated_sitemaps",
+] }
+
+[migrations_directory]
+dir = "migrations"

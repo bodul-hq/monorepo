@@ -1,4 +1,8 @@
+mod platform;
 mod sitemap_discovery;
+
+use std::env::VarError;
+use std::io;
 
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema, http::GraphiQLSource};
 use async_graphql_axum::GraphQL;
@@ -6,6 +10,9 @@ use axum::{Router, response::Html, routing::get};
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
+
+use platform::Platform;
+use platform::bus::{Bus, Running};
 
 #[derive(OpenApi)]
 #[openapi(info(title = "Retailer Sourcing"), servers((url = "/api")))]
@@ -47,31 +54,57 @@ fn app() -> Router {
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16> {
+fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(std::env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+        Err(VarError::NotPresent) => Ok(3000),
+        Err(error) => Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
     }
 }
 
+/// Starts the command and event workers when `DATABASE_URL` is set, after
+/// applying pending migrations. Without it the service only serves HTTP.
+async fn start_features(database_url: Result<String, VarError>) -> io::Result<Option<Running>> {
+    let database_url = match database_url {
+        Ok(database_url) => database_url,
+        Err(VarError::NotPresent) => return Ok(None),
+        Err(error) => return Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+    };
+    let platform = tokio::task::spawn_blocking(move || Platform::connect(&database_url))
+        .await
+        .map_err(io::Error::other)?
+        .map_err(io::Error::other)?;
+
+    let mut bus = Bus::default();
+    sitemap_discovery::prelude::register(&mut bus, &platform);
+
+    bus.start(platform.db).map(Some).map_err(io::Error::other)
+}
+
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
+    let features = start_features(std::env::var("DATABASE_URL")).await?;
+
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
     axum::serve(listener, app())
         .with_graceful_shutdown(shutdown_signal()?)
-        .await
+        .await?;
+
+    if let Some(features) = features {
+        features.stop().await;
+    }
+    Ok(())
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     Ok(async move {
@@ -100,7 +133,7 @@ mod tests {
     use serde_json::{Value, json};
     use tower::ServiceExt;
 
-    use super::{app, parse_port};
+    use super::{app, parse_port, start_features};
 
     async fn get(uri: &str) -> Response {
         app()
@@ -180,6 +213,16 @@ mod tests {
     async fn swagger_ui_is_served() {
         let response = get("/api/docs/").await;
         assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn features_stay_off_without_a_database() {
+        assert!(
+            start_features(Err(VarError::NotPresent))
+                .await
+                .unwrap()
+                .is_none()
+        );
     }
 
     #[test]
