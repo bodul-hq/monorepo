@@ -1,0 +1,2 @@
+[registries]
+margo = { index = "sparse+http://localhost:8080/" }
