@@ -843,6 +843,11 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailers_anker",
+ "retailers_mi",
+ "retailers_minisforum",
+ "retailers_ugreen",
+ "retailers_wip",
 ]
 
 [[package]]
