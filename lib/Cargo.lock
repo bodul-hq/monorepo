@@ -864,6 +864,7 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailer_sauce",
 ]
 
 [[package]]
@@ -872,6 +873,7 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailer_sauce",
 ]
 
 [[package]]
@@ -880,6 +882,7 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailer_sauce",
 ]
 
 [[package]]
@@ -888,6 +891,7 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailer_sauce",
 ]
 
 [[package]]
@@ -896,6 +900,7 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "retailer_sauce",
 ]
 
 [[package]]
