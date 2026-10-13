@@ -1,3 +1,5 @@
+mod sitemap_discovery;
+
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema, http::GraphiQLSource};
 use async_graphql_axum::GraphQL;
 use axum::{Router, response::Html, routing::get};
