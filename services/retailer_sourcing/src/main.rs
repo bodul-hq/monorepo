@@ -1,9 +1,21 @@
+mod offer_discovery;
+mod platform;
+mod sitemap_discovery;
+
+use std::env::VarError;
+use std::io;
+
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema, http::GraphiQLSource};
 use async_graphql_axum::GraphQL;
 use axum::{Router, response::Html, routing::get};
+use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
+
+use platform::Platform;
+use platform::bus::{Bus, BusHandle};
 
 #[derive(OpenApi)]
 #[openapi(info(title = "Retailer Sourcing"), servers((url = "/api")))]
@@ -27,10 +39,15 @@ async fn graphiql() -> Html<String> {
     Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
-fn app() -> Router {
+/// The service's routes. `bus` queues and runs commands and events, and is
+/// `None` without a database.
+fn app(bus: Option<BusHandle>) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
+        .merge(platform::bus_api::routes())
+        .merge(sitemap_discovery::prelude::routes())
         .split_for_parts();
+    let api = api.with_state(bus);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
     let mut router = Router::new()
@@ -40,36 +57,64 @@ fn app() -> Router {
     if cfg!(debug_assertions) {
         router = router.route("/graphql/ide", get(graphiql));
     }
-    router
+    // One log line per request, with its status and latency.
+    router.layer(
+        TraceLayer::new_for_http()
+            .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+            .on_response(DefaultOnResponse::new().level(Level::INFO)),
+    )
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16> {
+fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(std::env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+        Err(VarError::NotPresent) => Ok(3000),
+        Err(error) => Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
     }
 }
 
+/// Starts the command and event bus when `DATABASE_URL` is set, after applying
+/// pending migrations. Without it the service only serves HTTP.
+async fn start_features(database_url: Result<String, VarError>) -> io::Result<Option<BusHandle>> {
+    let database_url = match database_url {
+        Ok(database_url) => database_url,
+        Err(VarError::NotPresent) => return Ok(None),
+        Err(error) => return Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+    };
+    let platform = tokio::task::spawn_blocking(move || Platform::connect(&database_url))
+        .await
+        .map_err(io::Error::other)?
+        .map_err(io::Error::other)?;
+
+    let mut bus = Bus::default();
+    sitemap_discovery::prelude::register(&mut bus, &platform);
+    offer_discovery::prelude::register(&mut bus, &platform);
+
+    bus.start(platform.db).map(Some).map_err(io::Error::other)
+}
+
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> io::Result<()> {
+    let _logs = platform::logging::init();
     let port = parse_port(std::env::var("PORT"))?;
+    let features = start_features(std::env::var("DATABASE_URL")).await?;
+
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
-    axum::serve(listener, app())
+    axum::serve(listener, app(features))
         .with_graceful_shutdown(shutdown_signal()?)
         .await
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     Ok(async move {
@@ -98,10 +143,10 @@ mod tests {
     use serde_json::{Value, json};
     use tower::ServiceExt;
 
-    use super::{app, parse_port};
+    use super::{app, parse_port, start_features};
 
     async fn get(uri: &str) -> Response {
-        app()
+        app(None)
             .oneshot(Request::get(uri).body(Body::empty()).unwrap())
             .await
             .unwrap()
@@ -130,7 +175,7 @@ mod tests {
             .header(header::CONTENT_TYPE, "application/json")
             .body(Body::from(json!({ "query": "{ health }" }).to_string()))
             .unwrap();
-        let response = app().oneshot(request).await.unwrap();
+        let response = app(None).oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let json: Value = serde_json::from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
@@ -165,6 +210,12 @@ mod tests {
             spec["paths"]["/health"]["get"].is_object(),
             "OpenAPI must document GET /health",
         );
+        for path in ["/sitemap-retrievals", "/commands/run", "/events/run"] {
+            assert!(
+                spec["paths"][path]["post"].is_object(),
+                "OpenAPI must document POST {path}",
+            );
+        }
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
@@ -174,10 +225,64 @@ mod tests {
         }
     }
 
+    async fn post_json(uri: &str, body: Value) -> Response {
+        let request = Request::post(uri)
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        app(None).oneshot(request).await.unwrap()
+    }
+
+    #[tokio::test]
+    async fn sitemap_retrievals_reject_unknown_retailers() {
+        let response = post_json("/api/sitemap-retrievals", json!({ "retailers": ["nope"] })).await;
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let json: Value = serde_json::from_slice(&body(response).await).unwrap();
+        assert_eq!(json, json!({ "error": "unknown retailer code: nope" }));
+    }
+
+    #[tokio::test]
+    async fn sitemap_retrievals_need_the_workers() {
+        let response = post_json(
+            "/api/sitemap-retrievals",
+            json!({ "retailers": ["ugreenca"] }),
+        )
+        .await;
+        assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+    }
+
+    #[tokio::test]
+    async fn runs_reject_a_limit_out_of_range() {
+        for uri in ["/api/commands/run", "/api/events/run"] {
+            for limit in [0, 1001] {
+                let response = post_json(uri, json!({ "limit": limit })).await;
+                assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{uri} {limit}");
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn runs_need_the_bus() {
+        for uri in ["/api/commands/run", "/api/events/run"] {
+            let response = post_json(uri, json!({ "limit": 1 })).await;
+            assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE, "{uri}");
+        }
+    }
+
     #[tokio::test]
     async fn swagger_ui_is_served() {
         let response = get("/api/docs/").await;
         assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn features_stay_off_without_a_database() {
+        assert!(
+            start_features(Err(VarError::NotPresent))
+                .await
+                .unwrap()
+                .is_none()
+        );
     }
 
     #[test]

@@ -1,2 +1,0 @@
-[registries]
-null-labs-hq = { index = "sparse+https://null-labs-hq.github.io/crates/" }

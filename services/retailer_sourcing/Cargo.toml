@@ -7,12 +7,25 @@ edition = "2024"
 async-graphql.workspace = true
 async-graphql-axum = "7.2.1"
 axum = "0.8.9"
+bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
+chrono = { version = "0.4", features = ["serde"] }
 diesel.workspace = true
 diesel_migrations.workspace = true
+flate2 = "1"
+kernel = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-kernel", tag = "0.3.0" }
+quick-xml = "0.40.1"
+reqwest = { version = "0.13.4", features = ["blocking"] }
+retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
+strum = { version = "0.27", features = ["derive"] }
+thiserror = "2"
 tokio.workspace = true
+tower-http = { version = "0.6.11", features = ["trace"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 utoipa = "6.0.0"
 utoipa-axum = "0.3.0"
 utoipa-swagger-ui = { version = "10.0.1", features = ["axum", "vendored"] }

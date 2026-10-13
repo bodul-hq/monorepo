@@ -1,0 +1,28 @@
+meta {
+  name: Queue sitemap retrieval
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/sitemap-retrievals
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "retailers": ["ankerau"]
+  }
+}
+
+docs {
+  Queues one `RetrieveSitemap` command per retailer in `command_entries` and
+  returns `202` with each retailer's `retrieval_id`. Nothing runs until you call
+  **Run commands**.
+  
+  Retailer codes are the lowercase ones stored in the database, such as
+  `ugreenca` or `minisforumeu`. Duplicates are dropped. An empty list, an unknown
+  code or a retailer without a sitemap configuration returns `400`, and `503`
+  means the service runs without `DATABASE_URL`.
+}

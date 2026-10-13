@@ -1,0 +1,22 @@
+meta {
+  name: Queue sitemap retrievals for several retailers
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/sitemap-retrievals
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "retailers": ["ugreenca", "ugreenus", "minisforumeu"]
+  }
+}
+
+docs {
+  Same as **Queue sitemap retrieval**, for several retailers at once. Each
+  retailer gets its own retrieval and `retrieval_id`.
+}
