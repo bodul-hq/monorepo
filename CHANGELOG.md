@@ -24,3 +24,4 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - Logging in `retailer_sourcing` to stderr and daily files under `logs/`: each pipeline step, skipped sitemap files, failures, HTTP requests, and a separate timing log for fetches, commands and reactions. It replaces the `sitemap_retrievals` and `offers` status tables, which migrations drop; an offer is now just the `offer_id` that discovery hands out.
 - `object_storage` service: immutable records in its own PostgreSQL database, created and retrieved over REST and GraphQL, with bearer authentication on every route. ADRs 5 and 6 record why it uses axum and how it starts and is accessed. A Bruno workspace lists the collections and adds one for `object_storage`.
 - `object_storage_client`, an async client for the object storage service over REST or GraphQL.
+- `Money` and `Currency` in `money`. `Money::parse` and `Money::from_major` are not implemented yet.
