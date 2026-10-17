@@ -20,6 +20,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | Crate                     | Purpose                                                                     |
 | ------------------------- | --------------------------------------------------------------------------- |
 | `shared`                  | Code shared across the monorepo, including the `health()` liveness response |
+| `object_storage_client`   | Async object storage client using REST or GraphQL |
 | `money`                   | Money handling                                                              |
 | `retailer_sauce`          | Retailer integrations                                                       |
 | `retailer_data_extractor` | Extracting data from retailers                                              |
