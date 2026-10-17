@@ -7,3 +7,5 @@ publish = ["null-labs-hq"]
 [dependencies]
 bodul_shared.workspace = true
 html-extractor.workspace = true
+serde.workspace = true
+thiserror.workspace = true

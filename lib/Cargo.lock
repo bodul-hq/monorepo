@@ -1580,6 +1580,8 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]

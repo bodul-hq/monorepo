@@ -26,3 +26,4 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - `object_storage_client`, an async client for the object storage service over REST or GraphQL.
 - `Money` and `Currency` in `money`. `Money::parse` and `Money::from_major` are not implemented yet.
 - `sitemap` library: parsing sitemap XML and building a crawl's sitemap tree.
+- `Availability`, `ItemCondition`, validated identifiers and `StructuralizedData` in `retailer_sauce`.
