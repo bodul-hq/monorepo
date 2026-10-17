@@ -1,0 +1,51 @@
+meta {
+  name: Retrieve record (GraphQL)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{objectStorageBaseUrl}}/graphql
+  body: graphql
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:graphql {
+  query GetRecord($bucket: String!, $id: ID!) {
+    record(bucket: $bucket, id: $id) {
+      id
+      bucket
+      idempotencyKey
+      payload
+      metadata
+      createdAt
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "bucket": "{{bucket}}",
+    "id": "{{graphqlRecordId}}"
+  }
+}
+
+tests {
+  test("Retrieves the GraphQL artifact", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).not.to.have.property("errors");
+    const record = res.getBody().data.record;
+    expect(record.id).to.equal(bru.getVar("graphqlRecordId"));
+    expect(record.idempotencyKey).to.equal(bru.getEnvVar("graphqlIdempotencyKey"));
+    expect(record.payload).to.equal("<urlset/> 🔎");
+    expect(record.createdAt).to.match(/Z$/);
+  });
+}
+
+docs {
+  Run GraphQL creation first, or set graphqlRecordId to an existing record. Missing records return null and a NOT_FOUND execution error at HTTP 200.
+}

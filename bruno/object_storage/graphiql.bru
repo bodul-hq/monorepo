@@ -1,0 +1,27 @@
+meta {
+  name: GraphiQL (debug only)
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{objectStorageBaseUrl}}/graphql/ide
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Debug IDE or authenticated release 404", function () {
+    expect([200, 404]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getHeader("content-type")).to.include("text/html");
+    } else {
+      expect(res.getBody().status).to.equal(404);
+      expect(res.getHeader("content-type")).to.include("application/problem+json");
+    }
+  });
+}
+
+docs {
+  Available only in debug builds. Authenticated release requests return 404. GraphQL execution always uses POST /graphql.
+}

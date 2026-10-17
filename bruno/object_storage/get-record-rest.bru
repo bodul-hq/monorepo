@@ -1,0 +1,28 @@
+meta {
+  name: Retrieve record (REST)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{objectStorageBaseUrl}}/api/buckets/{{bucket}}/records/{{recordId}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Retrieves the created artifact", function () {
+    expect(res.getStatus()).to.equal(200);
+    const record = res.getBody();
+    expect(record.id).to.equal(bru.getVar("recordId"));
+    expect(record.bucket).to.equal(bru.getEnvVar("bucket"));
+    expect(record.idempotency_key).to.equal(bru.getEnvVar("idempotencyKey"));
+    expect(record.payload).to.equal("<urlset/> 🔎");
+    expect(record.created_at).to.match(/Z$/);
+    expect(record).not.to.have.property("data_id");
+  });
+}
+
+docs {
+  Run REST creation first, or set recordId to an existing record in this bucket.
+}

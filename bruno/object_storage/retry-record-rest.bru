@@ -1,0 +1,37 @@
+meta {
+  name: Retry record (REST)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{objectStorageBaseUrl}}/api/buckets/{{bucket}}/records
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "idempotency_key": "{{idempotencyKey}}",
+    "payload": "<urlset/> 🔎",
+    "metadata": {
+      "source": "bruno",
+      "format": "xml"
+    }
+  }
+}
+
+tests {
+  test("Matching retry returns the existing ID", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().id).to.equal(bru.getVar("recordId"));
+  });
+}
+
+docs {
+  Run REST creation first. This sends the same key, payload, and metadata.
+}

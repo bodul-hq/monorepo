@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "object_storage",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

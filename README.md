@@ -20,6 +20,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | Crate                     | Purpose                                                                     |
 | ------------------------- | --------------------------------------------------------------------------- |
 | `shared`                  | Code shared across the monorepo, including the `health()` liveness response |
+| `object_storage_client`   | Async object storage client using REST or GraphQL |
 | `money`                   | Money handling                                                              |
 | `retailer_sauce`          | Retailer integrations                                                       |
 | `retailer_data_extractor` | Extracting data from retailers                                              |
@@ -39,6 +40,7 @@ has its own README.
 | `customer_facing`   | poem           | poem-openapi        | async-graphql, async-graphql-poem |
 | `offers`            | poem           | poem-openapi        | async-graphql, async-graphql-poem |
 | `retailer_sourcing` | axum           | utoipa, utoipa-axum | async-graphql, async-graphql-axum |
+| `object_storage` | axum | OpenAPI 3.1, utoipa-swagger-ui | async-graphql, custom HTTP adapter |
 
 Every service serves the same routes:
 
@@ -50,7 +52,10 @@ Every service serves the same routes:
 | `/graphql`          | GraphQL over `GET` (query string) and `POST` (body)       |
 | `/graphql/ide`      | GraphiQL, in debug builds only; release builds return 404 |
 
-The GraphQL schema has a single `health` query that returns `ok`.
+The original services have a single GraphQL `health` query that returns `ok`.
+`object_storage` instead exposes immutable artifact creation and retrieval,
+with health only at `/api/health`. See its [setup, API examples and tests](services/object_storage/README.md)
+and [ADR 6](docs/adr/0006-object-storage-startup-and-access.md).
 
 `retailer_sourcing` also runs the sitemap discovery pipeline: it crawls each
 retailer's sitemaps and sorts the page URLs into products, catalogs and other

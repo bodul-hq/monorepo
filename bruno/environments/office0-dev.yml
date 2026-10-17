@@ -1,0 +1,6 @@
+name: office0-dev
+variables:
+  - name: objectStorageBaseUrl
+    value: https://object-storage.service-dev.boduli.com
+  - name: retailerSourcingBaseUrl
+    value: https://retailer-sourcing.dev-service.boduli.com

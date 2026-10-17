@@ -1,0 +1,57 @@
+meta {
+  name: Create record (GraphQL)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{objectStorageBaseUrl}}/graphql
+  body: graphql
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:graphql {
+  mutation CreateRecord($input: CreateRecordInput!) {
+    createRecord(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "bucket": "{{bucket}}",
+      "idempotencyKey": "{{graphqlIdempotencyKey}}",
+      "payload": "<urlset/> \ud83d\udd0e",
+      "metadata": {
+        "source": "bruno",
+        "format": "xml"
+      }
+    }
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (res.getStatus() === 200 && !body.errors) {
+    bru.setVar("graphqlRecordId", body.data.createRecord.id);
+  }
+}
+
+tests {
+  test("GraphQL creation returns only an ID", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("content-type")).to.include("application/graphql-response+json");
+    expect(res.getBody()).not.to.have.property("errors");
+    expect(Object.keys(res.getBody().data.createRecord)).to.deep.equal(["id"]);
+  });
+}
+
+docs {
+  Creates a second artifact using a separate UUIDv7 key, then saves graphqlRecordId. Both fresh creation and matching retries return HTTP 200.
+}
