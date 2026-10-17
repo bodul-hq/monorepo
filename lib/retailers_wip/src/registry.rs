@@ -4,6 +4,7 @@ use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
 use bodul_shared::prelude::{NormalizedData, RetailerCode};
 use html_extractor::io::Architecture;
+use std::time::Duration;
 
 pub fn architecture_for(_retailer: RetailerCode) -> Option<Architecture> {
     None
@@ -17,6 +18,14 @@ pub fn normalize_for(
 }
 
 pub fn sitemap_config_for(_retailer: &RetailerCode) -> Option<SitemapConfig> {
+    None
+}
+
+pub fn sitemap_pause_for(_retailer: RetailerCode) -> Option<Duration> {
+    None
+}
+
+pub fn sitemap_greylisted_for(_retailer: RetailerCode, _url: &str) -> Option<bool> {
     None
 }
 
