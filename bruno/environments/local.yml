@@ -1,0 +1,6 @@
+name: local
+variables:
+  - name: objectStorageBaseUrl
+    value: http://172.28.100.43:3000
+  - name: retailerSourcingBaseUrl
+    value: http://172.28.100.40:3000

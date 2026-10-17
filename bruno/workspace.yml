@@ -1,0 +1,14 @@
+opencollection: 1.0.0
+info:
+  name: "monorepo"
+  type: workspace
+
+collections:
+  - name: "object_storage"
+    path: "object_storage"
+  - name: "retailer_sourcing"
+    path: "retailer_sourcing"
+
+specs:
+
+docs: ''

@@ -1,0 +1,44 @@
+meta {
+  name: Create record (REST)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{objectStorageBaseUrl}}/api/buckets/{{bucket}}/records
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "idempotency_key": "{{idempotencyKey}}",
+    "payload": "<urlset/> 🔎",
+    "metadata": {
+      "source": "bruno",
+      "format": "xml"
+    }
+  }
+}
+
+script:post-response {
+  if ([200, 201].includes(res.getStatus())) {
+    bru.setVar("recordId", res.getBody().id);
+  }
+}
+
+tests {
+  test("Returns only an ID and retrieval location", function () {
+    expect([200, 201]).to.include(res.getStatus());
+    expect(Object.keys(res.getBody())).to.deep.equal(["id"]);
+    expect(res.getHeader("location")).to.equal("/api/buckets/" + bru.getEnvVar("bucket") + "/records/" + res.getBody().id);
+  });
+}
+
+docs {
+  Creates an immutable record (201), or retries identical content (200). Saves recordId for retrieval. Reuse the UUIDv7 key for retries; use a new key for different content. The database calls this key external_id.
+}

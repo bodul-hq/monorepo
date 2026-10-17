@@ -1,0 +1,22 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{objectStorageBaseUrl}}/api/health
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Authenticated liveness", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.equal("ok");
+  });
+}
+
+docs {
+  Every route, including health and documentation, inherits bearer authentication.
+}

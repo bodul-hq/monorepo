@@ -1,0 +1,25 @@
+[package]
+name = "object_storage"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-graphql.workspace = true
+axum.workspace = true
+chrono.workspace = true
+diesel.workspace = true
+diesel_migrations.workspace = true
+serde.workspace = true
+serde_json = { workspace = true, features = ["arbitrary_precision"] }
+shared.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+utoipa-swagger-ui.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+http-body-util.workspace = true
+tower.workspace = true

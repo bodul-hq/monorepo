@@ -1,0 +1,49 @@
+meta {
+  name: Retry REST record through GraphQL
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{objectStorageBaseUrl}}/graphql
+  body: graphql
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:graphql {
+  mutation CreateRecord($input: CreateRecordInput!) {
+    createRecord(input: $input) {
+      id
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "bucket": "{{bucket}}",
+      "idempotencyKey": "{{idempotencyKey}}",
+      "payload": "<urlset/> \ud83d\udd0e",
+      "metadata": {
+        "source": "bruno",
+        "format": "xml"
+      }
+    }
+  }
+}
+
+tests {
+  test("Both APIs share the same idempotency behavior", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).not.to.have.property("errors");
+    expect(res.getBody().data.createRecord.id).to.equal(bru.getVar("recordId"));
+  });
+}
+
+docs {
+  Run REST creation first. Retrying its key and content through GraphQL must return the same ID.
+}

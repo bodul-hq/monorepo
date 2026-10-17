@@ -1,0 +1,19 @@
+meta {
+  name: OpenAPI document
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{objectStorageBaseUrl}}/api/openapi.json
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Documents object storage routes and bearer security", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().paths).to.have.property("/api/buckets/{bucket}/records");
+    expect(res.getBody().components.securitySchemes.bearer.scheme).to.equal("bearer");
+  });
+}

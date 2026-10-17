@@ -4,17 +4,27 @@ members = [
     "retailer_sourcing",
     "offers",
     "customer_facing",
+    "object_storage",
 ]
 
 [workspace.dependencies]
 async-graphql = "7.2.1"
 async-graphql-poem = "7.2.1"
+axum = "0.8.9"
+chrono = { version = "0.4", features = ["serde"] }
 diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json", "uuid"] }
 diesel_migrations = "2"
+http-body-util = "0.1.5"
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 shared = { path = "../lib/shared" }
 tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }
+tower = { version = "0.5.3", features = ["util"] }
+tower-http = { version = "0.6.11", features = ["trace"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+utoipa-swagger-ui = { version = "10.0.1", features = ["axum", "vendored"] }
 uuid = { version = "1", features = ["serde", "v4", "v7"] }
