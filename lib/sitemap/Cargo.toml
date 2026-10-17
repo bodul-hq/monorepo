@@ -1,0 +1,17 @@
+[package]
+name = "sitemap"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bodul_shared.workspace = true
+chrono.workspace = true
+percent-encoding = "2.3.2"
+quick-xml = "0.42.0"
+serde.workspace = true
+strum = { version = "0.27", features = ["derive"] }
+thiserror.workspace = true
+url = "2.5.8"
+
+[dev-dependencies]
+serde_json.workspace = true

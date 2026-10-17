@@ -10,6 +10,7 @@ members = [
     "retailers_minisforum",
     "retailers_ugreen",
     "retailers_wip",
+    "sitemap",
     "object_storage_client",
 ]
 
