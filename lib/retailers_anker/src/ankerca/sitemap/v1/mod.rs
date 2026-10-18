@@ -3,6 +3,7 @@
 use crate::anker_from_location;
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
+use std::time::Duration;
 
 pub fn sitemap_config() -> SitemapConfig {
     SitemapConfig {
@@ -11,6 +12,17 @@ pub fn sitemap_config() -> SitemapConfig {
             "https://www.anker.com/ca-fr/sitemap.xml".to_string(),
         ],
     }
+}
+
+/// Whether the crawl downloads the child sitemap at `url`. Root sitemaps are
+/// always downloaded; drop one from [`sitemap_config`] instead.
+pub fn sitemap_greylisted(_url: &str) -> bool {
+    true
+}
+
+/// How long the crawl pauses between groups of sitemap downloads.
+pub fn sitemap_pause() -> Duration {
+    Duration::from_secs(1)
 }
 
 pub fn classify_link(url: &str, source: &str, _image_count: usize) -> LinkKind {
@@ -29,25 +41,22 @@ pub fn from_location(url: &str, source: &str) -> LinkKind {
             continue;
         };
 
-        let matched_by_source = match file {
-            "server-sitemap-index-pages.xml" => Some(LinkKind::NotInterested),
-            "server-sitemap-index-products.xml" => Some(LinkKind::Product),
-            "server-sitemap-index-collections.xml" => Some(LinkKind::Catalog),
-            "server-sitemap-index-blog.xml" => Some(LinkKind::Content),
-            _ => None,
-        };
-
-        if let Some(kind) = matched_by_source {
-            // A link is only interesting under the same locale as its source.
-            if !path.starts_with(base) {
-                return LinkKind::NotInterested;
-            }
-
-            return kind;
+        if !path.starts_with(base) {
+            return LinkKind::NotInterested;
         }
+
+        return match file {
+            "server-sitemap-index-pages.xml" => LinkKind::NotInterested,
+            "server-sitemap-index-products.xml" => LinkKind::Product,
+            "server-sitemap-index-collections.xml" => LinkKind::Catalog,
+            "server-sitemap-index-blog.xml" => LinkKind::Content,
+            _ => anker_from_location(&path),
+        };
     }
 
-    anker_from_location(&path)
+    panic!(
+        "ankerca: sitemap source {source:?} (for url {url:?}) does not start with any known locale prefix {LOCALE_PREFIXES:?}"
+    );
 }
 
 // NOTE: URLs synthesized from anker_de shapes; the ankerca grouped-sitemap data is empty.
@@ -65,6 +74,20 @@ mod tests {
         "https://www.anker.com/ca-fr/server-sitemap-index-collections.xml";
     const FR_BLOG_INDEX: &str = "https://www.anker.com/ca-fr/server-sitemap-index-blog.xml";
     const FR_PAGES_INDEX: &str = "https://www.anker.com/ca-fr/server-sitemap-index-pages.xml";
+
+    #[test]
+    fn unmatched_source_still_rejects_out_of_region_urls() {
+        for url in [
+            "https://www.anker.com/agents.md",
+            "https://www.anker.com/products/a110a",
+        ] {
+            assert_eq!(
+                classify_link(url, "https://www.anker.com/ca/sitemap.xml", 0),
+                LinkKind::NotInterested,
+                "for {url}"
+            );
+        }
+    }
 
     #[test]
     fn classifies_products() {
@@ -142,7 +165,7 @@ mod tests {
             "for {product_url}"
         );
 
-        let unknown_url = "https://www.anker.com/agents.md";
+        let unknown_url = "https://www.anker.com/ca/agents.md";
         assert_eq!(
             classify_link(unknown_url, unmatched_source, 0),
             LinkKind::Unknown,

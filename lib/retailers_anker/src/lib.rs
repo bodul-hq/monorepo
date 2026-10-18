@@ -31,8 +31,10 @@ pub fn anker_from_location(url: &str) -> LinkKind {
 }
 
 mod registry;
+mod shared;
 
 pub mod prelude;
+pub mod shopify;
 
 #[cfg(test)]
 mod tests {

@@ -4,10 +4,10 @@ use diesel::prelude::*;
 use diesel::r2d2::PoolError;
 use uuid::Uuid;
 
-use super::super::document::RawSitemapDocument;
 use super::super::schema::raw_sitemap_documents;
 use super::handler::Store;
 use crate::platform::db::DbPool;
+use sitemap::RawSitemapDocument;
 
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {

@@ -14,23 +14,21 @@
 
 pub mod prelude;
 
-mod document;
-mod parse;
 mod schema;
 
 mod consolidate_sitemap;
 mod process_sitemap;
 mod retrieve_sitemap;
 
+use std::time::Duration;
+
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
 use bodul_shared::retailer::RetailerCode;
 
-/// The `source` given to URLs that don't come from a known sitemap file.
-const ROOT_SITEMAP_SOURCE: &str = "main";
-
-/// How deep sitemap indexes may nest before a branch is cut off.
-const MAX_SITEMAP_DEPTH: usize = 32;
+/// The pause between groups of sitemap downloads for a retailer that doesn't
+/// set its own.
+const DEFAULT_SITEMAP_PAUSE: Duration = Duration::from_secs(1);
 
 /// The retailer registry: each retailer's root sitemaps and link rules.
 #[derive(Debug, Clone, Copy, Default)]
@@ -39,6 +37,17 @@ struct Retailers;
 impl Retailers {
     fn sitemap_config(self, retailer_code: &RetailerCode) -> Option<SitemapConfig> {
         retailer_data_extractor::sitemap_config_for(retailer_code)
+    }
+
+    /// Whether the retailer's crawl downloads the child sitemap at `url`. A
+    /// retailer this crate doesn't know downloads every one.
+    fn sitemap_greylisted(self, retailer_code: RetailerCode, url: &str) -> bool {
+        retailer_data_extractor::sitemap_greylisted_for(retailer_code, url).unwrap_or(true)
+    }
+
+    /// How long the retailer's crawl pauses between groups of downloads.
+    fn sitemap_pause(self, retailer_code: RetailerCode) -> Duration {
+        retailer_data_extractor::sitemap_pause_for(retailer_code).unwrap_or(DEFAULT_SITEMAP_PAUSE)
     }
 
     fn classify_link(

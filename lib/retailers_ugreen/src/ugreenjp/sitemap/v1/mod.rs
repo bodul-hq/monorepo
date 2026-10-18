@@ -3,11 +3,23 @@
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
 use retailer_sauce::shopify::shopify_from_location;
+use std::time::Duration;
 
 pub fn sitemap_config() -> SitemapConfig {
     SitemapConfig {
         sitemap_url: vec!["https://ugreen.jp/sitemap.xml".to_string()],
     }
+}
+
+/// Whether the crawl downloads the child sitemap at `url`. Root sitemaps are
+/// always downloaded; drop one from [`sitemap_config`] instead.
+pub fn sitemap_greylisted(_url: &str) -> bool {
+    true
+}
+
+/// How long the crawl pauses between groups of sitemap downloads.
+pub fn sitemap_pause() -> Duration {
+    Duration::from_secs(1)
 }
 
 pub fn classify_link(url: &str, _source: &str, _image_count: usize) -> LinkKind {

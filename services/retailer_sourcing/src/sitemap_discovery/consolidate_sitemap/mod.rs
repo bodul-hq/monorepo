@@ -6,6 +6,5 @@ pub mod prelude;
 mod command;
 mod event;
 mod handler;
-mod links;
 mod reacts_to;
 mod store;

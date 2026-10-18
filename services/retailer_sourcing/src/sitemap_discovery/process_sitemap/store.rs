@@ -4,10 +4,10 @@ use diesel::r2d2::PoolError;
 use diesel::{Insertable, Queryable, Selectable};
 use uuid::Uuid;
 
-use super::super::document::RawSitemapDocument;
 use super::super::schema::{processed_sitemaps, raw_sitemap_documents};
 use super::handler::{ProcessedSitemap, Store};
 use crate::platform::db::DbPool;
+use sitemap::RawSitemapDocument;
 
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {

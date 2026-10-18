@@ -7,6 +7,7 @@ publish = ["null-labs-hq"]
 [dependencies]
 bodul_shared.workspace = true
 html-extractor.workspace = true
+retailer_sauce.workspace = true
 retailers_anker = { path = "../retailers_anker" }
 retailers_mi = { path = "../retailers_mi" }
 retailers_minisforum = { path = "../retailers_minisforum" }

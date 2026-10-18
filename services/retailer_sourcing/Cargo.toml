@@ -13,12 +13,12 @@ diesel.workspace = true
 diesel_migrations.workspace = true
 flate2 = "1"
 kernel = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-kernel", tag = "0.3.0" }
-quick-xml = "0.40.1"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
+sitemap = { path = "../../lib/sitemap" }
 strum = { version = "0.27", features = ["derive"] }
 thiserror = "2"
 tokio.workspace = true
