@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/sitemap-retrievals
+  url: {{retailerSourcingBaseUrl}}/api/sitemap-retrievals
   body: json
   auth: none
 }
 
 body:json {
   {
-    "retailers": ["ankerau"]
+    "retailers": ["ankerca"]
   }
 }
 
@@ -20,7 +20,7 @@ docs {
   Queues one `RetrieveSitemap` command per retailer in `command_entries` and
   returns `202` with each retailer's `retrieval_id`. Nothing runs until you call
   **Run commands**.
-  
+
   Retailer codes are the lowercase ones stored in the database, such as
   `ugreenca` or `minisforumeu`. Duplicates are dropped. An empty list, an unknown
   code or a retailer without a sitemap configuration returns `400`, and `503`

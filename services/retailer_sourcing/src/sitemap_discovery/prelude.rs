@@ -5,7 +5,8 @@ use utoipa_axum::router::OpenApiRouter;
 
 use super::{consolidate_sitemap, process_sitemap, retrieve_sitemap};
 use crate::platform::Platform;
-use crate::platform::bus::{Bus, BusHandle};
+use crate::platform::bus::Bus;
+use crate::platform::state::AppState;
 
 pub use super::consolidate_sitemap::prelude::SitemapConsolidated;
 
@@ -17,6 +18,6 @@ pub fn register(bus: &mut Bus, platform: &Platform) {
 }
 
 /// Sitemap discovery's HTTP routes, to nest under `/api`.
-pub fn routes() -> OpenApiRouter<Option<BusHandle>> {
+pub fn routes() -> OpenApiRouter<AppState> {
     retrieve_sitemap::prelude::routes()
 }

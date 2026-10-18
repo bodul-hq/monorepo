@@ -1,21 +1,22 @@
 use std::time::Duration;
 
 use bodul_shared::retailer::RetailerCode;
-use uuid::Uuid;
 
 use super::super::Retailers;
 use super::command::RetrieveSitemap;
 use super::crawl::crawl;
+use super::entity::{RetrievedSitemapDocument, StoredSitemapDocument};
 use super::event::SitemapRetrieved;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
 use crate::platform::http::{self, FetchError};
-use sitemap::RawSitemapDocument;
 
-#[rustfmt::skip]
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
-    fn store_documents(&self, retrieval_id: Uuid, documents: &[RawSitemapDocument]) -> Result<(), StoreError>;
+    fn store_documents(
+        &self,
+        documents: &[RetrievedSitemapDocument],
+    ) -> Result<Vec<StoredSitemapDocument>, StoreError>;
 }
 
 /// Fetches the body of one sitemap file.
@@ -29,7 +30,8 @@ impl FetchSitemapBody for http::Client {
     }
 }
 
-/// Looks up the sitemaps a retailer's crawl starts from.
+/// Looks up the sitemaps a retailer's crawl starts from, and the child
+/// sitemaps it downloads.
 pub trait RootSitemaps: Send + Sync + 'static {
     fn root_sitemaps(&self, retailer_code: &RetailerCode) -> Option<Vec<String>>;
 
@@ -114,7 +116,8 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
             tracing::warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");
         }
 
-        self.store.store_documents(retrieval_id, &documents)?;
+        let documents = RetrievedSitemapDocument::from_documents(retrieval_id, documents);
+        let documents = self.store.store_documents(&documents)?;
         tracing::info!(
             %retrieval_id,
             ?retailer_code,
@@ -146,17 +149,29 @@ mod tests {
     #[derive(Default)]
     struct FakeStore {
         documents: Mutex<Vec<String>>,
+        fail: bool,
     }
 
     impl Store for FakeStore {
         fn store_documents(
             &self,
-            _: Uuid,
-            documents: &[RawSitemapDocument],
-        ) -> Result<(), StoreError> {
-            let urls = documents.iter().map(|document| document.url.clone());
+            documents: &[RetrievedSitemapDocument],
+        ) -> Result<Vec<StoredSitemapDocument>, StoreError> {
+            if self.fail {
+                return Err(StoreError::InvalidBodySize);
+            }
+            let urls = documents
+                .iter()
+                .map(|document| document.document.url.clone());
             self.documents.lock().unwrap().extend(urls);
-            Ok(())
+            Ok(documents
+                .iter()
+                .cloned()
+                .map(|sitemap| StoredSitemapDocument {
+                    sitemap,
+                    object_storage_id: uuid::Uuid::now_v7(),
+                })
+                .collect())
         }
     }
 
@@ -176,6 +191,19 @@ mod tests {
     impl RootSitemaps for Roots {
         fn root_sitemaps(&self, _: &RetailerCode) -> Option<Vec<String>> {
             self.0.clone()
+        }
+    }
+
+    /// Starts from [`ROOT`] and downloads every child sitemap except `.0`.
+    struct AllBut(&'static str);
+
+    impl RootSitemaps for AllBut {
+        fn root_sitemaps(&self, _: &RetailerCode) -> Option<Vec<String>> {
+            Some(vec![ROOT.to_string()])
+        }
+
+        fn sitemap_greylisted(&self, _: RetailerCode, url: &str) -> bool {
+            url != self.0
         }
     }
 
@@ -241,6 +269,24 @@ mod tests {
     }
 
     #[test]
+    fn does_not_fetch_a_child_that_is_not_greylisted() {
+        let pages = Pages(HashMap::from([
+            (ROOT, index(&[PRODUCTS, PAGES])),
+            (PRODUCTS, urlset("https://shop.test/products/a")),
+            (PAGES, urlset("https://shop.test/pages/about")),
+        ]));
+        let handler = Handler::new(FakeStore::default(), pages, AllBut(PAGES));
+
+        let events = handler.handle(command()).unwrap();
+
+        assert_eq!(events[0].document_count, 2);
+        assert_eq!(
+            *handler.store.documents.lock().unwrap(),
+            vec![ROOT, PRODUCTS]
+        );
+    }
+
+    #[test]
     fn fails_when_the_retailer_has_no_sitemaps() {
         let handler = handler(Pages(HashMap::new()), Roots(None));
 
@@ -251,5 +297,17 @@ mod tests {
             RetrieveSitemapError::NoSitemapConfig(RetailerCode::UgreenCa)
         ));
         assert!(handler.store.documents.lock().unwrap().is_empty());
+    }
+    #[test]
+    fn storage_failure_does_not_publish_a_retrieved_event() {
+        let mut handler = handler(
+            Pages(HashMap::from([(ROOT, urlset("https://shop.test/a"))])),
+            Roots(Some(vec![ROOT.into()])),
+        );
+        handler.store.fail = true;
+        assert!(matches!(
+            handler.handle(command()),
+            Err(RetrieveSitemapError::Store(_))
+        ));
     }
 }

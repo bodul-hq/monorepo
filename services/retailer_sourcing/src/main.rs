@@ -1,5 +1,8 @@
+mod development;
+mod monitoring;
 mod offer_discovery;
 mod platform;
+mod reporting;
 mod sitemap_discovery;
 
 use std::env::VarError;
@@ -10,16 +13,38 @@ use async_graphql_axum::GraphQL;
 use axum::{Router, response::Html, routing::get};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
-use utoipa::OpenApi;
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::{Modify, OpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
 
 use platform::Platform;
-use platform::bus::{Bus, BusHandle};
+use platform::bus::Bus;
+use platform::state::AppState;
 
 #[derive(OpenApi)]
-#[openapi(info(title = "Retailer Sourcing"), servers((url = "/api")))]
+#[openapi(
+    info(title = "Retailer Sourcing"),
+    servers((url = "/api")),
+    modifiers(&BearerScheme)
+)]
 struct ApiDoc;
+
+/// Documents the bearer token some routes need, so Swagger UI can send it.
+struct BearerScheme;
+
+impl Modify for BearerScheme {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let scheme = HttpBuilder::new().scheme(HttpAuthScheme::Bearer).build();
+        openapi
+            .components
+            .get_or_insert_with(Default::default)
+            .add_security_scheme(
+                platform::auth::SECURITY_SCHEME,
+                SecurityScheme::Http(scheme),
+            );
+    }
+}
 
 #[utoipa::path(get, path = "/health", responses((status = 200, body = String)))]
 async fn health() -> &'static str {
@@ -39,15 +64,16 @@ async fn graphiql() -> Html<String> {
     Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
-/// The service's routes. `bus` queues and runs commands and events, and is
-/// `None` without a database.
-fn app(bus: Option<BusHandle>) -> Router {
+/// The service's routes, sharing `state`.
+fn app(state: AppState) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
         .merge(sitemap_discovery::prelude::routes())
+        .merge(development::prelude::routes())
+        .merge(reporting::prelude::routes())
         .split_for_parts();
-    let api = api.with_state(bus);
+    let api = api.with_state(state);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
     let mut router = Router::new()
@@ -80,24 +106,40 @@ fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
     }
 }
 
-/// Starts the command and event bus when `DATABASE_URL` is set, after applying
-/// pending migrations. Without it the service only serves HTTP.
-async fn start_features(database_url: Result<String, VarError>) -> io::Result<Option<BusHandle>> {
+/// Connects to the database and starts the command and event bus when
+/// `DATABASE_URL` is set, after applying pending migrations. Without it the
+/// service only serves HTTP.
+async fn start_features(database_url: Result<String, VarError>) -> io::Result<AppState> {
     let database_url = match database_url {
+        Ok(database_url) if database_url.is_empty() => return Ok(AppState::default()),
         Ok(database_url) => database_url,
-        Err(VarError::NotPresent) => return Ok(None),
+        Err(VarError::NotPresent) => return Ok(AppState::default()),
         Err(error) => return Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
     };
-    let platform = tokio::task::spawn_blocking(move || Platform::connect(&database_url))
-        .await
-        .map_err(io::Error::other)?
-        .map_err(io::Error::other)?;
+    let object_storage =
+        platform::object_storage::ObjectStorage::from_env(tokio::runtime::Handle::current())
+            .map_err(io::Error::other)?;
+    let platform =
+        tokio::task::spawn_blocking(move || Platform::connect(&database_url, object_storage))
+            .await
+            .map_err(io::Error::other)?
+            .map_err(io::Error::other)?;
 
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);
     offer_discovery::prelude::register(&mut bus, &platform);
+    development::prelude::register(&mut bus, &platform);
+    monitoring::prelude::register(&mut bus, &platform);
+    reporting::prelude::register(&mut bus, &platform);
 
-    bus.start(platform.db).map(Some).map_err(io::Error::other)
+    let db = platform.db.clone();
+    let object_storage = platform.object_storage.clone();
+    let bus = bus.start(platform.db).map_err(io::Error::other)?;
+    Ok(AppState {
+        bus: Some(bus),
+        db: Some(db),
+        object_storage: Some(object_storage),
+    })
 }
 
 #[tokio::main]
@@ -143,10 +185,11 @@ mod tests {
     use serde_json::{Value, json};
     use tower::ServiceExt;
 
-    use super::{app, parse_port, start_features};
+    use super::platform::auth::BEARER_TOKEN;
+    use super::{AppState, app, parse_port, start_features};
 
     async fn get(uri: &str) -> Response {
-        app(None)
+        app(AppState::default())
             .oneshot(Request::get(uri).body(Body::empty()).unwrap())
             .await
             .unwrap()
@@ -175,7 +218,7 @@ mod tests {
             .header(header::CONTENT_TYPE, "application/json")
             .body(Body::from(json!({ "query": "{ health }" }).to_string()))
             .unwrap();
-        let response = app(None).oneshot(request).await.unwrap();
+        let response = app(AppState::default()).oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let json: Value = serde_json::from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
@@ -216,6 +259,26 @@ mod tests {
                 "OpenAPI must document POST {path}",
             );
         }
+        for (path, _) in DEVELOPMENT_SOURCES {
+            assert!(
+                spec["paths"][path]["get"].is_object(),
+                "OpenAPI must document GET {path}",
+            );
+            assert_eq!(
+                spec["paths"][path]["get"]["security"],
+                json!([{ "bearer": [] }]),
+                "{path}",
+            );
+        }
+        assert_eq!(
+            spec["components"]["securitySchemes"]["bearer"]["scheme"],
+            "bearer"
+        );
+        assert_eq!(
+            spec["paths"]["/reporting/database-tables"]["get"]["security"],
+            json!([{ "bearer": [] }])
+        );
+        assert!(spec["paths"]["/reporting/database-tables"]["get"]["responses"]["200"].is_object());
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
@@ -230,7 +293,7 @@ mod tests {
             .header(header::CONTENT_TYPE, "application/json")
             .body(Body::from(body.to_string()))
             .unwrap();
-        app(None).oneshot(request).await.unwrap()
+        app(AppState::default()).oneshot(request).await.unwrap()
     }
 
     #[tokio::test]
@@ -269,6 +332,59 @@ mod tests {
         }
     }
 
+    async fn get_with_token(uri: &str, token: &str) -> Response {
+        let request = Request::get(uri)
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .body(Body::empty())
+            .unwrap();
+        app(AppState::default()).oneshot(request).await.unwrap()
+    }
+
+    /// The development source routes relative to `/api`, with their maximum page sizes.
+    const DEVELOPMENT_SOURCES: [(&str, u32); 2] = [
+        ("/development/sitemaps/sources", 100),
+        ("/development/offer-details/sources", 1000),
+    ];
+
+    #[tokio::test]
+    async fn development_sources_need_the_bearer_token() {
+        for (path, _) in DEVELOPMENT_SOURCES {
+            let uri = format!("/api{path}");
+            let response = get(&uri).await;
+            assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
+            assert_eq!(response.headers()[header::WWW_AUTHENTICATE], "Bearer");
+
+            let response = get_with_token(&uri, "wrong").await;
+            assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
+        }
+    }
+
+    #[tokio::test]
+    async fn development_sources_reject_a_limit_out_of_range() {
+        for (path, max_limit) in DEVELOPMENT_SOURCES {
+            for limit in [0, max_limit + 1] {
+                let uri = format!("/api{path}?limit={limit}");
+                let response = get_with_token(&uri, BEARER_TOKEN).await;
+                assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{uri}");
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn development_sources_need_the_database() {
+        for (path, max_limit) in DEVELOPMENT_SOURCES {
+            for query in [
+                String::new(),
+                "?limit=1".to_owned(),
+                format!("?limit={max_limit}&offset=40"),
+            ] {
+                let uri = format!("/api{path}{query}");
+                let response = get_with_token(&uri, BEARER_TOKEN).await;
+                assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE, "{uri}");
+            }
+        }
+    }
+
     #[tokio::test]
     async fn swagger_ui_is_served() {
         let response = get("/api/docs/").await;
@@ -277,12 +393,16 @@ mod tests {
 
     #[tokio::test]
     async fn features_stay_off_without_a_database() {
-        assert!(
-            start_features(Err(VarError::NotPresent))
-                .await
-                .unwrap()
-                .is_none()
-        );
+        let state = start_features(Err(VarError::NotPresent)).await.unwrap();
+        assert!(state.bus.is_none());
+        assert!(state.db.is_none());
+    }
+
+    #[tokio::test]
+    async fn features_stay_off_with_an_empty_database_url() {
+        let state = start_features(Ok(String::new())).await.unwrap();
+        assert!(state.bus.is_none());
+        assert!(state.db.is_none());
     }
 
     #[test]

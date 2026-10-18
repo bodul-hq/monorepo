@@ -1,23 +1,15 @@
-use chrono::{DateTime, Duration, Utc};
-use uuid::Uuid;
-
 use super::command::DownloadOfferPage;
-use super::event::{DownloadOutcome, OfferPageDownloadSkipped, OfferPageWasDownloaded};
+use super::entity::RawOffer;
+use super::event::OfferPageWasDownloaded;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
 use crate::platform::http::{self, FetchError};
-
-/// How recently a URL must have been downloaded for it not to be fetched again.
-const REDOWNLOAD_WINDOW_HOURS: i64 = 6;
+use crate::platform::object_storage::Stored;
 
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
-    /// The most recent page stored for `url` since `since`, if any.
-    fn recent_raw_offer(&self, url: &str, since: DateTime<Utc>)
-    -> Result<Option<Uuid>, StoreError>;
-
     /// Stores the page, replacing any page stored for the offer before.
-    fn store_raw_offer(&self, offer_id: Uuid, url: &str, body: &str) -> Result<(), StoreError>;
+    fn store_raw_offer(&self, entity: &RawOffer) -> Result<Stored<RawOffer>, StoreError>;
 }
 
 /// Fetches the body of one offer page.
@@ -29,6 +21,15 @@ impl FetchOfferPage for http::Client {
     fn fetch(&self, url: &str) -> Result<String, FetchError> {
         self.get(url)
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum DownloadOfferPageError {
+    #[error("offer page download failed for {url}: {error}")]
+    Fetch { url: String, error: FetchError },
+
+    #[error(transparent)]
+    Store(#[from] StoreError),
 }
 
 pub struct Handler<S, F> {
@@ -44,62 +45,51 @@ impl<S, F> Handler<S, F> {
 
 impl<S: Store, F: FetchOfferPage> Handle for Handler<S, F> {
     type Command = DownloadOfferPage;
-    type Event = DownloadOutcome;
-    type Error = StoreError;
+    type Event = OfferPageWasDownloaded;
+    type Error = DownloadOfferPageError;
 
-    fn handle(&self, command: DownloadOfferPage) -> Result<Vec<DownloadOutcome>, StoreError> {
-        let since = Utc::now() - Duration::hours(REDOWNLOAD_WINDOW_HOURS);
-        if let Some(raw_offer_id) = self.store.recent_raw_offer(&command.url, since)? {
-            tracing::info!(
-                offer_id = %command.offer_id,
-                url = %command.url,
-                "offer page skipped: downloaded in the last {REDOWNLOAD_WINDOW_HOURS} hours"
-            );
-            return Ok(vec![DownloadOutcome::Skipped(OfferPageDownloadSkipped {
-                offer_id: command.offer_id,
-                consolidated_sitemap_id: command.consolidated_sitemap_id,
-                retailer_code: command.retailer_code,
-                url: command.url,
-                raw_offer_id,
-            })]);
-        }
+    fn handle(
+        &self,
+        command: DownloadOfferPage,
+    ) -> Result<Vec<OfferPageWasDownloaded>, DownloadOfferPageError> {
+        // A failed download fails the command, so it is retried later.
+        let body =
+            self.fetcher
+                .fetch(&command.url)
+                .map_err(|error| DownloadOfferPageError::Fetch {
+                    url: command.url.clone(),
+                    error,
+                })?;
 
-        let body = match self.fetcher.fetch(&command.url) {
-            Ok(body) => body,
-            Err(error) => {
-                // The failure is logged and the command is done, not retried.
-                tracing::warn!(
-                    offer_id = %command.offer_id,
-                    url = %command.url,
-                    "offer page download failed: {error}"
-                );
-                return Ok(Vec::new());
-            }
+        let entity = RawOffer {
+            offer_id: command.offer_id,
+            retailer_code: command.retailer_code,
+            url: command.url.clone(),
+            body,
         };
-
-        self.store
-            .store_raw_offer(command.offer_id, &command.url, &body)?;
+        let stored = self.store.store_raw_offer(&entity)?;
         tracing::info!(
+            object_storage_id = %stored.object_storage_id,
             offer_id = %command.offer_id,
             url = %command.url,
-            bytes = body.len(),
+            bytes = entity.body.len(),
             "offer page downloaded"
         );
 
-        Ok(vec![DownloadOutcome::Downloaded(OfferPageWasDownloaded {
+        Ok(vec![OfferPageWasDownloaded {
             offer_id: command.offer_id,
             consolidated_sitemap_id: command.consolidated_sitemap_id,
             retailer_code: command.retailer_code,
             url: command.url,
-        })])
+        }])
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Mutex;
-
     use bodul_shared::retailer::RetailerCode;
+    use std::sync::Mutex;
+    use uuid::Uuid;
 
     use super::*;
 
@@ -107,7 +97,7 @@ mod tests {
 
     #[derive(Default)]
     struct FakeStore {
-        recent: Option<Uuid>,
+        fail: bool,
         log: Mutex<Vec<String>>,
     }
 
@@ -119,12 +109,21 @@ mod tests {
     }
 
     impl Store for FakeStore {
-        fn recent_raw_offer(&self, _: &str, _: DateTime<Utc>) -> Result<Option<Uuid>, StoreError> {
-            Ok(self.recent)
-        }
+        fn store_raw_offer(&self, entity: &RawOffer) -> Result<Stored<RawOffer>, StoreError> {
+            if self.fail {
+                return Err(StoreError::ObjectStorage(
+                    crate::platform::object_storage::Error::InvalidRecord,
+                ));
+            }
 
-        fn store_raw_offer(&self, _: Uuid, url: &str, body: &str) -> Result<(), StoreError> {
-            self.log(format!("stored {url}: {body}"))
+            self.log(format!(
+                "stored {:?} {}: {}",
+                entity.retailer_code, entity.url, entity.body
+            ))?;
+            Ok(Stored {
+                entity: entity.clone(),
+                object_storage_id: uuid::Uuid::now_v7(),
+            })
         }
     }
 
@@ -157,44 +156,51 @@ mod tests {
 
         assert_eq!(
             events,
-            vec![DownloadOutcome::Downloaded(OfferPageWasDownloaded {
+            vec![OfferPageWasDownloaded {
                 offer_id: command.offer_id,
                 consolidated_sitemap_id: command.consolidated_sitemap_id,
                 retailer_code: RetailerCode::UgreenCa,
                 url: URL.to_string(),
-            })]
+            }]
         );
         assert_eq!(
             *handler.store.log.lock().unwrap(),
-            vec![format!("stored {URL}: <html>offer</html>")]
+            vec![format!("stored UgreenCa {URL}: <html>offer</html>")]
         );
     }
 
     #[test]
-    fn skips_a_url_downloaded_recently() {
-        let raw_offer_id = Uuid::now_v7();
-        let store = FakeStore {
-            recent: Some(raw_offer_id),
-            ..FakeStore::default()
-        };
-        let handler = Handler::new(store, Page(Some("unused")));
+    fn downloads_a_url_again_every_time() {
+        let handler = Handler::new(FakeStore::default(), Page(Some("<html>offer</html>")));
 
-        let events = handler.handle(command()).unwrap();
+        for _ in 0..2 {
+            let events = handler.handle(command()).unwrap();
+            assert_eq!(events.len(), 1);
+        }
 
-        assert!(matches!(
-            &events[..],
-            [DownloadOutcome::Skipped(skipped)] if skipped.raw_offer_id == raw_offer_id
-        ));
+        assert_eq!(handler.store.log.lock().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn fails_the_command_when_the_download_fails() {
+        let handler = Handler::new(FakeStore::default(), Page(None));
+
+        let error = handler.handle(command()).unwrap_err();
+
+        assert!(
+            matches!(&error, DownloadOfferPageError::Fetch { url, .. } if url == URL),
+            "{error:?}"
+        );
         assert!(handler.store.log.lock().unwrap().is_empty());
     }
 
     #[test]
-    fn completes_the_command_when_the_download_fails() {
-        let handler = Handler::new(FakeStore::default(), Page(None));
-
-        let events = handler.handle(command()).unwrap();
-
-        assert!(events.is_empty());
-        assert!(handler.store.log.lock().unwrap().is_empty());
+    fn storage_failure_prevents_success_events() {
+        let store = FakeStore {
+            fail: true,
+            ..Default::default()
+        };
+        let handler = Handler::new(store, Page(Some("<html>offer</html>")));
+        assert!(handler.handle(command()).is_err());
     }
 }

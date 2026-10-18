@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/commands/run
+  url: {{retailerSourcingBaseUrl}}/api/commands/run
   body: json
   auth: none
 }
 
 body:json {
   {
-    "limit": 1
+    "limit": 50
   }
 }
 
