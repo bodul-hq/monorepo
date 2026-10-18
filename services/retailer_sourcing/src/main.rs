@@ -1,3 +1,4 @@
+mod development;
 mod offer_discovery;
 mod platform;
 mod sitemap_discovery;
@@ -10,7 +11,8 @@ use async_graphql_axum::GraphQL;
 use axum::{Router, response::Html, routing::get};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
-use utoipa::OpenApi;
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::{Modify, OpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -19,8 +21,28 @@ use platform::bus::Bus;
 use platform::state::AppState;
 
 #[derive(OpenApi)]
-#[openapi(info(title = "Retailer Sourcing"), servers((url = "/api")))]
+#[openapi(
+    info(title = "Retailer Sourcing"),
+    servers((url = "/api")),
+    modifiers(&BearerScheme)
+)]
 struct ApiDoc;
+
+/// Documents the bearer token some routes need, so Swagger UI can send it.
+struct BearerScheme;
+
+impl Modify for BearerScheme {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let scheme = HttpBuilder::new().scheme(HttpAuthScheme::Bearer).build();
+        openapi
+            .components
+            .get_or_insert_with(Default::default)
+            .add_security_scheme(
+                platform::auth::SECURITY_SCHEME,
+                SecurityScheme::Http(scheme),
+            );
+    }
+}
 
 #[utoipa::path(get, path = "/health", responses((status = 200, body = String)))]
 async fn health() -> &'static str {
@@ -46,6 +68,7 @@ fn app(state: AppState) -> Router {
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
         .merge(sitemap_discovery::prelude::routes())
+        .merge(development::prelude::routes())
         .split_for_parts();
     let api = api.with_state(state);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
@@ -102,6 +125,7 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);
     offer_discovery::prelude::register(&mut bus, &platform);
+    development::prelude::register(&mut bus, &platform);
 
     let db = platform.db.clone();
     let object_storage = platform.object_storage.clone();
@@ -156,6 +180,7 @@ mod tests {
     use serde_json::{Value, json};
     use tower::ServiceExt;
 
+    use super::platform::auth::BEARER_TOKEN;
     use super::{AppState, app, parse_port, start_features};
 
     async fn get(uri: &str) -> Response {
@@ -229,6 +254,21 @@ mod tests {
                 "OpenAPI must document POST {path}",
             );
         }
+        for (path, _) in DEVELOPMENT_SOURCES {
+            assert!(
+                spec["paths"][path]["get"].is_object(),
+                "OpenAPI must document GET {path}",
+            );
+            assert_eq!(
+                spec["paths"][path]["get"]["security"],
+                json!([{ "bearer": [] }]),
+                "{path}",
+            );
+        }
+        assert_eq!(
+            spec["components"]["securitySchemes"]["bearer"]["scheme"],
+            "bearer"
+        );
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
@@ -279,6 +319,59 @@ mod tests {
         for uri in ["/api/commands/run", "/api/events/run"] {
             let response = post_json(uri, json!({ "limit": 1 })).await;
             assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE, "{uri}");
+        }
+    }
+
+    async fn get_with_token(uri: &str, token: &str) -> Response {
+        let request = Request::get(uri)
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .body(Body::empty())
+            .unwrap();
+        app(AppState::default()).oneshot(request).await.unwrap()
+    }
+
+    /// The development source routes relative to `/api`, with their maximum page sizes.
+    const DEVELOPMENT_SOURCES: [(&str, u32); 2] = [
+        ("/development/sitemaps/sources", 100),
+        ("/development/offer-details/sources", 1000),
+    ];
+
+    #[tokio::test]
+    async fn development_sources_need_the_bearer_token() {
+        for (path, _) in DEVELOPMENT_SOURCES {
+            let uri = format!("/api{path}");
+            let response = get(&uri).await;
+            assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
+            assert_eq!(response.headers()[header::WWW_AUTHENTICATE], "Bearer");
+
+            let response = get_with_token(&uri, "wrong").await;
+            assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
+        }
+    }
+
+    #[tokio::test]
+    async fn development_sources_reject_a_limit_out_of_range() {
+        for (path, max_limit) in DEVELOPMENT_SOURCES {
+            for limit in [0, max_limit + 1] {
+                let uri = format!("/api{path}?limit={limit}");
+                let response = get_with_token(&uri, BEARER_TOKEN).await;
+                assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{uri}");
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn development_sources_need_the_database() {
+        for (path, max_limit) in DEVELOPMENT_SOURCES {
+            for query in [
+                String::new(),
+                "?limit=1".to_owned(),
+                format!("?limit={max_limit}&offset=40"),
+            ] {
+                let uri = format!("/api{path}{query}");
+                let response = get_with_token(&uri, BEARER_TOKEN).await;
+                assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE, "{uri}");
+            }
         }
     }
 

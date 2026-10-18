@@ -2,6 +2,7 @@
 name = "retailer_sourcing"
 version = "0.1.0"
 edition = "2024"
+default-run = "retailer_sourcing"
 
 [dependencies]
 async-graphql.workspace = true
