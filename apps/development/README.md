@@ -93,3 +93,9 @@ build is required. After CSS changes, run the app and check `/dashboard` in a
 browser at desktop and narrow mobile widths. Verify that the page fits the
 viewport, wide tables scroll within their cards, and Refresh remains usable.
 Also stop one upstream service and check that the other report remains visible.
+
+The dashboard also requests retailer sourcing's `/api/reporting/entry-statuses`
+server-side and displays exact command and event counts by status, including
+numeric codes and `status_text` labels. These counts refresh on page load.
+Empty queues and unavailable status reports have their own messages, and a
+failed status request does not hide the database table reports.

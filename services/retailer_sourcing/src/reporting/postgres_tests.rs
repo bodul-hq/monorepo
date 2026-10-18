@@ -127,3 +127,93 @@ fn postgres_reporting_route_returns_typed_contract() {
         );
     }
 }
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+fn postgres_entry_statuses_group_counts_and_report_changes() {
+    let db = Database::new();
+    let mut conn = db.pool.get().unwrap();
+    let empty = store::load_entry_statuses(&mut conn).unwrap();
+    assert!(empty.command_entries.is_empty());
+    assert!(empty.event_entries.is_empty());
+    conn.batch_execute(
+        "INSERT INTO command_entries(id,command_type,payload,status)
+        SELECT gen_random_uuid(), 'Test', '{}', s FROM unnest(ARRAY[0,0,2,4,5,7,8,99]) s;
+        INSERT INTO event_entries(id,event_type,payload,status)
+        VALUES (gen_random_uuid(), 'Test', '{}', 4), (gen_random_uuid(), 'Test', '{}', 4)",
+    )
+    .unwrap();
+    let report = store::load_entry_statuses(&mut conn).unwrap();
+    let groups: Vec<_> = report
+        .command_entries
+        .iter()
+        .map(|r| (r.status, r.status_text, r.count))
+        .collect();
+    assert_eq!(
+        groups,
+        vec![
+            (0, "received", 2),
+            (2, "reserved", 1),
+            (4, "failed", 1),
+            (5, "completed", 1),
+            (7, "dead", 1),
+            (8, "archive", 1),
+            (99, "unknown", 1)
+        ]
+    );
+    assert_eq!(report.event_entries.len(), 1);
+    assert_eq!(report.event_entries[0].status_text, "failed");
+    assert_eq!(report.event_entries[0].count, 2);
+    conn.batch_execute("UPDATE command_entries SET status = 5 WHERE status = 0")
+        .unwrap();
+    let report = store::load_entry_statuses(&mut conn).unwrap();
+    assert!(!report.command_entries.iter().any(|r| r.status == 0));
+    assert_eq!(
+        report
+            .command_entries
+            .iter()
+            .find(|r| r.status == 5)
+            .unwrap()
+            .count,
+        3
+    );
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+async fn postgres_entry_statuses_route_returns_exact_contract() {
+    use axum::{body::Body, http::Request};
+    use http_body_util::BodyExt;
+    use tower::ServiceExt;
+    let db = Database::new();
+    db.pool.get().unwrap().batch_execute(
+        "INSERT INTO event_entries(id,event_type,payload,status) VALUES(gen_random_uuid(),'Test','{}',2)"
+    ).unwrap();
+    let app = crate::app(crate::platform::state::AppState {
+        db: Some(db.pool.clone()),
+        ..Default::default()
+    });
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/api/reporting/entry-statuses")
+                .header(
+                    "authorization",
+                    format!("Bearer {}", crate::platform::auth::BEARER_TOKEN),
+                )
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.headers()["cache-control"], "no-store");
+    let bytes = response.into_body().collect().await.unwrap().to_bytes();
+    let report: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert!(chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
+    assert_eq!(report["command_entries"], serde_json::json!([]));
+    assert_eq!(
+        report["event_entries"],
+        serde_json::json!([{"status":2,"status_text":"reserved","count":1}])
+    );
+}
