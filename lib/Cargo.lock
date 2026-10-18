@@ -1642,8 +1642,11 @@ version = "0.1.0"
 dependencies = [
  "bodul_shared",
  "html-extractor",
+ "money",
  "retailer_sauce",
  "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

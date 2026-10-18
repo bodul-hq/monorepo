@@ -28,8 +28,10 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - `sitemap` library: parsing sitemap XML and building a crawl's sitemap tree.
 - `Availability`, `ItemCondition`, validated identifiers and `StructuralizedData` in `retailer_sauce`.
 - Anker offer details: Next.js, App Router and Liquid storefronts are extracted, normalized and structuralized into offers, with tests over saved product pages.
+- Minisforum offer details: storefront product islands are extracted, normalized and structuralized into offers, with tests over saved product pages.
 
 ### Fixed
 
 - Anker regional sitemaps no longer accept out-of-region URLs listed by a sitemap they do not recognize.
+- `minisforumau` sitemaps no longer report other hosts, the homepage, `agents.md`, `/pages/` or service products such as shipping protection as interesting.
 - `ankercom` sitemaps no longer treat German and Mexican storefront URLs as global.
