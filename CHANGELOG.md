@@ -30,6 +30,7 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - Anker offer details: Next.js, App Router and Liquid storefronts are extracted, normalized and structuralized into offers, with tests over saved product pages.
 - Minisforum offer details: storefront product islands are extracted, normalized and structuralized into offers, with tests over saved product pages.
 - Ugreen offer details, NAS storefronts included: extracted, normalized and structuralized into offers, with tests over saved product pages.
+- `retailer_data_extractor::extract_for` and `structuralize_for`, with a command that processes saved pages.
 
 ### Fixed
 
