@@ -2,7 +2,7 @@ MEMBERS := lib services apps
 
 include make/workspace.mk
 
-.PHONY: dump-offer-details extract-offer-details normalize-offer-details structuralize-offer-details dump-sitemap-sources process-sitemap-sources consolidate-sitemap-sources
+.PHONY: dump-offer-details extract-offer-details normalize-offer-details structuralize-offer-details dump-sitemap-sources process-sitemap-sources consolidate-sitemap-sources process-offer-details
 
 # The data folder next to the monorepo. Passed on as an absolute path, because
 # the targets below run from their own folders.
@@ -35,3 +35,16 @@ process-sitemap-sources:
 # of page and writes them to DATA_DIR/<retailer>/sitemaps/consolidate/<retrieval id>.json.
 consolidate-sitemap-sources:
 	$(MAKE) -C apps/development consolidate-sitemap-sources DATA_DIR=$(abspath $(DATA_DIR))
+
+# Writes the extracted, normalized and structurized stages of every saved offer
+# page. Set RETAILERS to process only some, e.g. RETAILERS="ankerau ankervn".
+process-offer-details:
+	$(MAKE) -C lib/retailer_data_extractor process-offer-details DATA_DIR=$(abspath $(DATA_DIR))
+
+.PHONY: export-offer-sources
+export-offer-sources:
+	$(MAKE) -C services/retailer_sourcing export-offer-sources DATA_DIR=$(abspath $(DATA_DIR))
+
+.PHONY: export-sitemaps
+export-sitemaps:
+	$(MAKE) -C services/retailer_sourcing export-sitemaps DATA_DIR=$(abspath $(DATA_DIR))
