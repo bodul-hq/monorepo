@@ -20,10 +20,18 @@ Run these targets from the repository root. `DATA_DIR` defaults to `../data`;
 Paths are under `<DATA_DIR>/<retailer>/`. Failed offer stages remove stale output
 and report errors while continuing with other pages.
 
-`dump-sitemap-sources` and `dump-offer-details` download source files from the
-retailer sourcing development API. They require that API to be available; set
+`dump-sitemap-sources` downloads source files from the retailer sourcing
+development API. `dump-offer-details` first lists database metadata from that
+API, then downloads HTML directly from object storage. Both use
 `RETAILER_SOURCING_URL` (default `http://localhost:3000`) and optionally
 `RETAILER_SOURCING_TOKEN` to override the repository development token.
+For `dump-offer-details`, also set `OBJECT_STORAGE_URL` (default
+`http://172.28.100.43:3000`) and optionally `OBJECT_STORAGE_TOKEN` to override
+the repository object-storage development token. It retrieves records from the
+`offer_details_raw` bucket using each source's `storage.object_storage_id`,
+validates the ID, bucket, external ID and UTF-8 byte length, and writes the payload.
+Older copies are skipped before downloading; individual download or validation
+failures are reported as skipped sources while other sources continue.
 The offline stages operate on existing files without a running service.
 
 ## Run and test

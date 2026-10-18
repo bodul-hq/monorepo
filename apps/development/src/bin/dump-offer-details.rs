@@ -1,20 +1,18 @@
-//! Downloads every fetched offer page from `retailer_sourcing`'s
-//! `/api/development/offer-details/sources`, a page at a time, and writes each to
-//! `<data_dir>/<retailer>/offer_details/sources/<url path>.html`, the retailer in
-//! lowercase as the data folders name it.
+//! Lists offer metadata from `retailer_sourcing`, then downloads each newest HTML
+//! payload directly from `object_storage` to
+//! `<data_dir>/<retailer>/offer_details/sources/<url path>.html`.
 //!
-//! The API lists pages newest first, so when a URL was fetched more than once
-//! only its newest page is kept.
+//! Usage: `dump-offer-details <data_dir>`
 //!
-//! Usage: `RETAILER_SOURCING_URL=http://localhost:3000 dump-offer-details <data_dir>`
-//!
-//! `RETAILER_SOURCING_URL` defaults to `http://localhost:3000`. The development
-//! API needs a bearer token; `RETAILER_SOURCING_TOKEN` overrides the one the
-//! service hardcodes for now.
+//! Configure the services using `RETAILER_SOURCING_URL`, `RETAILER_SOURCING_TOKEN`,
+//! `OBJECT_STORAGE_URL`, and `OBJECT_STORAGE_TOKEN`; see the app README for defaults.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
+
+use object_storage_client::{Client as ObjectStorage, Transport, Uuid};
+use std::time::Duration;
 
 use percent_encoding::percent_decode_str;
 use reqwest::Url;
@@ -24,6 +22,10 @@ use serde::Deserialize;
 const PAGE_SIZE: usize = 200;
 
 const DEFAULT_URL: &str = "http://localhost:3000";
+const DEFAULT_STORAGE_URL: &str = "http://172.28.100.43:3000";
+const DEFAULT_STORAGE_TOKEN: &str =
+    "6fe0382d64bba74e205af86e397d902c0f5e6f3d8e15b1a4f87c6a309d752eb1";
+const BUCKET: &str = "offer_details_raw";
 
 /// The bearer token `retailer_sourcing` hardcodes for its development API.
 const DEFAULT_TOKEN: &str = "8bcb74f24405708e90b0aa1be5679f422ea2ba199ae8ab0d0f1e80acd8c9c97d";
@@ -38,7 +40,14 @@ struct Source {
     id: String,
     url: String,
     retailer_code: String,
-    body: String,
+    storage: Storage,
+}
+
+#[derive(Deserialize)]
+struct Storage {
+    content_size: u64,
+    object_storage_id: Uuid,
+    external_id: Uuid,
 }
 
 enum Written {
@@ -47,14 +56,15 @@ enum Written {
     Older,
 }
 
-fn main() {
-    if let Err(error) = run() {
+#[tokio::main]
+async fn main() {
+    if let Err(error) = run().await {
         eprintln!("error: {error}");
         process::exit(1);
     }
 }
 
-fn run() -> Result<(), String> {
+async fn run() -> Result<(), String> {
     let data_dir = env::args()
         .nth(1)
         .map(PathBuf::from)
@@ -65,7 +75,23 @@ fn run() -> Result<(), String> {
         "{}/api/development/offer-details/sources",
         base_url.trim_end_matches('/')
     );
-    let client = reqwest::blocking::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .redirect(reqwest::redirect::Policy::none())
+        .retry(reqwest::retry::never())
+        .build()
+        .map_err(|error| with_causes(&error))?;
+    let storage_url =
+        env::var("OBJECT_STORAGE_URL").unwrap_or_else(|_| DEFAULT_STORAGE_URL.to_string());
+    let storage_token =
+        env::var("OBJECT_STORAGE_TOKEN").unwrap_or_else(|_| DEFAULT_STORAGE_TOKEN.to_string());
+    let objects = ObjectStorage::with_http_client(
+        client.clone(),
+        &storage_url,
+        &storage_token,
+        Transport::Rest,
+    )
+    .map_err(|error| with_causes(&error))?;
 
     // The URL written to each path, so an older page of the same URL, or
     // another URL with the same path, doesn't overwrite it.
@@ -75,9 +101,9 @@ fn run() -> Result<(), String> {
     let mut skipped = 0;
     let mut offset = 0;
     loop {
-        let page = fetch_page(&client, &endpoint, &token, offset)?;
+        let page = fetch_page(&client, &endpoint, &token, offset).await?;
         for source in &page {
-            match write_source(&data_dir, source, &mut written_urls) {
+            match write_source(&data_dir, source, &mut written_urls, &objects).await {
                 Ok(Written::Newest(path)) => {
                     println!("{}", path.display());
                     written += 1;
@@ -102,8 +128,8 @@ fn run() -> Result<(), String> {
     Ok(())
 }
 
-fn fetch_page(
-    client: &reqwest::blocking::Client,
+async fn fetch_page(
+    client: &reqwest::Client,
     endpoint: &str,
     token: &str,
     offset: usize,
@@ -113,14 +139,16 @@ fn fetch_page(
         .get(&url)
         .bearer_auth(token)
         .send()
+        .await
         .map_err(|e| format!("{url}: {}", with_causes(&e)))?;
     let status = response.status();
     if !status.is_success() {
-        let body = response.text().unwrap_or_default();
+        let body = response.text().await.unwrap_or_default();
         return Err(format!("{url}: {status} {body}"));
     }
     let page: SourcesResponse = response
         .json()
+        .await
         .map_err(|e| format!("{url}: {}", with_causes(&e)))?;
     Ok(page.sources)
 }
@@ -137,10 +165,11 @@ fn with_causes(error: &dyn std::error::Error) -> String {
     message
 }
 
-fn write_source(
+async fn write_source(
     data_dir: &Path,
     source: &Source,
     written_urls: &mut HashMap<PathBuf, String>,
+    objects: &ObjectStorage,
 ) -> Result<Written, String> {
     // The data folders name retailers in lowercase, such as `ugreeneu`.
     let retailer = source.retailer_code.to_ascii_lowercase();
@@ -163,8 +192,19 @@ fn write_source(
         ));
     }
 
+    let record = objects
+        .get(BUCKET, source.storage.object_storage_id)
+        .await
+        .map_err(|error| with_causes(&error))?;
+    if record.id != source.storage.object_storage_id
+        || record.bucket != BUCKET
+        || record.idempotency_key != source.storage.external_id
+        || record.payload.len() as u64 != source.storage.content_size
+    {
+        return Err("object storage record does not match its source reference".into());
+    }
     fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    fs::write(&path, &source.body).map_err(|e| format!("{}: {e}", path.display()))?;
+    fs::write(&path, &record.payload).map_err(|e| format!("{}: {e}", path.display()))?;
     written_urls.insert(path.clone(), source.url.clone());
     Ok(Written::Newest(path))
 }
@@ -238,32 +278,13 @@ mod tests {
     }
 
     #[test]
-    fn keeps_the_newest_page_of_a_url() {
-        let dir = env::temp_dir().join(format!("dump-offer-details-{}", process::id()));
-        let source = |body: &str| Source {
-            id: "1".to_string(),
-            url: "https://www.anker.com/au/products/a1256".to_string(),
-            retailer_code: "AnkerAu".to_string(),
-            body: body.to_string(),
-        };
-        let mut written_urls = HashMap::new();
-
-        let first = write_source(&dir, &source("newest"), &mut written_urls).unwrap();
-        let second = write_source(&dir, &source("older"), &mut written_urls).unwrap();
-
-        let Written::Newest(path) = first else {
-            panic!("the first page wasn't written")
-        };
-        assert!(matches!(second, Written::Older));
-        assert!(path.ends_with("ankerau/offer_details/sources/au-products-a1256.html"));
-        assert_eq!(fs::read_to_string(&path).unwrap(), "newest");
-        fs::remove_dir_all(&dir).unwrap();
-    }
-
-    #[test]
     fn rejects_unsafe_retailer_codes() {
         for value in ["", ".", "..", "../etc", "a/b", "a\\b"] {
             assert!(check_path_segment("id", value).is_err(), "{value:?}");
         }
     }
 }
+
+#[cfg(test)]
+#[path = "dump-offer-details/tests.rs"]
+mod download_tests;

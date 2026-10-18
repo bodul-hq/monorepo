@@ -13,8 +13,9 @@
 | [9](0009-pipeline-storage-jsonb.md) | Pipeline storage metadata in JSONB | Accepted; Rust metadata representation superseded by ADR 10 |
 | [10](0010-typed-record-metadata.md) | Typed record metadata | Accepted |
 | [11](0011-raw-sitemap-object-storage.md) | Raw sitemap bodies in object storage | Accepted; supersedes raw sitemap payload layout in ADRs 7 and 9 and raw storage metadata in ADR 10 |
-| [12](0012-pipeline-object-storage.md) | Remaining pipeline payloads in object storage | Accepted; supersedes remaining payload tables and storage shapes in ADRs 7–10 |
+| [12](0012-pipeline-object-storage.md) | Remaining pipeline payloads in object storage | Accepted; supersedes remaining payload tables and storage shapes in ADRs 7–10; offer source API compatibility superseded by ADR 14 |
 | [13](0013-development-database-reporting.md) | Database reporting for the development dashboard | Accepted |
+| [14](0014-direct-offer-source-downloads.md) | Direct offer source downloads | Accepted |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

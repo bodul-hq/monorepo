@@ -12,8 +12,9 @@ DATA_DIR ?= ../../../data
 dump-sitemap-sources:
 	cargo run --release --bin dump-sitemap-sources -- $(DATA_DIR)
 
-# Downloads the newest fetched page of every offer from retailer_sourcing's API
-# to DATA_DIR/<retailer>/offer_details/sources. Set RETAILER_SOURCING_URL as above.
+# Lists offer metadata from retailer_sourcing, then downloads HTML from object_storage.
+# Writes to DATA_DIR/<retailer>/offer_details/sources. Set RETAILER_SOURCING_URL as above.
+# Set OBJECT_STORAGE_URL and optionally OBJECT_STORAGE_TOKEN for the payloads.
 dump-offer-details:
 	cargo run --release --bin dump-offer-details -- $(DATA_DIR)
 

@@ -20,11 +20,13 @@ pub struct Stored<T> {
 }
 
 /// Offers keep a stable row identity while each replacement uploads a new object.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct OfferStorageMetadata {
     pub content_size: u64,
+    #[schema(value_type = String, format = "uuid")]
     pub object_storage_id: Uuid,
+    #[schema(value_type = String, format = "uuid")]
     pub external_id: Uuid,
 }
 
