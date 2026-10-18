@@ -47,6 +47,7 @@ pub struct Offer {
 
     pub availability: String,
 
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,

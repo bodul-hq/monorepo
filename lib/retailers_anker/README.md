@@ -20,6 +20,8 @@ payloads on native pages still fail. German products can omit their featured
 image, and EU/Polish specification rows can have text with no separate label
 (`name: null`). Japanese PowerBag records without Product JSON-LD retain their
 Liquid variants in JPY and use their storefront handle for offer URLs.
+Italian JSON-LD offer prices retain their JSON number representation so decimal
+prices also deserialize when object-storage clients enable `arbitrary_precision`.
 Canadian and German structuralized variations retain Shopify identifiers when
 their merchant SKU is blank, with `sku: null` instead of rejecting the page.
 
@@ -37,3 +39,13 @@ describes how to add or finish a storefront.
 
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
+
+To exercise the Italian regression under the development app's JSON features:
+
+```sh
+cargo test -p retailers_anker ankeritalycom --features serde_json/arbitrary_precision
+```
+
+The Italian corpus test reads `../data/ankeritalycom/offer_details/extracted`,
+checks normalization and structuralization without writing files, and skips when
+that data checkout is absent.

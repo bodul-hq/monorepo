@@ -1601,6 +1601,7 @@ dependencies = [
  "retailers_minisforum",
  "retailers_ugreen",
  "retailers_wip",
+ "serde_json",
 ]
 
 [[package]]
@@ -1610,6 +1611,7 @@ dependencies = [
  "bodul_shared",
  "html-extractor",
  "serde",
+ "serde_json",
  "thiserror",
 ]
 

@@ -64,6 +64,7 @@ pub struct Offer {
     pub sku: Option<String>,
     pub availability: String,
     /// Whole yen as a float, such as `13980.0`.
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,

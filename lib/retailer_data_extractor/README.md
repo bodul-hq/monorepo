@@ -36,3 +36,8 @@ To add a retailer storefront, or finish one, follow the [retailer integration pl
 
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
+
+`make ci` includes normalization regressions over saved extractions in the data
+checkout, skipping absent storefront folders. Tests enable serde_json's
+`arbitrary_precision` feature to match the app and service dependency graph;
+this covers decimal prices, ratings and media aspect ratios inside enum schemas.

@@ -56,3 +56,45 @@ pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{normalize, structuralize};
+    use std::path::Path;
+
+    #[test]
+    fn normalizes_and_structuralizes_saved_extractions() {
+        let directory = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../data/ankeritalycom/offer_details/extracted");
+        if !directory.is_dir() {
+            eprintln!("skipping: {} not found", directory.display());
+            return;
+        }
+        let mut pages = 0;
+        let mut failures = Vec::new();
+        for entry in std::fs::read_dir(&directory).unwrap() {
+            let path = entry.unwrap().path();
+            if !path
+                .extension()
+                .is_some_and(|extension| extension == "json")
+            {
+                continue;
+            }
+            pages += 1;
+            let input = std::fs::read_to_string(&path).unwrap();
+            let result = normalize(&input).and_then(|normalized| {
+                let document = normalized.document_json.ok_or("no normalized document")?;
+                let output = structuralize(&document)?;
+                output
+                    .document_json
+                    .ok_or_else(|| "no structuralized document".to_string())
+            });
+            if let Err(error) = result {
+                failures.push(format!("{}: {error}", path.display()));
+            }
+        }
+        assert!(pages > 0, "{} is empty", directory.display());
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+        eprintln!("ankeritalycom: {pages} pages normalized and structuralized");
+    }
+}

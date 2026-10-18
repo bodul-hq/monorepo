@@ -39,6 +39,7 @@ pub struct Product {
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Price {
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub amount: f64,
     pub currency_code: String,
 }
@@ -237,6 +238,7 @@ pub struct DiscountCode {
     pub fixed_value: String,
     /// A display label such as `kr20`, not a currency amount.
     pub value_style: String,
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub variant_price4wscode: f64,
     pub discount_type: String,
     pub amazon_deal: bool,

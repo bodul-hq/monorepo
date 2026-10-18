@@ -13,3 +13,7 @@ retailers_mi = { path = "../retailers_mi" }
 retailers_minisforum = { path = "../retailers_minisforum" }
 retailers_ugreen = { path = "../retailers_ugreen" }
 retailers_wip = { path = "../retailers_wip" }
+
+[dev-dependencies]
+# Match the JSON feature enabled by object-storage clients in apps and services.
+serde_json = { workspace = true, features = ["arbitrary_precision"] }
