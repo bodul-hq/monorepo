@@ -3,12 +3,11 @@ use bodul_shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use super::super::Retailers;
-use super::super::document::{SitemapDocument, SitemapUrl};
 use super::command::ConsolidateSitemap;
 use super::event::SitemapConsolidated;
-use super::links::GroupedLinks;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
+use sitemap::{GroupedLinks, SitemapDocument, SitemapUrl};
 
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {

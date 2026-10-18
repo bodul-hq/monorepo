@@ -3,7 +3,6 @@
 
 pub mod prelude;
 
-mod build;
 mod command;
 mod event;
 mod handler;

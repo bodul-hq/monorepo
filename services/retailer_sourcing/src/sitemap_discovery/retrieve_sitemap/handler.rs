@@ -1,14 +1,16 @@
+use std::time::Duration;
+
 use bodul_shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use super::super::Retailers;
-use super::super::document::RawSitemapDocument;
 use super::command::RetrieveSitemap;
 use super::crawl::crawl;
 use super::event::SitemapRetrieved;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
 use crate::platform::http::{self, FetchError};
+use sitemap::RawSitemapDocument;
 
 #[rustfmt::skip]
 /// The storage this slice needs.
@@ -30,12 +32,32 @@ impl FetchSitemapBody for http::Client {
 /// Looks up the sitemaps a retailer's crawl starts from.
 pub trait RootSitemaps: Send + Sync + 'static {
     fn root_sitemaps(&self, retailer_code: &RetailerCode) -> Option<Vec<String>>;
+
+    /// Whether the crawl downloads the child sitemap at `url`. Every one by
+    /// default.
+    fn sitemap_greylisted(&self, _retailer_code: RetailerCode, _url: &str) -> bool {
+        true
+    }
+
+    /// How long the crawl pauses between groups of downloads. None by
+    /// default.
+    fn sitemap_pause(&self, _retailer_code: RetailerCode) -> Duration {
+        Duration::ZERO
+    }
 }
 
 impl RootSitemaps for Retailers {
     fn root_sitemaps(&self, retailer_code: &RetailerCode) -> Option<Vec<String>> {
         self.sitemap_config(retailer_code)
             .map(|config| config.sitemap_url)
+    }
+
+    fn sitemap_greylisted(&self, retailer_code: RetailerCode, url: &str) -> bool {
+        Retailers::sitemap_greylisted(*self, retailer_code, url)
+    }
+
+    fn sitemap_pause(&self, retailer_code: RetailerCode) -> Duration {
+        Retailers::sitemap_pause(*self, retailer_code)
     }
 }
 
@@ -81,7 +103,13 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
         };
 
         // A problem with one sitemap file skips that file; the crawl goes on.
-        let (documents, errors) = crawl(&self.fetcher, &root_urls);
+        let greylisted = |url: &str| self.retailers.sitemap_greylisted(retailer_code, url);
+        let pause = self.retailers.sitemap_pause(retailer_code);
+        let (documents, not_greylisted, errors) =
+            crawl(&self.fetcher, &root_urls, greylisted, pause);
+        for url in &not_greylisted {
+            tracing::info!(%retrieval_id, ?retailer_code, url, "sitemap file not greylisted, not downloaded");
+        }
         for error in &errors {
             tracing::warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");
         }
@@ -91,6 +119,7 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
             %retrieval_id,
             ?retailer_code,
             documents = documents.len(),
+            not_greylisted = not_greylisted.len(),
             skipped = errors.len(),
             "sitemaps retrieved"
         );
