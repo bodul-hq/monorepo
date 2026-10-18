@@ -13,7 +13,7 @@ chrono.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
 flate2 = "1"
-kernel = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-kernel", tag = "0.3.0" }
+kernel.workspace = true
 object_storage_client = { path = "../../lib/object_storage_client" }
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.4", features = ["blocking"] }

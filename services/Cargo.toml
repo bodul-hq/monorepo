@@ -15,6 +15,7 @@ chrono = { version = "0.4", features = ["serde"] }
 diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json", "uuid"] }
 diesel_migrations = "2"
 http-body-util = "0.1.5"
+kernel = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-kernel", tag = "0.3.0" }
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
 serde = { version = "1", features = ["derive"] }
