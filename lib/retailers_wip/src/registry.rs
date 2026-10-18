@@ -1,10 +1,11 @@
 //! Looks up each retailer in this crate by its `RetailerCode`.
 
+use std::time::Duration;
+
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
 use bodul_shared::prelude::{NormalizedData, RetailerCode};
 use html_extractor::io::Architecture;
-use std::time::Duration;
 
 pub fn architecture_for(_retailer: RetailerCode) -> Option<Architecture> {
     None
