@@ -8,6 +8,7 @@ async-graphql.workspace = true
 async-graphql-poem.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
+kernel.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
 serde.workspace = true

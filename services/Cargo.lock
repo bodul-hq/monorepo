@@ -2066,6 +2066,7 @@ dependencies = [
  "async-graphql-poem",
  "diesel",
  "diesel_migrations",
+ "mulac-kernel",
  "poem",
  "poem-openapi",
  "serde",
