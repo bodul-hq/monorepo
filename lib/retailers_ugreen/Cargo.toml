@@ -7,5 +7,11 @@ publish = ["null-labs-hq"]
 [dependencies]
 bodul_shared.workspace = true
 html-extractor.workspace = true
+money.workspace = true
 retailer_sauce.workspace = true
 serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+# Keeps keys in struct order when tests pretty-print documents to disk.
+serde_json = { workspace = true, features = ["preserve_order"] }

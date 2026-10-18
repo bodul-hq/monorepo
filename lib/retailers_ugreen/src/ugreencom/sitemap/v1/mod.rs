@@ -2,11 +2,25 @@
 
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
+use std::time::Duration;
 
 pub fn sitemap_config() -> SitemapConfig {
     SitemapConfig {
         sitemap_url: vec!["https://www.ugreen.com/sitemap.xml".to_string()],
     }
+}
+
+/// Whether the crawl downloads the child sitemap at `url`. Root sitemaps are
+/// always downloaded; drop one from [`sitemap_config`] instead.
+pub fn sitemap_greylisted(url: &str) -> bool {
+    // we are skipping any sitemap file having `metaobject` in filename
+    !url.contains("metaobject")
+}
+
+/// How long the crawl pauses between groups of sitemap downloads. The store rate-limits
+/// quick crawls, so it gets a longer pause.
+pub fn sitemap_pause() -> Duration {
+    Duration::from_secs(5)
 }
 
 pub fn classify_link(url: &str, _source: &str, _image_count: usize) -> LinkKind {
