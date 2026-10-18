@@ -46,6 +46,7 @@ pub struct Offer {
     pub kind: String,
     pub availability: String,
 
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -66,6 +67,7 @@ pub struct Offer {
 pub struct PriceSpecification {
     #[serde(rename = "@type")]
     pub kind: String,
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -108,6 +110,7 @@ pub struct ShippingDetails {
 pub struct ShippingRate {
     #[serde(rename = "@type")]
     pub kind: String,
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub value: f64,
     pub currency: String,
 }
@@ -118,6 +121,7 @@ pub struct AggregateRating {
     #[serde(rename = "@type")]
     pub kind: String,
     #[serde(rename = "ratingValue")]
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub rating_value: f64,
     #[serde(rename = "reviewCount")]
     pub review_count: i64,

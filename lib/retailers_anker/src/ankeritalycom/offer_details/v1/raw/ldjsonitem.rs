@@ -1,3 +1,5 @@
+use html_extractor::serde_json::Number;
+
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
@@ -44,7 +46,9 @@ pub struct Offer {
     #[serde(rename = "@type")]
     pub kind: String,
 
-    pub price: f64,
+    /// Keep the JSON number intact: `arbitrary_precision`, enabled by the object-storage
+    /// client, buffers decimals as maps inside the internally tagged `LdJson` enum.
+    pub price: Number,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
 
@@ -169,10 +173,33 @@ mod tests {
             panic!("expected a Product");
         };
         assert_eq!(product.offers.len(), 1);
-        assert_eq!(product.offers[0].price, 1.5);
+        assert_eq!(product.offers[0].price.as_f64(), Some(1.5));
         assert_eq!(product.offers[0].high_price, "2");
         assert_eq!(product.offers[0].low_price, "1");
         assert_eq!(product.offers[0].offer_count, 2);
+    }
+
+    #[test]
+    fn decimal_and_integer_prices_read_from_text_and_values() {
+        for price in ["149.99", "149", "0"] {
+            let input = PRODUCT.replace("\"price\":1.5", &format!("\"price\":{price}"));
+            let from_text: LdJson = serde_json::from_str(&input).unwrap();
+            let value: serde_json::Value = serde_json::from_str(&input).unwrap();
+            let from_value: LdJson = serde_json::from_value(value).unwrap();
+            assert_eq!(from_text, from_value);
+            let LdJson::Product(product) = from_text else {
+                panic!("expected a Product");
+            };
+            assert_eq!(product.offers[0].price.to_string(), price);
+        }
+    }
+
+    #[test]
+    fn non_numeric_prices_still_fail() {
+        for price in [r#""149.99""#, "null", "true", "{}", r#"{"amount":149.99}"#] {
+            let input = PRODUCT.replace("\"price\":1.5", &format!("\"price\":{price}"));
+            assert!(serde_json::from_str::<LdJson>(&input).is_err(), "{price}");
+        }
     }
 
     #[test]

@@ -9,3 +9,7 @@ bodul_shared.workspace = true
 html-extractor.workspace = true
 serde.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+# Exercise enum number buffering even when the external retailer corpus is absent.
+serde_json = { workspace = true, features = ["arbitrary_precision"] }

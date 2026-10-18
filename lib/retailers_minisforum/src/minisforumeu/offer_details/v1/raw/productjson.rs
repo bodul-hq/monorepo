@@ -113,6 +113,7 @@ pub struct FeaturedMedia {
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub aspect_ratio: f64,
     pub height: i64,
     pub width: i64,
@@ -138,6 +139,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
+        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
         aspect_ratio: f64,
         height: i64,
         width: i64,
@@ -149,6 +151,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
+        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
         aspect_ratio: f64,
         /// In milliseconds.
         duration: u64,
@@ -160,6 +163,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
+        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
         aspect_ratio: f64,
         external_id: String,
         host: String,

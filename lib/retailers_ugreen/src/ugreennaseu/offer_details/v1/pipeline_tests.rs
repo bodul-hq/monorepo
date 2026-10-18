@@ -334,17 +334,35 @@ fn regional_urls_reject_cross_store_hosts_and_wrong_handles() {
         "https://ai-eu.ugreen.com/products/other",
         "https://ai-eu.ugreen.com.evil.test/products/test-nas",
         "https://ai-eu.ugreen.com/products/test-nas?variant=11",
+        "https://ai-eu.ugreen.com/en-us/products/test-nas",
+        "https://ai-eu.ugreen.com/en-pt/extra/products/test-nas",
+        "https://ai-eu.ugreen.com/en-pt/products/other",
+        "https://ai-eu.ugreen.com/en-pt/products/test-nas#details",
     ] {
         let mut input = fixture();
         input["product_url"]["content"] = json!(url);
         rejects(&input, "URL/handle");
     }
-    let mut input = fixture();
-    input["product_url"]["content"] = json!(format!("{ORIGIN}/en-be/products/test-nas"));
-    assert_eq!(
-        structured(&normalized(&input))["variations"][0]["url"],
-        format!("{ORIGIN}/en-be/products/test-nas?variant=11")
-    );
+}
+
+#[test]
+fn regional_urls_preserve_all_saved_market_locales() {
+    for prefix in [
+        "", "/de", "/en-be", "/en-es", "/en-fr", "/en-it", "/en-nl", "/en-pt", "/en-ro", "/en-se",
+        "/es-es", "/fr-be", "/fr-fr", "/it-it", "/nl-be", "/nl-nl", "/pt-pt", "/ro-ro", "/sv-se",
+    ] {
+        let url = format!("{ORIGIN}{prefix}/products/test-nas");
+        let mut input = fixture();
+        input["product_url"]["content"] = json!(url);
+        let mut n = normalized(&input);
+        assert_eq!(n["product"]["url"], url);
+        assert_eq!(
+            structured(&n)["variations"][0]["url"],
+            format!("{url}?variant=11")
+        );
+        n["product"]["variants"].as_array_mut().unwrap().truncate(1);
+        assert_eq!(structured(&n)["variations"][0]["url"], url);
+    }
 }
 
 #[test]

@@ -8,6 +8,8 @@ Retailer integrations.
 - `identifier`: the validated identifier types a structuralizer builds
   (`Gtin`, `Sku`, `ShopifyProductGid`, `ShopifyProductVariationGid`,
   `ShopifyHandle`) and their `IdentifierError`.
+- `json`: strict numeric deserialization for fields inside tagged or untagged
+  enums, including when serde_json enables `arbitrary_precision`.
 - `item_condition`: `ItemCondition`, read from a schema.org condition URL.
 - `structuralized`: `StructuralizedData`, what a retailer's structuralizer
   returns, and the shared `Offer` shape.

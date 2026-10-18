@@ -58,6 +58,7 @@ pub struct Offer {
     /// Only on variants whose barcode is filled in.
     pub gtin13: Option<u64>,
     pub availability: String,
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,

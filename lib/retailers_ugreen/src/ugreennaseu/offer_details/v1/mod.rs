@@ -2,9 +2,9 @@
 //!
 //! The UGREEN NAS EU shop (`nas.ugreen.com` and `ai-eu.ugreen.com`) is a Shopify Liquid
 //! storefront on a Dawn 13.0.1 theme (`nas/main-eu`), shared with `ugreennasfr`, `ugreennasit`
-//! and `ugreennasuk`. One shop serves several markets under locale paths: the 109 saved pages
-//! are 21 products each under `de-`, `en-be-`, `en-es-`, `en-fr-` and `en-it-`, plus 4 under
-//! `en-nl-`. Canonical URLs are on `nas.ugreen.com` (81 pages) or `ai-eu.ugreen.com` (28).
+//! and `ugreennasuk`. One shop serves several markets under locale paths: the 399 saved pages
+//! are 21 products at the root and under 18 locale prefixes. Regional `og:url` values are on
+//! `ai-eu.ugreen.com`; canonical URLs can point at another store or product.
 //! Every page prices in EUR.
 //!
 //! The ld+json is deliberately not read. A `Product` island is rendered only by Dawn's default

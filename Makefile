@@ -14,9 +14,10 @@ DATA_DIR ?= ../data
 dump-sitemap-sources:
 	$(MAKE) -C apps/development dump-sitemap-sources DATA_DIR=$(abspath $(DATA_DIR))
 
-# Downloads the newest fetched page of every offer from retailer_sourcing's API
-# to DATA_DIR/<retailer>/offer_details/sources. Set RETAILER_SOURCING_URL to the
+# Lists offer metadata from retailer_sourcing, then downloads HTML from object_storage.
+# Writes to DATA_DIR/<retailer>/offer_details/sources. Set RETAILER_SOURCING_URL to the
 # service's address; it defaults to http://localhost:3000.
+# Set OBJECT_STORAGE_URL and optionally OBJECT_STORAGE_TOKEN for the payloads.
 dump-offer-details:
 	$(MAKE) -C apps/development dump-offer-details DATA_DIR=$(abspath $(DATA_DIR))
 

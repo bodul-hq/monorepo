@@ -417,9 +417,13 @@ ordinary CI and fresh-schema tests do not establish populated-upgrade safety.
 
 ## Downloaded source APIs
 
-`GET /api/development/sitemaps/sources` and
-`GET /api/development/offer-details/sources` return saved source bodies resolved
-through object storage. Both require the service bearer token and accept
+`GET /api/development/sitemaps/sources` returns saved source bodies resolved
+through object storage. `GET /api/development/offer-details/sources` returns
+only database metadata, newest first: `id`, `offer_id`, `url`, `retailer_code`,
+and `storage` (`content_size`, `object_storage_id`, `external_id`). It does not
+contact object storage or return a `body`. Clients retrieve the HTML with
+`GET /api/buckets/offer_details_raw/records/{object_storage_id}` on object storage
+using that service's bearer token. Both sourcing routes require the service bearer token and accept
 `limit` and `offset`. Limits must be 1–100 for sitemaps and 1–1000 for offer pages.
 Missing or invalid credentials return 401; invalid limits return 400; without a
 database the endpoints return 503. OpenAPI documents the bearer scheme.

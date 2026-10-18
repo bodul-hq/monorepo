@@ -393,10 +393,27 @@ pub(super) fn valid_product_url(url: &str, handle: &str) -> bool {
     let Some(prefix) = path.strip_suffix(&format!("/products/{handle}")) else {
         return false;
     };
-    // EU also serves localized markets. Other storefronts have no locale prefix in the corpus.
+    // EU serves these locale paths in the saved regional product pages.
     matches!(
         prefix,
-        "" | "/de" | "/en-be" | "/en-es" | "/en-fr" | "/en-it" | "/en-nl"
+        "" | "/de"
+            | "/en-be"
+            | "/en-es"
+            | "/en-fr"
+            | "/en-it"
+            | "/en-nl"
+            | "/en-pt"
+            | "/en-ro"
+            | "/en-se"
+            | "/es-es"
+            | "/fr-be"
+            | "/fr-fr"
+            | "/it-it"
+            | "/nl-be"
+            | "/nl-nl"
+            | "/pt-pt"
+            | "/ro-ro"
+            | "/sv-se"
     )
 }
 

@@ -80,6 +80,7 @@ pub struct Offer {
     pub name: String,
     pub availability: String,
     /// A number in major units, such as `2199.0`.
+    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,

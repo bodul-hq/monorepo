@@ -91,7 +91,9 @@ product title, which can differ from titles in the scripts.
 Structuralization emits each variant's validated identifiers, title, price,
 compare-at price, availability, URL and images. A variant image precedes the
 remaining gallery images. Regional `og:url` preserves EU locale paths and avoids
-canonical links that point at another product or store. Only multi-variant links
+canonical links that point at another product or store. EU validation accepts
+all 18 locale prefixes in the saved pages, including `en-pt`, `pt-pt` and `sv-se`,
+while checking the store host and product handle. Only multi-variant links
 append `?variant=<id>`. Missing SKU/GTIN values remain optional; compare-at
 prices at or below the selling price become `None`. Purchase-protection pages
 normalize but emit no offer variations.
@@ -99,8 +101,8 @@ normalize but emit no offer variations.
 Run `cargo test -p retailers_ugreen -- ugreennaseu::offer_details
 ugreennasfr::offer_details ugreennasit::offer_details
 ugreennasuk::offer_details` for fixtures and all saved-page checks, including
-parity across extractor backends. The four corpora contain 109, 23, 18 and 20
-pages respectively; missing external data skips corpus tests, while an empty
+parity across extractor backends. The EU corpus contains 399 pages across 19
+regional URL paths; missing external data skips corpus tests, while an empty
 corpus fails. From the root, run `make process-offer-details
 RETAILERS="ugreennaseu ugreennasfr ugreennasit ugreennasuk"` to write extracted,
 normalized and structurized files.
