@@ -1,6 +1,8 @@
 mod development;
+mod monitoring;
 mod offer_discovery;
 mod platform;
+mod reporting;
 mod sitemap_discovery;
 
 use std::env::VarError;
@@ -69,6 +71,7 @@ fn app(state: AppState) -> Router {
         .merge(platform::bus_api::routes())
         .merge(sitemap_discovery::prelude::routes())
         .merge(development::prelude::routes())
+        .merge(reporting::prelude::routes())
         .split_for_parts();
     let api = api.with_state(state);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
@@ -126,6 +129,8 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
     sitemap_discovery::prelude::register(&mut bus, &platform);
     offer_discovery::prelude::register(&mut bus, &platform);
     development::prelude::register(&mut bus, &platform);
+    monitoring::prelude::register(&mut bus, &platform);
+    reporting::prelude::register(&mut bus, &platform);
 
     let db = platform.db.clone();
     let object_storage = platform.object_storage.clone();
@@ -269,6 +274,11 @@ mod tests {
             spec["components"]["securitySchemes"]["bearer"]["scheme"],
             "bearer"
         );
+        assert_eq!(
+            spec["paths"]["/reporting/database-tables"]["get"]["security"],
+            json!([{ "bearer": [] }])
+        );
+        assert!(spec["paths"]["/reporting/database-tables"]["get"]["responses"]["200"].is_object());
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
