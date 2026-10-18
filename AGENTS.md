@@ -24,6 +24,10 @@ requirements, read [README.md](README.md) first.
 - Add the crate to the README.
 - Give a library crate a `README.md` that describes its purpose, like the others in `lib/`.
 
+## Adding or implementing a retailer
+
+- Follow [docs/retailer-integration.md](docs/retailer-integration.md) step by step.
+
 ## Dependencies
 
 - Declare a dependency used by several crates in the same workspace once, under `[workspace.dependencies]`, and use it with `name.workspace = true`.

@@ -33,6 +33,7 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - Ugreen offer details, NAS storefronts included: extracted, normalized and structuralized into offers, with tests over saved product pages.
 - `retailer_data_extractor::extract_for` and `structuralize_for`, with a command that processes saved pages.
 - Offline tools in the `development` app, with root Make targets, that download sitemaps and offer pages from `retailer_sourcing` and run the sitemap and offer stages over the saved files in `DATA_DIR`.
+- Offer data in `retailer_sourcing`: three more offer discovery slices follow each download. `extract_offer_page` extracts the page into JSON with the retailer's architecture, `normalize_offer` normalizes it and `structuralize_offer` structuralizes it, into the `offer_details_extracted`, `offer_details_normalized` and `offer_details_structuralized` tables. A failed step fails its command so it is retried, and a retailer step that panics fails the command instead of the run.
 
 ### Fixed
 
