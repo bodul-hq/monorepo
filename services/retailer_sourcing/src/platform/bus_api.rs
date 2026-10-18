@@ -10,6 +10,7 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 use super::bus::{BusHandle, RunReport};
+use super::state::AppState;
 
 /// The most items one request may process. A command can run for minutes (a
 /// whole retailer's crawl), so keep runs small.
@@ -36,7 +37,7 @@ pub struct ErrorBody {
 }
 
 /// The bus's HTTP routes, to nest under `/api`.
-pub fn routes() -> OpenApiRouter<Option<BusHandle>> {
+pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(run_commands))
         .routes(routes!(run_events))

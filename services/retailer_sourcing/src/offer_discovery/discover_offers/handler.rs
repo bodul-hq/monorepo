@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
 use super::command::DiscoverOffers;
+use super::entity::ConsolidatedSitemap;
 use super::event::OfferDiscovered;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
@@ -8,7 +9,7 @@ use crate::platform::bus::Handle;
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
     /// The product URLs of a consolidated sitemap.
-    fn product_urls(&self, consolidated_sitemap_id: Uuid) -> Result<Vec<String>, StoreError>;
+    fn consolidated_sitemap(&self, id: Uuid) -> Result<ConsolidatedSitemap, StoreError>;
 }
 
 pub struct Handler<S> {
@@ -32,7 +33,9 @@ impl<S: Store> Handle for Handler<S> {
             retailer_code,
         } = command;
 
-        let urls = self.store.product_urls(consolidated_sitemap_id)?;
+        let sitemap = self.store.consolidated_sitemap(consolidated_sitemap_id)?;
+        tracing::debug!(object_storage_id = %sitemap.object_storage_id, "input object loaded");
+        let urls = sitemap.product_urls;
 
         tracing::info!(
             %consolidated_sitemap_id,
@@ -44,7 +47,7 @@ impl<S: Store> Handle for Handler<S> {
             .into_iter()
             .map(|url| OfferDiscovered {
                 offer_id: Uuid::now_v7(),
-                consolidated_sitemap_id,
+                consolidated_sitemap_id: sitemap.id,
                 retailer_code,
                 url,
             })
@@ -63,8 +66,12 @@ mod tests {
     }
 
     impl Store for FakeStore {
-        fn product_urls(&self, _: Uuid) -> Result<Vec<String>, StoreError> {
-            Ok(self.urls.clone())
+        fn consolidated_sitemap(&self, id: Uuid) -> Result<ConsolidatedSitemap, StoreError> {
+            Ok(ConsolidatedSitemap {
+                object_storage_id: Uuid::now_v7(),
+                id,
+                product_urls: self.urls.clone(),
+            })
         }
     }
 

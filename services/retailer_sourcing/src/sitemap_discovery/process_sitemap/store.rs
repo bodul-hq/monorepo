@@ -1,20 +1,27 @@
-use chrono::{DateTime, Utc};
+mod record;
+
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
-use diesel::{Insertable, Queryable, Selectable};
 use uuid::Uuid;
 
-use super::super::schema::{processed_sitemaps, raw_sitemap_documents};
-use super::handler::{ProcessedSitemap, Store};
-use crate::platform::db::DbPool;
-use sitemap::RawSitemapDocument;
+use self::record::{ProcessedSitemapPgRecord, RawSitemapDocumentPgRecord};
+use super::super::schema::{sitemaps_processed, sitemaps_raw};
+use super::entity::{ProcessedSitemap, RawSitemapDocument};
+use super::handler::Store;
+use crate::platform::db::{self, DbPool};
+use crate::platform::object_storage::{
+    self, ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET, RAW_SITEMAPS_BUCKET,
+    Stored,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {
+    #[error(transparent)]
+    ObjectStorage(#[from] object_storage::Error),
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
 
-    #[error("database error: {0}")]
+    #[error("database error: {}", db::describe(.0))]
     Database(#[from] diesel::result::Error),
 
     #[error("serialization error: {0}")]
@@ -22,79 +29,70 @@ pub enum StoreError {
 
     #[error("processed sitemap document is too large for storage")]
     DocumentTooLarge,
+
+    #[error("sitemap contains {0} URLs, which exceeds the supported storage maximum")]
+    TooManyUrls(usize),
+
+    #[error(
+        "storage.content_size must be a nonnegative integer within the supported storage range"
+    )]
+    InvalidContentSize,
 }
 
 /// Postgres storage for this slice.
 pub struct PgStore {
     pool: DbPool,
+    objects: ObjectStorage,
 }
 
 impl PgStore {
-    pub fn new(pool: DbPool) -> Self {
-        Self { pool }
+    pub fn new(pool: DbPool, objects: ObjectStorage) -> Self {
+        Self { pool, objects }
     }
-}
-
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = raw_sitemap_documents)]
-struct RawSitemapDocumentRecord {
-    url: String,
-    last_modified: Option<DateTime<Utc>>,
-    body: String,
-    body_size: i32,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = processed_sitemaps)]
-struct NewProcessedSitemap {
-    id: Uuid,
-    retrieval_id: Uuid,
-    retailer_code: String,
-    document: serde_json::Value,
-    url_count: i32,
-    document_size: i32,
-    processed_at: DateTime<Utc>,
 }
 
 impl Store for PgStore {
     fn raw_documents(&self, retrieval_id: Uuid) -> Result<Vec<RawSitemapDocument>, StoreError> {
         let mut connection = self.pool.get()?;
-        let records = raw_sitemap_documents::table
-            .filter(raw_sitemap_documents::retrieval_id.eq(retrieval_id))
-            .order(raw_sitemap_documents::fetched_at.asc())
-            .select(RawSitemapDocumentRecord::as_select())
-            .load(&mut connection)?;
-
-        Ok(records
+        let records = sitemaps_raw::table
+            .filter(sitemaps_raw::retrieval_id.eq(retrieval_id))
+            .order((sitemaps_raw::fetched_at.asc(), sitemaps_raw::id.asc()))
+            .select(RawSitemapDocumentPgRecord::as_select())
+            .load::<RawSitemapDocumentPgRecord>(&mut connection)?;
+        drop(connection);
+        records
             .into_iter()
-            .map(|record| RawSitemapDocument {
-                url: record.url,
-                last_modified: record.last_modified,
-                body: record.body,
-                body_size: record.body_size as usize,
+            .map(|record| {
+                i32::try_from(record.storage.0.content_size)
+                    .map_err(|_| StoreError::InvalidContentSize)?;
+                let body = self
+                    .objects
+                    .get(RAW_SITEMAPS_BUCKET, record.id, &record.storage.0)?;
+                record.into_entity(body)
             })
-            .collect())
+            .collect()
     }
 
-    fn store_processed(&self, sitemap: &ProcessedSitemap) -> Result<(), StoreError> {
-        let document = serde_json::to_value(&sitemap.document)?;
-        let document_size =
-            i32::try_from(document.to_string().len()).map_err(|_| StoreError::DocumentTooLarge)?;
-        let record = NewProcessedSitemap {
-            id: sitemap.id,
-            retrieval_id: sitemap.retrieval_id,
-            retailer_code: sitemap.retailer_code.as_str(),
-            document,
-            url_count: sitemap.url_count,
-            document_size,
-            processed_at: sitemap.processed_at,
+    fn store_processed(
+        &self,
+        sitemap: &ProcessedSitemap,
+    ) -> Result<Stored<ProcessedSitemap>, StoreError> {
+        let body = serde_json::to_string(sitemap.document())?;
+        record::validate(sitemap, &body)?;
+        let object_storage_id =
+            self.objects
+                .create(PROCESSED_SITEMAPS_BUCKET, sitemap.id, &body)?;
+        let storage = ObjectStorageMetadata {
+            content_size: body.len() as u64,
+            object_storage_id,
         };
-
-        let mut connection = self.pool.get()?;
-        diesel::insert_into(processed_sitemaps::table)
+        let record = ProcessedSitemapPgRecord::new(sitemap, storage)?;
+        diesel::insert_into(sitemaps_processed::table)
             .values(record)
-            .execute(&mut connection)?;
-
-        Ok(())
+            .execute(&mut self.pool.get()?)?;
+        Ok(Stored {
+            entity: sitemap.clone(),
+            object_storage_id,
+        })
     }
 }

@@ -1,22 +1,28 @@
+use crate::platform::object_storage::Stored;
 use bodul_shared::retailer::RetailerCode;
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
+
+use sitemap::{BuildError, build_tree};
 
 use super::super::Retailers;
 use super::command::ProcessSitemap;
+use super::entity::{ProcessedSitemap, RawSitemapDocument};
 use super::event::SitemapProcessed;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
-use sitemap::{BuildError, ROOT_SITEMAP_SOURCE, RawSitemapDocument, SitemapDocument, build_tree};
 
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
     fn raw_documents(&self, retrieval_id: Uuid) -> Result<Vec<RawSitemapDocument>, StoreError>;
 
-    fn store_processed(&self, sitemap: &ProcessedSitemap) -> Result<(), StoreError>;
+    fn store_processed(
+        &self,
+        sitemap: &ProcessedSitemap,
+    ) -> Result<Stored<ProcessedSitemap>, StoreError>;
 }
 
-/// Looks up the sitemaps a retailer's tree starts from.
+/// Looks up the sitemaps a retailer's tree starts from, and the child
+/// sitemaps its crawl downloads.
 pub trait RootSitemaps: Send + Sync + 'static {
     fn root_sitemaps(&self, retailer_code: &RetailerCode) -> Option<Vec<String>>;
 
@@ -38,16 +44,6 @@ impl RootSitemaps for Retailers {
     }
 }
 
-/// A retrieval's sitemap tree, ready to store.
-pub struct ProcessedSitemap {
-    pub id: Uuid,
-    pub retrieval_id: Uuid,
-    pub retailer_code: RetailerCode,
-    pub document: SitemapDocument,
-    pub url_count: i32,
-    pub processed_at: DateTime<Utc>,
-}
-
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessSitemapError {
     #[error("no sitemap configuration for retailer {0:?}")]
@@ -55,9 +51,6 @@ pub enum ProcessSitemapError {
 
     #[error("sitemap: {0}")]
     Build(#[from] BuildError),
-
-    #[error("sitemap contains {count} URLs, which exceeds the supported maximum")]
-    TooManyUrls { count: usize },
 
     #[error("processing: {0}")]
     Store(#[from] StoreError),
@@ -92,6 +85,10 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
             .root_sitemaps(&retailer_code)
             .ok_or(ProcessSitemapError::NoSitemapConfig(retailer_code))?;
         let raw_documents = self.store.raw_documents(retrieval_id)?;
+        for raw in &raw_documents {
+            tracing::debug!(raw_sitemap_id = %raw.id, object_storage_id = %raw.object_storage_id, "raw sitemap loaded");
+        }
+        let raw_documents: Vec<_> = raw_documents.into_iter().map(|raw| raw.document).collect();
 
         // A root sitemap that can't be built is left out of the tree.
         let greylisted = |url: &str| self.retailers.sitemap_greylisted(retailer_code, url);
@@ -100,20 +97,11 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
             tracing::warn!(%retrieval_id, ?retailer_code, "sitemap left out of the tree: {error}");
         }
 
-        let url_count = document.all_urls(ROOT_SITEMAP_SOURCE).count();
-        let stored_url_count = i32::try_from(url_count)
-            .map_err(|_| ProcessSitemapError::TooManyUrls { count: url_count })?;
-
-        let processed = ProcessedSitemap {
-            id: Uuid::now_v7(),
-            retrieval_id,
-            retailer_code,
-            document,
-            url_count: stored_url_count,
-            processed_at: Utc::now(),
-        };
-        self.store.store_processed(&processed)?;
+        let processed = ProcessedSitemap::new(retrieval_id, retailer_code, document);
+        let url_count = processed.url_count();
+        let stored = self.store.store_processed(&processed)?;
         tracing::info!(
+            object_storage_id = %stored.object_storage_id,
             %retrieval_id,
             ?retailer_code,
             processed_sitemap_id = %processed.id,
@@ -141,6 +129,7 @@ mod tests {
     const PAGES: &str = "https://shop.test/sitemap_pages.xml";
 
     struct FakeStore {
+        fail: bool,
         raw_documents: Vec<RawSitemapDocument>,
         processed: Mutex<Vec<(Uuid, usize)>>,
     }
@@ -149,6 +138,7 @@ mod tests {
         fn with(raw_documents: Vec<RawSitemapDocument>) -> Self {
             Self {
                 raw_documents,
+                fail: false,
                 processed: Mutex::new(Vec::new()),
             }
         }
@@ -159,13 +149,25 @@ mod tests {
             Ok(self.raw_documents.clone())
         }
 
-        fn store_processed(&self, sitemap: &ProcessedSitemap) -> Result<(), StoreError> {
-            let url_count = sitemap.document.all_urls(ROOT_SITEMAP_SOURCE).count();
+        fn store_processed(
+            &self,
+            sitemap: &ProcessedSitemap,
+        ) -> Result<Stored<ProcessedSitemap>, StoreError> {
+            if self.fail {
+                return Err(StoreError::ObjectStorage(
+                    crate::platform::object_storage::Error::InvalidRecord,
+                ));
+            }
+
+            let url_count = sitemap.url_count();
             self.processed
                 .lock()
                 .unwrap()
                 .push((sitemap.retrieval_id, url_count));
-            Ok(())
+            Ok(Stored {
+                entity: sitemap.clone(),
+                object_storage_id: uuid::Uuid::now_v7(),
+            })
         }
     }
 
@@ -179,10 +181,14 @@ mod tests {
 
     fn raw(url: &str, body: String) -> RawSitemapDocument {
         RawSitemapDocument {
-            url: url.to_string(),
-            last_modified: None,
-            body_size: body.len(),
-            body,
+            id: Uuid::now_v7(),
+            object_storage_id: Uuid::now_v7(),
+            document: sitemap::RawSitemapDocument {
+                url: url.to_string(),
+                last_modified: None,
+                body_size: body.len(),
+                body,
+            },
         }
     }
 
@@ -251,5 +257,20 @@ mod tests {
             ProcessSitemapError::NoSitemapConfig(RetailerCode::UgreenCa)
         ));
         assert!(handler.store.processed.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn storage_failure_prevents_success_events() {
+        let mut store = FakeStore::with(vec![raw(ROOT, urlset(&["https://shop.test/a"]))]);
+        store.fail = true;
+        let handler = Handler::new(store, Roots(Some(vec![ROOT.into()])));
+        assert!(
+            handler
+                .handle(ProcessSitemap {
+                    retrieval_id: Uuid::now_v7(),
+                    retailer_code: RetailerCode::UgreenCa
+                })
+                .is_err()
+        );
     }
 }

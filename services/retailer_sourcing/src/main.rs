@@ -15,7 +15,8 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
 
 use platform::Platform;
-use platform::bus::{Bus, BusHandle};
+use platform::bus::Bus;
+use platform::state::AppState;
 
 #[derive(OpenApi)]
 #[openapi(info(title = "Retailer Sourcing"), servers((url = "/api")))]
@@ -39,15 +40,14 @@ async fn graphiql() -> Html<String> {
     Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
-/// The service's routes. `bus` queues and runs commands and events, and is
-/// `None` without a database.
-fn app(bus: Option<BusHandle>) -> Router {
+/// The service's routes, sharing `state`.
+fn app(state: AppState) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
         .merge(sitemap_discovery::prelude::routes())
         .split_for_parts();
-    let api = api.with_state(bus);
+    let api = api.with_state(state);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
     let mut router = Router::new()
@@ -80,24 +80,37 @@ fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
     }
 }
 
-/// Starts the command and event bus when `DATABASE_URL` is set, after applying
-/// pending migrations. Without it the service only serves HTTP.
-async fn start_features(database_url: Result<String, VarError>) -> io::Result<Option<BusHandle>> {
+/// Connects to the database and starts the command and event bus when
+/// `DATABASE_URL` is set, after applying pending migrations. Without it the
+/// service only serves HTTP.
+async fn start_features(database_url: Result<String, VarError>) -> io::Result<AppState> {
     let database_url = match database_url {
+        Ok(database_url) if database_url.is_empty() => return Ok(AppState::default()),
         Ok(database_url) => database_url,
-        Err(VarError::NotPresent) => return Ok(None),
+        Err(VarError::NotPresent) => return Ok(AppState::default()),
         Err(error) => return Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
     };
-    let platform = tokio::task::spawn_blocking(move || Platform::connect(&database_url))
-        .await
-        .map_err(io::Error::other)?
-        .map_err(io::Error::other)?;
+    let object_storage =
+        platform::object_storage::ObjectStorage::from_env(tokio::runtime::Handle::current())
+            .map_err(io::Error::other)?;
+    let platform =
+        tokio::task::spawn_blocking(move || Platform::connect(&database_url, object_storage))
+            .await
+            .map_err(io::Error::other)?
+            .map_err(io::Error::other)?;
 
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);
     offer_discovery::prelude::register(&mut bus, &platform);
 
-    bus.start(platform.db).map(Some).map_err(io::Error::other)
+    let db = platform.db.clone();
+    let object_storage = platform.object_storage.clone();
+    let bus = bus.start(platform.db).map_err(io::Error::other)?;
+    Ok(AppState {
+        bus: Some(bus),
+        db: Some(db),
+        object_storage: Some(object_storage),
+    })
 }
 
 #[tokio::main]
@@ -143,10 +156,10 @@ mod tests {
     use serde_json::{Value, json};
     use tower::ServiceExt;
 
-    use super::{app, parse_port, start_features};
+    use super::{AppState, app, parse_port, start_features};
 
     async fn get(uri: &str) -> Response {
-        app(None)
+        app(AppState::default())
             .oneshot(Request::get(uri).body(Body::empty()).unwrap())
             .await
             .unwrap()
@@ -175,7 +188,7 @@ mod tests {
             .header(header::CONTENT_TYPE, "application/json")
             .body(Body::from(json!({ "query": "{ health }" }).to_string()))
             .unwrap();
-        let response = app(None).oneshot(request).await.unwrap();
+        let response = app(AppState::default()).oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let json: Value = serde_json::from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
@@ -230,7 +243,7 @@ mod tests {
             .header(header::CONTENT_TYPE, "application/json")
             .body(Body::from(body.to_string()))
             .unwrap();
-        app(None).oneshot(request).await.unwrap()
+        app(AppState::default()).oneshot(request).await.unwrap()
     }
 
     #[tokio::test]
@@ -277,12 +290,16 @@ mod tests {
 
     #[tokio::test]
     async fn features_stay_off_without_a_database() {
-        assert!(
-            start_features(Err(VarError::NotPresent))
-                .await
-                .unwrap()
-                .is_none()
-        );
+        let state = start_features(Err(VarError::NotPresent)).await.unwrap();
+        assert!(state.bus.is_none());
+        assert!(state.db.is_none());
+    }
+
+    #[tokio::test]
+    async fn features_stay_off_with_an_empty_database_url() {
+        let state = start_features(Ok(String::new())).await.unwrap();
+        assert!(state.bus.is_none());
+        assert!(state.db.is_none());
     }
 
     #[test]

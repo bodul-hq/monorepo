@@ -2047,6 +2047,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "object_storage_client"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "offers"
 version = "0.1.0"
 dependencies = [
@@ -2831,6 +2843,8 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "rustls-platform-verifier",
+ "serde",
+ "serde_json",
  "sync_wrapper",
  "tokio",
  "tokio-rustls",
@@ -2881,6 +2895,8 @@ dependencies = [
  "flate2",
  "http-body-util",
  "mulac-kernel",
+ "object_storage_client",
+ "percent-encoding",
  "reqwest",
  "retailer_data_extractor",
  "serde",

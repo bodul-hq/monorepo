@@ -6,6 +6,11 @@ pub mod prelude;
 mod api;
 mod command;
 mod crawl;
+mod entity;
 mod event;
 mod handler;
+#[cfg(test)]
+mod live_tests;
+#[cfg(test)]
+mod postgres_tests;
 mod store;
