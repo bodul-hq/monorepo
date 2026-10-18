@@ -68,7 +68,10 @@ pipeline runs only when `DATABASE_URL` is set (see below).
 ### apps
 
 `customers` and `development` are poem servers that render HTML on the server.
-Each serves an index page at `/`.
+Each serves an index page at `/`. The [development app](apps/development/README.md)
+also provides `/dashboard`, combining authenticated database table reports from
+retailer sourcing and object storage through private server-side clients.
+
 
 ## Requirements
 
@@ -103,6 +106,19 @@ that crate.
 | `serve`        | `cargo run` (service and app crates only)                                        |
 | `migrate`      | Apply pending migrations to `DATABASE_URL` (`retailer_sourcing` only)            |
 | `migrate-redo` | Revert and reapply every migration, deleting the data (`retailer_sourcing` only) |
+
+More targets run only from the root, against `DATA_DIR`, which defaults to the
+`data` folder next to the monorepo:
+
+| Target                        | What it does                                                                                                                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dump-sitemap-sources`        | Download every fetched sitemap file from `retailer_sourcing`'s `/api/development/sitemaps/sources` to `<DATA_DIR>/<retailer>/sitemaps/sources/<retrieval id>/<url slug>.xml`; set `RETAILER_SOURCING_URL` (default `http://localhost:3000`) and, to override the hardcoded bearer token, `RETAILER_SOURCING_TOKEN` |
+| `dump-offer-details`          | Download the newest fetched page of every offer from `retailer_sourcing`'s `/api/development/offer-details/sources` to `<DATA_DIR>/<retailer>/offer_details/sources/<url path>.html`; set `RETAILER_SOURCING_URL` and `RETAILER_SOURCING_TOKEN` as for `dump-sitemap-sources`                                      |
+| `extract-offer-details`       | Extract each page in `<DATA_DIR>/<retailer>/offer_details/sources` into `offer_details/extracted/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                       |
+| `normalize-offer-details`     | Normalize each page in `offer_details/extracted` into `offer_details/normalized/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                                        |
+| `structuralize-offer-details` | Structuralize each page in `offer_details/normalized` into `offer_details/structuralized/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                               |
+| `process-sitemap-sources`     | Build a sitemap tree from each dumped crawl in `<DATA_DIR>/<retailer>/sitemaps/sources`, as `retailer_sourcing` does, and write it to `<DATA_DIR>/<retailer>/sitemaps/processed/<retrieval id>.json`                                                                                                               |
+| `consolidate-sitemap-sources` | Sort the URLs of each tree in `<DATA_DIR>/<retailer>/sitemaps/processed` by kind of page, as `retailer_sourcing` does, and write them to `<DATA_DIR>/<retailer>/sitemaps/consolidate/<retrieval id>.json`                                                                                                          |
 
 ## Running a service or app
 

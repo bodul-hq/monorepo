@@ -32,6 +32,7 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 - Minisforum offer details: storefront product islands are extracted, normalized and structuralized into offers, with tests over saved product pages.
 - Ugreen offer details, NAS storefronts included: extracted, normalized and structuralized into offers, with tests over saved product pages.
 - `retailer_data_extractor::extract_for` and `structuralize_for`, with a command that processes saved pages.
+- Offline tools in the `development` app, with root Make targets, that download sitemaps and offer pages from `retailer_sourcing` and run the sitemap and offer stages over the saved files in `DATA_DIR`.
 
 ### Fixed
 

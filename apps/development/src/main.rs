@@ -1,14 +1,20 @@
+mod dashboard;
+use poem::{Endpoint, EndpointExt};
 use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
+use std::sync::Arc;
 
 #[handler]
 fn index() -> Html<&'static str> {
     Html(
-        "<!DOCTYPE html><html lang=\"en\"><head><title>Development</title></head><body><h1>Development</h1></body></html>",
+        "<!DOCTYPE html><html lang=\"en\"><head><title>Development</title></head><body><h1>Development</h1><a href=\"/dashboard\">Database dashboard</a></body></html>",
     )
 }
 
-fn app() -> Route {
-    Route::new().at("/", get(index))
+fn app(state: Arc<dashboard::Dashboard>) -> impl Endpoint {
+    Route::new()
+        .at("/", get(index))
+        .at("/dashboard", get(dashboard::page))
+        .data(state)
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
@@ -29,8 +35,9 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
+    let state = Arc::new(dashboard::Dashboard::from_env().map_err(std::io::Error::other)?);
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run_with_graceful_shutdown(app(), shutdown_signal()?, None)
+        .run_with_graceful_shutdown(app(state), shutdown_signal()?, None)
         .await
 }
 
@@ -62,7 +69,12 @@ mod tests {
 
     #[tokio::test]
     async fn index_renders_page() {
-        let response = TestClient::new(app()).get("/").send().await;
+        let response = TestClient::new(app(std::sync::Arc::new(
+            crate::dashboard::Dashboard::from_env().unwrap(),
+        )))
+        .get("/")
+        .send()
+        .await;
         response.assert_status_is_ok();
         let body = response.0.into_body().into_string().await.unwrap();
         assert!(body.contains("<h1>Development</h1>"));
