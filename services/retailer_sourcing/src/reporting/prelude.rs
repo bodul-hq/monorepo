@@ -10,6 +10,7 @@ pub fn register(_bus: &mut Bus, _platform: &Platform) {}
 pub fn routes() -> utoipa_axum::router::OpenApiRouter<crate::platform::state::AppState> {
     utoipa_axum::router::OpenApiRouter::new()
         .routes(utoipa_axum::routes!(super::api::database_tables))
+        .routes(utoipa_axum::routes!(super::api::entry_statuses))
         .route_layer(axum::middleware::from_fn(
             crate::platform::auth::require_bearer_token,
         ))

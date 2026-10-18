@@ -1,0 +1,20 @@
+meta {
+  name: Report command and event statuses
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{retailerSourcingBaseUrl}}/api/reporting/entry-statuses
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: 8bcb74f24405708e90b0aa1be5679f422ea2ba199ae8ab0d0f1e80acd8c9c97d
+}
+
+docs {
+  Exact command and event counts grouped by status, with status_text labels.
+  Empty queues return empty arrays. Requires a configured database.
+}

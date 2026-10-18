@@ -483,7 +483,7 @@ excluded. The typed response has this shape:
 ```
 
 Tables are returned in name order. Row counts use PostgreSQL's estimated live
-rows and can lag recent writes; reporting performs no row scans or ANALYZE.
+rows and can lag recent writes; this report performs no row scans or ANALYZE.
 Table bytes include TOAST and auxiliary storage; index bytes cover attached
 indexes. Total bytes equal table plus index bytes. Successful responses use
 `Cache-Control: no-store`. Unavailable databases return 503; unexpected failures
@@ -492,3 +492,23 @@ return 500, without database diagnostics.
 The [development dashboard](../../apps/development/README.md) consumes this API
 through private server-side clients. No reporting client is exported by a shared
 library. The route is covered by normal HTTP tests and `make test-postgres`.
+
+`GET /api/reporting/entry-statuses` uses the same bearer authentication and
+error responses. It returns exact counts from `command_entries` and
+`event_entries`, grouped by numeric status and sorted by status:
+
+```json
+{
+  "generated_at": "2026-10-18T12:00:00Z",
+  "command_entries": [{"status": 0, "status_text": "received", "count": 12}],
+  "event_entries": [{"status": 5, "status_text": "completed", "count": 8}]
+}
+```
+
+Both queues are counted in one database statement, using the same snapshot.
+Only statuses with entries are returned; empty queues return empty arrays.
+Mulac status labels are `received` (0), `reserved` (2), `failed` (4),
+`completed` (5), `dead` (7), and `archive` (8). Unrecognized codes retain their
+numeric value with `status_text: "unknown"`. Counts scan the queues and may cost
+more than the estimated database table report. Responses use
+`Cache-Control: no-store`; the dashboard refreshes them on each page load.

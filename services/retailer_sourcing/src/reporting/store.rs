@@ -77,3 +77,67 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
         tables,
     })
 }
+
+#[derive(Debug, Serialize, utoipa::ToSchema)]
+pub(super) struct EntryStatuses {
+    pub generated_at: String,
+    pub command_entries: Vec<StatusCount>,
+    pub event_entries: Vec<StatusCount>,
+}
+
+#[derive(Debug, Serialize, utoipa::ToSchema)]
+pub(super) struct StatusCount {
+    pub status: i32,
+    pub status_text: &'static str,
+    /// Exact number of entries at the query snapshot.
+    pub count: u64,
+}
+
+pub(super) fn load_entry_statuses(connection: &mut PgConnection) -> QueryResult<EntryStatuses> {
+    #[derive(QueryableByName)]
+    struct Record {
+        #[diesel(sql_type = Text)]
+        kind: String,
+        #[diesel(sql_type = diesel::sql_types::Integer)]
+        status: i32,
+        #[diesel(sql_type = BigInt)]
+        count: i64,
+    }
+    // One statement gives both queues the same PostgreSQL snapshot.
+    let records: Vec<Record> = diesel::sql_query(
+        "SELECT 'command' AS kind, status, COUNT(*) AS count FROM command_entries GROUP BY status
+         UNION ALL
+         SELECT 'event' AS kind, status, COUNT(*) AS count FROM event_entries GROUP BY status
+         ORDER BY kind, status",
+    )
+    .load(connection)?;
+    let mut report = EntryStatuses {
+        generated_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        command_entries: Vec::new(),
+        event_entries: Vec::new(),
+    };
+    for record in records {
+        // Mulac 0.3.0 CommandStatus and EventStatus share these persisted codes.
+        let status_text = match record.status {
+            0 => "received",
+            2 => "reserved",
+            4 => "failed",
+            5 => "completed",
+            7 => "dead",
+            8 => "archive",
+            _ => "unknown",
+        };
+        let entry = StatusCount {
+            status: record.status,
+            status_text,
+            count: u64::try_from(record.count)
+                .map_err(|e| diesel::result::Error::DeserializationError(Box::new(e)))?,
+        };
+        if record.kind == "command" {
+            report.command_entries.push(entry);
+        } else {
+            report.event_entries.push(entry);
+        }
+    }
+    Ok(report)
+}

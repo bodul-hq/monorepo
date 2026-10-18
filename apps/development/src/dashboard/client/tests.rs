@@ -11,6 +11,16 @@ fn fixture(
     token: &str,
     delay: Duration,
 ) -> (String, thread::JoinHandle<()>) {
+    fixture_path(status, body, token, delay, PATH)
+}
+fn fixture_path(
+    status: u16,
+    body: &str,
+    token: &str,
+    delay: Duration,
+    path: &str,
+) -> (String, thread::JoinHandle<()>) {
+    let path = path.to_owned();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     let body = body.to_owned();
@@ -28,7 +38,7 @@ fn fixture(
             input.extend_from_slice(&chunk[..n]);
         }
         let request = String::from_utf8(input).unwrap();
-        assert!(request.starts_with("GET /api/reporting/database-tables HTTP/1.1"));
+        assert!(request.starts_with(&format!("GET {path} HTTP/1.1")));
         assert!(
             request
                 .to_ascii_lowercase()
@@ -99,5 +109,42 @@ async fn times_out_and_rejects_invalid_configuration() {
         "http://localhost#fragment",
     ] {
         assert!(endpoint(url, "token").is_err());
+    }
+}
+
+#[tokio::test]
+async fn fetches_authenticated_status_counts_and_handles_errors() {
+    for (status, body, expected) in [
+        (
+            200,
+            r#"{"generated_at":"2026-10-18T12:00:00Z","command_entries":[{"status":0,"status_text":"received","count":12}],"event_entries":[]}"#,
+            None,
+        ),
+        (200, "{}", Some(ReportError::Malformed)),
+        (401, "private", Some(ReportError::Authentication)),
+        (503, "private", Some(ReportError::Unavailable)),
+    ] {
+        let (url, handle) = fixture_path(
+            status,
+            body,
+            "token",
+            Duration::ZERO,
+            "/prefix/api/reporting/entry-statuses",
+        );
+        let clients = ReportingClients::new(
+            &format!("{url}/prefix"),
+            "token",
+            "invalid",
+            "",
+            Duration::from_secs(1),
+        )
+        .unwrap();
+        let result = clients.entry_statuses().await;
+        if let Some(error) = expected {
+            assert_eq!(result.unwrap_err(), error);
+        } else {
+            assert_eq!(result.unwrap().command_entries[0].count, 12);
+        }
+        handle.join().unwrap();
     }
 }

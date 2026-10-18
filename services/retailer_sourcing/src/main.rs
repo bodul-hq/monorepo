@@ -279,6 +279,11 @@ mod tests {
             json!([{ "bearer": [] }])
         );
         assert!(spec["paths"]["/reporting/database-tables"]["get"]["responses"]["200"].is_object());
+        assert!(spec["paths"]["/reporting/entry-statuses"]["get"]["responses"]["200"].is_object());
+        assert_eq!(
+            spec["paths"]["/reporting/entry-statuses"]["get"]["security"],
+            serde_json::json!([{ "bearer": [] }])
+        );
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");

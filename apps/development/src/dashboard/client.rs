@@ -31,6 +31,18 @@ pub(super) struct TableStats {
     pub index_bytes: u64,
     pub total_bytes: u64,
 }
+#[derive(Debug, Deserialize)]
+pub(super) struct EntryStatuses {
+    pub generated_at: String,
+    pub command_entries: Vec<StatusCount>,
+    pub event_entries: Vec<StatusCount>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct StatusCount {
+    pub status: i32,
+    pub status_text: String,
+    pub count: u64,
+}
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ReportError {
     Unavailable,
@@ -47,6 +59,7 @@ pub(super) struct ReportingClients {
     http: Client,
     sourcing: Result<Endpoint, ReportError>,
     storage: Result<Endpoint, ReportError>,
+    entries: Result<Endpoint, ReportError>,
 }
 impl ReportingClients {
     pub(super) fn from_env() -> Result<Self, reqwest::Error> {
@@ -75,6 +88,13 @@ impl ReportingClients {
                 .build()?,
             sourcing: endpoint(sourcing_url, sourcing_token),
             storage: endpoint(storage_url, storage_token),
+            entries: endpoint(sourcing_url, sourcing_token).map(|mut endpoint| {
+                let path = endpoint.url.path().trim_end_matches(PATH).to_owned();
+                endpoint
+                    .url
+                    .set_path(&format!("{path}/api/reporting/entry-statuses"));
+                endpoint
+            }),
         })
     }
     pub(super) async fn reports(
@@ -82,7 +102,23 @@ impl ReportingClients {
     ) -> (Result<Report, ReportError>, Result<Report, ReportError>) {
         tokio::join!(self.fetch(&self.sourcing), self.fetch(&self.storage))
     }
-    async fn fetch(&self, endpoint: &Result<Endpoint, ReportError>) -> Result<Report, ReportError> {
+    pub(super) async fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
+        let report: EntryStatuses = self.fetch_json(&self.entries).await?;
+        if report.generated_at.is_empty()
+            || report
+                .command_entries
+                .iter()
+                .chain(&report.event_entries)
+                .any(|entry| entry.status_text.is_empty())
+        {
+            return Err(ReportError::Malformed);
+        }
+        Ok(report)
+    }
+    async fn fetch_json<T: serde::de::DeserializeOwned>(
+        &self,
+        endpoint: &Result<Endpoint, ReportError>,
+    ) -> Result<T, ReportError> {
         let endpoint = endpoint.as_ref().map_err(|error| *error)?;
         let response = self
             .http
@@ -96,7 +132,10 @@ impl ReportingClients {
             200 => {}
             _ => return Err(ReportError::Unavailable),
         }
-        let report: Report = response.json().await.map_err(|_| ReportError::Malformed)?;
+        response.json().await.map_err(|_| ReportError::Malformed)
+    }
+    async fn fetch(&self, endpoint: &Result<Endpoint, ReportError>) -> Result<Report, ReportError> {
+        let report: Report = self.fetch_json(endpoint).await?;
         if report.schema_name.is_empty()
             || report.generated_at.is_empty()
             || report.tables.iter().any(|table| {

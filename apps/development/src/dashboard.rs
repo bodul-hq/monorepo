@@ -1,6 +1,6 @@
 //! Server-rendered reporting dashboard. Service credentials never reach the browser.
 mod client;
-use client::{Report, ReportError, ReportingClients, RowCountKind};
+use client::{EntryStatuses, Report, ReportError, ReportingClients, RowCountKind};
 use poem::{
     IntoResponse, Response, handler,
     web::{Data, Html},
@@ -20,15 +20,20 @@ impl Dashboard {
 
 #[handler]
 pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
-    let (sourcing, storage) = state.clients.reports().await;
-    let mut response = Html(render(sourcing, storage)).into_response();
+    let ((sourcing, storage), entries) =
+        tokio::join!(state.clients.reports(), state.clients.entry_statuses(),);
+    let mut response = Html(render(sourcing, storage, entries)).into_response();
     response
         .headers_mut()
         .insert("cache-control", "no-store".parse().unwrap());
     response
 }
 
-fn render(sourcing: Result<Report, ReportError>, storage: Result<Report, ReportError>) -> String {
+fn render(
+    sourcing: Result<Report, ReportError>,
+    storage: Result<Report, ReportError>,
+    entries: Result<EntryStatuses, ReportError>,
+) -> String {
     let reports = [
         (&sourcing, "Retailer Sourcing", "Pipeline metadata", "01"),
         (&storage, "Object Storage", "Stored artifacts", "02"),
@@ -60,6 +65,7 @@ fn render(sourcing: Result<Report, ReportError>, storage: Result<Report, ReportE
             r#"<p class="partial-note">Summary totals include available services only.</p>"#,
         );
     }
+    render_entries(&mut html, entries);
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(
@@ -98,9 +104,61 @@ fn render(sourcing: Result<Report, ReportError>, storage: Result<Report, ReportE
         }
         html.push_str("</section>");
     }
-    html.push_str(r#"</div><footer class="footnote"><span>ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main></body></html>"#);
+    html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main></body></html>"#);
     html
 }
+fn render_entries(html: &mut String, report: Result<EntryStatuses, ReportError>) {
+    html.push_str(r#"<section class="service" aria-label="Command and event status"><header class="service-header"><div><h2>Command and event status</h2><p>Exact counts by current status</p></div></header>"#);
+    match report {
+        Ok(report) => {
+            let _ = write!(
+                html,
+                r#"<div class="report-meta">Updated <time datetime="{}">{}</time></div>"#,
+                escape(&report.generated_at),
+                escape(&report.generated_at)
+            );
+            for (title, entries) in [
+                ("Command entries", report.command_entries),
+                ("Event entries", report.event_entries),
+            ] {
+                let _ = write!(
+                    html,
+                    r#"<div class="table-scroll" tabindex="0" role="region" aria-label="{title}"><table><caption>{title}</caption><thead><tr><th scope="col">Status</th><th scope="col">Status code</th><th scope="col">Count</th></tr></thead><tbody>"#
+                );
+                if entries.is_empty() {
+                    html.push_str(r#"<tr><td colspan="3">No entries yet</td></tr>"#);
+                }
+                for entry in entries {
+                    let _ = write!(
+                        html,
+                        r#"<tr><th scope="row">{}</th><td>{}</td><td>{}</td></tr>"#,
+                        escape(&entry.status_text),
+                        entry.status,
+                        number(entry.count as u128)
+                    );
+                }
+                html.push_str("</tbody></table></div>");
+            }
+        }
+        Err(error) => {
+            let message = match error {
+                ReportError::Unavailable => "Status counts unavailable. Try refreshing shortly.",
+                ReportError::Authentication => {
+                    "Authentication failed for status counts. Check the retailer sourcing token."
+                }
+                ReportError::Malformed => {
+                    "Invalid response for status counts. Check that retailer sourcing is up to date."
+                }
+                ReportError::Configuration => {
+                    "Configuration needed for status counts. Check the retailer sourcing address and token."
+                }
+            };
+            let _ = write!(html, r#"<div class="error-state"><p>{message}</p></div>"#);
+        }
+    }
+    html.push_str("</section>");
+}
+
 fn render_report(html: &mut String, report: &Report) {
     let RowCountKind::Estimated = report.row_count_kind;
     let rows: u128 = report.tables.iter().map(|t| t.row_count as u128).sum();

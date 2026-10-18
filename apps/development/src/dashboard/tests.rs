@@ -25,7 +25,7 @@ fn report() -> Report {
 }
 #[test]
 fn renders_both_panels_sorting_sizes_and_manual_refresh() {
-    let html = render(Ok(report()), Ok(report()));
+    let html = render(Ok(report()), Ok(report()), Err(ReportError::Unavailable));
     assert!(html.contains("Retailer Sourcing"));
     assert!(html.contains("Object Storage"));
     assert!(html.contains("12,345"));
@@ -48,7 +48,7 @@ fn escapes_names_and_timestamps_and_displays_empty_schemas() {
     bad.tables[0].table_name = "<img src=x onerror=alert(1)>".into();
     let mut empty = report();
     empty.tables.clear();
-    let html = render(Ok(bad), Ok(empty));
+    let html = render(Ok(bad), Ok(empty), Err(ReportError::Unavailable));
     assert!(!html.contains("<script"));
     assert!(!html.contains("<img"));
     assert!(html.contains("&lt;img"));
@@ -63,12 +63,19 @@ fn failures_leave_other_panel_visible_and_totals_labelled() {
         (ReportError::Malformed, "Invalid response"),
         (ReportError::Configuration, "Configuration needed"),
     ] {
-        let html = render(Ok(report()), Err(error));
+        let html = render(Ok(report()), Err(error), Err(ReportError::Unavailable));
         assert!(html.contains(title));
         assert!(html.contains("<code>zeta_large"));
         assert!(html.contains("available services only"));
     }
-    assert!(render(Err(ReportError::Unavailable), Err(ReportError::Unavailable)).contains("0 B"));
+    assert!(
+        render(
+            Err(ReportError::Unavailable),
+            Err(ReportError::Unavailable),
+            Err(ReportError::Unavailable)
+        )
+        .contains("0 B")
+    );
 }
 #[test]
 fn formats_zero_boundaries_and_large_values() {
@@ -100,4 +107,24 @@ async fn dashboard_route_renders_when_services_are_unconfigured() {
     let html = response.0.into_body().into_string().await.unwrap();
     assert!(html.contains("Configuration needed"));
     assert!(html.contains("Database overview"));
+}
+
+#[test]
+fn renders_exact_status_counts_and_empty_queues() {
+    let entries = EntryStatuses {
+        generated_at: "2026-10-18T12:00:00Z".into(),
+        command_entries: vec![client::StatusCount {
+            status: 4,
+            status_text: "failed <test>".into(),
+            count: 1234,
+        }],
+        event_entries: vec![],
+    };
+    let html = render(Ok(report()), Ok(report()), Ok(entries));
+    assert!(html.contains("Command entries"));
+    assert!(html.contains("Event entries"));
+    assert!(html.contains("failed &lt;test&gt;"));
+    assert!(html.contains("1,234"));
+    assert!(html.contains("No entries yet"));
+    assert!(html.contains("Exact counts by current status"));
 }
