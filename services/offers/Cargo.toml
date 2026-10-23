@@ -6,16 +6,38 @@ edition = "2024"
 [dependencies]
 async-graphql.workspace = true
 async-graphql-poem.workspace = true
+bodul_shared.workspace = true
+chrono.workspace = true
+commanding_api = { path = "../../../mulac/libs/commanding_api" }
 diesel.workspace = true
 diesel_migrations.workspace = true
-kernel.workspace = true
+eventing_api = { path = "../../../mulac/libs/eventing_api" }
+#inbox_api = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_inbox_api", tag = "0.3.0" }
+inbox_api = { path = "../../../mulac/libs/inbox_api" }
+#outbox = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-outbox", tag = "0.3.0" }
+outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
+outbox_api = { path = "../../../mulac/libs/outbox_api" }
+#kernel.workspace = true
+kernel = { path = "../../../mulac/kernel", package = "mulac-kernel" }
+money = { path = "../../lib/money" }
+#mulac_poem = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_poem", tag = "0.3.0" }
+mulac_poem = { path = "../../../mulac/libs/mulac_poem", features = ["commanding", "eventing", "outbox"] }
 poem.workspace = true
 poem-openapi.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
+testimony = { path = "../../lib/testimony" }
+testimony_infra = { path = "../../lib/testimony_infra" }
+thiserror.workspace = true
 tokio.workspace = true
+url = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+commanding_api = { path = "../../../mulac/libs/commanding_api", features = ["testing"] }
+eventing_api = { path = "../../../mulac/libs/eventing_api", features = ["testing"] }
+inbox_api = { path = "../../../mulac/libs/inbox_api", features = ["testing"] }
+lapin = "4.5.0"
+outbox_api = { path = "../../../mulac/libs/outbox_api", features = ["testing"] }
 poem = { workspace = true, features = ["test"] }

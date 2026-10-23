@@ -16,6 +16,9 @@
 | [12](0012-pipeline-object-storage.md)                          | Remaining pipeline payloads in object storage     | Accepted; supersedes remaining payload tables and storage shapes in ADRs 7–10; offer source API compatibility superseded by ADR 14 |
 | [13](0013-development-database-reporting.md)                   | Database reporting for the development dashboard  | Accepted                                                                                                                           |
 | [14](0014-direct-offer-source-downloads.md)                    | Direct offer source downloads                     | Accepted                                                                                                                           |
+| [15](0015-offers-testimony-and-mulac.md) | Offers with Testimony and Mulac | Accepted |
+
+| [16](0016-offers-rabbitmq-outbox.md) | Application-owned offers inbox and RabbitMQ outbox delivery | Accepted |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.
