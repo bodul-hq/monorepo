@@ -83,6 +83,9 @@ test-postgres:
 	@test -n "$$DATABASE_URL_TEST" || { echo "DATABASE_URL_TEST is required; use a separate test database"; exit 1; }
 	cargo test --bin offers postgres_tests -- --ignored
 
+wip:
+	git add . && git commit -m 'wip'
+
 .PHONY: test-rabbitmq
 test-rabbitmq:
 	@test -n "$$AMQP_URL_TEST" || { echo "AMQP_URL_TEST is required"; exit 1; }
