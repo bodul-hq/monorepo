@@ -8,7 +8,7 @@ default-run = "retailer_sourcing"
 async-graphql.workspace = true
 async-graphql-axum = "7.2.1"
 axum.workspace = true
-bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
+bodul_shared.workspace = true
 chrono.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
@@ -23,7 +23,7 @@ serde_json.workspace = true
 shared.workspace = true
 sitemap = { path = "../../lib/sitemap" }
 strum = { version = "0.27", features = ["derive"] }
-thiserror = "2"
+thiserror.workspace = true
 tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
