@@ -1,0 +1,35 @@
+meta {
+  name: Submit inbox message
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{offersBaseUrl}}/api/inbox
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "routing_key": "ImportOfferDetails",
+    "source": "bruno",
+    "payload": {
+      "retailer_code": "AnkerAu",
+      "title": "USB charger",
+      "price": { "amount": 1999, "currency": "AUD" },
+      "url": "{{offerUrl}}"
+    }
+  }
+}
+
+docs {
+  Stores one message and returns 202 with its message_id. No queue is processed.
+  Send Run inbox, Run commands, then Run events to populate the read models.
+  The command payload uses enum name AnkerAu, unlike the direct import slug ankerau.
+  payload is required and may be any JSON value, including null.
+  routing_key must contain non-whitespace text. Unknown command types are accepted.
+  Optional message_id and correlation_id must be UUID strings; source is optional.
+  Omit message_id for a new UUID. Reusing it succeeds and preserves the original row.
+  Invalid envelopes return 400; storage or blocking-task failures return 500.
+}

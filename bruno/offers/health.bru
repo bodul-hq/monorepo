@@ -1,0 +1,15 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{offersBaseUrl}}/api/health
+  body: none
+  auth: none
+}
+
+docs {
+  Returns 200 and ok, including when DATABASE_URL is absent.
+}

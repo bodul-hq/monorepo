@@ -4,3 +4,5 @@ variables:
     value: https://object-storage.service-dev.boduli.com
   - name: retailerSourcingBaseUrl
     value: https://retailer-sourcing.dev-service.boduli.com
+  - name: offersBaseUrl
+    value: https://offers.services-dev.boduli.com

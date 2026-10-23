@@ -1,0 +1,30 @@
+meta {
+  name: Import directly (testing) copy
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{offersBaseUrl}}/api/tmp-import
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "retailer_code": "ankerau",
+    "url": "https://shop.example/charger",
+    "title": "USB charger",
+    "price_amount": 1999,
+    "currency": "AUD"
+  }
+}
+
+docs {
+  Validates this request, converts it to ImportOfferDetails and stores it in
+  the inbox. Returns 202 with message_id; nothing is executed yet.
+  Run inbox, then Run commands and Run events, then Look up offer.
+
+  Invalid payloads return 400; inbox storage failures return 500 with
+  "inbox message could not be stored".
+}

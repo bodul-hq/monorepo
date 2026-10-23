@@ -1,0 +1,25 @@
+meta {
+  name: Queue offer import
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{offersBaseUrl}}/api/offers/import
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "retailer_code": "{{retailerCode}}",
+    "url": "{{offerUrl}}",
+    "title": "USB charger",
+    "price_amount": 999,
+    "currency": "AUD"
+  }
+}
+
+docs {
+  Returns 202 with command_id. Run commands, then run events, before looking up the offer.
+}

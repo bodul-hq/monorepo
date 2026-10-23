@@ -1,0 +1,19 @@
+meta {
+  name: Run commands
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{offersBaseUrl}}/api/commands/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Processes eligible queued commands. Inspect errors in the response.
+}

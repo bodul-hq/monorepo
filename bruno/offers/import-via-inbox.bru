@@ -1,0 +1,35 @@
+meta {
+  name: Import via inbox (testing)
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{offersBaseUrl}}/api/inbox
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "routing_key": "ImportOfferDetails",
+    "source": "bruno",
+    "payload": {
+      "retailer_code": "AnkerAu",
+      "url": "https://shop.example/charger-{{$randomUUID}}",
+      "title": "USB charger",
+      "price": {
+        "amount": 999,
+        "currency": "AUD"
+      }
+    }
+  }
+}
+
+docs {
+  Submits the Import directly (testing) example through the inbox API.
+  The serialized command uses retailer enum name AnkerAu and a nested price.
+  Returns 202 with message_id; nothing is executed yet.
+  Send Run inbox, then Run commands and Run events to populate the read models.
+  Command-specific validation happens during processing.
+}

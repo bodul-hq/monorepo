@@ -1,0 +1,19 @@
+meta {
+  name: Run events
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{offersBaseUrl}}/api/events/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 10 }
+}
+
+docs {
+  Projects eligible events so imported offers can be looked up. Inspect errors in the response.
+}

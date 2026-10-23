@@ -1,0 +1,20 @@
+meta {
+  name: Run outbox
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{offersBaseUrl}}/api/outbox/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 2 }
+}
+
+docs {
+  Returns 503 because no outbox publisher is configured. Rows remain untouched.
+  The limit must be an integer from 1 through 1000; invalid requests return 400.
+}
