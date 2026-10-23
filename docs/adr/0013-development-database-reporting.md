@@ -16,9 +16,9 @@ public object storage client or require scanning large payload tables.
 
 ## Decision
 
-Each service owns a reporting module exposing authenticated
-`GET /api/reporting/database-tables`, documented in its REST OpenAPI schema.
-Both use the same typed JSON contract: active schema, UTC generation timestamp,
+Each service owns a reporting module exposing authenticated `GET
+/api/reporting/database-tables`, documented in its REST OpenAPI schema. Both use
+the same typed JSON contract: active schema, UTC generation timestamp,
 `row_count_kind: "estimated"`, and table names, row counts, table bytes, index
 bytes, and total bytes.
 

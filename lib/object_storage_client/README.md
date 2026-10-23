@@ -1,8 +1,9 @@
 # object_storage_client
 
-Async Rust client for [`object_storage`](../../services/object_storage/README.md).
-Use `Transport::Rest` or `Transport::Graphql` with the same `create`, `get`,
-record types, and error classifications. The client uses reqwest and a shared
+Async Rust client for
+[`object_storage`](../../services/object_storage/README.md). Use
+`Transport::Rest` or `Transport::Graphql` with the same `create`, `get`, record
+types, and error classifications. The client uses reqwest and a shared
 connection pool; clones are inexpensive. HTTPS uses rustls and system trust.
 
 ## Usage
@@ -13,8 +14,8 @@ Add this crate as a path dependency from a service:
 object_storage_client = { path = "../../lib/object_storage_client" }
 ```
 
-Supply the server address and bearer token explicitly. The client does not
-embed the service's development token or read configuration implicitly.
+Supply the server address and bearer token explicitly. The client does not embed
+the service's development token or read configuration implicitly.
 
 ```rust,no_run
 use object_storage_client::{Client, CreateRecord, Error, Transport, Uuid, Value};
@@ -43,8 +44,8 @@ async fn main() -> Result<(), Error> {
 Creation returns only the new or existing UUID. Keep the input's UUIDv7 key
 across retries: a matching request returns the same record ID, and differing
 content returns a conflict. The database column is `external_id`; its API names
-remain `idempotency_key` in REST and `idempotencyKey` in GraphQL. The client uses
-GraphQL aliases to deserialize both protocols into the same `Record` type.
+remain `idempotency_key` in REST and `idempotencyKey` in GraphQL. The client
+uses GraphQL aliases to deserialize both protocols into the same `Record` type.
 
 `get` requires both bucket and record ID; a missing record is an error in either
 transport. `health` always uses the authenticated REST health route because the
@@ -84,10 +85,10 @@ For detailed handling:
   or missing operation data. A null record without a GraphQL error is invalid.
 - `Error::Transport` retains the underlying reqwest error with its URL removed.
 
-Display messages exclude response contents. Structured GraphQL partial data
-can contain artifacts, so avoid logging it indiscriminately. No background
-retry, automatic UUID replacement, deduplication, or sourcing integration is
-performed by this crate.
+Display messages exclude response contents. Structured GraphQL partial data can
+contain artifacts, so avoid logging it indiscriminately. No background retry,
+automatic UUID replacement, deduplication, or sourcing integration is performed
+by this crate.
 
 ## Tests
 
@@ -102,8 +103,8 @@ make audit
 `make ci` runs local HTTP fixture servers on ephemeral loopback ports. It tests
 both wire formats, authentication, URL prefixes, numeric precision, timestamps,
 error classifications and partial data, malformed responses, redirects,
-connection failures, and payloads/metadata above the framework body defaults.
-No PostgreSQL or external network service is needed for these tests.
+connection failures, and payloads/metadata above the framework body defaults. No
+PostgreSQL or external network service is needed for these tests.
 
 Opt-in integration tests run both transports against the real service:
 
@@ -118,6 +119,6 @@ disposable database: the tests create four immutable artifacts. The dedicated
 round-trip test creates a record through each transport and checks its ID,
 bucket, idempotency key, exact Unicode payload, nested metadata, numeric
 precision, and timestamp consistency across both APIs. The other test exercises
-retries, conflicts, wrong-bucket/missing retrievals, and authentication failures.
-Ordinary `make test` leaves these tests ignored. For manual API testing, use the
-[Bruno collection](../../bruno/object_storage/README.md).
+retries, conflicts, wrong-bucket/missing retrievals, and authentication
+failures. Ordinary `make test` leaves these tests ignored. For manual API
+testing, use the [Bruno collection](../../bruno/object_storage/README.md).

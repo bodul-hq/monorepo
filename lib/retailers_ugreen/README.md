@@ -3,8 +3,9 @@
 Integration for the Ugreen retailer.
 
 The EU, France, India, NAS Australia, NAS Canada, NAS Germany and NAS Spain
-structuralizers are registered alongside the existing `ugreencom`, Japan and NAS stages.
-They emit their variant documents through the facade and `structuralize-offer-details`.
+structuralizers are registered alongside the existing `ugreencom`, Japan and NAS
+stages. They emit their variant documents through the facade and
+`structuralize-offer-details`.
 
 `ugreenca`, `ugreende`, `ugreennasjp`, `ugreenkr`, `ugreennl`, `ugreenuk` and
 `ugreenus` have extraction and normalization pipelines in `offer_details/v1`.
@@ -92,11 +93,11 @@ Structuralization emits each variant's validated identifiers, title, price,
 compare-at price, availability, URL and images. A variant image precedes the
 remaining gallery images. Regional `og:url` preserves EU locale paths and avoids
 canonical links that point at another product or store. EU validation accepts
-all 18 locale prefixes in the saved pages, including `en-pt`, `pt-pt` and `sv-se`,
-while checking the store host and product handle. Only multi-variant links
-append `?variant=<id>`. Missing SKU/GTIN values remain optional; compare-at
-prices at or below the selling price become `None`. Purchase-protection pages
-normalize but emit no offer variations.
+all 18 locale prefixes in the saved pages, including `en-pt`, `pt-pt` and
+`sv-se`, while checking the store host and product handle. Only multi-variant
+links append `?variant=<id>`. Missing SKU/GTIN values remain optional;
+compare-at prices at or below the selling price become `None`.
+Purchase-protection pages normalize but emit no offer variations.
 
 Run `cargo test -p retailers_ugreen -- ugreennaseu::offer_details
 ugreennasfr::offer_details ugreennasit::offer_details

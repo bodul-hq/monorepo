@@ -8,8 +8,8 @@
 ## Context
 
 New services normally use poem. The object storage service is an intentional
-exception so that implementing it can help evaluate whether axum is easier
-to work with than poem.
+exception so that implementing it can help evaluate whether axum is easier to
+work with than poem.
 
 ## Decision
 

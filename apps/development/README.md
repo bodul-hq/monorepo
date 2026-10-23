@@ -6,33 +6,35 @@ Poem server with a home page at `/`.
 ## Offline tools
 
 Run these targets from the repository root. `DATA_DIR` defaults to `../data`;
-`RETAILERS="ankerau ankerjapancom"` limits the offer stages to those storefronts.
+`RETAILERS="ankerau ankerjapancom"` limits the offer stages to those
+storefronts.
 
-| Target | Input and output |
-| --- | --- |
-| `process-sitemap-sources` | `sitemaps/sources/<retrieval id>/` to `sitemaps/processed/<retrieval id>.json` |
-| `consolidate-sitemap-sources` | Processed sitemap trees to `sitemaps/consolidate/` URL groups |
-| `extract-offer-details` | `offer_details/sources/*.html` to `offer_details/extracted/*.json` |
-| `normalize-offer-details` | Extracted offers to `offer_details/normalized/` |
-| `structuralize-offer-details` | Normalized offers to `offer_details/structuralized/` |
-| `process-offer-details` | All offer stages through the extractor crate's CLI; its final folder is `structurized/` |
+| Target                        | Input and output                                                                        |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| `process-sitemap-sources`     | `sitemaps/sources/<retrieval id>/` to `sitemaps/processed/<retrieval id>.json`          |
+| `consolidate-sitemap-sources` | Processed sitemap trees to `sitemaps/consolidate/` URL groups                           |
+| `extract-offer-details`       | `offer_details/sources/*.html` to `offer_details/extracted/*.json`                      |
+| `normalize-offer-details`     | Extracted offers to `offer_details/normalized/`                                         |
+| `structuralize-offer-details` | Normalized offers to `offer_details/structuralized/`                                    |
+| `process-offer-details`       | All offer stages through the extractor crate's CLI; its final folder is `structurized/` |
 
-Paths are under `<DATA_DIR>/<retailer>/`. Failed offer stages remove stale output
-and report errors while continuing with other pages.
+Paths are under `<DATA_DIR>/<retailer>/`. Failed offer stages remove stale
+output and report errors while continuing with other pages.
 
 `dump-sitemap-sources` downloads source files from the retailer sourcing
 development API. `dump-offer-details` first lists database metadata from that
 API, then downloads HTML directly from object storage. Both use
 `RETAILER_SOURCING_URL` (default `http://localhost:3000`) and optionally
-`RETAILER_SOURCING_TOKEN` to override the repository development token.
-For `dump-offer-details`, also set `OBJECT_STORAGE_URL` (default
+`RETAILER_SOURCING_TOKEN` to override the repository development token. For
+`dump-offer-details`, also set `OBJECT_STORAGE_URL` (default
 `http://172.28.100.43:3000`) and optionally `OBJECT_STORAGE_TOKEN` to override
 the repository object-storage development token. It retrieves records from the
 `offer_details_raw` bucket using each source's `storage.object_storage_id`,
-validates the ID, bucket, external ID and UTF-8 byte length, and writes the payload.
-Older copies are skipped before downloading; individual download or validation
-failures are reported as skipped sources while other sources continue.
-The offline stages operate on existing files without a running service.
+validates the ID, bucket, external ID and UTF-8 byte length, and writes the
+payload. Older copies are skipped before downloading; individual download or
+validation failures are reported as skipped sources while other sources
+continue. The offline stages operate on existing files without a running
+service.
 
 ## Run and test
 
@@ -63,13 +65,13 @@ concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
 other's report.
 
-| Environment variable | Default |
-| --- | --- |
-| `RETAILER_SOURCING_URL` | `http://172.28.100.40:3000` |
+| Environment variable      | Default                                                   |
+| ------------------------- | --------------------------------------------------------- |
+| `RETAILER_SOURCING_URL`   | `http://172.28.100.40:3000`                               |
 | `RETAILER_SOURCING_TOKEN` | Repository development bearer token for retailer sourcing |
-| `OBJECT_STORAGE_URL` | `http://172.28.100.43:3000` |
-| `OBJECT_STORAGE_TOKEN` | Repository development bearer token for object storage |
-| `PORT` | `3000` |
+| `OBJECT_STORAGE_URL`      | `http://172.28.100.43:3000`                               |
+| `OBJECT_STORAGE_TOKEN`    | Repository development bearer token for object storage    |
+| `PORT`                    | `3000`                                                    |
 
 Export overrides in the shell before starting the app. The existing CLI tools
 retain their own defaults. The dashboard uses the app's existing access model
@@ -85,7 +87,8 @@ prove a table is empty. Reporting neither counts table rows nor runs ANALYZE.
 Table bytes include TOAST and auxiliary storage. Index bytes cover indexes
 attached to the table; total bytes are their sum. The dashboard displays IEC
 units, with exact byte values available on hover and to assistive technology.
-Tables are sorted alphabetically by name. Combined totals cover only available services.
+Tables are sorted alphabetically by name. Combined totals cover only available
+services.
 
 ### Testing
 

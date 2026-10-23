@@ -7,8 +7,8 @@
 ## Context
 
 ADR 8 groups consolidated sitemap content size in `storage`. The other sitemap
-and offer-detail stages need the same representation so artifact metadata has
-a consistent location throughout the pipeline.
+and offer-detail stages need the same representation so artifact metadata has a
+consistent location throughout the pipeline.
 
 ## Decision
 
@@ -19,19 +19,19 @@ All seven main pipeline tables have a non-null `storage JSONB` column:
 value, with `content_size` as an integer byte count.
 
 Raw sizes move from `body_size` to `storage.content_size`. Processed sitemap
-sizes move from `document_size` to the same JSON key. The standalone columns
-are removed. Consolidated sitemap storage retains its existing representation.
-Separate payload tables and domain/event fields remain unchanged, including
-the sitemap library's `RawSitemapDocument.body_size` field.
+sizes move from `document_size` to the same JSON key. The standalone columns are
+removed. Consolidated sitemap storage retains its existing representation.
+Separate payload tables and domain/event fields remain unchanged, including the
+sitemap library's `RawSitemapDocument.body_size` field.
 
 New writes count UTF-8 bytes of raw text or compact serialized JSON. Extraction,
-normalization, and structuralization now calculate sizes as part of their
-record conversions. Upserts update storage metadata in the same transaction as
-the payload, preserving the existing record identity and atomic rollback.
-Existing size bounds remain for stages that previously used an `INT` column;
-the three offer JSON stages use the serialized document's byte length without
-introducing an integer-column limit. Raw sitemap reads reject missing,
-non-integer, negative, and out-of-range content sizes.
+normalization, and structuralization now calculate sizes as part of their record
+conversions. Upserts update storage metadata in the same transaction as the
+payload, preserving the existing record identity and atomic rollback. Existing
+size bounds remain for stages that previously used an `INT` column; the three
+offer JSON stages use the serialized document's byte length without introducing
+an integer-column limit. Raw sitemap reads reject missing, non-integer,
+negative, and out-of-range content sizes.
 
 ## Consequences
 

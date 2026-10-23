@@ -1,9 +1,10 @@
 # object_storage
 
 Immutable UTF-8 artifacts in a separate PostgreSQL database, with authenticated
-REST and POST-only GraphQL APIs. Implements [the storage specification](../../docs/object-storage.md).
-Each record owns a fresh data row at creation; deduplication, retention, and
-retailer sourcing integration are deferred.
+REST and POST-only GraphQL APIs. Implements
+[the storage specification](../../docs/object-storage.md). Each record owns a
+fresh data row at creation; deduplication, retention, and retailer sourcing
+integration are deferred.
 
 ## Run locally
 
@@ -26,8 +27,8 @@ embedded Diesel migrations before opening the HTTP listener. The database must
 be dedicated to this service. `PORT` defaults to 3000 and must be a valid `u16`.
 Ctrl+C and SIGTERM drain in-flight HTTP requests. Logs go to stderr and daily
 `object_storage.log.YYYY-MM-DD` files under `LOG_DIR` (default `logs`), with
-`RUST_LOG=info` by default. Request bodies and credentials are not logged. Client-facing errors omit
-database diagnostics and artifact contents.
+`RUST_LOG=info` by default. Request bodies and credentials are not logged.
+Client-facing errors omit database diagnostics and artifact contents.
 
 ## Migrations
 
@@ -69,16 +70,16 @@ it is a development access check, not a production secret. Authentication runs
 before request-body parsing. Failures return `401`, `WWW-Authenticate: Bearer`,
 and RFC 9457 Problem Details.
 
-| Route | Purpose |
-| --- | --- |
-| `GET /api/reporting/database-tables` | Active schema table sizes and estimated row counts |
-| `GET /api/health` | Liveness (`ok`); does not query storage |
-| `POST /api/buckets/{bucket}/records` | Create or retry |
-| `GET /api/buckets/{bucket}/records/{id}` | Retrieve within a bucket |
-| `POST /graphql` | GraphQL query or mutation; other methods return 405 |
-| `GET /api/openapi.json` | OpenAPI 3.1 with response and bearer documentation |
-| `GET /api/docs/` | Vendored Swagger UI (`/api/docs` redirects here) |
-| `GET /graphql/ide` | GraphiQL in debug builds; authenticated 404 in release |
+| Route                                    | Purpose                                                |
+| ---------------------------------------- | ------------------------------------------------------ |
+| `GET /api/reporting/database-tables`     | Active schema table sizes and estimated row counts     |
+| `GET /api/health`                        | Liveness (`ok`); does not query storage                |
+| `POST /api/buckets/{bucket}/records`     | Create or retry                                        |
+| `GET /api/buckets/{bucket}/records/{id}` | Retrieve within a bucket                               |
+| `POST /graphql`                          | GraphQL query or mutation; other methods return 405    |
+| `GET /api/openapi.json`                  | OpenAPI 3.1 with response and bearer documentation     |
+| `GET /api/docs/`                         | Vendored Swagger UI (`/api/docs` redirects here)       |
+| `GET /graphql/ide`                       | GraphiQL in debug builds; authenticated 404 in release |
 
 For browser documentation, use a browser header-injection tool or a local proxy
 that supplies Authorization on the document and every asset request. Swagger's
@@ -87,8 +88,8 @@ Authorization header in GraphiQL's request headers panel for its API requests.
 
 ## REST example
 
-Generate a UUIDv7 idempotency key on the client and keep it for retries. For this
-example, reuse the fixed key below only for this artifact:
+Generate a UUIDv7 idempotency key on the client and keep it for retries. For
+this example, reuse the fixed key below only for this artifact:
 
 ```sh
 curl -i "$OBJECT_STORAGE_URL/api/buckets/sitemap_raw/records" \
@@ -123,20 +124,21 @@ curl "$OBJECT_STORAGE_URL/graphql" \
 ```
 
 Retrieve with `query($id:ID!){record(bucket:"sitemap_raw",id:$id){id payload
-metadata createdAt}}` and an `id` variable. The schema uses `JSON` and `DateTime`
-scalars and has no GraphQL health field.
+metadata createdAt}}` and an `id` variable. The schema uses `JSON` and
+`DateTime` scalars and has no GraphQL health field.
 
 GraphQL responses use `application/graphql-response+json`. Request errors return
 400, an `errors` array with codes, and no `data`: `GRAPHQL_PARSE_FAILED`,
-`GRAPHQL_VALIDATION_FAILED`, `OPERATION_RESOLUTION_FAILURE`, or `BAD_USER_INPUT`.
-The adapter validates the document and all selected-operation variables in a
-resolver-free preflight pass. A second pass executes only valid requests, so an
-invalid variable on a later mutation cannot leave earlier mutations committed.
-Nullable retrieval failures return `record: null` plus an error with its path
-and location; other selected fields remain available. Execution errors use HTTP
-200 with `BAD_USER_INPUT`, `NOT_FOUND`, `CONFLICT`, `SERVICE_UNAVAILABLE`, or
-`INTERNAL_SERVER_ERROR`. Malformed JSON and unsupported media types are rejected
-before GraphQL processing using Problem Details (400 and 415 respectively).
+`GRAPHQL_VALIDATION_FAILED`, `OPERATION_RESOLUTION_FAILURE`, or
+`BAD_USER_INPUT`. The adapter validates the document and all selected-operation
+variables in a resolver-free preflight pass. A second pass executes only valid
+requests, so an invalid variable on a later mutation cannot leave earlier
+mutations committed. Nullable retrieval failures return `record: null` plus an
+error with its path and location; other selected fields remain available.
+Execution errors use HTTP 200 with `BAD_USER_INPUT`, `NOT_FOUND`, `CONFLICT`,
+`SERVICE_UNAVAILABLE`, or `INTERNAL_SERVER_ERROR`. Malformed JSON and
+unsupported media types are rejected before GraphQL processing using Problem
+Details (400 and 415 respectively).
 
 ## Storage behavior
 
@@ -145,18 +147,18 @@ blocking pool, using Diesel's PostgreSQL connection pool. New records and data
 are inserted in a single transaction. A uniqueness race rolls back the losing
 data insert before comparing against the committed winner. The database enforces
 `UNIQUE (bucket, external_id)` and the data foreign key. The database's
-`external_id` column is exposed as `idempotency_key` in REST and `idempotencyKey`
-in GraphQL. `data_id` is
-intentionally non-unique for future deduplication.
+`external_id` column is exposed as `idempotency_key` in REST and
+`idempotencyKey` in GraphQL. `data_id` is intentionally non-unique for future
+deduplication.
 
 Payload comparison is exact after decoding JSON strings. Metadata object key
 order is ignored and array order is preserved. PostgreSQL JSONB equality makes
 `1`, `1.0`, and `1e0` equivalent. Numbers retain decimal precision through REST,
 GraphQL literals/variables, storage, and responses. There are no application
-payload, metadata, or HTTP body-size caps; axum's default body limit is disabled.
-PostgreSQL's inherent restrictions still apply: NUL characters and numbers
-outside its numeric range produce sanitized input errors. Encode binary payloads
-as text (for example Base64) before sending them.
+payload, metadata, or HTTP body-size caps; axum's default body limit is
+disabled. PostgreSQL's inherent restrictions still apply: NUL characters and
+numbers outside its numeric range produce sanitized input errors. Encode binary
+payloads as text (for example Base64) before sending them.
 
 ## Tests
 
@@ -167,39 +169,42 @@ make test-postgres        # requires DATABASE_URL_TEST; fails if unavailable
 cargo test --release --test http  # checks release GraphiQL availability too
 ```
 
-`make .env` configures `DATABASE_URL_TEST` for the existing `object_storing_test`
-database. Use a PostgreSQL URL for a dedicated test database, whose role can
-create/drop schemas. Each integration test migrates a random schema and removes
-it afterward; existing tables and records are untouched. Ordinary `make test`
-marks database tests ignored instead of silently claiming to run them.
+`make .env` configures `DATABASE_URL_TEST` for the existing
+`object_storing_test` database. Use a PostgreSQL URL for a dedicated test
+database, whose role can create/drop schemas. Each integration test migrates a
+random schema and removes it afterward; existing tables and records are
+untouched. Ordinary `make test` marks database tests ignored instead of silently
+claiming to run them.
 
 The database suite covers both APIs, all buckets, concurrent matching and
 conflicting REST/GraphQL requests, independent payload rows, rollback, exact
 metadata numbers, Unicode, unsupported values, request preflight, and bodies
-larger than framework defaults. Router tests cover authentication before parsing,
-media types, error codes/envelopes, documentation, health, unavailable storage,
-POST-only GraphQL, and debug/release GraphiQL. From `services`, run `make ci` to
-check every service and `make audit` after changing Cargo dependencies.
+larger than framework defaults. Router tests cover authentication before
+parsing, media types, error codes/envelopes, documentation, health, unavailable
+storage, POST-only GraphQL, and debug/release GraphiQL. From `services`, run
+`make ci` to check every service and `make audit` after changing Cargo
+dependencies.
 
 ## Clients
 
 [`object_storage_client`](../../lib/object_storage_client/README.md) provides an
-async Rust API for creation, retrieval, and health, using either REST or GraphQL.
-The [Bruno collection](../../bruno/object_storage/README.md) includes authenticated
-requests for both APIs, retries, health, OpenAPI, Swagger UI, and GraphiQL.
+async Rust API for creation, retrieval, and health, using either REST or
+GraphQL. The [Bruno collection](../../bruno/object_storage/README.md) includes
+authenticated requests for both APIs, retries, health, OpenAPI, Swagger UI, and
+GraphiQL.
 
 Retailer sourcing writes all pipeline payloads to buckets matching its table
-names: `sitemaps_raw`, `sitemaps_processed`, `sitemaps_consolidated`, and the four
-`offer_details_*` buckets. Sitemaps use their local row IDs as idempotency keys;
-offer replacements use fresh external IDs while retaining stable local row IDs.
-The legacy singular sitemap buckets remain available.
+names: `sitemaps_raw`, `sitemaps_processed`, `sitemaps_consolidated`, and the
+four `offer_details_*` buckets. Sitemaps use their local row IDs as idempotency
+keys; offer replacements use fresh external IDs while retaining stable local row
+IDs. The legacy singular sitemap buckets remain available.
 
 ## Database reporting
 
 `GET /api/reporting/database-tables` requires the existing service bearer token.
-It reports ordinary tables in the connection's active schema (`current_schema()`),
-including migration and bus tables where present; other schemas and views are
-excluded. The typed response has this shape:
+It reports ordinary tables in the connection's active schema
+(`current_schema()`), including migration and bus tables where present; other
+schemas and views are excluded. The typed response has this shape:
 
 ```json
 {
