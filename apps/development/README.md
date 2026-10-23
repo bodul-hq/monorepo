@@ -60,10 +60,10 @@ inside this app's server binary; service credentials never reach the browser.
 PORT=3005 make serve
 ```
 
-Open `http://localhost:3005/dashboard`. Each page load fetches both reports
+Open `http://localhost:3005/dashboard`. Each page load fetches reports from all three services
 concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
-other's report.
+other services’ reports.
 
 | Environment variable      | Default                                                   |
 | ------------------------- | --------------------------------------------------------- |
@@ -71,6 +71,8 @@ other's report.
 | `RETAILER_SOURCING_TOKEN` | Repository development bearer token for retailer sourcing |
 | `OBJECT_STORAGE_URL`      | `http://172.28.100.43:3000`                               |
 | `OBJECT_STORAGE_TOKEN`    | Repository development bearer token for object storage    |
+| `OFFERS_URL` | `http://172.28.100.41:3000` |
+| `OFFERS_TOKEN` | `offers-development-token`; match Offers `OFFERS_REPORTING_TOKEN` |
 | `PORT`                    | `3000`                                                    |
 
 Export overrides in the shell before starting the app. The existing CLI tools
@@ -109,8 +111,8 @@ at desktop and narrow mobile widths. Verify that the page fits the viewport,
 wide tables scroll within their cards, and Refresh remains usable.
 Also stop one upstream service and check that the other report remains visible.
 
-The dashboard also requests retailer sourcing's `/api/reporting/entry-statuses`
-server-side and displays exact command and event counts by status, including
-numeric codes and `status_text` labels. These counts refresh on page load.
-Empty queues and unavailable status reports have their own messages, and a
-failed status request does not hide the database table reports.
+The dashboard also requests retailer sourcing’s and Offers’ `/api/reporting/entry-statuses`
+server-side and displays separate service sections with exact command and event counts by status, including
+numeric codes and `status_text` labels. These counts refresh on page load. Empty
+queues and unavailable status reports have their own messages, and a failed
+status request does not hide the database table reports.

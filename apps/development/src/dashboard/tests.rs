@@ -1,6 +1,47 @@
 use super::*;
 use client::TableStats;
 
+// Existing two-service cases also verify that an unavailable Offers service is isolated.
+fn render(
+    sourcing: Result<Report, ReportError>,
+    storage: Result<Report, ReportError>,
+    entries: Result<EntryStatuses, ReportError>,
+) -> String {
+    super::render(
+        sourcing,
+        storage,
+        entries,
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+    )
+}
+
+#[test]
+fn offers_contributes_to_totals_and_has_its_own_status_panel() {
+    let html = super::render(
+        Ok(report()),
+        Ok(report()),
+        Err(ReportError::Unavailable),
+        Ok(report()),
+        Ok(EntryStatuses {
+            generated_at: "2026-10-19T12:00:00Z".into(),
+            command_entries: vec![],
+            event_entries: vec![client::StatusCount {
+                status: 5,
+                status_text: "completed".into(),
+                count: 42,
+            }],
+        }),
+    );
+    assert!(html.contains("3<small> / 3</small>"));
+    assert!(html.contains("<h2>Offers</h2>"));
+    assert!(html.contains("Offers command and event status"));
+    assert!(html.contains("Retailer Sourcing command and event status"));
+    assert!(html.contains("<td>42</td>"));
+    assert!(html.contains("<strong>6</strong>"));
+    assert!(!html.contains("Summary totals include available services only"));
+}
+
 fn report() -> Report {
     Report {
         schema_name: "public".into(),
