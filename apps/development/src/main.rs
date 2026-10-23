@@ -1,13 +1,15 @@
 mod dashboard;
+mod layout;
 use poem::{Endpoint, EndpointExt};
 use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
 use std::sync::Arc;
 
 #[handler]
-fn index() -> Html<&'static str> {
-    Html(
-        "<!DOCTYPE html><html lang=\"en\"><head><title>Development</title></head><body><h1>Development</h1><a href=\"/dashboard\">Database dashboard</a></body></html>",
-    )
+fn index() -> Html<String> {
+    let mut html = layout::start("Development", layout::Page::Home);
+    html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">DEVELOPER TOOLS</p><h1>Development<span class="title-dot">.</span></h1><p class="lede">Tools for inspecting the services in your local workspace.</p></div></div><div class="tools"><a class="service tool" href="/dashboard"><span class="service-number" aria-hidden="true">01</span><h2>Database dashboard</h2><p>Table sizes, estimated rows, and command and event status for each service.</p><span class="tool-link">Open dashboard <span aria-hidden="true">→</span></span></a></div></main>"#);
+    layout::end(&mut html);
+    Html(html)
 }
 
 fn app(state: Arc<dashboard::Dashboard>) -> impl Endpoint {
@@ -77,7 +79,11 @@ mod tests {
         .await;
         response.assert_status_is_ok();
         let body = response.0.into_body().into_string().await.unwrap();
-        assert!(body.contains("<h1>Development</h1>"));
+        assert!(body.contains("<h1>Development<span class=\"title-dot\">.</span></h1>"));
+        assert!(body.contains(r#"<a class="active" href="/" aria-current="page">Home</a>"#));
+        assert!(body.contains(r#"href="/dashboard""#));
+        assert!(body.contains(r#"data-theme-choice="dark""#));
+        assert!(body.contains("prefers-color-scheme:dark"));
     }
 
     #[test]

@@ -98,11 +98,15 @@ make ci
 ```
 
 Rust tests cover private HTTP clients, authentication, timeouts, malformed
-responses, partial failure, HTML escaping, sorting, and page routes. The CSS in
-`src/dashboard/style.css` is embedded into the HTML; no JavaScript or frontend
-build is required. After CSS changes, run the app and check `/dashboard` in a
-browser at desktop and narrow mobile widths. Verify that the page fits the
-viewport, wide tables scroll within their cards, and Refresh remains usable.
+responses, partial failure, HTML escaping, sorting, and page routes. The home
+page and dashboard share the page shell in `src/layout.rs`, which embeds
+`src/style.css` into the HTML; no frontend build is required. The pages follow
+the system light or dark preference, and a top-bar toggle overrides it. The
+toggle is the only JavaScript: a small inline script that stores the choice in
+`localStorage`, and the toggle stays hidden when scripts are off. After CSS
+changes, run the app and check `/` and `/dashboard` in a browser in both themes
+at desktop and narrow mobile widths. Verify that the page fits the viewport,
+wide tables scroll within their cards, and Refresh remains usable.
 Also stop one upstream service and check that the other report remains visible.
 
 The dashboard also requests retailer sourcing's `/api/reporting/entry-statuses`

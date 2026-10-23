@@ -1,5 +1,6 @@
 //! Server-rendered reporting dashboard. Service credentials never reach the browser.
 mod client;
+use crate::layout::{self, Page};
 use client::{EntryStatuses, Report, ReportError, ReportingClients, RowCountKind};
 use poem::{
     IntoResponse, Response, handler,
@@ -50,11 +51,8 @@ fn render(
         .filter_map(|(r, _, _, _)| r.as_ref().ok())
         .map(|r| r.tables.len())
         .sum();
-    let mut html = String::from(
-        r#"<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Database overview · Development</title><style>"#,
-    );
-    html.push_str(include_str!("dashboard/style.css"));
-    html.push_str(r#"</style></head><body><header class="topbar"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">b.</span> Development <span class="workspace">WORKSPACE</span></a><nav aria-label="Main"><a href="/">Home</a><a class="active" href="/dashboard" aria-current="page">Dashboard</a></nav></header><main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
+    let mut html = layout::start("Database overview · Development", Page::Dashboard);
+    html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
     let _ = write!(
         html,
         r#"<section class="overview" aria-label="Overview"><div><span class="metric-label">Services available</span><strong>{available}<small> / 2</small></strong></div><div><span class="metric-label">Tables reported</span><strong>{total_tables}</strong></div><div><span class="metric-label">Storage reported</span><strong>{}</strong></div><div class="refresh-note"><span class="mini-dot" aria-hidden="true"></span><div><b>Refresh on demand</b><span>Reports update when you load this page.</span></div></div></section>"#,
@@ -104,7 +102,8 @@ fn render(
         }
         html.push_str("</section>");
     }
-    html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main></body></html>"#);
+    html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main>"#);
+    layout::end(&mut html);
     html
 }
 fn render_entries(html: &mut String, report: Result<EntryStatuses, ReportError>) {
