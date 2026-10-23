@@ -32,6 +32,8 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | `retailers_ugreen`        | Integration for the Ugreen retailer                                         |
 | `retailers_wip`           | Integration for the WIP retailer                                            |
 | `sitemap`                 | Parsing sitemap XML and building a crawl's sitemap tree                     |
+| `testimony`               | Event sourcing abstractions, aggregate repositories, and query dispatch     |
+| `testimony_infra`         | In-memory and PostgreSQL event stores for testimony                         |
 
 Each crate has its own README. To add a retailer storefront, or finish one,
 follow the [retailer integration playbook](docs/retailer-integration.md).
@@ -79,7 +81,7 @@ storage through private server-side clients.
 ## Requirements
 
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
-- libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services depend on diesel with the PostgreSQL backend, which links against it.
+- libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
 - PostgreSQL 16 or later for `object_storage` (a separate UTF8 database), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).

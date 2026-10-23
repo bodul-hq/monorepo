@@ -12,6 +12,8 @@ members = [
     "retailers_wip",
     "sitemap",
     "object_storage_client",
+    "testimony",
+    "testimony_infra",
     "everyday",
     "everyday_infra",
 ]
