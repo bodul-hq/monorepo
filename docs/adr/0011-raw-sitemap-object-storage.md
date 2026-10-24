@@ -20,16 +20,16 @@ Expose the object ID in retrieval and processing entities.
 
 Upload all bodies before inserting the batch of metadata in one PostgreSQL
 transaction. Publish the retrieved event only after this succeeds. Do not hold
-database connections during HTTP calls. The synchronous bus uses a Tokio
-runtime handle to drive the async client from blocking workers. Require
+database connections during HTTP calls. The synchronous bus uses a Tokio runtime
+handle to drive the async client from blocking workers. Require
 `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN` whenever the pipeline database
 is configured; HTTP-only startup remains available without them.
 
 Processing, source inspection, and sitemap export resolve bodies through the
 client. Validate returned record ID, bucket, external ID, and byte length
-against the local reference. Missing or invalid objects fail the operation.
-Keep the existing API and export formats. Preserve the legacy `sitemap_raw`
-bucket in object storage while allowing `sitemaps_raw`.
+against the local reference. Missing or invalid objects fail the operation. Keep
+the existing API and export formats. Preserve the legacy `sitemap_raw` bucket in
+object storage while allowing `sitemaps_raw`.
 
 Use a fresh-data migration: delete existing raw sitemap rows and drop
 `raw_sitemap_documents_data`. There is no backfill or legacy fallback.

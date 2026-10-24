@@ -1,17 +1,17 @@
 # Object storage requests
 
 Open the `bruno` workspace in Bruno, then select the workspace's `local`
-environment and this collection's `local` environment. The workspace
-environment sets `objectStorageBaseUrl` to `http://172.28.100.43:3000`, the
-`object_storage` container from the `compose-apps.yaml` file. To call a service
-started with `PORT=3003 make serve` in
+environment and this collection's `local` environment. The workspace environment
+sets `objectStorageBaseUrl` to `http://172.28.100.43:3000`, the `object_storage`
+container from the `compose-apps.yaml` file. To call a service started with
+`PORT=3003 make serve` in
 [`services/object_storage`](../../services/object_storage/README.md), override
-the address as shown below.
-All requests inherit the collection's bearer authentication. The collection's
-`local` environment contains the service's public development token.
+the address as shown below. All requests inherit the collection's bearer
+authentication. The collection's `local` environment contains the service's
+public development token.
 
-For the office deployment, select the workspace's `office0-dev` environment
-and keep this collection's `local` environment selected. Requests then use
+For the office deployment, select the workspace's `office0-dev` environment and
+keep this collection's `local` environment selected. Requests then use
 `https://object-storage.service-dev.boduli.com` through Caddy, with the same
 development bearer token. Office network or VPN access is required.
 
@@ -22,14 +22,15 @@ also retries the REST-created record, checking that both APIs share storage.
 Health, OpenAPI, Swagger UI, and debug-only GraphiQL requests are included.
 
 The environment contains two fixed UUIDv7 keys. Repeating a collection run
-reuses its existing artifacts. To test fresh creations, set `idempotencyKey`
-and `graphqlIdempotencyKey` to new UUIDv7 values. Changing content with the
-same bucket/key produces a conflict. The APIs call the key `idempotency_key`
-(REST) and `idempotencyKey` (GraphQL); its database column is `external_id`.
+reuses its existing artifacts. To test fresh creations, set `idempotencyKey` and
+`graphqlIdempotencyKey` to new UUIDv7 values. Changing content with the same
+bucket/key produces a conflict. The APIs call the key `idempotency_key` (REST)
+and `idempotencyKey` (GraphQL); its database column is `external_id`.
 
 ## Run the JavaScript request tests
 
-Requires Node.js and [Bruno CLI](https://github.com/usebruno/bruno/blob/main/packages/bruno-cli/readme.md).
+Requires Node.js and
+[Bruno CLI](https://github.com/usebruno/bruno/blob/main/packages/bruno-cli/readme.md).
 The `.bru` files include JavaScript assertions and response scripts; these run
 in Bruno's default safe runtime without external modules.
 

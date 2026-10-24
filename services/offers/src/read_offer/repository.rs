@@ -1,0 +1,92 @@
+mod in_memory;
+mod postgres;
+
+pub use in_memory::InMemoryRetailerOfferRepository;
+pub use postgres::PostgresRetailerOfferRepository;
+
+use super::entity::RetailerOffer;
+use crate::offers::retailer_offer_id::RetailerOfferId;
+use money::Money;
+
+#[derive(Debug, thiserror::Error)]
+#[error("offer read model operation failed: {0}")]
+pub struct RetailerOfferRepositoryError(String);
+
+/// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
+pub trait RetailerOfferRepository: Send + Sync {
+    fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError>;
+    /// Fails if the offer has not been inserted yet.
+    fn update_title(
+        &self,
+        id: &RetailerOfferId,
+        title: &str,
+    ) -> Result<(), RetailerOfferRepositoryError>;
+    /// Replaces both amount and currency; fails if the offer is missing.
+    fn update_price(
+        &self,
+        id: &RetailerOfferId,
+        price: &Money,
+    ) -> Result<(), RetailerOfferRepositoryError>;
+}
+
+fn err_update(error: impl std::fmt::Display) -> RetailerOfferRepositoryError {
+    RetailerOfferRepositoryError(error.to_string())
+}
+
+fn err_offer_missing() -> RetailerOfferRepositoryError {
+    err_update("offer has not been inserted")
+}
+
+fn err_insert(error: impl std::fmt::Display) -> RetailerOfferRepositoryError {
+    RetailerOfferRepositoryError(error.to_string())
+}
+
+fn validate(entity: &RetailerOffer) -> Result<uuid::Uuid, RetailerOfferRepositoryError> {
+    let id = uuid::Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
+    if entity.url.len() > 2048 || entity.url.contains('\0') {
+        return Err(err_insert(
+            "URL must be at most 2048 bytes and contain no NUL",
+        ));
+    }
+    if entity.title.contains('\0') {
+        return Err(err_insert("title must contain no NUL"));
+    }
+    Ok(id)
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+    use crate::offers::retailer_offer_id::RetailerOfferId;
+
+    pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferRepository) {
+        let entity = RetailerOffer {
+            id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
+            retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            url: "https://example.com/Charger?color=red#details".to_owned(),
+            title: "Charger".to_owned(),
+            price: money::Money::new(1999, money::Currency::AUD),
+            created_at: chrono::DateTime::from_timestamp(1_700_000_000, 123_000_000).unwrap(),
+        };
+        repository.insert(&entity).unwrap();
+        assert!(repository.insert(&entity).is_err());
+        let mut other = entity.clone();
+        other.url.push_str("-other");
+        assert!(repository.insert(&other).is_err());
+        other = entity.clone();
+        other.id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
+        assert!(repository.insert(&other).is_err());
+        other.url = entity.url.to_lowercase();
+        repository.insert(&other).unwrap();
+        other.id = RetailerOfferId::new("invalid");
+        assert!(repository.insert(&other).is_err());
+        other.id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
+        other.url = "x".repeat(2049);
+        assert!(repository.insert(&other).is_err());
+    }
+
+    #[test]
+    fn in_memory_insert_contract() {
+        assert_insert_contract(&InMemoryRetailerOfferRepository::new());
+    }
+}

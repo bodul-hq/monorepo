@@ -8,6 +8,8 @@ collections:
     path: "object_storage"
   - name: "retailer_sourcing"
     path: "retailer_sourcing"
+  - name: "offers"
+    path: "offers"
 
 specs:
 

@@ -60,6 +60,8 @@ pub(super) struct ReportingClients {
     sourcing: Result<Endpoint, ReportError>,
     storage: Result<Endpoint, ReportError>,
     entries: Result<Endpoint, ReportError>,
+    offers: Result<Endpoint, ReportError>,
+    offers_entries: Result<Endpoint, ReportError>,
 }
 impl ReportingClients {
     pub(super) fn from_env() -> Result<Self, reqwest::Error> {
@@ -72,6 +74,12 @@ impl ReportingClients {
             &env("OBJECT_STORAGE_TOKEN", STORAGE_TOKEN),
             Duration::from_secs(5),
         )
+        .map(|clients| {
+            clients.with_offers(
+                &env("OFFERS_URL", "http://172.28.100.41:3000"),
+                &env("OFFERS_TOKEN", "offers-development-token"),
+            )
+        })
     }
     pub(super) fn new(
         sourcing_url: &str,
@@ -86,16 +94,23 @@ impl ReportingClients {
                 .redirect(reqwest::redirect::Policy::none())
                 .retry(reqwest::retry::never())
                 .build()?,
+            offers: Err(ReportError::Configuration),
+            offers_entries: Err(ReportError::Configuration),
             sourcing: endpoint(sourcing_url, sourcing_token),
             storage: endpoint(storage_url, storage_token),
-            entries: endpoint(sourcing_url, sourcing_token).map(|mut endpoint| {
-                let path = endpoint.url.path().trim_end_matches(PATH).to_owned();
-                endpoint
-                    .url
-                    .set_path(&format!("{path}/api/reporting/entry-statuses"));
-                endpoint
-            }),
+            entries: status_endpoint(sourcing_url, sourcing_token),
         })
+    }
+    pub(super) fn with_offers(mut self, url: &str, token: &str) -> Self {
+        self.offers = endpoint(url, token);
+        self.offers_entries = status_endpoint(url, token);
+        self
+    }
+    pub(super) async fn offers_report(&self) -> Result<Report, ReportError> {
+        self.fetch(&self.offers).await
+    }
+    pub(super) async fn offers_entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
+        self.fetch_entry_statuses(&self.offers_entries).await
     }
     pub(super) async fn reports(
         &self,
@@ -103,7 +118,13 @@ impl ReportingClients {
         tokio::join!(self.fetch(&self.sourcing), self.fetch(&self.storage))
     }
     pub(super) async fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
-        let report: EntryStatuses = self.fetch_json(&self.entries).await?;
+        self.fetch_entry_statuses(&self.entries).await
+    }
+    async fn fetch_entry_statuses(
+        &self,
+        endpoint: &Result<Endpoint, ReportError>,
+    ) -> Result<EntryStatuses, ReportError> {
+        let report: EntryStatuses = self.fetch_json(endpoint).await?;
         if report.generated_at.is_empty()
             || report
                 .command_entries
@@ -147,6 +168,15 @@ impl ReportingClients {
         }
         Ok(report)
     }
+}
+fn status_endpoint(base: &str, token: &str) -> Result<Endpoint, ReportError> {
+    endpoint(base, token).map(|mut endpoint| {
+        let path = endpoint.url.path().trim_end_matches(PATH).to_owned();
+        endpoint
+            .url
+            .set_path(&format!("{path}/api/reporting/entry-statuses"));
+        endpoint
+    })
 }
 fn endpoint(base: &str, token: &str) -> Result<Endpoint, ReportError> {
     let mut url = Url::parse(base).map_err(|_| ReportError::Configuration)?;

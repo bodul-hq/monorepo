@@ -6,9 +6,9 @@
 ## Context
 
 ADR 4 keeps persistence within each feature slice. Consolidation already had
-separate handler and Diesel structs, but its store calculated domain counts
-and represented each count as an integer column. Domain behavior and database
-layout need to evolve independently.
+separate handler and Diesel structs, but its store calculated domain counts and
+represented each count as an integer column. Domain behavior and database layout
+need to evolve independently.
 
 ## Decision
 
@@ -17,8 +17,8 @@ PostgreSQL representations. Every persistence type ends in `PgRecord`, such as
 `ProcessedSitemapPgRecord` and `ConsolidatedSitemapPgRecord`. Use a `New` prefix
 only when insertion needs a separate type from the read representation.
 
-The store's domain operations accept entities for writes and IDs for reads,
-and return entities when loading. Database records never cross that boundary:
+The store's domain operations accept entities for writes and IDs for reads, and
+return entities when loading. Database records never cross that boundary:
 
 - Write: entity → `PgRecord` values → database transaction.
 - Read: ID → query → `PgRecord` values → entity.
@@ -31,8 +31,8 @@ records remain private to the slice; this adds no shared repository.
 The first application is `consolidate_sitemap`, including its processed-sitemap
 read. `ConsolidatedSitemap` owns five counts as direct Rust fields, calculated
 from grouped links at construction and accessible through read-only methods.
-Events and logs use those values. The PostgreSQL record groups them in
-`stats JSONB` under `product_count`, `catalog_count`, `content_count`,
+Events and logs use those values. The PostgreSQL record groups them in `stats
+JSONB` under `product_count`, `catalog_count`, `content_count`,
 `not_interested_count`, and `unknown_count`. `content_size` remains a column,
 and grouped links remain in `consolidated_sitemaps_data`.
 

@@ -1,0 +1,21 @@
+meta {
+  name: Run inbox
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{offersBaseUrl}}/api/inbox/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Converts eligible stored inbox messages into queued commands; does not fetch from a broker.
+  Run commands next, then Run events. Inspect errors in the response.
+  The limit must be an integer from 1 through 1000.
+}

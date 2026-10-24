@@ -1,0 +1,12 @@
+[package]
+name = "testimony_infra"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = { workspace = true, features = ["clock"] }
+diesel = { version = "2.2", features = ["postgres", "r2d2", "serde_json", "chrono"] }
+everyday.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+testimony = { path = "../testimony" }

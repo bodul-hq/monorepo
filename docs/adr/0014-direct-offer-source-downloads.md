@@ -18,9 +18,9 @@ Return offer source metadata with the stored `storage` reference instead of
 sourcing database. Preserve pagination and newest-first ordering.
 
 The development CLI uses `object_storage_client` to retrieve each needed record
-from the `offer_details_raw` bucket. It validates object ID, bucket, external ID,
-and UTF-8 byte length before writing HTML. Skip older copies before retrieval.
-Configure each service's URL and bearer token independently.
+from the `offer_details_raw` bucket. It validates object ID, bucket, external
+ID, and UTF-8 byte length before writing HTML. Skip older copies before
+retrieval. Configure each service's URL and bearer token independently.
 
 ## Consequences
 

@@ -15,8 +15,8 @@ while object storage rejects changed content under the same external ID.
 
 Use buckets matching the seven metadata table names. Add `sitemaps_processed`
 and `sitemaps_consolidated` to the allowlist, retaining legacy singular buckets.
-Sitemaps use their row UUIDs as external IDs and typed storage metadata containing
-`content_size: u64` and `object_storage_id: Uuid`.
+Sitemaps use their row UUIDs as external IDs and typed storage metadata
+containing `content_size: u64` and `object_storage_id: Uuid`.
 
 Offers retain their local row IDs and uniqueness by `offer_id`. Each write
 allocates a fresh external UUIDv7 and saves it in typed `OfferStorageMetadata`
@@ -28,16 +28,18 @@ the exact UTF-8 bytes uploaded. Validate existing size/count bounds before HTTP.
 Upload before the local write, release database connections before HTTP, and
 atomically write the complete reference with stage metadata. Only successful
 writes produce success events. Stored entities and loaded inputs expose object
-IDs; commands, events, source API responses, and export formats remain compatible.
+IDs; commands, events, source API responses, and export formats remain
+compatible.
 
 Every consumer resolves the object and validates ID, bucket, external ID, and
-byte length before parsing JSON. Retain fixed metadata structs; retailer-specific
-payload JSON retains its existing representation.
+byte length before parsing JSON. Retain fixed metadata structs;
+retailer-specific payload JSON retains its existing representation.
 
 Use a fresh-data cutover: delete metadata from the six affected stages and drop
 their payload tables. Preserve raw sitemaps and bus history. Rollback only
 recreates empty payload tables, refusing when any of the six stages has rows.
-Deploy the bucket allowlist before restarting sourcing and initiating fresh work.
+Deploy the bucket allowlist before restarting sourcing and initiating fresh
+work.
 
 ## Consequences
 

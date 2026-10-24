@@ -8,8 +8,8 @@
 
 Pipeline records store known metadata shapes in JSONB, but `serde_json::Value`
 allows missing keys, misspelled fields, and values of the wrong type to reach
-record construction. The metadata contract should be explicit in Rust as well
-as in the documented JSON shape.
+record construction. The metadata contract should be explicit in Rust as well as
+in the documented JSON shape.
 
 ## Decision
 
@@ -27,8 +27,8 @@ before a typed record is returned. Stage-specific size and count checks retain
 the previous signed-integer limits required for downgrade compatibility.
 
 These types cover record metadata; payload document representations are
-unchanged. Storage metadata is shared technical plumbing. References and
-stats remain private to the consolidation store.
+unchanged. Storage metadata is shared technical plumbing. References and stats
+remain private to the consolidation store.
 
 ## Consequences
 

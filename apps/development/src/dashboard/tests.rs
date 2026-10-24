@@ -1,5 +1,47 @@
 use super::*;
 use client::TableStats;
+
+// Existing two-service cases also verify that an unavailable Offers service is isolated.
+fn render(
+    sourcing: Result<Report, ReportError>,
+    storage: Result<Report, ReportError>,
+    entries: Result<EntryStatuses, ReportError>,
+) -> String {
+    super::render(
+        sourcing,
+        storage,
+        entries,
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+    )
+}
+
+#[test]
+fn offers_contributes_to_totals_and_has_its_own_status_panel() {
+    let html = super::render(
+        Ok(report()),
+        Ok(report()),
+        Err(ReportError::Unavailable),
+        Ok(report()),
+        Ok(EntryStatuses {
+            generated_at: "2026-10-19T12:00:00Z".into(),
+            command_entries: vec![],
+            event_entries: vec![client::StatusCount {
+                status: 5,
+                status_text: "completed".into(),
+                count: 42,
+            }],
+        }),
+    );
+    assert!(html.contains("3<small> / 3</small>"));
+    assert!(html.contains("<h2>Offers</h2>"));
+    assert!(html.contains("Offers command and event status"));
+    assert!(html.contains("Retailer Sourcing command and event status"));
+    assert!(html.contains("<td>42</td>"));
+    assert!(html.contains("<strong>6</strong>"));
+    assert!(!html.contains("Summary totals include available services only"));
+}
+
 fn report() -> Report {
     Report {
         schema_name: "public".into(),
@@ -36,8 +78,14 @@ fn renders_both_panels_sorting_sizes_and_manual_refresh() {
     assert!(html.contains("<i style=\"width:100.00%\"></i>"));
     assert!(html.contains("<i style=\"width:0.10%\"></i>"));
     assert!(html.contains("Refresh reports"));
+    assert!(
+        html.contains(r#"<a class="active" href="/dashboard" aria-current="page">Dashboard</a>"#)
+    );
+    assert!(html.contains(r#"data-theme-choice="system""#));
+    assert!(html.ends_with("</body></html>"));
     assert!(html.contains("ROW COUNTS ARE ESTIMATES"));
-    assert!(!html.contains("<script"));
+    // Only the theme scripts from the shared layout; reports render without JavaScript.
+    assert_eq!(html.matches("<script").count(), 2);
     assert!(!html.contains("http-equiv"));
 }
 #[test]
@@ -49,7 +97,8 @@ fn escapes_names_and_timestamps_and_displays_empty_schemas() {
     let mut empty = report();
     empty.tables.clear();
     let html = render(Ok(bad), Ok(empty), Err(ReportError::Unavailable));
-    assert!(!html.contains("<script"));
+    assert!(!html.contains("<script>alert"));
+    assert!(html.contains("&lt;script&gt;alert"));
     assert!(!html.contains("<img"));
     assert!(html.contains("&lt;img"));
     assert!(html.contains("&quot; onmouseover=&quot;x"));

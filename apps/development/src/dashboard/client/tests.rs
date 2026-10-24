@@ -148,3 +148,50 @@ async fn fetches_authenticated_status_counts_and_handles_errors() {
         handle.join().unwrap();
     }
 }
+
+#[tokio::test]
+async fn fetches_offers_reports_with_its_own_token_and_base_path() {
+    let (url, handle) = fixture_path(
+        200,
+        REPORT,
+        "offers-token",
+        Duration::ZERO,
+        "/prefix/api/reporting/database-tables",
+    );
+    let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+        .unwrap()
+        .with_offers(&format!("{url}/prefix"), "offers-token");
+    assert_eq!(
+        clients.offers_report().await.unwrap().tables[0].row_count,
+        12
+    );
+    handle.join().unwrap();
+    for (status, body, expected) in [
+        (
+            200,
+            r#"{"generated_at":"2026-10-19T12:00:00Z","command_entries":[],"event_entries":[]}"#,
+            None,
+        ),
+        (401, "private", Some(ReportError::Authentication)),
+        (503, "private", Some(ReportError::Unavailable)),
+        (200, "{}", Some(ReportError::Malformed)),
+    ] {
+        let (url, handle) = fixture_path(
+            status,
+            body,
+            "offers-token",
+            Duration::ZERO,
+            "/prefix/api/reporting/entry-statuses",
+        );
+        let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+            .unwrap()
+            .with_offers(&format!("{url}/prefix"), "offers-token");
+        let result = clients.offers_entry_statuses().await;
+        if let Some(error) = expected {
+            assert_eq!(result.unwrap_err(), error);
+        } else {
+            assert!(result.unwrap().event_entries.is_empty());
+        }
+        handle.join().unwrap();
+    }
+}

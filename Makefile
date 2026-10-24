@@ -49,3 +49,6 @@ export-offer-sources:
 .PHONY: export-sitemaps
 export-sitemaps:
 	$(MAKE) -C services/retailer_sourcing export-sitemaps DATA_DIR=$(abspath $(DATA_DIR))
+
+wip:
+	git add . && git commit -m 'wip'

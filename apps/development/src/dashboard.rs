@@ -1,5 +1,6 @@
 //! Server-rendered reporting dashboard. Service credentials never reach the browser.
 mod client;
+use crate::layout::{self, Page};
 use client::{EntryStatuses, Report, ReportError, ReportingClients, RowCountKind};
 use poem::{
     IntoResponse, Response, handler,
@@ -20,9 +21,14 @@ impl Dashboard {
 
 #[handler]
 pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
-    let ((sourcing, storage), entries) =
-        tokio::join!(state.clients.reports(), state.clients.entry_statuses(),);
-    let mut response = Html(render(sourcing, storage, entries)).into_response();
+    let ((sourcing, storage), entries, offers, offers_entries) = tokio::join!(
+        state.clients.reports(),
+        state.clients.entry_statuses(),
+        state.clients.offers_report(),
+        state.clients.offers_entry_statuses(),
+    );
+    let mut response =
+        Html(render(sourcing, storage, entries, offers, offers_entries)).into_response();
     response
         .headers_mut()
         .insert("cache-control", "no-store".parse().unwrap());
@@ -33,10 +39,13 @@ fn render(
     sourcing: Result<Report, ReportError>,
     storage: Result<Report, ReportError>,
     entries: Result<EntryStatuses, ReportError>,
+    offers: Result<Report, ReportError>,
+    offers_entries: Result<EntryStatuses, ReportError>,
 ) -> String {
     let reports = [
         (&sourcing, "Retailer Sourcing", "Pipeline metadata", "01"),
         (&storage, "Object Storage", "Stored artifacts", "02"),
+        (&offers, "Offers", "Offer events and metadata", "03"),
     ];
     let available = reports.iter().filter(|(r, _, _, _)| r.is_ok()).count();
     let total_bytes: u128 = reports
@@ -50,22 +59,20 @@ fn render(
         .filter_map(|(r, _, _, _)| r.as_ref().ok())
         .map(|r| r.tables.len())
         .sum();
-    let mut html = String::from(
-        r#"<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Database overview · Development</title><style>"#,
-    );
-    html.push_str(include_str!("dashboard/style.css"));
-    html.push_str(r#"</style></head><body><header class="topbar"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">b.</span> Development <span class="workspace">WORKSPACE</span></a><nav aria-label="Main"><a href="/">Home</a><a class="active" href="/dashboard" aria-current="page">Dashboard</a></nav></header><main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
+    let mut html = layout::start("Database overview · Development", Page::Dashboard);
+    html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
     let _ = write!(
         html,
-        r#"<section class="overview" aria-label="Overview"><div><span class="metric-label">Services available</span><strong>{available}<small> / 2</small></strong></div><div><span class="metric-label">Tables reported</span><strong>{total_tables}</strong></div><div><span class="metric-label">Storage reported</span><strong>{}</strong></div><div class="refresh-note"><span class="mini-dot" aria-hidden="true"></span><div><b>Refresh on demand</b><span>Reports update when you load this page.</span></div></div></section>"#,
+        r#"<section class="overview" aria-label="Overview"><div><span class="metric-label">Services available</span><strong>{available}<small> / 3</small></strong></div><div><span class="metric-label">Tables reported</span><strong>{total_tables}</strong></div><div><span class="metric-label">Storage reported</span><strong>{}</strong></div><div class="refresh-note"><span class="mini-dot" aria-hidden="true"></span><div><b>Refresh on demand</b><span>Reports update when you load this page.</span></div></div></section>"#,
         bytes(total_bytes)
     );
-    if available < 2 {
+    if available < 3 {
         html.push_str(
             r#"<p class="partial-note">Summary totals include available services only.</p>"#,
         );
     }
-    render_entries(&mut html, entries);
+    render_entries(&mut html, "Retailer Sourcing", entries);
+    render_entries(&mut html, "Offers", offers_entries);
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(
@@ -104,11 +111,15 @@ fn render(
         }
         html.push_str("</section>");
     }
-    html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main></body></html>"#);
+    html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main>"#);
+    layout::end(&mut html);
     html
 }
-fn render_entries(html: &mut String, report: Result<EntryStatuses, ReportError>) {
-    html.push_str(r#"<section class="service" aria-label="Command and event status"><header class="service-header"><div><h2>Command and event status</h2><p>Exact counts by current status</p></div></header>"#);
+fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses, ReportError>) {
+    let _ = write!(
+        html,
+        r#"<section class="service" aria-label="{service} command and event status"><header class="service-header"><div><h2>{service} command and event status</h2><p>Exact counts by current status</p></div></header>"#
+    );
     match report {
         Ok(report) => {
             let _ = write!(
@@ -144,13 +155,13 @@ fn render_entries(html: &mut String, report: Result<EntryStatuses, ReportError>)
             let message = match error {
                 ReportError::Unavailable => "Status counts unavailable. Try refreshing shortly.",
                 ReportError::Authentication => {
-                    "Authentication failed for status counts. Check the retailer sourcing token."
+                    "Authentication failed for status counts. Check this service’s token."
                 }
                 ReportError::Malformed => {
-                    "Invalid response for status counts. Check that retailer sourcing is up to date."
+                    "Invalid response for status counts. Check that this service is up to date."
                 }
                 ReportError::Configuration => {
-                    "Configuration needed for status counts. Check the retailer sourcing address and token."
+                    "Configuration needed for status counts. Check this service’s address and token."
                 }
             };
             let _ = write!(html, r#"<div class="error-state"><p>{message}</p></div>"#);
