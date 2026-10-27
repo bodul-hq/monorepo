@@ -4,8 +4,8 @@
 //! directly. Mulac stores every command and event in Postgres, delivers each one
 //! at least once, and retries a failed command with backoff.
 //!
-//! Nothing processes the queues in the background. The HTTP routes delegate
-//! bounded batches to Mulac's command and event adapters.
+//! The executable explicitly starts command workers. The HTTP routes also
+//! delegate bounded batches to Mulac's command and event adapters.
 
 use std::fmt::Display;
 use std::sync::Arc;
@@ -158,11 +158,61 @@ impl BusHandle {
         &self.dispatcher
     }
 
-    /// Cancel the kernel after the HTTP server has drained in-flight requests.
+    /// Starts exactly `count` command loops; events remain manual. Bus construction
+    /// itself stays worker-free so callers control the workers' lifetime.
+    pub fn start_command_workers(&self, count: usize) -> CommandWorkers {
+        let handles = (0..count)
+            .map(|_| {
+                tokio::spawn(kernel::io::run_command_worker(
+                    self.kernel.command_consumer(),
+                    self.kernel.child_token(),
+                ))
+            })
+            .collect();
+        if count == 0 {
+            tracing::info!(
+                command_workers = count,
+                "command workers disabled: manual command processing"
+            );
+        } else {
+            tracing::info!(command_workers = count, "command workers started");
+        }
+        CommandWorkers { handles }
+    }
+
+    /// Cancel workers immediately; an already reserved batch finishes before
+    /// its worker exits. The caller must also join the workers.
     pub fn shutdown(&self) {
         self.kernel.shutdown();
     }
 }
+
+/// All command loops owned by the executable, joined after HTTP drains.
+#[derive(Default)]
+pub struct CommandWorkers {
+    handles: Vec<tokio::task::JoinHandle<()>>,
+}
+
+impl CommandWorkers {
+    pub async fn join(self) -> Result<(), tokio::task::JoinError> {
+        let count = self.handles.len();
+        let mut first_error = None;
+        for handle in self.handles {
+            if let Err(error) = handle.await {
+                tracing::error!(%error, "command worker failed to join");
+                if first_error.is_none() {
+                    first_error = Some(error);
+                }
+            }
+        }
+        tracing::info!(command_workers = count, "command workers stopped");
+        first_error.map_or(Ok(()), Err)
+    }
+}
+
+#[cfg(test)]
+#[path = "command_workers_tests.rs"]
+mod command_workers_tests;
 
 /// Queues commands from outside the bus, such as from an HTTP request.
 #[derive(Clone)]

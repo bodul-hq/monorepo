@@ -211,8 +211,15 @@ make migrate   # optional; `make serve` also migrates on startup
 PORT=3002 make serve
 ```
 
-Nothing processes the queues in the background. Queue retrievals, then run the
-queued commands and events in steps; each run waits for its batch to finish:
+With a database configured, retailer sourcing starts four background command
+workers. Set `COMMAND_WORKERS` to change that count, or `COMMAND_WORKERS=0` for
+manual operation. Each worker uses Mulac's one-second polling and ten-command
+batches. Events and outbox delivery remain explicit; other services keep their
+existing manual runners. See [ADR 39](docs/adr/0039-sourcing-command-workers.md).
+
+Queue retrievals, then run events to advance reactions and outbox to deliver
+exports. The command endpoint remains available for explicit batches; each
+HTTP runner waits for its batch to finish:
 
 | Route                          | Body                          | Purpose                                                            |
 | ------------------------------ | ----------------------------- | ------------------------------------------------------------------ |
@@ -221,6 +228,11 @@ queued commands and events in steps; each run waits for its batch to finish:
 | `POST /api/events/run`         | `{"limit": 10}`               | Process up to `limit` queued events, which queue the next commands |
 
 Without `DATABASE_URL` these routes return 503.
+
+Offer-page handlers wait six seconds before each fetch. Sitemap crawls wait a
+random one to five whole seconds between fetch attempts. These delays apply
+per handler/crawl and permit concurrent workers. Shutdown requests cancellation,
+drains HTTP and waits for reserved command batches to finish.
 
 The command and event runners delegate to local Mulac's Axum adapters. Invalid
 batch requests return plain-text `400` errors, while a valid request without a

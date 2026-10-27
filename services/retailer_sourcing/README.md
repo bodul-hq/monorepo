@@ -21,7 +21,7 @@ POST /api/sitemap-retrievals
               └─▶ consolidate_sitemap reaction ──▶ ConsolidateSitemap ──▶ consolidate_sitemap handler ──▶ SitemapConsolidated
                     └─▶ discover_offers reaction ──▶ DiscoverOffers ──▶ discover_offers handler ──▶ OfferDiscovered × N
                           └─▶ download_offer_page reaction ──▶ DownloadOfferPage × N ──▶ download_offer_page handler
-                                ──▶ OfferPageWasDownloaded | no event (download failed)
+                                ──▶ OfferPageWasDownloaded | retry (download failed)
                                   └─▶ extract_offer_page reaction ──▶ ExtractOfferPage ──▶ extract_offer_page handler ──▶ OfferPageWasExtracted
                                         └─▶ normalize_offer reaction ──▶ NormalizeOffer ──▶ normalize_offer handler ──▶ OfferWasNormalized
                                               └─▶ structuralize_offer reaction ──▶ StructuralizeOffer ──▶ structuralize_offer handler ──▶ OfferWasStructuralized
@@ -33,7 +33,7 @@ POST /api/sitemap-retrievals
 | 2    | `ProcessSitemap`     | Parses the stored files into one sitemap tree, stores it in `sitemaps_processed`.                                                                                                                                                          | `SitemapProcessed`                                       | `consolidate_sitemap`: queue `ConsolidateSitemap`                     |
 | 3    | `ConsolidateSitemap` | Sorts every URL of the tree into product, catalog, content, not interested and unknown, using the retailer's link rules; stores the groups in `sitemaps_consolidated`.                                                                     | `SitemapConsolidated`                                    | `discover_offers`: queue `DiscoverOffers`, unless it found 0 products |
 | 4    | `DiscoverOffers`     | Reads the product URLs and gives each its own `offer_id`. Writes nothing.                                                                                                                                                                  | `OfferDiscovered`, one per URL                           | `download_offer_page`: queue one `DownloadOfferPage` per offer        |
-| 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. A failed download is logged, and the command still completes.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
+| 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. Waits six seconds before each download attempt. A failed download fails the command for retry.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
 | 6    | `ExtractOfferPage`   | Extracts the offer's page from `offer_details_raw` into JSON with the retailer's architecture and stores it in `offer_details_extracted`.                                                                                                  | `OfferPageWasExtracted`                                  | `normalize_offer`: queue `NormalizeOffer`                             |
 | 7    | `NormalizeOffer`     | Normalizes the extracted JSON with the retailer's normalizer and stores it in `offer_details_normalized`. When the retailer produces no document for the page, stores nothing.                                                             | `OfferWasNormalized`; none when there is no document     | `structuralize_offer`: queue `StructuralizeOffer`                     |
 | 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | `processing_for_export`: queue `ProcessOfferForExport`                                                              |
@@ -189,10 +189,28 @@ delivered again.
 
 ## Driving the workflow
 
-Nothing processes the queues in the background. `Bus::start` assembles the
-kernel with zero inline drain rounds and passes its existing consumers to
-Mulac's Axum command/event adapters. Queue retrievals, then run commands and
-events in turns:
+With `DATABASE_URL` configured, the executable starts four command workers by
+default. `COMMAND_WORKERS` sets their count; `0` keeps commands manual. Unset
+means four; empty, negative, malformed, overflowing or non-Unicode values fail
+startup with a `COMMAND_WORKERS` error. Without a database, no workers start.
+Shell and command-line settings override `.env`, including an explicit `0`.
+
+Each worker polls every second and reserves up to ten commands, processing its
+batch sequentially. These are concurrent task loops, not dedicated threads.
+`POST /api/commands/run` stays available and can add command concurrency beyond
+this count. Events and the outbox still require explicit API runs; command
+workers alone do not drive the whole pipeline.
+
+Offer downloads wait six seconds before every fetch, including retries and
+repeated URLs. Sitemap crawls choose a fresh random whole-second delay from one
+through five between actual fetch attempts, including failed attempts. There is
+no initial or final sitemap delay, and skipped URLs do not add delays. Pacing is
+per invocation/crawl: concurrent workers may fetch the same retailer together.
+Legacy retailer-library `sitemap_pause` functions are no longer used here.
+
+`Bus::start` and `start_features` remain worker-free, with zero inline drain
+rounds. Only the executable starts workers, after the database, routes/listener
+and shutdown signals are ready. Queue retrievals and explicitly run events:
 
 | Route                          | Body                          | Does                                                                      |
 | ------------------------------ | ----------------------------- | ------------------------------------------------------------------------- |
@@ -200,7 +218,9 @@ events in turns:
 | `POST /api/commands/run`       | `{"limit": 10}`               | Runs up to `limit` queued commands and waits for them                     |
 | `POST /api/events/run`         | `{"limit": 10}`               | Runs up to `limit` queued events; their reactions queue the next commands |
 
-One retailer from start to finish takes alternating runs:
+With `COMMAND_WORKERS=0`, one retailer from start to finish takes alternating
+runs (with workers enabled, wait for each command stage instead of calling
+`commands/run`):
 
 1. `sitemap-retrievals` with the retailer.
 2. `commands/run`: retrieves the sitemaps (can take minutes; keep the limit small).
@@ -237,10 +257,12 @@ OpenAPI publishes one shared `RunRequest`/`RunResponse` pair for both queues.
 
 No queue schema migration is required for this upgrade. Existing command/event
 names, payloads, metadata, and retry state remain compatible. Queue progress
-still requires explicit runs; neither an automatic stale-reservation sweep nor
-a worker is started. Rows left reserved by an interrupted process require
-operator recovery before they can run again. Graceful shutdown drains HTTP
-requests before cancelling the kernel.
+requires explicit event and outbox runs. No automatic stale-reservation sweep
+is started. Rows left reserved by an interrupted process require operator
+recovery before they can run again. Graceful shutdown immediately cancels worker
+polling, drains HTTP requests and joins every worker. A reserved command batch
+finishes before its worker stops, so shutdown can wait for sleeps and network
+requests. A server failure also cancels and joins all workers.
 
 The Bruno collection in `../../bruno/retailer_sourcing` has a request for each
 route.
@@ -268,7 +290,8 @@ Queue HTTP tests cover shared validation, schema reuse, batch isolation, partial
 failure, and sanitized task errors. PostgreSQL queue tests insert the original
 wire format directly, including null metadata and prior errors, then verify
 command → event → next-command progression, metadata preservation, and retries
-through the actual HTTP routes.
+through the actual HTTP routes. Worker tests also cover manual mode, concurrent
+batch reservation, queued events, and shutdown while a command is running.
 
 ## Domain entities and PostgreSQL records
 
@@ -821,12 +844,3 @@ and exclude variants lacking a payable price as before. Deploy downstream
 readers and migrations before enabling the v8 writer. See
 [ADRs 34–36](../../docs/adr/README.md) and the
 [verification record](../../docs/plans/24-27-offer-facts-verification.md).
-
-## Fetch pacing
-
-Offer-page handlers wait six seconds before every fetch attempt. Sitemap crawls
-wait a fresh random whole-second delay from one through five between actual
-fetch attempts, including failures. No delay is added before the first attempt,
-after the last attempt, or for skipped URLs. Pacing is per handler or crawl,
-so concurrent command runners can still fetch concurrently. The retailer-library
-`sitemap_pause` API remains available but no longer controls this service.

@@ -44,8 +44,8 @@
 | [35](0035-source-availability-and-condition.md) | Source availability and item condition | Accepted; extends ADRs 19, 21 and 22 |
 | [36](0036-offer-content.md) | Offer description content | Accepted; extends ADRs 19, 21, 22 and 23 |
 | [37](0037-identity-product-identifiers.md) | Product identifiers in the offer identity projection | Accepted; extends ADR 29 |
-
 | [38](0038-localized-offer-content.md) | Localized offer content lists | Accepted; supersedes ADR 36's single-content model in offers and downstream |
+| [39](0039-sourcing-command-workers.md) | Background command workers in retailer sourcing | Accepted; supersedes ADR 17's prohibition on background command workers |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

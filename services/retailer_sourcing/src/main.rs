@@ -107,6 +107,23 @@ fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
     }
 }
 
+/// Parses the number of concurrent command loops; zero keeps command runs manual.
+fn parse_command_workers(value: Result<String, VarError>) -> io::Result<usize> {
+    let invalid = || {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "COMMAND_WORKERS must be a non-negative integer that fits usize",
+        )
+    };
+    match value {
+        Err(VarError::NotPresent) => Ok(4),
+        Ok(value) if !value.is_empty() && value.bytes().all(|byte| byte.is_ascii_digit()) => {
+            value.parse().map_err(|_| invalid())
+        }
+        _ => Err(invalid()),
+    }
+}
+
 /// Connects to the database and starts the command and event bus when
 /// `DATABASE_URL` is set, after applying pending migrations. Without it the
 /// service only serves HTTP.
@@ -158,28 +175,52 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
 async fn main() -> io::Result<()> {
     let _logs = platform::logging::init();
     let port = parse_port(std::env::var("PORT"))?;
+    let command_workers = parse_command_workers(std::env::var("COMMAND_WORKERS"))?;
     let features = start_features(std::env::var("DATABASE_URL")).await?;
     let bus = features.bus.clone();
 
+    // Complete all fallible startup before spawning workers.
+    let routes = app(features);
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
-    let result = axum::serve(listener, app(features))
-        .with_graceful_shutdown(shutdown_signal()?)
+    let signal = shutdown_signal()?;
+    let workers = match &bus {
+        Some(bus) => bus.start_command_workers(command_workers),
+        None => {
+            tracing::info!(
+                configured_command_workers = command_workers,
+                "command workers disabled: DATABASE_URL is not configured"
+            );
+            Default::default()
+        }
+    };
+    let shutdown_bus = bus.clone();
+    let result = axum::serve(listener, routes)
+        .with_graceful_shutdown(async move {
+            signal.await;
+            if let Some(bus) = shutdown_bus {
+                bus.shutdown();
+            }
+        })
         .await;
+    // A server error also cancels workers. Always join every loop after HTTP drains.
     if let Some(bus) = bus {
         bus.shutdown();
     }
-    result
+    let joined = workers.join().await.map_err(io::Error::other);
+    result.and(joined)
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
 fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
+    let mut interrupt = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
+    #[cfg(unix)]
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
         tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+            _ = interrupt.recv() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
@@ -203,7 +244,36 @@ mod tests {
     use tower::ServiceExt;
 
     use super::platform::auth::BEARER_TOKEN;
-    use super::{AppState, app, parse_port, start_features};
+    use super::{AppState, app, parse_command_workers, parse_port, start_features};
+
+    #[test]
+    fn command_worker_configuration_accepts_default_zero_and_counts() {
+        assert_eq!(parse_command_workers(Err(VarError::NotPresent)).unwrap(), 4);
+        for count in [0, 1, 8, usize::MAX] {
+            assert_eq!(parse_command_workers(Ok(count.to_string())).unwrap(), count);
+        }
+    }
+
+    #[test]
+    fn command_worker_configuration_rejects_invalid_values_with_named_error() {
+        for value in [
+            "",
+            "-1",
+            "+1",
+            "1.5",
+            "four",
+            " 4",
+            "4 ",
+            "99999999999999999999999999999999999999",
+        ] {
+            let error = parse_command_workers(Ok(value.into())).unwrap_err();
+            assert_eq!(error.kind(), ErrorKind::InvalidInput);
+            assert!(error.to_string().contains("COMMAND_WORKERS"));
+        }
+        let error = parse_command_workers(Err(VarError::NotUnicode(std::ffi::OsString::new())))
+            .unwrap_err();
+        assert!(error.to_string().contains("COMMAND_WORKERS"));
+    }
 
     async fn get(uri: &str) -> Response {
         app(AppState::default())
