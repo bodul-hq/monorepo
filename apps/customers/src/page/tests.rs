@@ -289,3 +289,111 @@ fn mixed_currency_prices_expose_one_accessible_amount_with_iso_currency() {
         assert_eq!(children[1].text().collect::<String>(), accessible);
     }
 }
+
+#[tokio::test]
+async fn search_prompt_and_validation_need_no_upstream() {
+    let client = TestClient::new(crate::app(Arc::new(
+        OffersClient::new("http://127.0.0.1:1", Duration::from_millis(20)).unwrap(),
+    )));
+    for query in ["", "?q=", "?q=%20%20&offset=2147483647"] {
+        let response = client.get(format!("/search{query}")).send().await;
+        response.assert_status_is_ok();
+        assert_eq!(response.0.headers()["cache-control"], "no-store");
+        assert!(
+            response
+                .0
+                .into_body()
+                .into_string()
+                .await
+                .unwrap()
+                .contains("Enter a title")
+        );
+    }
+    for query in [
+        "offset=no",
+        "offset=-1",
+        "offset=2147483648",
+        "q=%00a",
+        "q=%25%21",
+        "q=charger&offset=",
+    ] {
+        client
+            .get(format!("/search?{query}"))
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+    }
+}
+
+#[test]
+fn search_rendering_preserves_encoded_query_and_safe_cards() {
+    let data: Page = serde_json::from_value(page(30, 30, true)).unwrap();
+    let query = "Čaj &+\"<b>";
+    let html = render_page(&data, Some(query));
+    assert!(html.contains("Most relevant first"));
+    assert!(!html.contains("Newest first"));
+    assert!(html.contains("Čaj &amp;+&quot;&lt;b&gt;"));
+    assert!(html.contains("q=%C4%8Caj+%26%2B%22%3Cb%3E&amp;offset=60"));
+    let document = ParsedHtml::parse_document(&html);
+    let form = document
+        .select(&Selector::parse("form[role=search]").unwrap())
+        .next()
+        .unwrap();
+    assert_eq!(form.value().attr("action"), Some("/search"));
+    assert_eq!(form.value().attr("method"), Some("get"));
+    assert!(
+        form.select(&Selector::parse("input[name=offset]").unwrap())
+            .next()
+            .is_none()
+    );
+    assert_eq!(
+        form.select(&Selector::parse("input[name=q]").unwrap())
+            .next()
+            .unwrap()
+            .value()
+            .attr("value"),
+        Some(query)
+    );
+    assert_eq!(
+        document
+            .select(&Selector::parse(".offer-card").unwrap())
+            .count(),
+        30
+    );
+    for (offset, expected) in [(0, "No matching offers"), (30, "You’ve reached the end")] {
+        let empty: Page = serde_json::from_value(page(0, offset, false)).unwrap();
+        assert!(render_page(&empty, Some(query)).contains(expected));
+    }
+}
+
+#[tokio::test]
+async fn search_route_normalizes_and_preserves_retry_context() {
+    for status in [200, 500] {
+        let (base, task) = fixture(
+            status,
+            page(1, 30, false).to_string(),
+            "/api/offers/search?q=USB+charger&limit=30&offset=30",
+            Duration::ZERO,
+        );
+        let client = TestClient::new(crate::app(Arc::new(
+            OffersClient::new(&base, Duration::from_secs(1)).unwrap(),
+        )));
+        let response = client
+            .get("/search?q=%20USB%20%20charger%20&offset=30")
+            .send()
+            .await;
+        response.assert_status(if status == 200 {
+            StatusCode::OK
+        } else {
+            StatusCode::SERVICE_UNAVAILABLE
+        });
+        let html = response.0.into_body().into_string().await.unwrap();
+        assert!(html.contains("value=\"USB charger\""));
+        if status == 500 {
+            assert!(html.contains("href=\"/search?q=USB+charger&amp;offset=30\">Try again"));
+        } else {
+            assert_eq!(html.matches("class=\"offer-card\"").count(), 1);
+        }
+        task.join().unwrap();
+    }
+}

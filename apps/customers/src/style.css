@@ -2,13 +2,13 @@
 *{box-sizing:border-box}
 body{margin:0}
 a{color:inherit}
-a:focus-visible{outline:3px solid #177b68;outline-offset:5px}
+a:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid #177b68;outline-offset:5px}
 a:hover{color:#0a5145}
 .site-header,main,footer{max-width:1240px;margin:auto;padding-left:40px;padding-right:40px}
-.site-header{display:flex;align-items:center;justify-content:space-between;padding-top:28px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.site-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,2fr) minmax(0,1fr);gap:24px;align-items:center;padding-top:28px;padding-bottom:28px;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:23px;font-weight:750;letter-spacing:-1px}
 .brand-mark{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:var(--ink);color:white;font-size:28px;padding-bottom:5px}
-.header-note{font-size:13px;color:var(--muted)}
+.header-note{text-align:right;font-size:13px;color:var(--muted)}
 .intro{padding:66px 0 56px;max-width:800px}
 .eyebrow{font-size:11px;font-weight:750;letter-spacing:2.3px;color:var(--teal);margin:0 0 18px}
 h1{font-size:clamp(36px,4.7vw,58px);line-height:1.08;letter-spacing:-2.4px;margin:0 0 22px;font-weight:650}
@@ -76,3 +76,10 @@ a:hover{color:#b9edda}
 .empty-mark{background:#2b4035}
 .skip-link{background:#1c2c26}
 }
+
+.search-form{display:flex;gap:8px;min-width:0;width:100%;max-width:480px;justify-self:center}
+.search-form input{min-width:0;width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;color:var(--ink);background:var(--paper)}
+.search-form button{cursor:pointer;color:var(--ink);font:inherit;padding:10px 14px}
+.intro-copy{overflow-wrap:anywhere}
+@media(max-width:960px){.site-header{grid-template-columns:1fr 1fr}.search-form{grid-column:1/-1;grid-row:2;max-width:none}.header-note{grid-column:2;grid-row:1}}
+@media(max-width:600px){.section-heading{flex-wrap:wrap}}

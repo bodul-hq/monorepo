@@ -2,7 +2,7 @@
 
 use std::{env::VarError, io, time::Duration};
 
-use diesel::{PgConnection, r2d2::ConnectionManager};
+use diesel::{PgConnection, RunQueryDsl, r2d2::ConnectionManager};
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use kernel::io::DbPool;
 
@@ -43,6 +43,19 @@ pub fn migrate(pool: &DbPool) -> io::Result<()> {
     let mut connection = pool
         .get()
         .map_err(|_| io::Error::other("could not acquire a database connection"))?;
+    #[derive(diesel::QueryableByName)]
+    struct Prerequisite {
+        #[diesel(sql_type = diesel::sql_types::Bool)]
+        ready: bool,
+    }
+    let prerequisite = diesel::sql_query("SELECT EXISTS (SELECT 1 FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname='pg_trgm' AND n.nspname='customer_facing_extensions') AS ready")
+        .get_result::<Prerequisite>(&mut connection)
+        .map_err(|_| io::Error::other("could not check customer facing search prerequisite"))?;
+    if !prerequisite.ready {
+        return Err(io::Error::other(
+            "provision pg_trgm in customer_facing_extensions before starting customer facing",
+        ));
+    }
     connection
         .run_pending_migrations(MIGRATIONS)
         .map_err(|_| io::Error::other("customer facing database migrations failed"))?;

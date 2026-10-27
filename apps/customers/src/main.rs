@@ -5,7 +5,9 @@ use poem::{EndpointExt, Route, Server, get, listener::TcpListener};
 use std::sync::Arc;
 
 fn app(client: Arc<offers::OffersClient>) -> Route {
-    Route::new().at("/", get(page::index).data(client))
+    Route::new()
+        .at("/", get(page::index).data(client.clone()))
+        .at("/search", get(page::search).data(client))
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.

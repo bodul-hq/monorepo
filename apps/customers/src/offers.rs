@@ -74,10 +74,22 @@ impl OffersClient {
     }
 
     pub async fn fetch(&self, offset: i32) -> Result<Page, ()> {
+        self.request(None, offset).await
+    }
+
+    pub async fn search(&self, query: &str, offset: i32) -> Result<Page, ()> {
+        self.request(Some(query), offset).await
+    }
+
+    async fn request(&self, query: Option<&str>, offset: i32) -> Result<Page, ()> {
         if offset < 0 {
             return Err(());
         }
         let mut url = self.endpoint.clone();
+        if let Some(query) = query {
+            url.set_path(&format!("{}/search", url.path()));
+            url.query_pairs_mut().append_pair("q", query);
+        }
         url.query_pairs_mut()
             .append_pair("limit", &PAGE_SIZE.to_string())
             .append_pair("offset", &offset.to_string());
@@ -143,4 +155,16 @@ fn read_localization<'de, D: serde::Deserializer<'de>>(
         }
     }
     serde_json::from_value(value).map_err(serde::de::Error::custom)
+}
+
+/// Keep these boundary rules aligned with the customers app.
+pub fn normalize_query(query: &str) -> Result<String, &'static str> {
+    if query.chars().any(|c| c.is_control() && !c.is_whitespace()) {
+        return Err("search text must not contain control characters");
+    }
+    let query = query.split_whitespace().collect::<Vec<_>>().join(" ");
+    if !(1..=200).contains(&query.chars().count()) || !query.chars().any(char::is_alphanumeric) {
+        return Err("enter 1–200 characters including a letter or number");
+    }
+    Ok(query)
 }

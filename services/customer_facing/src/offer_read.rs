@@ -5,7 +5,8 @@ use std::sync::Arc;
 use async_graphql::{ComplexObject, ID, SimpleObject};
 use chrono::{DateTime, SecondsFormat, Utc};
 use diesel::{
-    RunQueryDsl,
+    Connection, RunQueryDsl,
+    connection::SimpleConnection,
     sql_types::{BigInt, Text, Timestamptz, Uuid as SqlUuid},
 };
 use kernel::io::DbPool;
@@ -60,6 +61,7 @@ pub struct OfferPage {
 
 pub trait Repository: Send + Sync {
     fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()>;
+    fn search(&self, query: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()>;
 }
 
 struct PostgresRepository(DbPool);
@@ -114,40 +116,66 @@ impl Repository for PostgresRepository {
         .bind::<BigInt, _>(offset)
         .load::<Record>(&mut connection)
         .map_err(|_| ())?;
-        records
-            .into_iter()
-            .map(|record| {
-                Ok(Offer {
-                    gtin: record.gtin,
-                    sku: record.sku,
-                    external_identifiers: ExternalIdentifiers {
-                        shopify_product_gid: record.shopify_product_gid,
-                        shopify_product_variation_gid: record.shopify_product_variation_gid,
-                        shopify_handle: record.shopify_handle,
-                    },
-                    localization: OfferLocalization::from_record(
-                        record.target_market,
-                        record.language,
-                    )?,
-                    scraped_at: record
-                        .scraped_at
-                        .map(|time| time.to_rfc3339_opts(SecondsFormat::AutoSi, true)),
-                    id: record.id.to_string(),
-                    retailer_code: record.retailer_code,
-                    title: record.title,
-                    price: OfferPrice {
-                        amount: record.price_amount.to_string(),
-                        currency: record.currency,
-                    },
-                    url: record.url,
-                    images: record.images,
-                    created_at: record
-                        .created_at
-                        .to_rfc3339_opts(SecondsFormat::AutoSi, true),
-                })
-            })
-            .collect::<Result<Vec<_>, ()>>()
+        map_records(records)
     }
+
+    fn search(&self, query: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        let mut connection = self.0.get().map_err(|_| ())?;
+        let records = connection.transaction::<_, diesel::result::Error, _>(|connection| {
+            connection.batch_execute(
+                "SET LOCAL pg_trgm.word_similarity_threshold = 0.5; SET LOCAL statement_timeout = '3s'",
+            )?;
+            diesel::sql_query(
+                "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
+                 FROM (SELECT offers.*, lower(title) = lower($1) AS exact_match,
+                    customer_facing_extensions.word_similarity(lower($1), lower(title)) AS score
+                 FROM offers WHERE lower($1) OPERATOR(customer_facing_extensions.<%) lower(title)
+                 ORDER BY exact_match DESC, score DESC, created_at DESC, id DESC LIMIT $2 OFFSET $3) page
+                 ORDER BY exact_match DESC, score DESC, created_at DESC, id DESC",
+            )
+            .bind::<Text, _>(query)
+            .bind::<BigInt, _>(limit)
+            .bind::<BigInt, _>(offset)
+            .load::<Record>(connection)
+        }).map_err(|_| ())?;
+        map_records(records)
+    }
+}
+
+fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
+    records
+        .into_iter()
+        .map(|record| {
+            Ok(Offer {
+                gtin: record.gtin,
+                sku: record.sku,
+                external_identifiers: ExternalIdentifiers {
+                    shopify_product_gid: record.shopify_product_gid,
+                    shopify_product_variation_gid: record.shopify_product_variation_gid,
+                    shopify_handle: record.shopify_handle,
+                },
+                localization: OfferLocalization::from_record(
+                    record.target_market,
+                    record.language,
+                )?,
+                scraped_at: record
+                    .scraped_at
+                    .map(|time| time.to_rfc3339_opts(SecondsFormat::AutoSi, true)),
+                id: record.id.to_string(),
+                retailer_code: record.retailer_code,
+                title: record.title,
+                price: OfferPrice {
+                    amount: record.price_amount.to_string(),
+                    currency: record.currency,
+                },
+                url: record.url,
+                images: record.images,
+                created_at: record
+                    .created_at
+                    .to_rfc3339_opts(SecondsFormat::AutoSi, true),
+            })
+        })
+        .collect::<Result<Vec<_>, ()>>()
 }
 
 #[derive(Clone)]
@@ -178,6 +206,29 @@ impl Offers {
     }
 
     pub async fn list(&self, limit: i32, offset: i32) -> Result<OfferPage, ReadError> {
+        self.read(None, limit, offset).await
+    }
+
+    pub async fn search(
+        &self,
+        query: &str,
+        limit: i32,
+        offset: i32,
+    ) -> Result<OfferPage, ReadError> {
+        self.read(
+            Some(normalize_query(query).map_err(ReadError::Invalid)?),
+            limit,
+            offset,
+        )
+        .await
+    }
+
+    async fn read(
+        &self,
+        query: Option<String>,
+        limit: i32,
+        offset: i32,
+    ) -> Result<OfferPage, ReadError> {
         if !(1..=100).contains(&limit) {
             return Err(ReadError::Invalid("limit must be between 1 and 100"));
         }
@@ -187,8 +238,9 @@ impl Offers {
             ));
         }
         let repository = self.0.clone();
-        let mut items = tokio::task::spawn_blocking(move || {
-            repository.load(i64::from(limit) + 1, i64::from(offset))
+        let mut items = tokio::task::spawn_blocking(move || match query {
+            Some(query) => repository.search(&query, i64::from(limit) + 1, i64::from(offset)),
+            None => repository.load(i64::from(limit) + 1, i64::from(offset)),
         })
         .await
         .map_err(|_| ReadError::Unavailable)?
@@ -206,7 +258,7 @@ impl Offers {
 
 #[derive(ApiResponse)]
 pub enum PageResponse {
-    /// A page of offers, newest first. Concurrent inserts can shift later pages.
+    /// A page in browse or relevance order. Concurrent updates can shift later pages.
     #[oai(status = 200)]
     Ok(Json<OfferPage>),
     #[oai(status = 400)]
@@ -219,6 +271,29 @@ pub struct OffersApi(pub Offers);
 
 #[OpenApi]
 impl OffersApi {
+    /// Search stored titles by relevance, then creation time and ID. No queues run.
+    #[oai(path = "/offers/search", method = "get")]
+    async fn search(
+        &self,
+        q: Query<String>,
+        #[oai(
+            default = "default_limit",
+            validator(minimum(value = "1"), maximum(value = "100"))
+        )]
+        limit: Query<i32>,
+        #[oai(
+            default,
+            validator(minimum(value = "0"), maximum(value = "2147483647"))
+        )]
+        offset: Query<i32>,
+    ) -> PageResponse {
+        match self.0.search(&q.0, limit.0, offset.0).await {
+            Ok(page) => PageResponse::Ok(Json(page)),
+            Err(error @ ReadError::Invalid(_)) => PageResponse::Invalid(PlainText(error.message())),
+            Err(error) => PageResponse::Unavailable(PlainText(error.message())),
+        }
+    }
+
     /// Browse projected offers without executing any queues.
     #[oai(path = "/offers", method = "get")]
     async fn offers(
@@ -308,4 +383,16 @@ pub struct ExternalIdentifiers {
     pub shopify_product_gid: Option<String>,
     pub shopify_product_variation_gid: Option<String>,
     pub shopify_handle: Option<String>,
+}
+
+/// Keep these boundary rules aligned with the customers app.
+pub fn normalize_query(query: &str) -> Result<String, &'static str> {
+    if query.chars().any(|c| c.is_control() && !c.is_whitespace()) {
+        return Err("search text must not contain control characters");
+    }
+    let query = query.split_whitespace().collect::<Vec<_>>().join(" ");
+    if !(1..=200).contains(&query.chars().count()) || !query.chars().any(char::is_alphanumeric) {
+        return Err("enter 1–200 characters including a letter or number");
+    }
+    Ok(query)
 }

@@ -53,6 +53,106 @@ pub async fn index(
     }
 }
 
+#[derive(Deserialize, Default)]
+struct SearchParameters {
+    #[serde(default)]
+    q: String,
+    offset: Option<String>,
+}
+
+#[handler]
+pub async fn search(
+    parameters: poem::Result<Query<SearchParameters>>,
+    Data(client): Data<&Arc<OffersClient>>,
+) -> Response {
+    let parameters = match parameters {
+        Ok(Query(parameters)) => parameters,
+        Err(_) => {
+            return response(
+                StatusCode::BAD_REQUEST,
+                search_message(
+                    "",
+                    "Invalid search",
+                    "Check the search address and try again.",
+                    "/search",
+                ),
+            );
+        }
+    };
+    let offset = match parameters.offset.as_deref().unwrap_or("0").parse::<i32>() {
+        Ok(offset) if offset >= 0 => offset,
+        _ => {
+            return response(
+                StatusCode::BAD_REQUEST,
+                search_message(
+                    &parameters.q,
+                    "Invalid page",
+                    "Offset must be between 0 and 2147483647.",
+                    "/search",
+                ),
+            );
+        }
+    };
+    if parameters.q.trim().is_empty() {
+        return response(
+            StatusCode::OK,
+            search_message(
+                &parameters.q,
+                "Search offers",
+                "Enter a title or a few words in the search field.",
+                "/",
+            ),
+        );
+    }
+    let query = match crate::offers::normalize_query(&parameters.q) {
+        Ok(query) => query,
+        Err(message) => {
+            return response(
+                StatusCode::BAD_REQUEST,
+                search_message(&parameters.q, "Invalid search", message, "/search"),
+            );
+        }
+    };
+    match client.search(&query, offset).await {
+        Ok(page) => response(StatusCode::OK, render_page(&page, Some(&query))),
+        Err(()) => response(
+            StatusCode::SERVICE_UNAVAILABLE,
+            search_message(
+                &query,
+                "Search is temporarily unavailable",
+                "Please try again in a moment.",
+                &search_url(&query, offset),
+            ),
+        ),
+    }
+}
+
+fn search_message(query: &str, title: &str, message: &str, href: &str) -> String {
+    error_page_with_query(
+        title,
+        message,
+        href,
+        if href == "/" {
+            "Latest offers"
+        } else {
+            "Try again"
+        },
+        Some(query),
+    )
+}
+
+fn search_url(query: &str, offset: i32) -> String {
+    let mut url = reqwest::Url::parse("http://localhost/search").unwrap();
+    url.query_pairs_mut()
+        .append_pair("q", query)
+        .append_pair("offset", &offset.to_string());
+    format!("{}?{}", url.path(), url.query().unwrap())
+}
+
+fn result_url(query: Option<&str>, offset: i32) -> String {
+    query.map_or_else(|| page_url(offset), |query| search_url(query, offset))
+}
+
 fn response(status: StatusCode, body: String) -> Response {
     let mut response = Html(body).into_response();
     response.set_status(status);
@@ -62,12 +162,30 @@ fn response(status: StatusCode, body: String) -> Response {
     response
 }
 
-fn start() -> String {
+fn start(query: Option<&str>) -> String {
     let mut html = String::from(
         r##"<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Browse the latest offers from retailers in one place."><title>Latest offers · Bodul</title><style>"##,
     );
+    if query.is_some() {
+        html = html.replace("Latest offers · Bodul", "Search offers · Bodul");
+    }
     html.push_str(include_str!("style.css"));
-    html.push_str(r##"</style></head><body><a class="skip-link" href="#main">Skip to offers</a><header class="site-header"><a class="brand" href="/" aria-label="Bodul home"><span class="brand-mark" aria-hidden="true">b.</span>Bodul</a><span class="header-note">A little discovery. A good find.</span></header><main id="main"><section class="intro"><p class="eyebrow">THE LATEST FINDS</p><h1>Good things, worth a look.</h1><p class="intro-copy">Explore offers from retailers, all in one place.<br> Find something you like and visit the store to make it yours.</p></section>"##);
+    html.push_str(r##"</style></head><body><a class="skip-link" href="#main">Skip to offers</a><header class="site-header"><a class="brand" href="/" aria-label="Bodul home"><span class="brand-mark" aria-hidden="true">b.</span>Bodul</a>"##);
+    let _ = write!(
+        html,
+        r#"<form class="search-form" role="search" action="/search" method="get"><label class="sr-only" for="offer-query">Search offer titles</label><input id="offer-query" type="search" name="q" value="{}" placeholder="Search offers" required><button class="button" type="submit">Search</button></form>"#,
+        escape(query.unwrap_or(""))
+    );
+    html.push_str(r#"<span class="header-note">A little discovery. A good find.</span></header><main id="main">"#);
+    if let Some(query) = query {
+        let _ = write!(
+            html,
+            r#"<section class="intro"><p class="eyebrow">FIND SOMETHING GOOD</p><h1>Search offers</h1><p class="intro-copy">Results for “{}”</p></section>"#,
+            escape(query)
+        );
+    } else {
+        html.push_str(r#"<section class="intro"><p class="eyebrow">THE LATEST FINDS</p><h1>Good things, worth a look.</h1><p class="intro-copy">Explore offers from retailers, all in one place.<br> Find something you like and visit the store to make it yours.</p></section>"#);
+    }
     html
 }
 
@@ -76,14 +194,38 @@ fn end(html: &mut String) {
 }
 
 pub fn render(page: &Page) -> String {
-    let mut html = start();
-    html.push_str(r#"<section aria-labelledby="offers-heading"><div class="section-heading"><h2 id="offers-heading">Latest offers</h2><span class="sort-label">Newest first</span></div>"#);
+    render_page(page, None)
+}
+
+fn render_page(page: &Page, query: Option<&str>) -> String {
+    let mut html = start(query);
+    let (heading, order) = if query.is_some() {
+        ("Search results", "Most relevant first")
+    } else {
+        ("Latest offers", "Newest first")
+    };
+    let _ = write!(
+        html,
+        r#"<section aria-labelledby="offers-heading"><div class="section-heading"><h2 id="offers-heading">{heading}</h2><span class="sort-label">{order}</span></div>"#
+    );
     if page.items.is_empty() {
-        html.push_str(if page.offset == 0 {
+        if let Some(query) = query {
+            if page.offset == 0 {
+                html.push_str(r#"<div class="empty-state"><h3>No matching offers.</h3><p>Try another title or fewer words.</p></div>"#);
+            } else {
+                let _ = write!(
+                    html,
+                    r#"<div class="empty-state"><h3>You’ve reached the end.</h3><a class="button" href="{}">First results</a></div>"#,
+                    escape(&search_url(query, 0))
+                );
+            }
+        } else {
+            html.push_str(if page.offset == 0 {
             r#"<div class="empty-state"><span class="empty-mark" aria-hidden="true">↗</span><h3>More good finds are on the way.</h3><p>There are no offers here yet. Come back soon to see what’s new.</p></div>"#
         } else {
             r#"<div class="empty-state"><h3>You’ve reached the end.</h3><p>Head back to explore the latest offers.</p><a class="button" href="/">Latest offers</a></div>"#
         });
+        }
     } else {
         html.push_str(r#"<ul class="offers-grid">"#);
         for offer in &page.items {
@@ -118,14 +260,17 @@ pub fn render(page: &Page) -> String {
             let _ = write!(
                 html,
                 r#"<a class="button previous" rel="prev" href="{}">← Previous</a>"#,
-                page_url(page.offset.saturating_sub(PAGE_SIZE).max(0))
+                escape(&result_url(
+                    query,
+                    page.offset.saturating_sub(PAGE_SIZE).max(0)
+                ))
             );
         }
         if let Some(offset) = next {
             let _ = write!(
                 html,
                 r#"<a class="button next" rel="next" href="{}">Next <span aria-hidden="true">→</span></a>"#,
-                page_url(offset)
+                escape(&result_url(query, offset))
             );
         }
         html.push_str("</nav>");
@@ -136,7 +281,17 @@ pub fn render(page: &Page) -> String {
 }
 
 fn error_page(title: &str, message: &str, href: &str, label: &str) -> String {
-    let mut html = start();
+    error_page_with_query(title, message, href, label, None)
+}
+
+fn error_page_with_query(
+    title: &str,
+    message: &str,
+    href: &str,
+    label: &str,
+    query: Option<&str>,
+) -> String {
+    let mut html = start(query);
     let _ = write!(
         html,
         r#"<section class="empty-state" aria-labelledby="error-heading"><h2 id="error-heading">{}</h2><p>{}</p><a class="button" href="{}">{}</a></section>"#,

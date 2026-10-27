@@ -32,6 +32,18 @@ impl Query {
         shared::health()
     }
 
+    async fn search_offers(
+        &self,
+        q: String,
+        #[graphql(default = 30)] limit: i32,
+        #[graphql(default = 0)] offset: i32,
+    ) -> async_graphql::Result<offer_read::OfferPage> {
+        self.0
+            .search(&q, limit, offset)
+            .await
+            .map_err(|error| async_graphql::Error::new(error.message()))
+    }
+
     async fn offers(
         &self,
         #[graphql(default = 30)] limit: i32,

@@ -182,3 +182,33 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
         assert!(serde_json::from_value::<Offer>(bad).is_err());
     }
 }
+
+#[test]
+fn search_query_boundaries() {
+    assert_eq!(normalize_query(" \tČaj\u{2003}USB\n ").unwrap(), "Čaj USB");
+    assert_eq!(
+        normalize_query("'100%_USB+充電器'").unwrap(),
+        "'100%_USB+充電器'"
+    );
+    assert!(normalize_query(&"é".repeat(200)).is_ok());
+    for invalid in ["", " \n", "!?%_", "a\0b", "a\u{7f}", &"é".repeat(201)] {
+        assert!(normalize_query(invalid).is_err(), "{invalid:?}");
+    }
+}
+
+#[tokio::test]
+async fn search_encodes_query_and_preserves_base_prefix() {
+    let (base, task) = fixture(
+        200,
+        page(1, 30, false).to_string(),
+        "/prefix/api/offers/search?q=%C4%8Caj+%26%2B%22&limit=30&offset=30",
+        Duration::ZERO,
+    );
+    let client = OffersClient::new(&format!("{base}/prefix/"), Duration::from_secs(1)).unwrap();
+    let result = client.search("Čaj &+\"", 30).await.unwrap();
+    assert_eq!(result.items.len(), 1);
+    assert!(result.items[0].images.is_empty());
+    assert_eq!(result.items[0].localization, Default::default());
+    assert_eq!(result.items[0].identifiers, Default::default());
+    task.join().unwrap();
+}

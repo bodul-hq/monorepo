@@ -121,3 +121,21 @@ The response model also accepts source-backed localization, GTIN, SKU and option
 Shopify identifiers. Older API responses default to unknown values. These fields
 are validated but not displayed; card HTML, page language and currency formatting
 are unchanged. See the [offer facts walkthrough](../../docs/offer-facts-walkthrough.md).
+
+## Search
+
+The shared header has a labelled GET search form. `/search?q=charger&offset=0`
+requests 30 relevance-ranked offers from customer-facing's `/api/offers/search`.
+The centered desktop form occupies a full second row below 960px. It uses no
+JavaScript. New submissions reset pagination; Previous/Next and retries preserve
+the normalized, URL-encoded query. Cards retain plain-text titles, ordered images,
+retailer currencies and safe new-tab links.
+
+Missing/blank text shows a prompt without an API call. Other text must contain
+1–200 Unicode scalar values including a letter or number; whitespace collapses
+and non-whitespace controls are rejected. Invalid text/offset returns HTML 400;
+upstream errors, timeouts or invalid responses return HTML 503. All pages use
+`Cache-Control: no-store`. Empty first results and past-end pages have distinct
+messages. The existing five-second server-side timeout and configured base URL
+prefix handling also apply to search. Deploy the service's search endpoint and
+`pg_trgm` prerequisite first; see the customer-facing README and ADR 30.

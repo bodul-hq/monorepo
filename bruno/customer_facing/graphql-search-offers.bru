@@ -1,0 +1,28 @@
+meta {
+  name: GraphQL search offers
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/graphql
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query SearchOffers($q: String!, $limit: Int!, $offset: Int!) { searchOffers(q: $q, limit: $limit, offset: $offset) { items { id retailerCode title price { amount currency } url images createdAt scrapedAt localization { targetMarket { kind code label } language } gtin sku externalIdentifiers { shopifyProductGid shopifyProductVariationGid shopifyHandle } } limit offset hasMore } }",
+    "variables": { "q": "charger", "limit": 30, "offset": 0 }
+  }
+}
+
+docs {
+  The same projection, pagination and ordering as the REST search endpoint.
+  Price amount is a decimal string; retailerCode is lowercase.
+  GraphQL GET also supports the same query via the query parameter.
+}

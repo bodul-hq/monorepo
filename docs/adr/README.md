@@ -32,5 +32,7 @@
 | [28](0028-source-backed-offer-localization.md) | Source-backed target market and language | Accepted |
 | [29](0029-offer-product-identifiers.md) | Offer product identifiers | Accepted |
 
+| [30](0030-offer-title-search.md) | PostgreSQL fuzzy title search | Accepted; extends ADR 23 |
+
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

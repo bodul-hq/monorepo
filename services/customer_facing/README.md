@@ -385,3 +385,49 @@ source-order guarantees. See the [verification walkthrough](../../docs/offer-fac
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and
 [29](../../docs/adr/0029-offer-product-identifiers.md).
+
+## Title search
+
+`GET /api/offers/search?q=charger&limit=30&offset=0` and GraphQL
+`searchOffers(q: "charger", limit: 30, offset: 0) { items { id title } hasMore }`
+return the same offer fields as browsing. Defaults and bounds are unchanged:
+limit 30 (1–100), offset 0 (0–2147483647). Only text, limit and offset are
+search options. Missing/invalid text returns REST 400 or a GraphQL error;
+read failures return sanitized 500/errors, not an empty result.
+
+Text is trimmed and whitespace collapsed. Use 1–200 Unicode scalar values,
+including at least one letter or number; non-whitespace controls are invalid.
+Search matches persisted titles, including any raw markup, before card display
+cleanup. It ranks case-insensitive exact titles first, then word similarity,
+then creation time and ID descending. The fixed similarity threshold is 0.5.
+Punctuation is never SQL/wildcard syntax; trigram matching ignores non-word
+characters. There is no stemming, accent folding, total count or snapshot
+pagination. Empty/past-end results are successful empty pages.
+
+Before migrating **each development, test or production database**, a database
+owner must provision the trusted extension in its fixed schema:
+
+```sql
+CREATE SCHEMA customer_facing_extensions;
+REVOKE CREATE ON SCHEMA customer_facing_extensions FROM PUBLIC;
+CREATE EXTENSION pg_trgm WITH SCHEMA customer_facing_extensions;
+-- Replace customer_facing with your runtime and test roles:
+GRANT USAGE ON SCHEMA customer_facing_extensions TO customer_facing;
+SELECT n.nspname FROM pg_extension e
+JOIN pg_namespace n ON n.oid = e.extnamespace WHERE e.extname = 'pg_trgm';
+```
+
+The server must provide `pg_trgm`; installation needs database CREATE privilege.
+If it already exists elsewhere, stop and arrange an explicit operator-managed
+relocation after checking other consumers. `IF NOT EXISTS` does not relocate it.
+Never grant untrusted roles CREATE on the extension schema. Startup checks the
+prerequisite and does not install extensions in isolated test schemas.
+
+Migration `2026-10-26-000004_offer_title_search` adds a GIN index on `lower(title)`
+over existing data. Its transactional build blocks writes: budget lock time
+against a representative populated copy. Its targeted down migration removes
+only that index. Deploy customer-facing before the customers app. Search sets a
+three-second statement timeout and threshold inside its transaction, leaving
+pooled connections' settings unchanged. The isolated `make test-postgres` suite
+requires the provisioned extension and tests ranking, page mapping, title
+updates, replay, index reversal and setting isolation. See [ADR 30](../../docs/adr/0030-offer-title-search.md).

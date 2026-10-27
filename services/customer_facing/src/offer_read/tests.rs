@@ -5,6 +5,9 @@ use serde_json::{Value, json};
 struct Memory(Vec<Offer>);
 
 impl Repository for Memory {
+    fn search(&self, _: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        self.load(limit, offset)
+    }
     fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         Ok(self
             .0
@@ -182,6 +185,9 @@ async fn invalid_pagination_is_rejected_by_both_transports() {
 
 struct Broken(bool);
 impl Repository for Broken {
+    fn search(&self, _: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        self.load(limit, offset)
+    }
     fn load(&self, _: i64, _: i64) -> Result<Vec<Offer>, ()> {
         assert!(!self.0, "private database diagnostic");
         Err(())
@@ -234,4 +240,100 @@ async fn schema_exposes_bounds_and_string_money() {
     for status in ["200", "400", "500"] {
         assert!(op["responses"][status].is_object());
     }
+}
+
+#[test]
+fn search_query_boundaries() {
+    assert_eq!(normalize_query(" \tČaj\u{2003}USB\n ").unwrap(), "Čaj USB");
+    assert_eq!(
+        normalize_query("'100%_USB+充電器'").unwrap(),
+        "'100%_USB+充電器'"
+    );
+    assert!(normalize_query(&"é".repeat(200)).is_ok());
+    for invalid in ["", " \n", "!?%_", "a\0b", "a\u{7f}", &"é".repeat(201)] {
+        assert!(normalize_query(invalid).is_err(), "{invalid:?}");
+    }
+}
+
+#[tokio::test]
+async fn search_defaults_validation_and_sanitized_failures() {
+    let client = client(offers((0..31).map(fixture).collect()));
+    let response = client
+        .get("/api/offers/search")
+        .query("q", &" Čaj \n USB ")
+        .send()
+        .await;
+    response.assert_status_is_ok();
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(page["limit"], 30);
+    assert_eq!(page["offset"], 0);
+    assert_eq!(page["has_more"], true);
+    let browse = client.get("/api/offers").send().await;
+    browse.assert_json(page).await;
+    client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ searchOffers(q: \"charger\") { limit offset hasMore } }"}))
+        .send()
+        .await
+        .assert_json(json!({"data":{"searchOffers":{"limit":30,"offset":0,"hasMore":true}}}))
+        .await;
+    for query in ["", " ", "!?", "a\0b", &"x".repeat(201)] {
+        client
+            .get("/api/offers/search")
+            .query("q", &query)
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+        let response = client.post("/graphql").body_json(&json!({"query":"query($q:String!) { searchOffers(q:$q) { limit } }","variables":{"q":query}})).send().await;
+        let value: Value = response.json().await.value().deserialize();
+        assert!(value["errors"].is_array());
+    }
+    for suffix in [
+        "",
+        "?q=charger&limit=0",
+        "?q=charger&offset=-1",
+        "?q=charger&offset=2147483648",
+    ] {
+        client
+            .get(format!("/api/offers/search{suffix}"))
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+    }
+    for panic in [false, true] {
+        let broken = self::client(Offers::new(Arc::new(Broken(panic))));
+        let response = broken.get("/api/offers/search?q=charger").send().await;
+        response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
+        response.assert_text("offers could not be retrieved").await;
+        let response = broken
+            .post("/graphql")
+            .body_json(&json!({"query":"{ searchOffers(q: \"charger\") { limit } }"}))
+            .send()
+            .await;
+        let value: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            value["errors"][0]["message"],
+            "offers could not be retrieved"
+        );
+    }
+}
+
+#[tokio::test]
+async fn search_normalizes_before_repository_and_fetches_one_extra() {
+    struct Capture;
+    impl Repository for Capture {
+        fn load(&self, _: i64, _: i64) -> Result<Vec<Offer>, ()> {
+            panic!("browse must not run")
+        }
+        fn search(&self, q: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+            assert_eq!((q, limit, offset), ("Čaj USB", 2, 4));
+            Ok(vec![fixture(1), fixture(2)])
+        }
+    }
+    let page = Offers::new(Arc::new(Capture))
+        .search(" \tČaj\u{2003}USB\n", 1, 4)
+        .await
+        .unwrap();
+    assert_eq!(page.items.len(), 1);
+    assert!(page.has_more);
 }

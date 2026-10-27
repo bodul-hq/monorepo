@@ -27,3 +27,5 @@ Both browse examples expose ordered `images` arrays (`[]` for old offers).
 Use `OfferImageAdded` with `id`, `image_url` and a nonnegative u32 `position`
 through Submit inbox, then run inbox and commands. Repeated identical additions
 are safe; positions determine display order.
+
+`search-offers.bru` and `graphql-search-offers.bru` exercise relevance-ranked title search with query, limit and offset. Provision `pg_trgm` as documented in the service README first.

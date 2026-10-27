@@ -97,7 +97,8 @@ and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 
 `customers` and `development` are poem servers that render HTML on the server.
 Each serves an index page at `/`. The [customers app](apps/customers/README.md)
-shows 30 offers per page with responsive HTML/CSS cards and Previous/Next links,
+shows 30 offers per page with responsive HTML/CSS cards, Previous/Next links,
+and a centered title-search form with a server-rendered `/search` page,
 using customer-facing's REST API. Cards show the first ordered offer image,
 with empty-image compatibility for older responses. Set `CUSTOMER_FACING_URL` to that service's
 base URL (default `http://localhost:3003`). The
@@ -117,6 +118,7 @@ shows exact command/event status counts for the three pipeline services.
   checked-out files rather than pinning that revision. See [ADR 17](docs/adr/0017-retailer-sourcing-local-mulac.md).
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
+- PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.
 - [Diesel CLI](https://diesel.rs/guides/getting-started) with PostgreSQL support, only for `make migrate` and `make migrate-redo`: `cargo install diesel_cli --no-default-features --features postgres --locked`.
 - [cargo-audit](https://crates.io/crates/cargo-audit), only for `make audit`: `cargo install cargo-audit --locked`.
 
