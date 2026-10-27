@@ -70,7 +70,6 @@ fn app(state: AppState) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
-        .merge(platform::outbox_http::routes())
         .merge(sitemap_discovery::prelude::routes())
         .merge(development::prelude::routes())
         .merge(reporting::prelude::routes())

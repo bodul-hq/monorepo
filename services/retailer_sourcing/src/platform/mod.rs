@@ -9,7 +9,6 @@ pub mod http;
 pub mod logging;
 pub mod offers_publisher;
 pub mod outbox;
-pub mod outbox_http;
 pub mod state;
 pub use retailer_sourcing::object_storage;
 #[cfg(test)]

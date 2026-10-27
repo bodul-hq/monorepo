@@ -61,7 +61,7 @@ src/
   main.rs                    routes, startup; registers each context
   platform/                  plumbing that knows nothing about the domain
     bus.rs                   command and event bus over Mulac
-    bus_api.rs               POST /api/commands/run and /api/events/run
+    bus_api.rs               POST /api/commands/run, /api/events/run and /api/outbox/run
     db.rs                    Postgres pool and embedded migrations
     http.rs                  blocking HTTP client
   sitemap_discovery/         context: sitemaps → sorted URLs

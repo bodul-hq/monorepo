@@ -4,7 +4,10 @@ use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use mulac_axum::io::{CommandsRunResponse, EventsRunResponse, RunCommands, RunEvents};
+use mulac_axum::io::{
+    CommandsRunResponse, EventsRunResponse, OutboxAdapter, OutboxHttpError, OutboxRunResponse,
+    RunCommands, RunEvents, RunOutbox,
+};
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
@@ -18,11 +21,12 @@ pub struct ErrorBody {
     error: String,
 }
 
-/// The bus's HTTP routes, to nest under `/api`.
+/// The command, event and outbox runner routes, to nest under `/api`.
 pub fn routes() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(run_commands))
         .routes(routes!(run_events))
+        .routes(routes!(run_outbox))
 }
 
 /// Processes up to `limit` queued commands that are due, and waits for them.
@@ -67,6 +71,27 @@ async fn run_events(State(bus): State<Option<BusHandle>>, request: RunEvents) ->
     bus.events.run(request).await.into_response()
 }
 
+/// Delivers up to `limit` queued outbox messages through Mulac's adapter.
+#[utoipa::path(post, path = "/outbox/run", request_body = RunOutbox,
+    responses(
+        (status = 200, description = "Batch result; item failures are reported in errors", body = OutboxRunResponse),
+        (status = 400, description = "Invalid JSON or limit", body = String),
+        (status = 413, description = "Request too large", body = String),
+        (status = 415, description = "JSON content type required", body = String),
+        (status = 500, description = "Queue processing task failed", body = String),
+        (status = 503, description = "Database or offers publisher is not configured", body = String)
+    ))]
+async fn run_outbox(
+    State(state): State<AppState>,
+    request: RunOutbox,
+) -> Result<OutboxRunResponse, OutboxHttpError> {
+    state
+        .outbox
+        .unwrap_or_else(OutboxAdapter::unconfigured)
+        .run(request)
+        .await
+}
+
 fn unavailable_bus() -> Response {
     let body = ErrorBody {
         error: "the command bus is not running; start the service with DATABASE_URL".to_owned(),
@@ -79,3 +104,9 @@ mod tests;
 
 #[cfg(test)]
 mod postgres_tests;
+
+#[cfg(test)]
+pub(crate) mod outbox_tests;
+
+#[cfg(test)]
+pub(crate) mod outbox_postgres_tests;

@@ -1,4 +1,4 @@
-use super::{tests::run, *};
+use super::{outbox_tests::run, *};
 use crate::platform::{
     offers_publisher::{
         OffersPublisher,

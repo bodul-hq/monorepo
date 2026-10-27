@@ -481,7 +481,7 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_replay() {
-    use crate::platform::outbox_http::{postgres_tests as http, tests::run};
+    use crate::platform::bus_api::{outbox_postgres_tests as http, outbox_tests::run};
 
     let db = Database::new();
     let receiver = Database::new();
