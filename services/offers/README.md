@@ -29,7 +29,7 @@ one queue at a time:
 | `/api/inbox/run` | Convert stored inbox messages to queued commands. |
 | `/api/commands/run` | Execute queued commands and enqueue their events. |
 | `/api/events/run` | Dispatch queued events to the projectors. |
-| `/api/outbox/run` | Publish a batch to RabbitMQ when `AMQP_URL` is configured; otherwise return `503` without reserving rows. |
+| `/api/outbox/run` | Deliver a batch to customer-facing's `/api/inbox` when `CUSTOMER_FACING_URL` is configured; otherwise return `503` without reserving rows. |
 
 All four require JSON `{"limit":100}` with an integer from 1 through 1000.
 Missing or invalid limits and malformed JSON return `400`. Configured consumers
@@ -54,8 +54,11 @@ subscriber so normal event retry handling applies. Projection and outbox writes
 are not one transaction. `AppState` owns the inbox, commanding, eventing and
 outbox adapters.
 
-Mulac owns `/api/commands/run` behavior. `src/orchestration/commanding_api.rs`
-only declares the route and delegates to `mulac_poem::io::CommandingAdapter`
+The command, event and outbox runner APIs are grouped in
+`src/orchestration/bus_api.rs`, with their route tests in `bus_api/`.
+
+Mulac owns `/api/commands/run` behavior. `CommandingApi` only declares the route
+and delegates to `mulac_poem::io::CommandingAdapter`
 (feature `commanding`). The shared `commanding_api` crate validates the limit
 and runs one batch through the kernel's command consumer, so commands executed
 over HTTP still record their events without dispatching them. A failed command
@@ -63,8 +66,8 @@ is reported as its `CommandError` text, for example
 `no handler registered for command type '…'`, and is retried with backoff
 until it becomes dead after six attempts. See Mulac's ADR-010.
 
-Mulac also owns `/api/events/run` behavior. `src/orchestration/eventing_api.rs`
-only declares the route and delegates to `mulac_poem::io::EventingAdapter`
+Mulac also owns `/api/events/run` behavior. `EventingApi` only declares the route
+and delegates to `mulac_poem::io::EventingAdapter`
 (feature `eventing`). The shared `eventing_api` crate validates the limit and
 dispatches one batch through the kernel's event consumer. The projectors and
 the `customer_facing` subscriber stay registered with the kernel in
@@ -74,19 +77,19 @@ there. A subscriber failure is reported as its `EventError` text, for example
 and the event is retried with backoff until it becomes dead after six
 attempts. Events of a type without subscribers complete and are counted.
 
-Mulac also owns `/api/outbox/run` behavior. `src/orchestration/outbox_api.rs`
-only declares the route and delegates to `mulac_poem::io::OutboxAdapter`
+Mulac also owns `/api/outbox/run` behavior. `OutboxApi` only declares the route
+and delegates to `mulac_poem::io::OutboxAdapter`
 (feature `outbox`). The shared `outbox_api` crate validates the limit and
 publishes one batch through an outbox consumer that
-`OutboxService::from_postgres` builds from the pool and Mulac's
-`ConfirmedAmqpPublisher` (`mulac-outbox` feature `amqp`). Without `AMQP_URL`,
-`start_mulac` leaves the adapter
+`OutboxService::from_postgres` builds from the pool and
+`CustomerFacingPublisher` (`src/orchestration/customer_facing_publisher.rs`).
+Without `CUSTOMER_FACING_URL`, `start_mulac` leaves the adapter
 `unconfigured()`, so valid requests return `503`
 `outbox publisher is not configured` without touching storage. Publication
 failures are reported with their `OutboxError` text, for example
-`transport error: RabbitMQ publication timed out`, and use Mulac's retry
-schedule. `src/orchestration/rabbitmq.rs` reads and validates the environment
-variables and builds the publisher; broker topology also stays in offers.
+`transport error: customer-facing inbox request failed`, and use Mulac's retry
+schedule. The publisher validates rows and maps them to inbox submissions; the
+shared [`inbox_client`](../../lib/inbox_client/README.md) crate does the HTTP.
 
 ### Inbox submission
 
@@ -139,35 +142,73 @@ Each run advances only its own queue. The last step populates `read_offers` and
 `read_offer_identities`; read HTTP routes are not active yet. In Bruno, send
 **Submit inbox message**, **Run inbox**, **Run commands**, then **Run events**.
 
-### RabbitMQ delivery
+### HTTP delivery to customer-facing
 
-Set `AMQP_URL` to an `amqp://` or `amqps://` URL to enable outbox delivery.
-`OUTBOX_EXCHANGE` defaults to the empty RabbitMQ exchange. Provision a durable
-`customer_facing` queue in that virtual host first, or configure an existing
-exchange with a durable queue bound using routing key `customer_facing`.
-The service does not declare broker topology or read inbound RabbitMQ messages.
-Inbox processing still reads the database inbox.
+Set `CUSTOMER_FACING_URL` to customer-facing's HTTP(S) origin, for example
+`http://127.0.0.1:3003`. It must have no credentials, path, query, fragment,
+surrounding whitespace or control characters. An unset value disables delivery.
+An explicitly empty, invalid or non-Unicode value fails startup with a
+sanitized error, before the database is opened. No connection to
+customer-facing is made at startup, so it may be down. Shell and Make
+command-line values override `.env`, including empty values.
 
-`POST /api/outbox/run` publishes only its requested batch. Messages are persistent,
-mandatory, and use publisher confirms: only an ACK without a returned message
-completes the row. Unroutable messages, NACKs, connection errors and ten-second
-connection/publication timeouts fail the item and use Mulac's retry schedule.
-Connections are opened lazily, reused, and discarded on publication failure.
-A broker outage therefore does not prevent HTTP startup. Invalid URL configuration
-does fail startup. Keep credentials out of logs and use TLS for remote brokers.
+`AMQP_URL` and `OUTBOX_EXCHANGE` are no longer read. Offers does not publish
+to RabbitMQ, and those settings never enable delivery or act as a fallback;
+HTTP is the only transport ([ADR 21](../../docs/adr/0021-offers-http-outbox-to-customer-facing.md)).
 
-Payload, message/event IDs, event type, correlation/causation IDs, source, content
-type and routing key are preserved. Delivery is at least once: if a confirmation
-or the database completion write is lost, a retry may publish again. Receivers
-must deduplicate by message ID. Startup migrations backfill missing/null message
-IDs from existing event IDs. No background worker is started.
+`POST /api/outbox/run` delivers only its requested batch. Each row is posted to
+`/api/inbox` as JSON:
 
-`AMQP_URL_TEST=... make test-rabbitmq` is a smoke test of offers' publisher:
-confirmed persistent delivery, unroutable-message failure and recovery, using a
-temporary exclusive queue. Mulac's `ConfirmedAmqpPublisher` tests cover the
-publication semantics in detail.
-`make test-postgres` also tests outbox completion and retry state with an injected
-publisher, without requiring RabbitMQ.
+| Field | Value |
+| --- | --- |
+| `routing_key` | The event type, exactly `OfferCreated`, `OfferTitleChanged`, `OfferPriceChangedEvent` or `OfferImageAdded` |
+| `payload` | The recorded event JSON object, unchanged |
+| `message_id` | The row's stable message UUID |
+| `correlation_id` | The row's correlation UUID, or null |
+| `source` | The row's source; `offers` when absent |
+
+Only rows with destination `customer_facing` are sent. A row with another
+destination, an unsupported event type, a payload that is not that event, or a
+blank source fails without a request. The event ID, event type and causation
+stay in offers' outbox metadata, because the inbox contract has no fields for
+them.
+
+Only `202` with a JSON body naming the same `message_id` completes the row.
+Any other status (including redirects, `400`, `429` and `500`), a mismatched or
+invalid acknowledgement, or one over 64 KiB fails the item. So do a
+connection failure and the ten-second deadline, which covers the request and
+the acknowledgement body. Redirects and client retries are disabled. Errors
+name the failure, never the URL, credentials or response body.
+
+Failed rows (`status = 4`) are retried by later runs with Mulac's backoff, and
+the same message ID and payload are sent. After six attempts a row is dead
+(`status = 7`). Fix the cause, then reschedule it with
+`status = 0, attempts = 0, scheduled_at = now()`. A failed completion write
+after acceptance leaves the row reserved (`status = 2`), and no sweeper
+releases it. Once no run is in progress and the cause is fixed, release it
+with `status = 0, reservation_id = NULL, reserved_at = NULL`. Never reset the
+database to recover.
+
+```sql
+SELECT id, status, attempts, last_error, meta->>'event_type' AS event_type
+FROM outbox_entries ORDER BY received_at;
+```
+
+Delivery is at least once. A lost acknowledgement or a failed completion can
+resend a message. Customer-facing keeps the first inbox row for a message ID,
+so receivers deduplicate by it. A `202` means durable storage only. Run
+customer-facing's inbox, commands and events afterwards; its offer projection
+is a separate step. Existing queued rows are delivered unchanged; startup
+migrations backfill missing message IDs from event IDs. No background worker
+is started.
+
+`make ci` covers configuration, submission mapping, rejections and
+HTTP-receiver behavior; [`inbox_client`](../../lib/inbox_client/README.md)
+covers the transport edge cases. `make test-postgres` delivers real recorded
+rows to a Mulac inbox in a separate schema, the same inbox customer-facing
+serves. It covers all three event types, a partial batch, a failed completion
+with recovery, and a lost acceptance response retried without a duplicate
+inbox row.
 
 After a successful `/api/tmp-import`, run the inbox, commands and events steps
 to populate `read_offers` and `read_offer_identities`:
@@ -200,7 +241,7 @@ queues the command and `/api/commands/run` executes it through
 input returns `400`; inbox storage failures return `500` with `inbox message
 could not be stored`. The generated offer UUID is new for every import:
 identity deduplication, update commands, and receipts are not wired yet.
-Stored records use the version tags `OfferCreated.v1`, `OfferTitleChanged.v1`,
+Stored records use `OfferCreated.v2` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
 and `OfferPriceChanged.v1`. Existing records in earlier formats are not migrated.
 
 Other active routes are `/api/health`, `/api/openapi.json`, `/api/docs/`, and
@@ -259,7 +300,8 @@ The PostgreSQL contract tests run with
 Use the repository's pinned Rust toolchain, GNU Make, libpq, and PostgreSQL 16
 or later. Cargo also needs the configured `null-labs-hq` registry and the pinned
 Mulac Git dependency (`0.3.0`). No separate Testimony process, object storage, or retailer sourcing process is
-required. RabbitMQ is required only when outbox delivery is enabled.
+required. A reachable customer-facing service is needed only when running
+outbox delivery.
 
 ```sh
 make .env                 # optional; edit the commented examples
@@ -398,28 +440,22 @@ control access when exposing the service beyond local development.
 
 ## Import walkthrough
 
-With the database configured and the server running on port 3001:
+Use the active inbox import route and manually run each queue:
 
 ```sh
-curl -i http://localhost:3001/api/offers/import \
+curl http://localhost:3001/api/tmp-import \
   -H 'content-type: application/json' \
-  -d '{"retailer_code":"ankerau","url":"https://shop.example/charger?color=red","title":"USB charger","price_amount":999,"currency":"AUD"}'
-
-curl http://localhost:3001/api/commands/run \
-  -H 'content-type: application/json' -d '{"limit":100}'
-
-curl http://localhost:3001/api/events/run \
-  -H 'content-type: application/json' -d '{"limit":100}'
-
-curl --get http://localhost:3001/api/offers \
-  --data-urlencode 'retailer_code=ankerau' \
-  --data-urlencode 'url=https://shop.example/charger?color=red'
+  -d '{"retailer_code":"ankerau","url":"https://shop.example/charger","title":"USB charger","price_amount":999,"currency":"AUD","images":["https://shop.example/front.jpg"]}'
+for queue in inbox commands events; do
+  curl "http://localhost:3001/api/$queue/run" \
+    -H 'content-type: application/json' -d '{"limit":100}'
+done
 ```
 
-The last response includes `id`, `sequence: 1`, and the imported fields. Use
-that ID with `GET /api/offers/{id}`. Repeating the import with different fields
-and running both queues updates the same offer and increments its sequence.
-Repeating identical fields keeps its sequence unchanged.
+Inspect `read_offers` and `read_offer_images` in offers' database, or deliver the
+outbox and browse customer-facing. The complete downstream sequence is in the
+[image walkthrough](../../docs/offer-images-walkthrough.md). This checkout does
+not expose the older `/api/offers/import` and offer lookup routes.
 
 ## Direct testing import
 
@@ -461,3 +497,131 @@ database's existing tables.
 
 Catalog imports, sourcing integration, external event delivery, list/search,
 and GraphQL offer mutations are outside this first implementation.
+
+## Image imports and events
+
+The active `/api/tmp-import` DTO and `ImportOfferDetails` inbox command accept
+`images: ["https://shop.example/front.jpg", "https://shop.example/back.jpg"]`.
+Omitting the field means an empty incoming list. Invalid URL strings are skipped
+and counted without logging their contents; wrong JSON types fail. Images use
+exact ordered deduplication and the shared 2048-byte HTTP(S) validation policy.
+
+Creation emits one `OfferCreated` containing the ordered `images` array.
+Initial images are saved with the parent in one projection transaction; no
+separate image events are emitted during creation.
+Updates retain title-then-price ordering and append only unseen images. Importing
+`[B,C]` into `[A,B]` produces `[A,B,C]`. Empty, reordered or repeated lists never
+remove images. The raw image event is
+`{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`;
+the update event's Testimony tag is `OfferImageAdded.v1`. New creation records
+use `OfferCreated.v5`; readers also accept v1–v4, including v1 without images.
+Missing images in old creation payloads mean `[]`. History replay initializes
+images from creation before applying any subsequent additions.
+
+Migration `2026-10-25-000001_offer_images` adds `read_offer_images`. Positions
+are constrained BIGINTs representing u32; both positions and exact URLs are
+unique per parent. The repository returns URLs ordered by position, including
+after out-of-order additions. Identical additions succeed, conflicts and missing
+parents fail. Title and price updates preserve images. The registered subscriber
+and HTTP publisher preserve image event bodies and message IDs.
+
+This item retains the current typed handler, as requested. Descriptions elsewhere
+in this README of a durable command receipt handler are not implemented in this
+checkout. Identity lookup still relies on `read_offer_identities`, populated by
+event processing; history and Mulac publication are not one atomic transaction.
+Finish an import's events before submitting the next import for that identity.
+Image support does not repair these pre-existing concurrency/crash limitations.
+
+Deploy customer-facing's migration/consumer first; never roll offers back to a
+binary that cannot deserialize stored image events. See
+[ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md) and the
+[image walkthrough](../../docs/offer-images-walkthrough.md).
+
+## Scrape time
+
+The successful download instant travels with immutable artifact references through
+v3 and newer exports to `OfferCreated` and `OfferScrapedAtUpdated`. Old imports/events retain
+unknown time. Newer times advance the aggregate and both projections even when
+content is unchanged; absent, equal and older times never erase or regress it.
+Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
+independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
+for provenance, compatibility and deployment order.
+
+## Localization, identifiers and revisions
+
+New sourcing exports use schema v5: v3 added scrape time, v4 added a localization
+observation, and v5 adds GTIN, SKU and the three Shopify identifiers. Prepared
+v1–v4 snapshots keep their original payload shapes and IDs. Missing localization
+means no observation; an explicit object replaces both facts, including unknowns.
+Missing/null identifiers retain known values; supplied fields enrich or correct
+them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
+Localization-only and identifier-only changes have their own domain events.
+
+Offers preserves each Testimony revision in Mulac event and outbox metadata;
+legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
+building/deploying this version. This does not change HTTP inbox metadata or add
+source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
+and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
+[28](../../docs/adr/0028-source-backed-offer-localization.md) and
+[29](../../docs/adr/0029-offer-product-identifiers.md).
+
+### Comparison price, status, content and identity facts
+
+Imports accept optional `was_price`, `availability`, `item_condition` and
+`content`. Omitted keys from old imports leave facts unchanged; explicit null
+clears pricing/status. Content must be an object with a `description` key;
+`{"description":null}` clears it, while null content or an absent description
+key is invalid. Source descriptions preserve their exact text and markup.
+The temporary import form accepts these same four objects alongside its
+existing flat `price_amount` and `currency` fields.
+
+Comparison prices must exceed the current price in the same currency. A legacy
+import retains a valid comparison price and clears it if the new payable price
+makes it incompatible. New price changes emit `OfferPricingChanged` with
+`pricing: {price, was_price}`; both keys are required. Historical
+`OfferPriceChangedEvent` remains price-only. Other changes emit
+`OfferAvailabilityChanged`, `OfferItemConditionChanged` and `OfferContentsChanged`,
+with the corresponding required field. These events project to `read_offers`
+and publish to customer-facing with the same message identity and sequence.
+
+New creation records are `OfferCreated.v9`; explicit legacy readers retain v1–v8. The nullable
+comparison pair, JSONB statuses and TEXT description are additive migrations.
+The identity projection also gains five nullable identifier columns, preserving
+lookup by retailer/URL. It backfills only matching ID/retailer/URL rows from
+`read_offers`, aborts on contradictory identities, and reports unmatched rows.
+It applies complete identifier changes atomically.
+
+Stop event runners during identity migration, apply migrations, then restart.
+Deploy customer-facing and offers readers before sourcing's v8 writer. No old
+snapshots or event history are rewritten. See [ADRs 34–37](../../docs/adr/README.md)
+and [verification](../../docs/plans/24-27-offer-facts-verification.md).
+
+### Localized offer content
+
+Offers store `content` as a nonempty list of
+`{language: string|null, title: string, description: string|null}`. Exact language
+keys are unique; the unknown bucket comes first, followed by lexical tag order.
+`title` and `localization.language` select the compatibility view, and the SQL
+`description` column mirrors that selected entry. Source/export v1–v8 and
+`ImportOfferDetails` retain their singular description object.
+
+Imports upsert the observed language and preserve all other buckets. Omitted
+localization selects the current language; a present localization with missing
+or null language selects unknown. Omitted content retains the destination
+bucket's description, or null for a new bucket. Explicit null description clears
+only that bucket. Exact whitespace, markup, and historical tags survive replay.
+
+A changed list or selection emits `OfferContentsChanged.v1`, routed as
+`OfferContentsChanged`, carrying the complete list and required nullable
+`language`. Any market-only localization change follows it. New imports no longer
+emit separate title/description changes. Historical title and description events
+update the current bucket. Historical localization corrections move that bucket,
+remove its old key, and replace a target collision while preserving other entries.
+
+Migration `2026-10-27-000005` backfills a required JSONB list from the exact old
+language/title/description tuple. Full snapshots update content and all selected
+scalars in one SQL statement. Legacy read-modify-write operations lock the row
+inside a transaction. Downgrading removes only the list column; back up or replay
+additional languages if restoring it later. No event history or pending payloads
+are rewritten. Deploy customer-facing/readers before the v9 writer and quiesce
+projection runners while migrating. See [ADR 38](../../docs/adr/0038-localized-offer-content.md).

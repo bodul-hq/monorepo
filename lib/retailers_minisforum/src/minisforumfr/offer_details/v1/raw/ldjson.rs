@@ -17,9 +17,13 @@ pub struct LdJsonScript {
 /// differently shaped `Product` to 70 pages; see [`Product`]. `minisforumuk`'s `FAQPage` island
 /// appears on no saved page, so it is not typed.
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
-#[serde(tag = "@type")]
+#[serde(remote = "Self", tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
+    BreadcrumbList(BreadcrumbList),
+    Service(Service),
+    #[serde(skip)]
+    Graph(Graph),
     ProductGroup(ProductGroup),
     Product(Product),
 }
@@ -27,6 +31,36 @@ pub enum LdJson {
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "@id")]
+    pub id: Option<String>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    pub address: Option<html_extractor::serde_json::Value>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "alternateName")]
+    pub alternate_name: Option<Vec<String>>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "areaServed")]
+    pub area_served: Option<html_extractor::serde_json::Value>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    pub brand: Option<html_extractor::serde_json::Value>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "contactPoint")]
+    pub contact_point: Option<html_extractor::serde_json::Value>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    pub description: Option<String>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "foundingDate")]
+    pub founding_date: Option<String>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "knowsAbout")]
+    pub knows_about: Option<Vec<String>>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    #[serde(rename = "sameAs")]
+    pub same_as: Option<Vec<String>>,
+    /// Optional storefront metadata; absent in the older theme and not used for offer facts.
+    pub slogan: Option<String>,
+
     #[serde(rename = "@context")]
     pub context: String,
     pub name: String,
@@ -237,6 +271,113 @@ pub struct Offer {
     pub url: String,
 }
 
+impl<'de> serde::Deserialize<'de> for LdJson {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let value = Value::deserialize(deserializer)?;
+        if value.get("@graph").is_some() && value.get("@type").is_none() {
+            serde_json::from_value(value)
+                .map(Self::Graph)
+                .map_err(serde::de::Error::custom)
+        } else {
+            Self::deserialize(value).map_err(serde::de::Error::custom)
+        }
+    }
+}
+
+/// Store-level marketing metadata, not product variant offers.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct Service {
+    #[serde(rename = "@context")]
+    pub context: String,
+    pub name: String,
+    pub url: String,
+    pub description: String,
+    pub service_type: String,
+    pub terms_of_service: String,
+    pub available_language: Vec<String>,
+    /// Geographic marketing coverage; not an offer fact.
+    pub area_served: Value,
+    /// Organization reference, not an offer fact.
+    pub provider: Value,
+    /// Marketing catalog of service categories, not purchasable variants.
+    pub has_offer_catalog: Value,
+}
+
+/// Supplemental SEO graph; the Liquid record and original theme island remain authoritative.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Graph {
+    #[serde(rename = "@context")]
+    pub context: String,
+    #[serde(rename = "@graph")]
+    pub nodes: Vec<GraphNode>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(tag = "@type")]
+pub enum GraphNode {
+    Product(SeoProduct),
+    WebPage(SeoWebPage),
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct SeoProduct {
+    #[serde(rename = "@id")]
+    pub id: String,
+    pub name: String,
+    pub url: String,
+    pub description: String,
+    pub image: String,
+    pub sku: String,
+    pub category: String,
+    pub keywords: String,
+    pub brand: Brand,
+    /// Intended audience is marketing metadata.
+    pub audience: Value,
+    /// Related category is marketing metadata.
+    pub is_related_to: Value,
+    /// This SEO summary has one price, not the full variant list; Liquid supplies offers.
+    pub offers: Value,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct SeoWebPage {
+    #[serde(rename = "@id")]
+    pub id: String,
+    pub name: String,
+    pub url: String,
+    pub in_language: String,
+    /// References to other SEO nodes do not supply variant facts.
+    pub about: Value,
+    /// Site navigation metadata.
+    pub breadcrumb: Value,
+    /// Site identity metadata.
+    pub is_part_of: Value,
+    /// SEO image reference; Liquid supplies the product gallery.
+    pub primary_image_of_page: Value,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct BreadcrumbList {
+    #[serde(rename = "@context")]
+    pub context: String,
+    pub item_list_element: Vec<BreadcrumbItem>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BreadcrumbItem {
+    #[serde(rename = "@type")]
+    pub kind: String,
+    pub position: i64,
+    pub name: String,
+    pub item: String,
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     use super::{LdJson, Product};
@@ -394,7 +535,7 @@ pub(crate) mod tests {
 
     #[test]
     fn an_unseen_island_type_fails() {
-        for island_type in ["BreadcrumbList", "FAQPage"] {
+        for island_type in ["WebSite", "FAQPage"] {
             let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(

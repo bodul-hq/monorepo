@@ -1,12 +1,14 @@
 use super::{
     RetailerOffer, RetailerOfferRepository, RetailerOfferRepositoryError, err_insert, validate,
 };
+use retailer_sauce::offer_content;
 use std::{collections::HashMap, sync::Mutex};
 use uuid::Uuid;
 
 #[derive(Default)]
 pub struct InMemoryRetailerOfferRepository {
     entries: Mutex<HashMap<Uuid, RetailerOffer>>,
+    images: Mutex<HashMap<Uuid, std::collections::BTreeMap<u32, String>>>,
 }
 
 impl InMemoryRetailerOfferRepository {
@@ -16,6 +18,166 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn update_contents(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &[offer_content::Content],
+        language: &Option<String>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        offer_content::guard(content, language).map_err(super::err_update)?;
+        let mut content = content.to_vec();
+        offer_content::sort(&mut content);
+        let title = offer_content::selected(&content, language)
+            .map_err(super::err_update)?
+            .title
+            .clone();
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.content = content;
+        entity.localization.language = language.clone();
+        entity.title = title;
+        Ok(())
+    }
+    fn update_content(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &retailer_sauce::structuralized::content::Content,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        content.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.content = offer_content::legacy_description(
+            &entity.facts.content,
+            &entity.localization.language,
+            content.description.clone(),
+        )
+        .map_err(super::err_update)?;
+        Ok(())
+    }
+    fn update_item_condition(
+        &self,
+        id: &super::RetailerOfferId,
+        item_condition: &Option<retailer_sauce::item_condition::ItemCondition>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = item_condition {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.item_condition = item_condition.clone();
+        Ok(())
+    }
+    fn update_availability(
+        &self,
+        id: &super::RetailerOfferId,
+        availability: &Option<retailer_sauce::availability::Availability>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = availability {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.availability = availability.clone();
+        Ok(())
+    }
+    fn update_pricing(
+        &self,
+        id: &super::RetailerOfferId,
+        pricing: &crate::offers::event::Pricing,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        pricing.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.price = pricing.price.clone();
+        entity.facts.was_price = pricing.was_price.clone();
+        Ok(())
+    }
+    fn update_identifiers(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        identifiers.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.identifiers = identifiers.clone();
+        Ok(())
+    }
+    fn update_localization(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        localization: &retailer_sauce::localization::Localization,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        localization.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let content = offer_content::legacy_language(
+            &entity.facts.content,
+            &entity.localization.language,
+            localization.language.clone(),
+        )
+        .map_err(super::err_update)?;
+        entity.facts.content = content;
+        entity.localization = localization.clone();
+        Ok(())
+    }
+    fn update_scraped_at(
+        &self,
+        id: &super::RetailerOfferId,
+        scraped_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.scraped_at = entity.scraped_at.max(Some(scraped_at));
+        Ok(())
+    }
+
+    fn images(
+        &self,
+        id: &super::RetailerOfferId,
+    ) -> Result<Vec<String>, RetailerOfferRepositoryError> {
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        Ok(self
+            .images
+            .lock()
+            .map_err(super::err_update)?
+            .get(&id)
+            .map(|images| images.values().cloned().collect())
+            .unwrap_or_default())
+    }
+    fn add_image(
+        &self,
+        event: &crate::offers::event::OfferImageAddedEvent,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if !shared::images::is_valid(&event.image_url) {
+            return Err(super::err_update("invalid image URL"));
+        }
+        let id = Uuid::parse_str(event.id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let mut all = self.images.lock().map_err(super::err_update)?;
+        let images = all.entry(id).or_default();
+        if images.get(&event.position) == Some(&event.image_url) {
+            return Ok(());
+        }
+        if images.contains_key(&event.position)
+            || images.values().any(|url| url == &event.image_url)
+        {
+            return Err(super::err_update("conflicting image addition"));
+        }
+        images.insert(event.position, event.image_url.clone());
+        entity.images = images.values().cloned().collect();
+        Ok(())
+    }
+
     fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError> {
         let id = validate(entity)?;
         let mut entries = self.entries.lock().map_err(err_insert)?;
@@ -26,7 +188,18 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         {
             return Err(err_insert("offer ID or retailer/URL already exists"));
         }
-        entries.insert(id, entity.clone());
+        let mut all_images = self.images.lock().map_err(err_insert)?;
+        let images = entity
+            .images
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(position, image)| (position as u32, image))
+            .collect();
+        let mut entity = entity.clone();
+        offer_content::sort(&mut entity.facts.content);
+        entries.insert(id, entity);
+        all_images.insert(id, images);
         Ok(())
     }
     fn update_title(
@@ -40,6 +213,13 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
         let mut entries = self.entries.lock().map_err(super::err_update)?;
         let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let content = offer_content::legacy_title(
+            &entity.facts.content,
+            &entity.localization.language,
+            title.to_owned(),
+        )
+        .map_err(super::err_update)?;
+        entity.facts.content = content;
         entity.title = title.to_owned();
         Ok(())
     }
@@ -67,6 +247,14 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
+            facts: crate::offers::event::OfferFacts {
+                content: offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
+            identifiers: Default::default(),
+            localization: Default::default(),
+            scraped_at: None,
+            images: Vec::new(),
             id: RetailerOfferId::new(Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),
@@ -83,6 +271,7 @@ mod tests {
         repository.insert(&expected).unwrap();
         repository.update_title(&expected.id, "New title").unwrap();
         expected.title = "New title".to_owned();
+        expected.facts.content[0].title = expected.title.clone();
         let id = Uuid::parse_str(expected.id.value()).unwrap();
         assert_eq!(repository.entries.lock().unwrap().get(&id), Some(&expected));
         expected.price = Money::new(1200, Currency::EUR);
@@ -91,5 +280,91 @@ mod tests {
             .unwrap();
         assert!(repository.update_title(&expected.id, "bad\0title").is_err());
         assert_eq!(repository.entries.lock().unwrap().get(&id), Some(&expected));
+    }
+}
+
+#[cfg(test)]
+mod localized_content_tests {
+    use super::*;
+    use crate::offers::event::OfferCreatedEvent;
+    use serde_json::json;
+
+    #[test]
+    fn full_snapshots_are_atomic_and_legacy_changes_reconcile_selected_bucket() {
+        let repository = InMemoryRetailerOfferRepository::new();
+        let id = Uuid::now_v7();
+        let created: OfferCreatedEvent = serde_json::from_value(json!({
+            "id":id,"retailer_code":"AnkerCom","title":" English ","price":{"amount":1999,"currency":"USD"},"url":"https://example.com/localized","created_at":"2020-01-02T03:04:05Z",
+            "localization":{"target_market":null,"language":"en-US"},
+            "content":{"description":" Exact legacy "}
+        })).unwrap();
+        let entity = RetailerOffer {
+            facts: created.facts,
+            identifiers: created.identifiers,
+            localization: created.localization,
+            scraped_at: created.scraped_at,
+            id: created.id,
+            retailer_code: created.retailer_code,
+            title: created.title,
+            price: created.price,
+            url: created.url,
+            images: created.images,
+            created_at: created.created_at,
+        };
+        repository.insert(&entity).unwrap();
+        let content = offer_content::upsert(
+            &entity.facts.content,
+            Some("fr".into()),
+            "Français".into(),
+            Some(Some("".into())),
+        )
+        .unwrap();
+        repository
+            .update_contents(&entity.id, &content, &Some("fr".into()))
+            .unwrap();
+        let snapshot = || repository.entries.lock().unwrap().get(&id).unwrap().clone();
+        assert_eq!(snapshot().title, "Français");
+        let before = snapshot();
+        for (content, language) in [
+            (vec![], None),
+            (content.clone(), None),
+            (
+                vec![content[0].clone(), content[0].clone()],
+                Some("en-US".into()),
+            ),
+        ] {
+            assert!(
+                repository
+                    .update_contents(&entity.id, &content, &language)
+                    .is_err()
+            );
+            assert_eq!(snapshot(), before);
+        }
+        repository
+            .update_title(&entity.id, " Legacy title ")
+            .unwrap();
+        let description = retailer_sauce::structuralized::content::Content {
+            description: Some(" Legacy description ".into()),
+        };
+        repository.update_content(&entity.id, &description).unwrap();
+        let localization = retailer_sauce::localization::Localization {
+            target_market: None,
+            language: Some("en-US".into()),
+        };
+        repository
+            .update_localization(&entity.id, &localization)
+            .unwrap();
+        let after = snapshot();
+        assert_eq!(after.title, " Legacy title ");
+        assert_eq!(
+            after.facts.content,
+            offer_content::singleton(
+                " Legacy title ".into(),
+                Some("en-US".into()),
+                Some(" Legacy description ".into())
+            )
+        );
+        assert_eq!(after.price, entity.price);
+        assert_eq!(after.url, entity.url);
     }
 }

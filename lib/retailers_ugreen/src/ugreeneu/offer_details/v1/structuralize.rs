@@ -3,6 +3,7 @@
 //! locale of the page they were read from.
 
 use super::normalized::{UgreenEuNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -44,6 +45,13 @@ impl UgreenEuDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(offer_facts::in_stock(variant.available)),
+                    item_condition: None,
+                    content: offer_facts::content(None),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -62,6 +70,10 @@ impl UgreenEuDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title in the page's language, shared by every variation.
     pub title: String,
@@ -153,7 +165,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let images = json!([
             "https://eu.ugreen.com/cdn/shop/files/ugreen-wireless-powerbank-10000mah-magnetische-power-bank-451511.png?v=1719994480",
             "https://eu.ugreen.com/cdn/shop/products/ugreen-wireless-powerbank-10000mah-magnetische-power-bank-685866.png?v=1719994480"
@@ -167,6 +179,10 @@ mod tests {
                 "locale": "de-at",
                 "variations": [
                     {
+                        "was_price": {"amount": 6999, "currency": "EUR"},
+                        "availability": "in_stock",
+                        "item_condition": null,
+                        "content": {"description": null},
                         "identifiers": {
                             "gtin": "6941876229192",
                             "sku": "25919",
@@ -180,6 +196,10 @@ mod tests {
                         "images": images,
                     },
                     {
+                        "was_price": null,
+                        "availability": "in_stock",
+                        "item_condition": null,
+                        "content": {"description": null},
                         "identifiers": {
                             "gtin": null,
                             "sku": "25208",

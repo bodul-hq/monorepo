@@ -13,7 +13,25 @@ endif
 ifneq ($(origin OBJECT_STORAGE_TOKEN),undefined)
 retailer_sourcing_object_storage_token := $(value OBJECT_STORAGE_TOKEN)
 endif
+ifneq ($(origin OFFERS_URL),undefined)
+retailer_sourcing_offers_url := $(value OFFERS_URL)
+endif
+ifneq ($(origin COMMAND_WORKERS),undefined)
+retailer_sourcing_command_workers := $(value COMMAND_WORKERS)
+endif
 include $(wildcard .env)
+ifneq ($(origin retailer_sourcing_command_workers),undefined)
+COMMAND_WORKERS := $(retailer_sourcing_command_workers)
+endif
+ifneq ($(origin COMMAND_WORKERS),undefined)
+export COMMAND_WORKERS
+endif
+ifneq ($(origin retailer_sourcing_offers_url),undefined)
+OFFERS_URL := $(retailer_sourcing_offers_url)
+endif
+ifneq ($(origin OFFERS_URL),undefined)
+export OFFERS_URL
+endif
 ifneq ($(origin retailer_sourcing_database_url),undefined)
 DATABASE_URL := $(retailer_sourcing_database_url)
 endif

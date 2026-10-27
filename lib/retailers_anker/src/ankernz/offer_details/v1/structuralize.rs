@@ -6,6 +6,7 @@
 //! field taken from whichever rendering states it at the right scope.
 
 use super::normalized::{self, AnkerNzNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -48,6 +49,28 @@ impl AnkerNzDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        Some(&variant.price),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(
+                        if offer_facts::unique_sku(
+                            &island.sku,
+                            &variant.sku,
+                            product.variants.iter().map(|v| v.sku.as_str()),
+                        ) {
+                            island.offer.availability.clone()
+                        } else {
+                            offer_facts::purchase_available(variant.available_for_sale)
+                        },
+                    ),
+                    item_condition: (offer_facts::unique_sku(
+                        &island.sku,
+                        &variant.sku,
+                        product.variants.iter().map(|v| v.sku.as_str()),
+                    ))
+                    .then(|| island.offer.item_condition.clone()),
+                    content: offer_facts::content(Some(product.description.as_str())),
                     title: product.title.clone(),
                     identifiers,
                     images: island.images.clone(),
@@ -63,6 +86,10 @@ impl AnkerNzDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The record's, verbatim and shared by every variation: some titles wrap the model number in
     /// `<b>` markup.
@@ -185,7 +212,7 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         input["product"]["variants"]
             .as_array_mut()
@@ -196,6 +223,10 @@ mod tests {
             structuralized(&input),
             json!({"variations": [{
                 "title": "Anker <b>334</b> MagGo Battery",
+                "was_price": null,
+                "availability": "sold_out",
+                "item_condition": "new",
+                "content": {"description": "Description"},
                 "identifiers": {
                     "gtin": "194644098117",
                     "sku": "A1259011",

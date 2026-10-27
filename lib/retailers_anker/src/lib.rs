@@ -30,6 +30,7 @@ pub fn anker_from_location(url: &str) -> LinkKind {
     }
 }
 
+mod offer_facts;
 mod registry;
 mod shared;
 

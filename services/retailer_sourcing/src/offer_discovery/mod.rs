@@ -1,7 +1,7 @@
 //! Offer discovery.
 //!
 //! Turns the product URLs of each consolidated sitemap into offers, downloads
-//! their pages and reads the offer data out of them. Five feature slices run in
+//! their pages and reads the offer data out of them. Six feature slices run in
 //! sequence, each started by the previous one's event:
 //!
 //! 1. [`discover_offers`] records an offer for every product URL of a
@@ -11,6 +11,7 @@
 //!    retailer's architecture.
 //! 4. [`normalize_offer`] normalizes the extracted JSON.
 //! 5. [`structuralize_offer`] structuralizes the normalized JSON.
+//! 6. [`processing_for_export`] prepares an immutable export of priced variations.
 //!
 //! This module holds the domain shared by the slices. Other contexts may only
 //! use [`prelude`].
@@ -23,6 +24,7 @@ mod discover_offers;
 mod download_offer_page;
 mod extract_offer_page;
 mod normalize_offer;
+mod processing_for_export;
 mod structuralize_offer;
 
 use std::any::Any;

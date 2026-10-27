@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{self, AnkerEuNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -43,6 +44,28 @@ impl AnkerEuDocument {
             )?;
 
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    Some(&variant.price),
+                    variant.compare_at_price.as_ref(),
+                ),
+                availability: Some(
+                    if offer_facts::unique_sku(
+                        &island.sku,
+                        &variant.sku,
+                        product.variants.iter().map(|v| v.sku.as_str()),
+                    ) {
+                        island.offer.availability.clone()
+                    } else {
+                        offer_facts::purchase_available(variant.available_for_sale)
+                    },
+                ),
+                item_condition: (offer_facts::unique_sku(
+                    &island.sku,
+                    &variant.sku,
+                    product.variants.iter().map(|v| v.sku.as_str()),
+                ))
+                .then(|| island.offer.item_condition.clone()),
+                content: offer_facts::content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -57,6 +80,10 @@ impl AnkerEuDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation. The record's, verbatim: some titles wrap the
     /// model number in `<b>` markup.
@@ -180,7 +207,7 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         input["product"]["variants"]
             .as_array_mut()
@@ -190,6 +217,10 @@ mod tests {
         assert_eq!(
             structuralized(&input),
             json!({"variations": [{
+                "was_price": null,
+                "availability": "in_stock",
+                "item_condition": "new",
+                "content": {"description": "Description"},
                 "identifiers": {
                     "gtin": "194644098117",
                     "sku": "A121D321",
@@ -259,6 +290,43 @@ mod tests {
         assert_eq!(
             error(input),
             StructuralizeError::Identifier(IdentifierError::EmptySku)
+        );
+    }
+
+    #[test]
+    fn island_facts_apply_only_to_the_unique_matching_variant() {
+        let mut input = normalized_document();
+        input["ld_json"]["product"]["offer"]["availability"] = json!("sold_out");
+        input["ld_json"]["product"]["offer"]["item_condition"] =
+            json!({"other":"https://schema.org/UsedCondition"});
+        let output = structuralized(&input);
+        assert_eq!(output["variations"][0]["availability"], "sold_out");
+        assert_eq!(
+            output["variations"][0]["item_condition"],
+            json!({"other":"https://schema.org/UsedCondition"})
+        );
+        assert_eq!(output["variations"][1]["availability"], "available");
+        assert!(output["variations"][1]["item_condition"].is_null());
+        input["product"]["variants"][1]["sku"] = input["product"]["variants"][0]["sku"].clone();
+        for variant in structuralized(&input)["variations"].as_array().unwrap() {
+            assert_eq!(variant["availability"], "available");
+            assert!(variant["item_condition"].is_null());
+        }
+    }
+
+    #[test]
+    fn comparison_is_per_variant_and_description_uses_only_the_primary_record() {
+        let mut input = normalized_document();
+        input["product"]["variants"][0]["compare_at_price"] = eur(9999);
+        input["product"]["variants"][1]["compare_at_price"] = eur(7998);
+        input["product"]["description"] = json!(" ");
+        let output = structuralized(&input);
+        assert_eq!(output["variations"][0]["was_price"], eur(9999));
+        assert!(output["variations"][1]["was_price"].is_null());
+        assert_eq!(output["variations"][0]["price"], eur(7998));
+        assert_eq!(
+            output["variations"][0]["content"],
+            json!({"description":" "})
         );
     }
 }

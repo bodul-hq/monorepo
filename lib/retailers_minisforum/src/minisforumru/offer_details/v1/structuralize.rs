@@ -1,5 +1,6 @@
 //! Validated variations from the storefront's normalized product.
 use super::normalized::MinisforumRuNormalizedDocument;
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -11,6 +12,10 @@ pub struct Document {
 }
 #[derive(Debug, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: Identifiers,
     pub title: String,
     pub price: Option<Money>,
@@ -56,6 +61,13 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    Some(&variant.price),
+                    variant.compare_at_price.as_ref(),
+                ),
+                availability: Some(offer_facts::purchase_available(variant.available)),
+                item_condition: None,
+                content: offer_facts::content(None),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),

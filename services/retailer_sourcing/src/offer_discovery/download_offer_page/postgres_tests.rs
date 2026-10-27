@@ -11,6 +11,7 @@ use uuid::Uuid;
 const ROW: &str = "SELECT to_jsonb(o) AS value FROM offer_details_raw o";
 fn entity() -> RawOffer {
     RawOffer {
+        scraped_at: None,
         offer_id: Uuid::now_v7(),
         retailer_code: RetailerCode::AnkerAu,
         url: "https://shop.test/a".into(),
@@ -23,7 +24,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let mut conn = db.pool.get().unwrap();
     let mut entity = entity();
     let stored = store.store_raw_offer(&entity).unwrap();
-    assert_eq!(stored.entity.body, entity.body);
+    assert_eq!(stored.content_size, entity.body.len() as u64);
     let before = json_query(&mut conn, ROW);
     assert_eq!(
         before["storage"]["object_storage_id"],

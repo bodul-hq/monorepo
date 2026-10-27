@@ -55,12 +55,68 @@ pub mod product {
     pub struct Brand {}
 }
 pub mod content {
-    use serde::Serialize;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Clone, PartialEq, Serialize)]
+    #[derive(Debug, Clone, PartialEq, Default, Serialize)]
     pub struct Content {
-        pub title: String,
-        pub description: String,
-        pub images: Vec<String>,
+        pub description: Option<String>,
+    }
+
+    impl<'de> Deserialize<'de> for Content {
+        fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+            #[derive(Deserialize)]
+            #[serde(deny_unknown_fields)]
+            struct Fields {
+                #[serde(deserialize_with = "crate::observation::required_nullable")]
+                description: Option<String>,
+            }
+            let fields: Fields = crate::observation::object(deserializer)?;
+            Ok(Self {
+                description: fields.description,
+            })
+        }
+    }
+
+    impl Content {
+        pub fn guard(&self) -> Result<(), String> {
+            if self
+                .description
+                .as_ref()
+                .is_some_and(|value| value.contains('\0'))
+            {
+                return Err("description must not contain NUL".into());
+            }
+            Ok(())
+        }
+    }
+
+    pub fn observation<'de, D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> Result<Option<Content>, D::Error> {
+        Content::deserialize(deserializer).map(Some)
+    }
+}
+
+#[cfg(test)]
+mod content_tests {
+    use super::content::Content;
+    use serde_json::json;
+    #[test]
+    fn content_requires_an_object_with_a_description_and_preserves_exact_text() {
+        for invalid in [
+            json!(null),
+            json!({}),
+            json!([null]),
+            json!(["description"]),
+            json!({"description":7}),
+            json!({"description":null,"title":"moved"}),
+        ] {
+            assert!(serde_json::from_value::<Content>(invalid).is_err());
+        }
+        for description in [None, Some(""), Some(" \n\t"), Some(" <p> ž &amp; </p> ")] {
+            let value = json!({"description":description});
+            let content: Content = serde_json::from_value(value.clone()).unwrap();
+            assert_eq!(serde_json::to_value(content).unwrap(), value);
+        }
     }
 }

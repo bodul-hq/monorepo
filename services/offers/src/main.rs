@@ -29,9 +29,13 @@ use crate::infra::repository::offer_handler;
 use crate::monitoring::health::HealthApi;
 use crate::offers::{
     command::CREATE_FROM_OFFER_DETAILS_COMMAND,
-    event::{OFFER_CREATED_EVENT, OFFER_PRICE_CHANGED_EVENT, OFFER_TITLE_CHANGED_EVENT},
+    event::{
+        OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
+        OFFER_TITLE_CHANGED_EVENT,
+    },
     http::rest::OffersApi,
 };
+use crate::orchestration::customer_facing_publisher::CustomerFacingPublisher;
 use crate::orchestration::{CommandingApi, EventingApi, InboxApi, OutboxApi};
 use crate::read_offer::{
     projector::RetailerOfferProjector, repository::PostgresRetailerOfferRepository,
@@ -57,12 +61,14 @@ use std::time::Duration;
 #[tokio::main]
 async fn main() -> io::Result<()> {
     let port = parse_port(env::var("PORT"))?;
+    // Checked before connecting; customer-facing may be down at startup.
+    let publisher = CustomerFacingPublisher::from_env(tokio::runtime::Handle::current())?;
     let pool = bootstrap::database_pool()?.expect("DATABASE_URL is required");
     let shutdown = shutdown_signal()?;
 
     // Boot the in-process kernel and register all command handlers and event subscribers.
     let (kernel, mut state) = start_mulac(pool.clone()).map_err(err_kernel_could_not_start)?;
-    if let Some(publisher) = orchestration::rabbitmq::publisher_from_env()? {
+    if let Some(publisher) = publisher {
         state.outbox = OutboxAdapter::new(OutboxService::from_postgres(
             pool.clone(),
             Arc::new(publisher),
@@ -88,11 +94,101 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
     let customer_facing = Arc::new(CustomerFacingSubscriber::new(pool.clone()));
     let kernel = kernel::boot(KernelConfig::default())
         .command_handler(CREATE_FROM_OFFER_DETAILS_COMMAND, handler)
+        .event_subscriber(
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            "read_offers_identifiers",
+            identifiers_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
         .event_subscriber(OFFER_CREATED_EVENT, "read_offer", offer_projector.clone())
         .event_subscriber(
             OFFER_TITLE_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
+        )
+        .event_subscriber(
+            OFFER_IMAGE_ADDED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
         )
         .event_subscriber(OFFER_PRICE_CHANGED_EVENT, "read_offer", offer_projector)
         .event_subscriber(
@@ -107,6 +203,11 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
         )
         .event_subscriber(
             OFFER_TITLE_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            OFFER_IMAGE_ADDED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )

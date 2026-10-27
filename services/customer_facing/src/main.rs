@@ -1,5 +1,17 @@
+mod bootstrap;
+mod identifier;
+mod offer_projection;
+mod offer_read;
+mod orchestration;
+#[cfg(test)]
+mod postgres_tests;
+#[cfg(test)]
+mod queue_tests;
+mod reporting;
+
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema};
 use async_graphql_poem::GraphQL;
+use orchestration::{AppState, QueueApi};
 use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
 use poem_openapi::{OpenApi, OpenApiService, payload::PlainText};
 
@@ -13,12 +25,35 @@ impl Api {
     }
 }
 
-struct Query;
+struct Query(offer_read::Offers);
 
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
         shared::health()
+    }
+
+    async fn search_offers(
+        &self,
+        q: String,
+        #[graphql(default = 30)] limit: i32,
+        #[graphql(default = 0)] offset: i32,
+    ) -> async_graphql::Result<offer_read::OfferPage> {
+        self.0
+            .search(&q, limit, offset)
+            .await
+            .map_err(|error| async_graphql::Error::new(error.message()))
+    }
+
+    async fn offers(
+        &self,
+        #[graphql(default = 30)] limit: i32,
+        #[graphql(default = 0)] offset: i32,
+    ) -> async_graphql::Result<offer_read::OfferPage> {
+        self.0
+            .list(limit, offset)
+            .await
+            .map_err(|error| async_graphql::Error::new(error.message()))
     }
 }
 
@@ -31,9 +66,26 @@ async fn graphiql() -> Html<String> {
     )
 }
 
-fn app() -> Route {
-    let api = OpenApiService::new(Api, "Customer Facing", env!("CARGO_PKG_VERSION")).server("/api");
-    let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
+#[cfg(test)]
+fn app(state: AppState) -> Route {
+    app_with_reporting_token(state, reporting::DEFAULT_REPORTING_TOKEN.into())
+}
+
+fn app_with_reporting_token(state: AppState, token: String) -> Route {
+    let reports = reporting::ReportingApi::new(state.reporting.clone(), token);
+    let offers = state.offers.clone();
+    let api = OpenApiService::new(
+        (
+            Api,
+            QueueApi(state),
+            offer_read::OffersApi(offers.clone()),
+            reports,
+        ),
+        "Customer Facing",
+        env!("CARGO_PKG_VERSION"),
+    )
+    .server("/api");
+    let schema = Schema::new(Query(offers), EmptyMutation, EmptySubscription);
 
     let mut route = Route::new()
         .nest("/api/docs", api.swagger_ui())
@@ -64,9 +116,25 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
-    Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run_with_graceful_shutdown(app(), shutdown_signal()?, None)
-        .await
+    let token = match std::env::var("CUSTOMER_FACING_REPORTING_TOKEN") {
+        Ok(token) => token,
+        Err(std::env::VarError::NotPresent) => reporting::DEFAULT_REPORTING_TOKEN.into(),
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "CUSTOMER_FACING_REPORTING_TOKEN must be valid Unicode",
+            ));
+        }
+    };
+    let pool = bootstrap::database_pool()?;
+    let shutdown = shutdown_signal()?;
+    let (kernel, state) = orchestration::start_mulac(pool)
+        .map_err(|_| std::io::Error::other("Mulac kernel could not start"))?;
+    let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
+        .run_with_graceful_shutdown(app_with_reporting_token(state, token), shutdown, None)
+        .await;
+    kernel.shutdown();
+    result
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
@@ -94,7 +162,11 @@ mod tests {
     use poem::{http::StatusCode, test::TestClient};
     use serde_json::{Value, json};
 
-    use super::{app, parse_port};
+    use super::parse_port;
+
+    fn app() -> poem::Route {
+        super::app(crate::queue_tests::state())
+    }
 
     #[tokio::test]
     async fn health_returns_ok() {
@@ -153,9 +225,21 @@ mod tests {
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
-        for path in spec["paths"].as_object().unwrap().keys() {
-            let response = client.get(format!("{server}{path}")).send().await;
-            assert_ne!(response.0.status(), StatusCode::NOT_FOUND, "{server}{path}");
+        for (path, methods) in spec["paths"].as_object().unwrap() {
+            for method in methods.as_object().unwrap().keys() {
+                let uri = format!("{server}{path}");
+                let response = match method.as_str() {
+                    "get" => client.get(&uri).send().await,
+                    "post" => client.post(&uri).body_json(&json!({})).send().await,
+                    _ => panic!("unexpected documented method: {method}"),
+                };
+                assert_ne!(response.0.status(), StatusCode::NOT_FOUND, "{method} {uri}");
+                assert_ne!(
+                    response.0.status(),
+                    StatusCode::METHOD_NOT_ALLOWED,
+                    "{method} {uri}"
+                );
+            }
         }
     }
 

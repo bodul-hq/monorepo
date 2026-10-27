@@ -41,3 +41,26 @@ This crate is part of the `lib` workspace. See the
 checkout, skipping absent storefront folders. Tests enable serde_json's
 `arbitrary_precision` feature to match the app and service dependency graph;
 this covers decimal prices, ratings and media aspect ratios inside enum schemas.
+
+The facade captures localization evidence after retailer islands are extracted,
+then carries its sidecar through normalization and structuralization without
+changing strict retailer raw schemas. See the [source survey](../../docs/localization-source-coverage.md)
+for accepted declarations, exclusions, portable fixtures and corpus verification.
+
+New localization observations use the selected locale's lowercase primary
+language. If no applicable explicit market is declared, a supported country
+region supplies it (`it-IT` → IT / it). The locale region EU supplies the regional
+market `European Union` (`en-EU` → European Union / en), as recorded in
+[ADR 33](../../docs/adr/0033-european-union-locale-market.md).
+Invalid, dynamic or conflicting explicit
+markets block fallback; valid explicit markets win. Equivalent locale casing
+agrees, while full regional conflicts remain unknown. Raw tags and winning
+source paths remain in evidence with selection diagnostics. Only extraction
+applies this policy: later stages carry old sidecars unchanged. Unsupported
+extlang/grandfathered tags remain unknown, as do unsupported country regions,
+numeric macroregions and regions appearing only in Unicode extensions.
+
+The opt-in, read-only `offer_facts_corpus` integration test checks canonical comparison
+prices, availability, item condition, and descriptions across the saved source
+corpus. See [source coverage](../../docs/offer-facts-source-coverage.md) for source
+semantics, nullable fields, and the survey command.

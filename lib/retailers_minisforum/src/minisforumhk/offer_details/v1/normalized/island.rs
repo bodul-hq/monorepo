@@ -29,6 +29,7 @@ pub(super) struct IslandOffer {
     pub currency: String,
     pub sku: Option<String>,
     pub in_stock: bool,
+    pub availability: retailer_sauce::availability::Availability,
 }
 
 impl Island {
@@ -38,7 +39,7 @@ impl Island {
             .into_iter()
             .filter_map(|script| match script.data {
                 LdJson::Product(product) => Some(*product),
-                LdJson::BreadcrumbList(_) | LdJson::Organization(_) => None,
+                LdJson::BreadcrumbList(_) | LdJson::Organization(_) | LdJson::FaqPage(_) => None,
             })
             .collect();
 
@@ -76,6 +77,9 @@ impl Island {
 impl IslandOffer {
     fn from_raw(offer: ldjson::Offer, product_path: &str) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
+            availability: retailer_sauce::availability::Availability::from_schema_org(
+                offer.availability.clone(),
+            ),
             variant_id: variant_id(&offer.url, product_path)?,
             price: offer.price,
             currency: offer.price_currency,
@@ -119,11 +123,12 @@ fn in_stock(value: &str) -> Result<bool, NormalizeError> {
     match Availability::from_schema_org(value) {
         Availability::InStock => Ok(true),
         Availability::OutOfStock => Ok(false),
-        Availability::SoldOut | Availability::Other(_) => {
-            Err(NormalizeError::UnknownAvailability {
-                value: value.to_string(),
-            })
-        }
+        Availability::Available
+        | Availability::Unavailable
+        | Availability::SoldOut
+        | Availability::Other(_) => Err(NormalizeError::UnknownAvailability {
+            value: value.to_string(),
+        }),
     }
 }
 

@@ -1,0 +1,21 @@
+meta {
+  name: Report command and event statuses
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{customerFacingBaseUrl}}/api/reporting/entry-statuses
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: customer-facing-development-token
+}
+
+docs {
+  Exact command and event counts by status, with status_text labels.
+  Empty queues return empty arrays. This request never processes queues.
+  Match the token to CUSTOMER_FACING_REPORTING_TOKEN if overridden on the service.
+}

@@ -1,6 +1,7 @@
 //! One offer per Shopify variant, retaining that variant's own price and availability.
 
 use super::normalized::UgreenNasEuNormalizedDocument;
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -23,6 +24,10 @@ pub struct UgreenNasEuDocument {
 
 #[derive(Debug, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     pub title: String,
     pub price: Money,
@@ -91,6 +96,10 @@ impl UgreenNasEuDocument {
                 images.insert(0, image);
             }
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(Some(&v.price), v.compare_at_price.as_ref()),
+                availability: Some(offer_facts::purchase_available(v.available)),
+                item_condition: None,
+                content: offer_facts::content(None),
                 identifiers,
                 title: p.title.clone(),
                 price: v.price,

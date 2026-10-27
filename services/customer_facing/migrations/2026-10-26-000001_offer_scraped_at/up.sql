@@ -1,0 +1,1 @@
+ALTER TABLE offers ADD COLUMN scraped_at TIMESTAMPTZ;

@@ -1,0 +1,27 @@
+[
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Example metadata"
+          },
+          "name": "AI X1 有邊幾款處理器可以揀？"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Example metadata"
+          },
+          "name": "有冇 OCuLink？網絡係單網口定雙網口？"
+        }
+      ]
+    },
+    "type": "application/ld+json"
+  }
+]

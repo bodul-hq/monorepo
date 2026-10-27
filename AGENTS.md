@@ -3,6 +3,23 @@
 Guidance for AI agents working in this repository. For the layout and
 requirements, read [README.md](README.md) first.
 
+## TODO workflow
+
+Track each item in [TODO.md](TODO.md) independently and update its marker as
+it moves through these phases:
+
+| Marker | Phase | When to use it |
+| --- | --- | --- |
+| `[ ]` | Pending | A new TODO has been added; planning has not started. |
+| `[.]` | Planning | Work on the implementation plan is in progress. |
+| `[>]` | Planned | The plan is complete; implementation has not started. |
+| `[~]` | Implementing | Implementation is in progress. |
+| `[x]` | Implemented | Implementation is complete. |
+
+The normal progression is `[ ]` → `[.]` → `[>]` → `[~]` → `[x]`.
+When asked only to plan, finish at `[>]`. When implementation is also requested,
+continue to `[~]` as implementation begins.
+
 ## Commits
 
 - Never add `Co-Authored-By` or other signature lines to commits or pull request descriptions.

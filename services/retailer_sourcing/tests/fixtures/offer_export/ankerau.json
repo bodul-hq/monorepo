@@ -1,0 +1,18 @@
+{
+  "variations": [
+    {
+      "title": " USB charger ž ",
+      "identifiers": {"sku":"A1","shopify_product_gid":"gid://shopify/Product/1"},
+      "images":["https://example.com/a.png"],
+      "price":{"amount":1999,"currency":"AUD"},
+      "url":"https://shop.example/Charger?q=red&variant=1#details"
+    },
+    {
+      "title":"USB charger",
+      "identifiers":{"sku":"A2"},
+      "images":[],
+      "price":{"amount":0,"currency":"AUD"},
+      "url":"https://shop.example/Charger?variant=2"
+    }
+  ]
+}

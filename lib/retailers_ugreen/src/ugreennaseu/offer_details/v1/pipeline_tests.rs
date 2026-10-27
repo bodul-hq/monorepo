@@ -89,8 +89,8 @@ fn pipeline_retains_per_variant_facts_and_exact_output_shape() {
     assert_eq!(
         s,
         json!({"variations": [
-            {"identifiers": {"gtin": "6941876247899", "sku": "sku-11", "shopify_product_gid": "gid://shopify/Product/7", "shopify_product_variation_gid": "gid://shopify/ProductVariant/11", "shopify_handle": "test-nas"}, "title": "Displayed NAS", "price": {"amount": 1099, "currency": CURRENCY}, "compare_at_price": {"amount": 15000, "currency": CURRENCY}, "available": true, "url": format!("{ORIGIN}/products/test-nas?variant=11"), "images": ["https://cdn.example.com/variant.jpg", "https://cdn.example.com/gallery.jpg"]},
-            {"identifiers": {"gtin": "6941876247899", "sku": "sku-12", "shopify_product_gid": "gid://shopify/Product/7", "shopify_product_variation_gid": "gid://shopify/ProductVariant/12", "shopify_handle": "test-nas"}, "title": "Displayed NAS", "price": {"amount": 1199, "currency": CURRENCY}, "compare_at_price": {"amount": 15000, "currency": CURRENCY}, "available": false, "url": format!("{ORIGIN}/products/test-nas?variant=12"), "images": ["https://cdn.example.com/variant.jpg", "https://cdn.example.com/gallery.jpg"]}
+            {"identifiers": {"gtin": "6941876247899", "sku": "sku-11", "shopify_product_gid": "gid://shopify/Product/7", "shopify_product_variation_gid": "gid://shopify/ProductVariant/11", "shopify_handle": "test-nas"}, "title": "Displayed NAS", "price": {"amount": 1099, "currency": CURRENCY}, "compare_at_price": {"amount": 15000, "currency": CURRENCY}, "available": true, "availability": "available", "item_condition": null, "content": {"description": null}, "was_price": {"amount": 15000, "currency": CURRENCY}, "url": format!("{ORIGIN}/products/test-nas?variant=11"), "images": ["https://cdn.example.com/variant.jpg", "https://cdn.example.com/gallery.jpg"]},
+            {"identifiers": {"gtin": "6941876247899", "sku": "sku-12", "shopify_product_gid": "gid://shopify/Product/7", "shopify_product_variation_gid": "gid://shopify/ProductVariant/12", "shopify_handle": "test-nas"}, "title": "Displayed NAS", "price": {"amount": 1199, "currency": CURRENCY}, "compare_at_price": {"amount": 15000, "currency": CURRENCY}, "available": false, "availability": "unavailable", "item_condition": null, "content": {"description": null}, "was_price": {"amount": 15000, "currency": CURRENCY}, "url": format!("{ORIGIN}/products/test-nas?variant=12"), "images": ["https://cdn.example.com/variant.jpg", "https://cdn.example.com/gallery.jpg"]}
         ]})
     );
 }
@@ -423,4 +423,40 @@ fn normalizes_and_structuralizes_every_page() {
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn absent_rendered_gallery_uses_ordered_deduplicated_liquid_images() {
+    let mut input = fixture();
+    input["images"] = json!([]);
+    let mut product = glood_product();
+    product["images"] = json!([
+        "//cdn.example.com/A.jpg",
+        "https://cdn.example.com/B.jpg",
+        "//cdn.example.com/A.jpg"
+    ]);
+    put_glood(&mut input, &product);
+    let n = normalized(&input);
+    assert_eq!(
+        n["product"]["images"],
+        json!([
+            "https://cdn.example.com/A.jpg",
+            "https://cdn.example.com/B.jpg"
+        ])
+    );
+    let s = structured(&n);
+    assert_eq!(
+        s["variations"][0]["images"],
+        json!([
+            "https://cdn.example.com/variant.jpg",
+            "https://cdn.example.com/A.jpg",
+            "https://cdn.example.com/B.jpg"
+        ])
+    );
+    product["images"] = json!([]);
+    put_glood(&mut input, &product);
+    rejects(&input, "product gallery");
+    product["images"] = json!(["javascript:bad"]);
+    put_glood(&mut input, &product);
+    rejects(&input, "image URL");
 }

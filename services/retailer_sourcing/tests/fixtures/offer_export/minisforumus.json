@@ -1,0 +1,13 @@
+{
+  "variations": [
+    {
+      "title":"Mini PC",
+      "identifiers":{"sku":"PC-1"},
+      "price":{"amount":59900,"currency":"USD"},
+      "compare_at_price":null,
+      "available":true,
+      "url":"https://us.example/products/mini-pc",
+      "images":["https://us.example/pc.png"]
+    }
+  ]
+}

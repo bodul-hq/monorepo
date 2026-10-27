@@ -108,6 +108,7 @@ fn offer_replacements_get_distinct_external_ids_and_validate_typed_metadata() {
         "second 🔎"
     );
     let wrong_key = OfferStorageMetadata {
+        scraped_at: None,
         external_id: first.external_id,
         ..second
     };

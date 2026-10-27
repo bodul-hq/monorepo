@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{UgreenNasDeNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -45,6 +46,13 @@ impl UgreenNasDeDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(offer_facts::purchase_available(variant.available)),
+                    item_condition: None,
+                    content: offer_facts::content(None),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -60,6 +68,10 @@ impl UgreenNasDeDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -150,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let images = [
             "https://ai-de.ugreen.com/cdn/shop/files/DXP4800_GT_16058.webp?v=1780565809",
             "https://ai-de.ugreen.com/cdn/shop/files/07_813b72a9-9cac-4d55-b7c0-8c1be5a945ad.jpg?v=1785465917",
@@ -162,6 +174,10 @@ mod tests {
             structuralized(normalized_document()),
             json!({"variations": [
                 {
+                    "was_price": {"amount": 65999, "currency": "EUR"},
+                    "availability": "available",
+                    "item_condition": null,
+                    "content": {"description": null},
                     "identifiers": {
                         "gtin": "6942752010583",
                         "sku": "16058",
@@ -175,6 +191,10 @@ mod tests {
                     "images": images,
                 },
                 {
+                    "was_price": {"amount": 76999, "currency": "EUR"},
+                    "availability": "available",
+                    "item_condition": null,
+                    "content": {"description": null},
                     "identifiers": {
                         "gtin": "17841947458093",
                         "sku": "16058 + 45615",

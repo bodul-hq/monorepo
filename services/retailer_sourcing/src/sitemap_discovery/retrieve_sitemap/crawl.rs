@@ -1,18 +1,12 @@
 //! Breadth-first crawl from the root sitemaps through every child index.
 
 use std::collections::{HashSet, VecDeque};
-use std::thread;
-use std::time::Duration;
 
 use chrono::{DateTime, Utc};
 
 use super::handler::FetchSitemapBody;
 use crate::platform::http::FetchError;
 use sitemap::{ChildRef, MAX_SITEMAP_DEPTH, Parsed, RawSitemapDocument, SitemapParseError, parse};
-
-/// How many downloads the crawl makes between pauses, so storefronts don't
-/// rate-limit it.
-const DOWNLOADS_PER_PAUSE: usize = 3;
 
 /// A problem with one sitemap file. The crawl skips that file and carries on.
 #[derive(Debug, Clone, thiserror::Error)]
@@ -43,13 +37,13 @@ pub enum CrawlError {
 
 /// Fetches every root sitemap and every child sitemap the fetched indexes
 /// list that `greylisted` accepts. Returns the files fetched, the child URLs
-/// `greylisted` rejected and the problems met along the way. Sleeps for
-/// `pause` after every [`DOWNLOADS_PER_PAUSE`] downloads.
+/// `greylisted` rejected and the problems met along the way. Calls `pause`
+/// between actual fetch attempts, never for skipped URLs or before the first.
 pub fn crawl(
     fetcher: &impl FetchSitemapBody,
     root_urls: &[String],
     greylisted: impl Fn(&str) -> bool,
-    pause: Duration,
+    pause: impl FnMut(),
 ) -> (Vec<RawSitemapDocument>, Vec<String>, Vec<CrawlError>) {
     let mut crawl = Crawl {
         fetcher,
@@ -91,10 +85,10 @@ impl SitemapItem {
     }
 }
 
-struct Crawl<'a, F, I> {
+struct Crawl<'a, F, I, P> {
     fetcher: &'a F,
     greylisted: I,
-    pause: Duration,
+    pause: P,
     /// Downloads attempted so far, failed ones included.
     downloads: usize,
     already_fetched: HashSet<String>,
@@ -103,7 +97,7 @@ struct Crawl<'a, F, I> {
     errors: Vec<CrawlError>,
 }
 
-impl<F: FetchSitemapBody, I: Fn(&str) -> bool> Crawl<'_, F, I> {
+impl<F: FetchSitemapBody, I: Fn(&str) -> bool, P: FnMut()> Crawl<'_, F, I, P> {
     fn run(&mut self, root_urls: &[String]) -> Vec<RawSitemapDocument> {
         let mut documents = Vec::new();
         let mut queue: VecDeque<SitemapItem> =
@@ -163,8 +157,8 @@ impl<F: FetchSitemapBody, I: Fn(&str) -> bool> Crawl<'_, F, I> {
             return None;
         }
 
-        if pauses_before(self.downloads) {
-            thread::sleep(self.pause);
+        if self.downloads > 0 {
+            (self.pause)();
         }
         self.downloads += 1;
 
@@ -191,20 +185,125 @@ impl<F: FetchSitemapBody, I: Fn(&str) -> bool> Crawl<'_, F, I> {
     }
 }
 
-/// Whether the crawl pauses before its download number `downloads`, counting
-/// from 0: after each group of [`DOWNLOADS_PER_PAUSE`], never before the first.
-fn pauses_before(downloads: usize) -> bool {
-    downloads > 0 && downloads.is_multiple_of(DOWNLOADS_PER_PAUSE)
-}
-
 #[cfg(test)]
 mod tests {
-    use super::pauses_before;
+    use std::collections::HashMap;
+    use std::sync::Mutex;
+
+    use super::*;
+
+    struct Pages {
+        bodies: HashMap<String, String>,
+        order: Mutex<Vec<String>>,
+    }
+    impl FetchSitemapBody for Pages {
+        fn fetch(&self, url: &str) -> Result<String, FetchError> {
+            self.order.lock().unwrap().push(url.to_owned());
+            self.bodies.get(url).cloned().ok_or_else(|| FetchError {
+                message: "fixture fetch failure".into(),
+            })
+        }
+    }
+    fn index(urls: &[&str]) -> String {
+        format!(
+            "<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">{}</sitemapindex>",
+            urls.iter()
+                .map(|url| format!("<sitemap><loc>{url}</loc></sitemap>"))
+                .collect::<String>()
+        )
+    }
+    const LEAF: &str = "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>";
 
     #[test]
-    fn pauses_after_every_third_download() {
-        let pauses: Vec<usize> = (0..10).filter(|&n| pauses_before(n)).collect();
+    fn pauses_only_between_attempts_in_breadth_first_order_even_after_failures() {
+        let pages = Pages {
+            bodies: [
+                (
+                    "https://shop.test/root",
+                    index(&[
+                        "https://shop.test/child",
+                        "https://shop.test/skip",
+                        "https://shop.test/root",
+                        "https://shop.test/missing",
+                    ]),
+                ),
+                ("https://shop.test/bad", "malformed XML".into()),
+                ("https://shop.test/child", LEAF.into()),
+            ]
+            .into_iter()
+            .map(|(url, body)| (url.into(), body))
+            .collect(),
+            order: Mutex::default(),
+        };
+        let roots = [
+            "https://shop.test/root",
+            "https://shop.test/missing",
+            "https://shop.test/bad",
+        ]
+        .map(str::to_owned);
+        let (documents, rejected, errors) = crawl(
+            &pages,
+            &roots,
+            |url| !url.ends_with("/skip"),
+            || {
+                pages.order.lock().unwrap().push("pause".into());
+            },
+        );
+        assert_eq!(
+            *pages.order.lock().unwrap(),
+            [
+                "https://shop.test/root",
+                "pause",
+                "https://shop.test/missing",
+                "pause",
+                "https://shop.test/bad",
+                "pause",
+                "https://shop.test/child",
+            ]
+        );
+        assert_eq!(documents.len(), 3);
+        assert_eq!(rejected, ["https://shop.test/skip"]);
+        assert_eq!(errors.len(), 4); // Fetch, parse, duplicate root, repeated failed URL.
+    }
 
-        assert_eq!(pauses, [3, 6, 9]);
+    #[test]
+    fn depth_limit_and_duplicate_roots_do_not_add_pauses() {
+        let bodies = (0..=MAX_SITEMAP_DEPTH)
+            .map(|depth| {
+                (
+                    format!("https://shop.test/{depth}"),
+                    index(&[&format!("https://shop.test/{}", depth + 1)]),
+                )
+            })
+            .collect();
+        let pages = Pages {
+            bodies,
+            order: Mutex::default(),
+        };
+        let roots = ["https://shop.test/0".into(), "https://shop.test/0".into()];
+        let mut pauses = 0;
+        let (documents, _, errors) = crawl(&pages, &roots, |_| true, || pauses += 1);
+        assert_eq!(documents.len(), MAX_SITEMAP_DEPTH + 1);
+        assert_eq!(pauses, MAX_SITEMAP_DEPTH);
+        assert!(
+            errors
+                .iter()
+                .any(|error| matches!(error, CrawlError::MaximumDepthExceeded { .. }))
+        );
+    }
+
+    #[test]
+    fn empty_and_single_fetch_crawls_never_pause() {
+        let pages = Pages {
+            bodies: HashMap::new(),
+            order: Mutex::default(),
+        };
+        crawl(&pages, &[], |_| true, || panic!("empty crawl paused"));
+        crawl(
+            &pages,
+            &["https://shop.test/missing".into()],
+            |_| true,
+            || panic!("single fetch paused"),
+        );
     }
 }

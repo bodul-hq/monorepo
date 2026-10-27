@@ -1,0 +1,20 @@
+meta {
+  name: Run outbox
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/api/outbox/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Returns 503 without reserving rows because no publisher is configured.
+  The limit must be an integer from 1 through 1000. Inspect errors even after HTTP 200.
+}

@@ -201,3 +201,188 @@ mod tests {
         assert_eq!(gid.numeric_id().unwrap(), "56758478831919");
     }
 }
+
+/// Shopify identifiers are optional and never synthesized from URLs or other IDs.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(try_from = "ExternalWire")]
+pub struct ExternalIdentifiers {
+    pub shopify_product_gid: Option<ShopifyProductGid>,
+    pub shopify_product_variation_gid: Option<ShopifyProductVariationGid>,
+    pub shopify_handle: Option<ShopifyHandle>,
+}
+#[derive(Deserialize)]
+struct ExternalWire {
+    shopify_product_gid: Option<ShopifyProductGid>,
+    shopify_product_variation_gid: Option<ShopifyProductVariationGid>,
+    shopify_handle: Option<ShopifyHandle>,
+}
+impl TryFrom<ExternalWire> for ExternalIdentifiers {
+    type Error = String;
+    fn try_from(value: ExternalWire) -> Result<Self, Self::Error> {
+        let result = Self {
+            shopify_product_gid: value.shopify_product_gid,
+            shopify_product_variation_gid: value.shopify_product_variation_gid,
+            shopify_handle: value.shopify_handle,
+        };
+        result.guard()?;
+        Ok(result)
+    }
+}
+impl ExternalIdentifiers {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Some(value) = &self.shopify_product_gid {
+            ShopifyProductGid::try_from(value.value.clone()).map_err(|error| error.to_string())?;
+            guard_nul(&value.value)?;
+        }
+        if let Some(value) = &self.shopify_product_variation_gid {
+            ShopifyProductVariationGid::try_from(value.value.clone())
+                .map_err(|error| error.to_string())?;
+            guard_nul(&value.value)?;
+        }
+        if let Some(value) = &self.shopify_handle {
+            ShopifyHandle::try_from(value.value.clone()).map_err(|error| error.to_string())?;
+            guard_nul(&value.value)?;
+        }
+        Ok(())
+    }
+}
+
+/// Complete decided state. Imports enrich only fields for which they carry a value.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(try_from = "IdentifiersWire")]
+pub struct ProductIdentifiers {
+    pub gtin: Option<Gtin>,
+    pub sku: Option<Sku>,
+    pub external_identifiers: ExternalIdentifiers,
+}
+#[derive(Deserialize)]
+struct IdentifiersWire {
+    gtin: Option<Gtin>,
+    sku: Option<Sku>,
+    #[serde(default)]
+    external_identifiers: ExternalIdentifiers,
+}
+impl TryFrom<IdentifiersWire> for ProductIdentifiers {
+    type Error = String;
+    fn try_from(value: IdentifiersWire) -> Result<Self, Self::Error> {
+        let result = Self {
+            gtin: value.gtin,
+            sku: value.sku,
+            external_identifiers: value.external_identifiers,
+        };
+        result.guard()?;
+        Ok(result)
+    }
+}
+impl ProductIdentifiers {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Some(value) = &self.gtin {
+            Gtin::try_from(value.value.clone()).map_err(|error| error.to_string())?;
+            guard_nul(&value.value)?;
+        }
+        if let Some(value) = &self.sku {
+            Sku::try_from(value.value.clone()).map_err(|error| error.to_string())?;
+            guard_nul(&value.value)?;
+        }
+        self.external_identifiers.guard()
+    }
+    pub fn enriched(&self, incoming: &Self) -> Self {
+        Self {
+            gtin: incoming.gtin.clone().or_else(|| self.gtin.clone()),
+            sku: incoming.sku.clone().or_else(|| self.sku.clone()),
+            external_identifiers: ExternalIdentifiers {
+                shopify_product_gid: incoming
+                    .external_identifiers
+                    .shopify_product_gid
+                    .clone()
+                    .or_else(|| self.external_identifiers.shopify_product_gid.clone()),
+                shopify_product_variation_gid: incoming
+                    .external_identifiers
+                    .shopify_product_variation_gid
+                    .clone()
+                    .or_else(|| {
+                        self.external_identifiers
+                            .shopify_product_variation_gid
+                            .clone()
+                    }),
+                shopify_handle: incoming
+                    .external_identifiers
+                    .shopify_handle
+                    .clone()
+                    .or_else(|| self.external_identifiers.shopify_handle.clone()),
+            },
+        }
+    }
+}
+fn guard_nul(value: &str) -> Result<(), String> {
+    if value.contains('\0') {
+        Err("identifiers must not contain NUL".into())
+    } else {
+        Ok(())
+    }
+}
+
+pub fn external_object<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<ExternalIdentifiers>, D::Error> {
+    ExternalIdentifiers::deserialize(deserializer).map(Some)
+}
+
+/// Change events replace the complete set, so omitted fields are not legacy defaults.
+pub fn complete_identifiers<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<ProductIdentifiers, D::Error> {
+    #[derive(Deserialize)]
+    struct Complete {
+        #[serde(deserialize_with = "Option::deserialize")]
+        gtin: Option<Gtin>,
+        #[serde(deserialize_with = "Option::deserialize")]
+        sku: Option<Sku>,
+        external_identifiers: ExternalIdentifiers,
+    }
+    let value = Complete::deserialize(deserializer)?;
+    let identifiers = ProductIdentifiers {
+        gtin: value.gtin,
+        sku: value.sku,
+        external_identifiers: value.external_identifiers,
+    };
+    identifiers.guard().map_err(serde::de::Error::custom)?;
+    Ok(identifiers)
+}
+
+#[cfg(test)]
+mod propagation_tests {
+    use super::*;
+    #[test]
+    fn exact_strings_enrich_without_clearing_and_bad_present_values_fail() {
+        let initial: ProductIdentifiers = serde_json::from_value(serde_json::json!({"gtin":"0012345678905","sku":"A1-BLACK","external_identifiers":{"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}})).unwrap();
+        assert_eq!(initial.enriched(&Default::default()), initial);
+        assert_eq!(
+            serde_json::to_value(&initial).unwrap()["gtin"],
+            "0012345678905"
+        );
+        let partial: ProductIdentifiers =
+            serde_json::from_value(serde_json::json!({"sku":"A1-WHITE"})).unwrap();
+        let merged = initial.enriched(&partial);
+        assert_eq!(merged.sku.unwrap().value, "A1-WHITE");
+        assert_eq!(merged.gtin, initial.gtin);
+        assert_eq!(merged.external_identifiers, initial.external_identifiers);
+        for value in [
+            serde_json::json!({"gtin":""}),
+            serde_json::json!({"sku":"\0"}),
+            serde_json::json!({"gtin":123}),
+            serde_json::json!({"external_identifiers":null}),
+            serde_json::json!({"external_identifiers":{"shopify_handle":""}}),
+        ] {
+            assert!(serde_json::from_value::<ProductIdentifiers>(value).is_err());
+        }
+        // Construction bypassing transparent deserialization is still rejected by guards.
+        let invalid = ProductIdentifiers {
+            gtin: Some(Gtin {
+                value: String::new(),
+            }),
+            ..Default::default()
+        };
+        assert!(invalid.guard().is_err());
+    }
+}

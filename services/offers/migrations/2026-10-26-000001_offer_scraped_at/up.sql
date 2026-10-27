@@ -1,0 +1,1 @@
+ALTER TABLE read_offers ADD COLUMN scraped_at TIMESTAMPTZ;

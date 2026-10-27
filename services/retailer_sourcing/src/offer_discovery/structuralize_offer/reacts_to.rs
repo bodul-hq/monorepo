@@ -4,6 +4,8 @@ use crate::offer_discovery::normalize_offer::prelude::OfferWasNormalized;
 /// Structuralizes every offer as soon as it is normalized.
 pub fn on(event: &OfferWasNormalized) -> Option<StructuralizeOffer> {
     Some(StructuralizeOffer {
+        storage: event.storage,
+        scraped_at: event.scraped_at,
         offer_id: event.offer_id,
         consolidated_sitemap_id: event.consolidated_sitemap_id,
         retailer_code: event.retailer_code,
@@ -21,6 +23,8 @@ mod tests {
     #[test]
     fn structuralizes_the_offer_that_was_normalized() {
         let event = OfferWasNormalized {
+            storage: None,
+            scraped_at: None,
             offer_id: Uuid::now_v7(),
             consolidated_sitemap_id: Uuid::now_v7(),
             retailer_code: RetailerCode::AnkerAu,
@@ -30,6 +34,8 @@ mod tests {
         assert_eq!(
             on(&event),
             Some(StructuralizeOffer {
+                storage: event.storage,
+                scraped_at: event.scraped_at,
                 offer_id: event.offer_id,
                 consolidated_sitemap_id: event.consolidated_sitemap_id,
                 retailer_code: RetailerCode::AnkerAu,

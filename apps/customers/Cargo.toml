@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+money = { path = "../../lib/money" }
 poem.workspace = true
+reqwest.workspace = true
+retailer_sauce = { path = "../../lib/retailer_sauce" }
+scraper = { version = "0.27.0", default-features = false }
+serde.workspace = true
+serde_json.workspace = true
 tokio.workspace = true
 
 [dev-dependencies]

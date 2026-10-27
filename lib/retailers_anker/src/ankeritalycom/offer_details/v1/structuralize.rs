@@ -6,6 +6,7 @@
 //! field taken from whichever rendering states it cleanly.
 
 use super::normalized::{self, AnkerItalyComNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -47,6 +48,13 @@ impl AnkerItalyComDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        Some(&variant.price),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(offer_facts::purchase_available(variant.available_for_sale)),
+                    item_condition: None,
+                    content: offer_facts::content(Some(product.description.as_str())),
                     title: product.title.clone(),
                     identifiers,
                     images: gallery(&product),
@@ -62,6 +70,10 @@ impl AnkerItalyComDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -177,7 +189,7 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         input["product"]["variants"]
             .as_array_mut()
@@ -188,6 +200,10 @@ mod tests {
             structuralized(&input),
             json!({"variations": [{
                 "title": "Anker Zolo Caricatore",
+                "was_price": null,
+                "availability": "available",
+                "item_condition": null,
+                "content": {"description": "Descrizione"},
                 "identifiers": {
                     "gtin": "194644248444",
                     "sku": "A121C311",

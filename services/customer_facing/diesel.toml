@@ -1,0 +1,3 @@
+# Mulac owns queue record mappings; this service owns the migration history.
+[migrations_directory]
+dir = "migrations"

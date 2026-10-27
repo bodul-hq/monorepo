@@ -1,11 +1,11 @@
 meta {
   name: Queue offer import
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
-  url: {{offersBaseUrl}}/api/offers/import
+  url: {{offersBaseUrl}}/api/tmp-import
   body: json
   auth: none
 }
@@ -15,11 +15,13 @@ body:json {
     "retailer_code": "{{retailerCode}}",
     "url": "{{offerUrl}}",
     "title": "USB charger",
+      "images": ["https://shop.example/front.jpg", "https://shop.example/back.jpg"],
     "price_amount": 999,
     "currency": "AUD"
   }
 }
 
 docs {
-  Returns 202 with command_id. Run commands, then run events, before looking up the offer.
+  Returns 202 with message_id. Run inbox, commands, events and outbox,
+  then customer-facing inbox and commands before browsing offers.
 }

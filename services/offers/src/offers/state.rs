@@ -6,12 +6,17 @@ use super::retailer_offer_id::RetailerOfferId;
 
 #[derive(Debug, PartialEq)]
 pub struct RetailerOfferState {
+    pub(super) facts: super::event::OfferFacts,
+    pub(super) identifiers: retailer_sauce::identifier::ProductIdentifiers,
+    pub(super) localization: retailer_sauce::localization::Localization,
     id: RetailerOfferId,
     retailer_code: RetailerCode,
     title: String,
     price: Money,
     url: String,
+    images: Vec<String>,
     created_at: DateTime<Utc>,
+    scraped_at: Option<DateTime<Utc>>,
 }
 
 impl RetailerOfferState {
@@ -31,14 +36,40 @@ impl RetailerOfferState {
         url: impl Into<String>,
         created_at: DateTime<Utc>,
     ) -> Self {
+        let title = title.into();
+        let facts = super::event::OfferFacts {
+            content: retailer_sauce::offer_content::singleton(title.clone(), None, None),
+            ..Default::default()
+        };
         Self {
+            facts,
+            identifiers: Default::default(),
+            localization: Default::default(),
             id,
             retailer_code,
-            title: title.into(),
+            title,
             price,
             url: url.into(),
+            images: Vec::new(),
+            scraped_at: None,
             created_at,
         }
+    }
+
+    pub fn scraped_at(&self) -> Option<DateTime<Utc>> {
+        self.scraped_at
+    }
+
+    pub(super) fn observe_scrape(&mut self, time: Option<DateTime<Utc>>) {
+        self.scraped_at = self.scraped_at.max(time);
+    }
+
+    pub fn images(&self) -> &[String] {
+        &self.images
+    }
+
+    pub(super) fn add_image(&mut self, image: String) {
+        self.images.push(image);
     }
 
     pub fn id(&self) -> &RetailerOfferId {

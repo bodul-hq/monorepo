@@ -1,5 +1,6 @@
 //! Validated variations from the storefront's normalized product.
 use super::normalized::UgreenDeNormalizedDocument;
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -11,6 +12,10 @@ pub struct Document {
 }
 #[derive(Debug, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: Identifiers,
     pub title: String,
     pub price: Option<Money>,
@@ -62,6 +67,18 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    Some(&variant.price),
+                    product
+                        .selected_variant
+                        .compare_at_price
+                        .as_ref()
+                        .filter(|_| product.selected_variant.id == variant.id),
+                ),
+                availability: (product.selected_variant.id == variant.id)
+                    .then(|| offer_facts::purchase_available(product.selected_variant.available)),
+                item_condition: None,
+                content: offer_facts::content(None),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),
@@ -77,5 +94,33 @@ impl Document {
             });
         }
         Ok(Self { variations })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ugreende::offer_details::v1::{
+        normalized::UgreenDeNormalizedDocument,
+        raw::{UgreenDeRawDocument, tests::document},
+    };
+    use html_extractor::serde_json;
+
+    #[test]
+    fn selected_variant_facts_do_not_leak_to_siblings() {
+        let raw: UgreenDeRawDocument = serde_json::from_value(document()).unwrap();
+        let normalized = UgreenDeNormalizedDocument::from_raw(raw).unwrap();
+        let result = Document::from_normalized(normalized).unwrap();
+        assert_eq!(
+            result.variations[0].was_price.as_ref().unwrap().amount(),
+            1099
+        );
+        assert_eq!(
+            result.variations[0].availability,
+            Some(Availability::Available)
+        );
+        assert_eq!(result.variations[1].was_price, None);
+        assert_eq!(result.variations[1].availability, None);
+        assert_eq!(result.variations[0].content.description, None);
     }
 }

@@ -1,0 +1,911 @@
+use super::*;
+use commanding::io::{ErasedCommandHandler, NewCommand, NewCommandEnvelope, NewCommandMetadata};
+
+pub(super) fn created(id: Uuid) -> Value {
+    json!({
+        "id":id, "retailer_code":"AnkerAu", "title":"  Punjač 🔌\n USB  ",
+        "price":{"amount":9_007_199_254_740_993_i64,"currency":"AUD"},
+        "url":"https://shop.example/Charger?variant=123#details",
+        "created_at":"2026-10-24T14:00:00.123456+02:00"
+    })
+}
+
+pub(super) async fn submit(
+    client: &TestClient<poem::Route>,
+    kind: &str,
+    payload: &Value,
+    message: Uuid,
+) {
+    client
+        .post("/api/inbox")
+        .body_json(&json!({
+            "routing_key":kind,"message_id":message,"source":"offers",
+            "correlation_id":null,"payload":payload
+        }))
+        .send()
+        .await
+        .assert_status(StatusCode::ACCEPTED);
+}
+
+pub(super) async fn advance(client: &TestClient<poem::Route>, queue: &str, count: usize) {
+    assert_eq!(
+        run(client, queue, 100).await,
+        json!({"processed":count,"errors":[]})
+    );
+}
+
+pub(super) async fn apply(client: &TestClient<poem::Route>, kind: &str, payload: &Value) -> Uuid {
+    let message = Uuid::now_v7();
+    submit(client, kind, payload, message).await;
+    advance(client, "inbox", 1).await;
+    advance(client, "commands", 1).await;
+    advance(client, "events", 0).await;
+    message
+}
+
+pub(super) fn offer(pool: &DbPool) -> Value {
+    snapshot(pool, "SELECT to_jsonb(o) AS data FROM offers o")
+}
+
+pub(super) fn projection_counts(pool: &DbPool) -> Value {
+    snapshot(
+        pool,
+        "SELECT jsonb_build_object(
+        'offers', (SELECT count(*) FROM offers),
+        'receipts', (SELECT count(*) FROM applied_offer_messages)) AS data",
+    )
+}
+
+// Simulate the inbox-completion crash window. Mulac generates a fresh command
+// UUID when the still-pending original inbox message is processed again.
+pub(super) fn replay_inbox(pool: &DbPool, message: Uuid) {
+    diesel::sql_query(
+        "UPDATE inbox_entries SET status = 0, attempts = 0,
+        scheduled_at = now(), processed_at = NULL WHERE id = $1",
+    )
+    .bind::<diesel::sql_types::Uuid, _>(message)
+    .execute(&mut pool.get().unwrap())
+    .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let message = Uuid::now_v7();
+    let payload = created(id);
+    submit(&client, "OfferCreated", &payload, message).await;
+    let mut duplicate = payload.clone();
+    duplicate["title"] = json!("duplicate HTTP content is ignored");
+    submit(&client, "OfferCreated", &duplicate, message).await;
+    assert_eq!(counts(&pool), json!({"inbox":1,"commands":0,"events":0}));
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    advance(&client, "inbox", 1).await;
+    assert_eq!(counts(&pool), json!({"inbox":1,"commands":1,"events":0}));
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    advance(&client, "events", 0).await;
+    advance(&client, "commands", 1).await;
+    let mut expected = json!({
+        "id":id, "retailer_code":"ankerau", "title":payload["title"],
+        "price_amount":payload["price"]["amount"], "currency":"AUD",
+        "was_price_amount":null,"was_price_currency":null,"availability":null,"item_condition":null,"description":null,
+        "content":[{"language":null,"title":payload["title"],"description":null}],
+        "gtin":null,"sku":null,"external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null},"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
+    });
+    assert_eq!(offer(&pool), expected);
+    let title_message = apply(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":id,"title":" New čaj ☕ \t"}),
+    )
+    .await;
+    expected["title"] = json!(" New čaj ☕ \t");
+    expected["content"][0]["title"] = expected["title"].clone();
+    assert_eq!(offer(&pool), expected);
+    let price_message = apply(
+        &client,
+        "OfferPriceChangedEvent",
+        &json!({"id":id,"price":{"amount":0,"currency":"EUR"}}),
+    )
+    .await;
+    expected["price_amount"] = json!(0);
+    expected["currency"] = json!("EUR");
+    assert_eq!(offer(&pool), expected);
+    apply(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":id,"title":"final title"}),
+    )
+    .await;
+    apply(
+        &client,
+        "OfferPriceChangedEvent",
+        &json!({"id":id,"price":{"amount":i64::MIN,"currency":"USD"}}),
+    )
+    .await;
+    expected["title"] = json!("final title");
+    expected["content"][0]["title"] = expected["title"].clone();
+    expected["price_amount"] = json!(i64::MIN);
+    expected["currency"] = json!("USD");
+    assert_eq!(offer(&pool), expected);
+    drop(client);
+    kernel.shutdown();
+    drop(kernel);
+
+    bootstrap::migrate(&pool).unwrap();
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    assert_eq!(offer(&pool), expected);
+    for message in [message, title_message, price_message] {
+        replay_inbox(&pool, message);
+        advance(&client, "inbox", 1).await;
+        advance(&client, "commands", 1).await;
+        assert_eq!(offer(&pool), expected);
+    }
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":5}));
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT to_jsonb(count(DISTINCT id)) AS data FROM command_entries"
+        ),
+        8
+    );
+    // Distinct identities carry no revision: a delayed source value applies now.
+    apply(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":id,"title":"older source value"}),
+    )
+    .await;
+    expected["title"] = json!("older source value");
+    expected["content"][0]["title"] = expected["title"].clone();
+    assert_eq!(offer(&pool), expected);
+    kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    for (kind, payload) in [
+        (
+            "OfferTitleChanged",
+            json!({"id":id,"title":"retried title"}),
+        ),
+        (
+            "OfferPriceChangedEvent",
+            json!({"id":id,"price":{"amount":-1,"currency":"CAD"}}),
+        ),
+    ] {
+        submit(&client, kind, &payload, Uuid::now_v7()).await;
+    }
+    advance(&client, "inbox", 2).await;
+    let failed = run(&client, "commands", 100).await;
+    assert!(failed["processed"].is_null());
+    assert_eq!(failed["errors"].as_array().unwrap().len(), 2);
+    assert!(
+        failed["errors"][0]
+            .as_str()
+            .unwrap()
+            .contains("offer has not been created")
+    );
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM command_entries
+        WHERE status = 4 AND attempts = 1 AND scheduled_at > now()
+        AND reservation_id IS NULL AND extra_info IS NOT NULL"
+        ),
+        2
+    );
+    advance(&client, "commands", 0).await;
+    apply(&client, "OfferCreated", &created(id)).await;
+    pool.get()
+        .unwrap()
+        .batch_execute("UPDATE command_entries SET scheduled_at = now() WHERE status = 4")
+        .unwrap();
+    advance(&client, "commands", 2).await;
+    assert_eq!(offer(&pool)["title"], "retried title");
+    assert_eq!(offer(&pool)["price_amount"], -1);
+    assert_eq!(offer(&pool)["currency"], "CAD");
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":3}));
+
+    submit(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":Uuid::now_v7(),"title":"never created"}),
+        Uuid::now_v7(),
+    )
+    .await;
+    advance(&client, "inbox", 1).await;
+    for attempt in 1..=6 {
+        pool.get()
+            .unwrap()
+            .batch_execute("UPDATE command_entries SET scheduled_at = now() WHERE status IN (0,4)")
+            .unwrap();
+        assert!(run(&client, "commands", 1).await["processed"].is_null());
+        assert_eq!(
+            snapshot(
+                &pool,
+                "SELECT to_jsonb(attempts) AS data FROM command_entries WHERE status IN (4,7)"
+            ),
+            attempt
+        );
+    }
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT to_jsonb(status) AS data FROM command_entries WHERE attempts = 6"
+        ),
+        7
+    );
+    advance(&client, "commands", 0).await;
+    kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn failed_business_write_rolls_back_receipt_and_can_retry() {
+    for (kind, fields, columns, predicate) in [
+        (
+            "OfferPriceChangedEvent",
+            json!({"price":{"amount":42,"currency":"EUR"}}),
+            json!({"price_amount":42,"currency":"EUR"}),
+            "currency = 'AUD'",
+        ),
+        (
+            "OfferPricingChanged",
+            json!({"pricing":{"price":{"amount":42,"currency":"EUR"},"was_price":{"amount":84,"currency":"EUR"}}}),
+            json!({"price_amount":42,"currency":"EUR","was_price_amount":84,"was_price_currency":"EUR"}),
+            "was_price_amount IS NULL",
+        ),
+        (
+            "OfferContentChanged",
+            json!({"content":{"description":" <p>Retry ž &amp; source</p>\n"}}),
+            json!({"description":" <p>Retry ž &amp; source</p>\n"}),
+            "description IS NULL",
+        ),
+    ] {
+        let (_schema, pool) = database(true);
+        let (kernel, state) = start_mulac(pool.clone()).unwrap();
+        let client = TestClient::new(crate::app(state));
+        let id = Uuid::now_v7();
+        apply(&client, "OfferCreated", &created(id)).await;
+        let before = offer(&pool);
+        pool.get()
+            .unwrap()
+            .batch_execute(&format!(
+                "ALTER TABLE offers ADD CONSTRAINT simulated_failure CHECK ({predicate})"
+            ))
+            .unwrap();
+        let mut payload = fields;
+        payload["id"] = json!(id);
+        let message = Uuid::now_v7();
+        submit(&client, kind, &payload, message).await;
+        advance(&client, "inbox", 1).await;
+        assert!(run(&client, "commands", 1).await["processed"].is_null());
+        assert_eq!(offer(&pool), before);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+        pool.get()
+            .unwrap()
+            .batch_execute(
+                "ALTER TABLE offers DROP CONSTRAINT simulated_failure;
+             UPDATE command_entries SET scheduled_at = now() WHERE status = 4",
+            )
+            .unwrap();
+        advance(&client, "commands", 1).await;
+        let mut expected = before;
+        expected
+            .as_object_mut()
+            .unwrap()
+            .extend(columns.as_object().unwrap().clone());
+        if kind == "OfferContentChanged" {
+            expected["content"][0]["description"] = expected["description"].clone();
+        }
+        assert_eq!(offer(&pool), expected);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+        replay_inbox(&pool, message);
+        advance(&client, "inbox", 1).await;
+        advance(&client, "commands", 1).await;
+        assert_eq!(offer(&pool), expected);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+        kernel.shutdown();
+    }
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn conflicting_creates_preserve_identity_and_url_comparison_is_exact() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let original = created(Uuid::now_v7());
+    apply(&client, "OfferCreated", &original).await;
+    let before = offer(&pool);
+    let mut same_id = original.clone();
+    same_id["url"] = json!("https://other.example");
+    let same_url = created(Uuid::now_v7());
+    for payload in [&original, &same_id, &same_url] {
+        submit(&client, "OfferCreated", payload, Uuid::now_v7()).await;
+        advance(&client, "inbox", 1).await;
+        assert!(run(&client, "commands", 1).await["processed"].is_null());
+        assert_eq!(offer(&pool), before);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    }
+    let mut case_variant = same_url;
+    case_variant["url"] = json!(original["url"].as_str().unwrap().to_lowercase());
+    apply(&client, "OfferCreated", &case_variant).await;
+    assert_eq!(projection_counts(&pool), json!({"offers":2,"receipts":2}));
+    kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn malformed_and_unsupported_messages_fail_without_partial_changes() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    apply(&client, "OfferCreated", &created(id)).await;
+    let before = offer(&pool);
+    let mut bad_creation = created(Uuid::now_v7());
+    bad_creation["retailer_code"] = json!("ankerau");
+    let cases = vec![
+        ("OfferCreated", bad_creation),
+        ("OfferCreated", json!({"id":id})),
+        ("OfferPriceChangedEvent", json!({"id":id,"price":[1,"EUR"]})),
+        ("OfferTitleChanged", json!({"id":"invalid","title":"bad"})),
+        ("OfferTitleChanged", json!({"id":id,"title":"nul\0"})),
+        ("OfferTitleChanged", json!({"id":id,"title":null})),
+        ("OfferTitleChanged", json!([id, "array"])),
+        ("OfferTitleChanged", json!("encoded payload")),
+        (
+            "OfferPriceChangedEvent",
+            json!({"id":id,"price":{"amount":1.5,"currency":"EUR"}}),
+        ),
+        (
+            "OfferPriceChangedEvent",
+            json!({"id":id,"price":{"amount":1,"currency":"ZZZ"}}),
+        ),
+        (
+            "OfferPriceChangedEvent",
+            json!({"id":id,"price":{"amount":u64::MAX,"currency":"EUR"}}),
+        ),
+        (
+            "OfferPriceChanged",
+            json!({"id":id,"price":{"amount":1,"currency":"EUR"}}),
+        ),
+    ];
+    for (kind, payload) in cases {
+        submit(&client, kind, &payload, Uuid::now_v7()).await;
+        advance(&client, "inbox", 1).await;
+        let failed = run(&client, "commands", 1).await;
+        assert!(failed["processed"].is_null(), "{kind}: {failed}");
+        assert!(!failed["errors"].as_array().unwrap().is_empty());
+        assert_eq!(offer(&pool), before);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    }
+    kernel.shutdown();
+}
+
+pub(super) fn envelope(message: Uuid, kind: &str, payload: &Value) -> NewCommandEnvelope {
+    NewCommandEnvelope {
+        command: NewCommand {
+            command_type: kind.into(),
+            payload: payload.to_string(),
+        },
+        metadata: Some(NewCommandMetadata {
+            command_id: Uuid::now_v7(),
+            correlation_id: None,
+            causation_id: Some(message),
+            source: Some("offers".into()),
+        }),
+    }
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn concurrent_original_message_has_one_effect_even_with_distinct_commands() {
+    let (_schema, pool) = database(true);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let message = Uuid::now_v7();
+    let payload = created(Uuid::now_v7());
+    let barrier = std::sync::Barrier::new(3);
+    std::thread::scope(|scope| {
+        for _ in 0..3 {
+            let command = envelope(message, "OfferCreated", &payload);
+            let projection = &projection;
+            let barrier = &barrier;
+            scope.spawn(move || {
+                barrier.wait();
+                assert!(projection.execute(&command).unwrap().is_empty());
+            });
+        }
+    });
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn additive_migration_keeps_existing_queued_work() {
+    let (_schema, pool) = database(false);
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-24-000001_mulac/up.sql"
+        ))
+        .unwrap();
+    // Mark the existing bootstrap migration exactly as Diesel does.
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "CREATE TABLE __diesel_schema_migrations (
+        version VARCHAR(50) PRIMARY KEY, run_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+        INSERT INTO __diesel_schema_migrations (version) VALUES ('20261024000001')",
+        )
+        .unwrap();
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    submit(
+        &client,
+        "OfferCreated",
+        &created(Uuid::now_v7()),
+        Uuid::now_v7(),
+    )
+    .await;
+    let before = snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i");
+    bootstrap::migrate(&pool).unwrap();
+    assert_eq!(
+        snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i"),
+        before
+    );
+    advance(&client, "inbox", 1).await;
+    advance(&client, "commands", 1).await;
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn images_retry_reorder_deduplicate_and_keep_receipts_atomic() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let a = json!({"id":id,"image_url":"https://shop.example/A?x=1&y=2","position":0});
+    let b = json!({"id":id,"image_url":"https://shop.example/B","position":1});
+    let first_message = Uuid::now_v7();
+    let command = envelope(first_message, "OfferImageAdded", &b);
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    apply(&client, "OfferCreated", &created(id)).await;
+    projection.execute(&command).unwrap();
+    // Position one may arrive before zero without fixing the wrong first image.
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([b["image_url"]]));
+    let message = apply(&client, "OfferImageAdded", &a).await;
+    apply(&client, "OfferImageAdded", &a).await;
+    let barrier = std::sync::Barrier::new(3);
+    std::thread::scope(|scope| {
+        for _ in 0..3 {
+            let projection = &projection;
+            let barrier = &barrier;
+            let command = envelope(first_message, "OfferImageAdded", &b);
+            scope.spawn(move || {
+                barrier.wait();
+                projection.execute(&command).unwrap();
+            });
+        }
+    });
+    apply(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":id,"title":"updated"}),
+    )
+    .await;
+    apply(
+        &client,
+        "OfferPriceChangedEvent",
+        &json!({"id":id,"price":{"amount":42,"currency":"EUR"}}),
+    )
+    .await;
+    replay_inbox(&pool, message);
+    advance(&client, "inbox", 1).await;
+    advance(&client, "commands", 1).await;
+    let before = projection_counts(&pool);
+    for payload in [
+        json!({"id":id,"image_url":a["image_url"],"position":3}),
+        json!({"id":id,"image_url":"https://shop.example/conflict","position":0}),
+        json!({"id":id,"image_url":"/bad","position":2}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":-1}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":4294967296_u64}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":1.5}),
+        json!({"id":id,"image_url":"https://shop.example/C"}),
+    ] {
+        assert!(
+            projection
+                .execute(&envelope(Uuid::now_v7(), "OfferImageAdded", &payload))
+                .is_err()
+        );
+        assert_eq!(projection_counts(&pool), before);
+    }
+    let page: Value = client
+        .get("/api/offers?limit=1")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"].as_array().unwrap().len(), 1);
+    assert_eq!(page["has_more"], false);
+    assert_eq!(
+        page["items"][0]["images"],
+        json!([a["image_url"], b["image_url"]])
+    );
+    assert_eq!(page["items"][0]["title"], "updated");
+    let graph: Value = client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ offers(limit: 1) { items { images } hasMore } }"}))
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(
+        graph["data"]["offers"]["items"][0]["images"],
+        page["items"][0]["images"]
+    );
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_migration_preserves_existing_projection_and_receipts() {
+    let (_schema, pool) = database(true);
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-25-000001_offer_images/down.sql"
+        ))
+        .unwrap();
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let command = envelope(Uuid::now_v7(), "OfferCreated", &created(id));
+    projection.execute(&command).unwrap();
+    let before = offer(&pool);
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-25-000001_offer_images/up.sql"
+        ))
+        .unwrap();
+    assert_eq!(offer(&pool), before);
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    projection.execute(&command).unwrap();
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    assert_eq!(
+        snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM offer_images"),
+        0
+    );
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn creation_images_commit_with_parent_and_receipt_then_updates_append() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let mut payload = created(id);
+    let a = "https://shop.example/A?x=1&y=2";
+    let b = "https://shop.example/B";
+    let c = "https://shop.example/C";
+    payload["images"] = json!([a, b]);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let message = Uuid::now_v7();
+    let command = envelope(message, "OfferCreated", &payload);
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "ALTER TABLE offer_images ADD CONSTRAINT fail_second_image CHECK (position <> 1)",
+        )
+        .unwrap();
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    assert_eq!(
+        snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM offer_images"),
+        0
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE offer_images DROP CONSTRAINT fail_second_image")
+        .unwrap();
+    projection.execute(&command).unwrap();
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([a, b]));
+    apply(
+        &client,
+        "OfferImageAdded",
+        &json!({"id":id,"image_url":c,"position":2}),
+    )
+    .await;
+    projection.execute(&command).unwrap();
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([a, b, c]));
+    for images in [
+        json!(null),
+        json!("url"),
+        json!([1]),
+        json!(["/bad"]),
+        json!([a, a]),
+    ] {
+        let mut invalid = created(Uuid::now_v7());
+        invalid["images"] = images;
+        assert!(
+            projection
+                .execute(&envelope(Uuid::now_v7(), "OfferCreated", &invalid))
+                .is_err()
+        );
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+    }
+    kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn scrape_time_is_monotonic_with_atomic_receipts_and_public_api_parity() {
+    let (_schema, pool) = database(true);
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let mut initial = created(id);
+    initial["scraped_at"] = json!("2026-10-26T14:00:00.123456+02:00");
+    apply(&client, "OfferCreated", &initial).await;
+    for time in [
+        "2026-10-26T12:00:01.123456Z",
+        "2026-10-26T12:00:00.123456Z",
+        "2026-10-26T12:00:01.123456Z",
+    ] {
+        let change = json!({"id":id,"scraped_at":time});
+        let message = apply(&client, "OfferScrapedAtUpdated", &change).await;
+        replay_inbox(&pool, message);
+        advance(&client, "inbox", 1).await;
+        advance(&client, "commands", 1).await;
+        assert_eq!(
+            offer(&pool)["scraped_at"],
+            "2026-10-26T12:00:01.123456+00:00"
+        );
+    }
+    let response = client.get("/api/offers").send().await;
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        page["items"][0]["scraped_at"],
+        "2026-10-26T12:00:01.123456Z"
+    );
+    let response = client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ offers { items { scrapedAt } } }"}))
+        .send()
+        .await;
+    let graph: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        graph["data"]["offers"]["items"][0]["scrapedAt"],
+        page["items"][0]["scraped_at"]
+    );
+    let before = projection_counts(&pool);
+    let missing = json!({"id":Uuid::now_v7(),"scraped_at":"2026-10-26T12:00:01Z"});
+    submit(&client, "OfferScrapedAtUpdated", &missing, Uuid::now_v7()).await;
+    advance(&client, "inbox", 1).await;
+    assert!(
+        !run(&client, "commands", 100).await["errors"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(projection_counts(&pool), before);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn localization_and_identifiers_replace_decided_state_with_atomic_receipts() {
+    let (_schema, pool) = database(true);
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    apply(&client, "OfferCreated", &created(id)).await;
+    let known = json!({"id":id,"localization":{"target_market":{"kind":"country","code":"CA"},"language":"fr"}});
+    apply(&client, "OfferLocalizationChanged", &known).await;
+    assert_eq!(offer(&pool)["language"], "fr");
+    assert_eq!(
+        offer(&pool)["target_market"],
+        known["localization"]["target_market"]
+    );
+    let identifiers = json!({"id":id,"gtin":"0012345678905","sku":"A1-BLACK","external_identifiers":{"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}});
+    let message = apply(&client, "OfferIdentifiersChanged", &identifiers).await;
+    let before = offer(&pool);
+    replay_inbox(&pool, message);
+    advance(&client, "inbox", 1).await;
+    advance(&client, "commands", 1).await;
+    assert_eq!(offer(&pool), before);
+    assert_eq!(before["gtin"], "0012345678905");
+    apply(
+        &client,
+        "OfferLocalizationChanged",
+        &json!({"id":id,"localization":{"target_market":null,"language":null}}),
+    )
+    .await;
+    assert!(offer(&pool)["language"].is_null());
+    assert_eq!(offer(&pool)["sku"], "A1-BLACK");
+    let response = client.get("/api/offers").send().await;
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        page["items"][0]["external_identifiers"],
+        identifiers["external_identifiers"]
+    );
+    let counts_before = projection_counts(&pool);
+    let mut missing = identifiers.clone();
+    missing["id"] = json!(Uuid::now_v7());
+    submit(&client, "OfferIdentifiersChanged", &missing, Uuid::now_v7()).await;
+    advance(&client, "inbox", 1).await;
+    assert!(
+        !run(&client, "commands", 100).await["errors"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(projection_counts(&pool), counts_before);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
+async fn json_identifiers_replace_atomically_and_keep_browse_search_and_graphql_contracts() {
+    let (_schema, pool) = database(true);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let mut payload = created(id);
+    payload["gtin"] = json!("0001");
+    payload["sku"] = json!("original");
+    payload["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/001","shopify_product_variation_gid":"002","shopify_handle":" ž \\\" "});
+    projection
+        .execute(&envelope(Uuid::now_v7(), "OfferCreated", &payload))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        payload["external_identifiers"]
+    );
+    let message = Uuid::now_v7();
+    let mut change = json!({"id":id,"gtin":"0002","sku":"reject","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":"003","shopify_handle":null}});
+    pool.get().unwrap().batch_execute("ALTER TABLE offers ADD CONSTRAINT test_identifier_failure CHECK (sku IS DISTINCT FROM 'reject')").unwrap();
+    let before = offer(&pool);
+    let counts = projection_counts(&pool);
+    assert!(
+        projection
+            .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+            .is_err()
+    );
+    assert_eq!(offer(&pool), before);
+    assert_eq!(projection_counts(&pool), counts);
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE offers DROP CONSTRAINT test_identifier_failure")
+        .unwrap();
+    projection
+        .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert_eq!(offer(&pool)["gtin"], "0002");
+    assert_eq!(offer(&pool)["sku"], "reject");
+    let decided = offer(&pool);
+    change["external_identifiers"]["shopify_handle"] = json!("must not replace replayed message");
+    projection
+        .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+        .unwrap();
+    assert_eq!(offer(&pool), decided);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    for (path, field) in [
+        ("/api/offers", "offers"),
+        ("/api/offers/search?q=USB", "searchOffers(q: \"USB\")"),
+    ] {
+        let response = client.get(path).send().await;
+        response.assert_status_is_ok();
+        let page: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            page["items"][0]["external_identifiers"],
+            decided["external_identifiers"]
+        );
+        let query = format!(
+            "{{ result: {field} {{ items {{ gtin sku external_identifiers: externalIdentifiers {{ shopify_product_gid: shopifyProductGid shopify_product_variation_gid: shopifyProductVariationGid shopify_handle: shopifyHandle }} }} }} }}"
+        );
+        let response = client
+            .post("/graphql")
+            .body_json(&json!({"query":query}))
+            .send()
+            .await;
+        let graph: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            graph["data"]["result"]["items"][0],
+            json!({"gtin":"0002","sku":"reject","external_identifiers":decided["external_identifiers"]})
+        );
+    }
+    change["gtin"] = Value::Null;
+    change["sku"] = Value::Null;
+    change["external_identifiers"] = json!({"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null});
+    projection
+        .execute(&envelope(
+            Uuid::now_v7(),
+            "OfferIdentifiersChanged",
+            &change,
+        ))
+        .unwrap();
+    let unknown = offer(&pool);
+    assert_eq!(
+        unknown["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert!(unknown["gtin"].is_null() && unknown["sku"].is_null());
+    assert!(unknown.get("shopify_product_gid").is_none());
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":3}));
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
+fn missing_parent_json_update_retries_after_legacy_creation() {
+    let (_schema, pool) = database(true);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let message = Uuid::now_v7();
+    let change = json!({"id":id,"gtin":null,"sku":"001","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":"preserved"}});
+    let command = envelope(message, "OfferIdentifiersChanged", &change);
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    projection
+        .execute(&envelope(Uuid::now_v7(), "OfferCreated", &created(id)))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        json!({"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null})
+    );
+    projection.execute(&command).unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+}

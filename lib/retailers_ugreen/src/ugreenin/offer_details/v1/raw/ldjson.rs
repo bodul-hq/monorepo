@@ -166,7 +166,8 @@ pub struct ContactPoint {
     pub contact_point_type: String,
     pub contact_type: String,
     pub email: String,
-    pub telephone: String,
+    /// Omitted by the current contact block; older pages include a phone number.
+    pub telephone: Option<String>,
     pub area_served: String,
     pub available_language: Vec<String>,
 }

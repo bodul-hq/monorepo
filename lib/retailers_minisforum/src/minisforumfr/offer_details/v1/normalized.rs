@@ -173,6 +173,33 @@ mod tests {
         MinisforumFrNormalizedDocument::from_raw(raw)
     }
 
+    #[test]
+    fn current_metadata_does_not_change_variant_facts() {
+        let mut input = document();
+        let metadata: Vec<Value> =
+            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        input["ld-json"].as_array_mut().unwrap().extend(metadata);
+        assert_eq!(normalized(input), normalized(document()));
+    }
+
+    #[test]
+    fn current_metadata_still_rejects_unknown_islands_and_fields() {
+        let metadata: Vec<Value> =
+            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        for mut island in metadata {
+            island["data"]["unexpected"] = json!(true);
+            let mut input = document();
+            input["ld-json"].as_array_mut().unwrap().push(island);
+            assert!(super::super::normalize(&input.to_string()).is_err());
+        }
+        let mut input = document();
+        input["ld-json"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"type":"application/ld+json","data":{"@type":"UnknownMetadata"}}));
+        assert!(super::super::normalize(&input.to_string()).is_err());
+    }
+
     fn normalized(document: Value) -> Value {
         serde_json::to_value(normalize(document).expect("the fixture normalizes"))
             .expect("serializes")

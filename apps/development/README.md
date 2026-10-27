@@ -60,7 +60,7 @@ inside this app's server binary; service credentials never reach the browser.
 PORT=3005 make serve
 ```
 
-Open `http://localhost:3005/dashboard`. Each page load fetches reports from all three services
+Open `http://localhost:3005/dashboard`. Each page load fetches reports from all four services
 concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
 other services’ reports.
@@ -73,6 +73,8 @@ other services’ reports.
 | `OBJECT_STORAGE_TOKEN`    | Repository development bearer token for object storage    |
 | `OFFERS_URL` | `http://172.28.100.41:3000` |
 | `OFFERS_TOKEN` | `offers-development-token`; match Offers `OFFERS_REPORTING_TOKEN` |
+| `CUSTOMER_FACING_URL` | `http://172.28.100.42:3000` |
+| `CUSTOMER_FACING_TOKEN` | `customer-facing-development-token`; match Customer Facing `CUSTOMER_FACING_REPORTING_TOKEN` |
 | `PORT`                    | `3000`                                                    |
 
 Export overrides in the shell before starting the app. The existing CLI tools
@@ -109,10 +111,25 @@ toggle is the only JavaScript: a small inline script that stores the choice in
 changes, run the app and check `/` and `/dashboard` in a browser in both themes
 at desktop and narrow mobile widths. Verify that the page fits the viewport,
 wide tables scroll within their cards, and Refresh remains usable.
-Also stop one upstream service and check that the other report remains visible.
+Also stop one upstream service and check that the other services remain visible.
 
-The dashboard also requests retailer sourcing’s and Offers’ `/api/reporting/entry-statuses`
+The dashboard also requests retailer sourcing’s, Offers’, and Customer Facing’s `/api/reporting/entry-statuses`
 server-side and displays separate service sections with exact command and event counts by status, including
 numeric codes and `status_text` labels. These counts refresh on page load. Empty
 queues and unavailable status reports have their own messages, and a failed
 status request does not hide the database table reports.
+
+Customer Facing is the fourth database card. Its offer projection and queue
+storage contribute to combined totals only when its table report succeeds.
+Its status report can fail independently of its table report. Inbox and outbox
+appear as database tables but have no separate status breakdowns. The overview
+counts database reports available out of four; queue-report failures do not
+change that number. Reporting follows [ADR 13](../../docs/adr/0013-development-database-reporting.md).
+
+Rebuild and restart customer-facing before development to enable the new reports.
+For local verification, run customer-facing with `PORT=3103 make serve` against
+an isolated test schema, then run this app with
+`CUSTOMER_FACING_URL=http://localhost:3103 PORT=3105 make serve` and open
+`http://localhost:3105/dashboard`. Configured tokens must match; they never
+appear in the rendered HTML. Existing deployments need their binaries rebuilt
+and containers recreated to pick up new environment settings.

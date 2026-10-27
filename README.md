@@ -19,8 +19,9 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 
 | Crate                     | Purpose                                                                     |
 | ------------------------- | --------------------------------------------------------------------------- |
-| `shared`                  | Code shared across the monorepo, including the `health()` liveness response |
+| `shared`                  | Shared liveness response and exact image URL validation |
 | `object_storage_client`   | Async object storage client using REST or GraphQL                           |
+| `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery      |
 | `money`                   | Money handling                                                              |
 | `everyday`                | Common business, date/time, country, and geographic value types             |
 | `everyday_infra`          | Serialization and chrono adapters for everyday value types                  |
@@ -66,31 +67,71 @@ health only at `/api/health`. See its
 `retailer_sourcing` also runs the sitemap discovery pipeline: it crawls each
 retailer's sitemaps and sorts the page URLs into products, catalogs and other
 content. Offer discovery then records every product URL as an offer and
-downloads its page. The code is organised as feature slices
+downloads its page, extracts, normalizes and structuralizes it, then prepares
+an immutable export of priced variations. Export snapshots feed outbox
+delivery; preparing them does not contact offers. See
+[ADR 19](docs/adr/0019-immutable-offer-export-preparation.md). The code is organised as feature slices
 ([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
 pipeline runs only when `DATABASE_URL` is set (see below).
 
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
-history and retry receipts in one transaction, and projects events for REST
-lookups. Both queues run explicitly through the API. Set `DATABASE_URL` to
+history and projects offer events, with initial images in `OfferCreated` and
+ordered image additions on updates. Offer facts now include optional scrape time,
+source-backed localization, typed product identifiers, comparison pricing,
+availability, item condition and localized title/description content. Content
+observations merge by language, while the selected flat title continues to drive
+cards and title search. Source exports stay v8; offers writes creation v9 and
+retains legacy readers. See [ADR 38](docs/adr/0038-localized-offer-content.md).
+Identity lookup keeps retailer/URL matching while retaining all five product
+identifiers. See
+[ADRs 34–37](docs/adr/README.md) for the compatible event/export contracts. Testimony revisions
+are retained in Mulac event/outbox metadata using its optional-sequence API. See
+the [verification walkthrough](docs/offer-facts-walkthrough.md). Its current
+typed handler relies on the identity projection and does not have durable import
+receipts. Queues run explicitly through the API. Set `DATABASE_URL` to
 enable persistence; see its [setup and walkthrough](services/offers/README.md)
 and [ADR 15](docs/adr/0015-offers-testimony-and-mulac.md).
+
+New source locales supply their primary language and, when no explicit market
+is declared, a supported country or the European Union regional market
+(`it-IT` → IT / it; `en-EU` → European Union / en). Existing observations are
+preserved; see [ADR 33](docs/adr/0033-european-union-locale-market.md).
+
+`customer_facing` accepts durable inbox messages and exposes explicit inbox,
+command, event, and outbox batch runners using local Mulac. It requires its own
+PostgreSQL database and projects incoming offer events into its own `offers`
+table during command processing, with transactional protection against replay.
+It also exposes paginated offers through REST and GraphQL for the customers
+app. Outbox delivery remains unconfigured. See its [setup and queue contracts](services/customer_facing/README.md)
+and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 
 ### apps
 
 `customers` and `development` are poem servers that render HTML on the server.
-Each serves an index page at `/`. The
+Each serves an index page at `/`. The [customers app](apps/customers/README.md)
+shows 30 offers per page with responsive HTML/CSS cards, Previous/Next links,
+and a centered title-search form with a server-rendered `/search` page,
+using customer-facing's REST API. Cards show the first ordered offer image,
+with empty-image compatibility for older responses, and a smaller crossed-out
+comparison price when the source supplies a valid discount. Set `CUSTOMER_FACING_URL` to that service's
+base URL (default `http://localhost:3003`). The
 [development app](apps/development/README.md) also provides `/dashboard`,
-combining authenticated database table reports from retailer sourcing and object
-storage through private server-side clients.
+combining authenticated database table reports from retailer sourcing, object
+storage, offers, and customer-facing through private server-side clients. It also
+shows exact command/event status counts for the three pipeline services.
 
 ## Requirements
 
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
-- PostgreSQL 16 or later for `object_storage` (a separate UTF8 database), and to run the `retailer_sourcing` pipeline or persisted `offers` imports.
+- A sibling `mulac` checkout next to `monorepo` for the services workspace's
+  local Mulac dependencies. The optional-sequence API requires revision
+  `dc60f443e4a2ed4a3e763855fe473426732baef1` or a compatible later checkout; Cargo path dependencies use the
+  checked-out files rather than pinning that revision. See [ADR 17](docs/adr/0017-retailer-sourcing-local-mulac.md).
+- PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
+- PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.
 - [Diesel CLI](https://diesel.rs/guides/getting-started) with PostgreSQL support, only for `make migrate` and `make migrate-redo`: `cargo install diesel_cli --no-default-features --features postgres --locked`.
 - [cargo-audit](https://crates.io/crates/cargo-audit), only for `make audit`: `cargo install cargo-audit --locked`.
 
@@ -116,10 +157,10 @@ that crate.
 | `audit`        | `cargo audit`, once per workspace                                                                |
 | `doc`          | `cargo doc --no-deps` (lib crates only)                                                          |
 | `serve`        | `cargo run` (service and app crates only)                                                        |
-| `migrate`      | Apply pending migrations using `DATABASE_URL` (`retailer_sourcing`, `object_storage`, and `offers`)         |
+| `migrate`      | Apply pending migrations using `DATABASE_URL` (`retailer_sourcing`, `object_storage`, `offers`, and `customer_facing`)         |
 | `migrate-redo` | Revert and reapply every migration, deleting the data (`retailer_sourcing`, `object_storage`, and `offers`) |
 
-`object_storage`, `retailer_sourcing`, and `offers` also provide `make test-postgres`,
+`object_storage`, `retailer_sourcing`, `offers`, and `customer_facing` also provide `make test-postgres`,
 which uses `DATABASE_URL_TEST`, testing each case in an
 isolated schema. Retailer sourcing separates domain entities from PostgreSQL
 records throughout sitemap and offer discovery; see [ADR 7](docs/adr/0007-domain-entities-and-postgres-records.md).
@@ -153,8 +194,8 @@ curl localhost:3001/api/health
 
 Servers shut down gracefully on Ctrl+C or SIGTERM.
 
-`retailer_sourcing` starts its sitemap discovery workers when `DATABASE_URL`
-points at a PostgreSQL database. On startup it applies any pending migrations
+`retailer_sourcing` configures its durable command and event queues when
+`DATABASE_URL` points at a PostgreSQL database. On startup it applies pending migrations
 from `services/retailer_sourcing/migrations`. Without `DATABASE_URL` it serves
 HTTP only.
 
@@ -170,8 +211,15 @@ make migrate   # optional; `make serve` also migrates on startup
 PORT=3002 make serve
 ```
 
-Nothing processes the queues in the background. Queue retrievals, then run the
-queued commands and events in steps; each run waits for its batch to finish:
+With a database configured, retailer sourcing starts four background command
+workers. Set `COMMAND_WORKERS` to change that count, or `COMMAND_WORKERS=0` for
+manual operation. Each worker uses Mulac's one-second polling and ten-command
+batches. Events and outbox delivery remain explicit; other services keep their
+existing manual runners. See [ADR 39](docs/adr/0039-sourcing-command-workers.md).
+
+Queue retrievals, then run events to advance reactions and outbox to deliver
+exports. The command endpoint remains available for explicit batches; each
+HTTP runner waits for its batch to finish:
 
 | Route                          | Body                          | Purpose                                                            |
 | ------------------------------ | ----------------------------- | ------------------------------------------------------------------ |
@@ -180,6 +228,25 @@ queued commands and events in steps; each run waits for its batch to finish:
 | `POST /api/events/run`         | `{"limit": 10}`               | Process up to `limit` queued events, which queue the next commands |
 
 Without `DATABASE_URL` these routes return 503.
+
+Offer-page handlers wait six seconds before each fetch. Sitemap crawls wait a
+random one to five whole seconds between fetch attempts. These delays apply
+per handler/crawl and permit concurrent workers. Shutdown requests cancellation,
+drains HTTP and waits for reserved command batches to finish.
+
+The command and event runners delegate to local Mulac's Axum adapters. Invalid
+batch requests return plain-text `400` errors, while a valid request without a
+database retains the existing JSON `503` error. Queue failures are reported in
+the `200` batch response. See the [queue contract](services/retailer_sourcing/README.md#driving-the-workflow).
+
+Retailer sourcing also exposes `POST /api/outbox/run` with the same batch body.
+Set `OFFERS_URL` to the offers origin to enable temporary HTTP delivery to its
+durable inbox. The registered `record_export_messages` listener handles
+`OfferExportWasPrepared` during event processing and records one outbox message
+per export entry. Delivery runs separately through `/api/outbox/run`. See
+[message recording](services/retailer_sourcing/README.md#recording-export-messages),
+the [delivery contract](services/retailer_sourcing/README.md#http-outbox-delivery)
+and [ADR 20](docs/adr/0020-temporary-http-outbox-delivery.md).
 
 The `bruno/` folder is a [Bruno](https://www.usebruno.com/) workspace that lists
 every collection. Open the `bruno` folder as a workspace in Bruno to load them
@@ -191,8 +258,11 @@ per collection:
 | ------------------------- | ------------------- | --------------------------- |
 | `objectStorageBaseUrl`    | `object_storage`    | `http://172.28.100.43:3000` |
 | `retailerSourcingBaseUrl` | `retailer_sourcing` | `http://172.28.100.40:3000` |
+| `customerFacingBaseUrl` | `customer_facing` | `http://localhost:3003` |
 
-Both addresses are containers from the `compose-apps.yaml` file.
+The object storage and retailer sourcing addresses are containers from
+`compose-apps.yaml`. The customer-facing default points at a local server on
+port 3003; override it for your deployment.
 
 The workspace's `office0-dev` environment (`bruno/environments/office0-dev.yml`)
 uses the office deployment through Caddy:

@@ -22,12 +22,14 @@ for the run requests. The sample payload is the serialized `ImportOfferDetails`
 command, with enum retailer name `AnkerAu`, `price.amount` and `price.currency`.
 The direct import request uses retailer slug `ankerau` and `price_amount`.
 
-`payload` is required and can be any JSON value, including `null`.
-`routing_key` must contain non-whitespace text; unknown keys are accepted.
-Optional `message_id` and `correlation_id` must be UUID strings; `source` is an
-optional string. Omit `message_id` to generate one. Reusing an ID succeeds while
-preserving the original row, even if the new content differs. Invalid envelopes
-return `400`; storage or blocking-task failures return a sanitized `500`.
+`payload` is required and must be nonempty: `null`, blank strings, empty arrays
+and empty objects are rejected, while numbers (including zero), booleans and
+nonempty containers are accepted. `routing_key` and `source` must both contain
+non-whitespace text; unknown routing keys are accepted. Optional `message_id`
+and `correlation_id` must be UUID strings. Omit `message_id` to generate one.
+Reusing an ID succeeds while preserving the original row, even if the new
+content differs. Invalid envelopes return `400`; storage or blocking-task
+failures return a sanitized `500`.
 
 After submission, send these requests in order:
 
@@ -36,17 +38,20 @@ After submission, send these requests in order:
 2. **Run commands** — executes eligible queued commands and queues their events.
 3. **Run events** — dispatches eligible events to the read model projectors.
 
-**Run outbox** returns `503` because no outbox publisher is configured. It does
-not reserve, modify, or deliver rows.
+**Run outbox** delivers one batch to customer-facing's `/api/inbox` when offers
+runs with `CUSTOMER_FACING_URL`. Without it, the request returns `503` and does
+not reserve, modify, or deliver rows. A `202` from customer-facing means stored
+only; run its inbox, commands and events afterwards. See
+[HTTP delivery to customer-facing](../../services/offers/README.md#http-delivery-to-customer-facing).
 
 All four run endpoints accept JSON with an integer `limit` from 1 through 1000.
 Missing or invalid limits and malformed JSON return `400`. Each request runs
 one batch from one queue; nothing processes queues in the background.
 
-Inbox, commands, and events return `200` with `{"processed":N,"errors":[]}`
-on success, including `N=0` when no work is eligible. Consumer failures return
-`200` with `{"processed":null,"errors":["…"]}`; inspect `errors` even when the
-HTTP status is successful. Successful items in a partially failed batch remain
+Inbox, commands, events, and a configured outbox return `200` with
+`{"processed":N,"errors":[]}` on success, including `N=0` when no work is
+eligible. Consumer failures return `200` with `{"processed":null,"errors":["…"]}`;
+inspect `errors` even when the HTTP status is successful. Successful items in a partially failed batch remain
 committed. Retry scheduling and reservations still apply. A failed blocking
 task returns `500`. These operational routes have no authentication.
 

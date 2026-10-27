@@ -10,14 +10,24 @@ async-graphql-axum = "7.2.1"
 axum.workspace = true
 bodul_shared.workspace = true
 chrono.workspace = true
+commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
+eventing_api.workspace = true
+fastrand = "2.5"
 flate2 = "1"
+inbox_api.workspace = true
+inbox_client.workspace = true
 kernel.workspace = true
+money.workspace = true
+mulac_axum = { path = "../../../mulac/libs/mulac_axum", features = ["commanding", "eventing", "outbox", "utoipa"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
+outbox.workspace = true
+outbox_api.workspace = true
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
+retailer_sauce.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
@@ -29,11 +39,15 @@ tower-http.workspace = true
 tracing.workspace = true
 tracing-appender.workspace = true
 tracing-subscriber.workspace = true
+url.workspace = true
 utoipa = "6.0.0"
 utoipa-axum = "0.3.0"
 utoipa-swagger-ui.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
+commanding_api = { workspace = true, features = ["testing"] }
+eventing_api = { workspace = true, features = ["testing"] }
 http-body-util.workspace = true
+outbox_api = { workspace = true, features = ["testing"] }
 tower.workspace = true

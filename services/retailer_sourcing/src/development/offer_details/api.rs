@@ -156,6 +156,7 @@ mod postgres_tests {
         let offer = Uuid::now_v7();
         let body = "<html>ž 🔎</html>";
         let storage = OfferStorageMetadata {
+            scraped_at: None,
             content_size: body.len() as u64,
             object_storage_id: Uuid::now_v7(),
             external_id: Uuid::now_v7(),

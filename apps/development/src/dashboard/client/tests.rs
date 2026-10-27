@@ -195,3 +195,111 @@ async fn fetches_offers_reports_with_its_own_token_and_base_path() {
         handle.join().unwrap();
     }
 }
+
+#[tokio::test]
+async fn customer_facing_reports_use_their_own_token_and_prefix() {
+    for statuses in [false, true] {
+        let path = if statuses {
+            "/prefix/api/reporting/entry-statuses"
+        } else {
+            "/prefix/api/reporting/database-tables"
+        };
+        let body = if statuses {
+            r#"{"generated_at":"2026-10-25T12:00:00Z","command_entries":[{"status":5,"status_text":"completed","count":3}],"event_entries":[]}"#
+        } else {
+            REPORT
+        };
+        let (url, handle) = fixture_path(200, body, "customer-token", Duration::ZERO, path);
+        let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+            .unwrap()
+            .with_offers("invalid", "offers-token")
+            .with_customer_facing(&format!("{url}/prefix/"), "customer-token");
+        if statuses {
+            assert_eq!(
+                clients
+                    .customer_facing_entry_statuses()
+                    .await
+                    .unwrap()
+                    .command_entries[0]
+                    .count,
+                3
+            );
+        } else {
+            assert_eq!(
+                clients.customer_facing_report().await.unwrap().tables[0].row_count,
+                12
+            );
+        }
+        handle.join().unwrap();
+    }
+}
+
+#[tokio::test]
+async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
+    for statuses in [false, true] {
+        let path = if statuses {
+            "/api/reporting/entry-statuses"
+        } else {
+            PATH
+        };
+        for (status, body, delay, expected) in [
+            (
+                401,
+                "private upstream diagnostics",
+                Duration::ZERO,
+                ReportError::Authentication,
+            ),
+            (
+                503,
+                "private upstream diagnostics",
+                Duration::ZERO,
+                ReportError::Unavailable,
+            ),
+            (302, "", Duration::ZERO, ReportError::Unavailable),
+            (200, "{}", Duration::ZERO, ReportError::Malformed),
+            (200, "not json", Duration::ZERO, ReportError::Malformed),
+            (
+                200,
+                REPORT,
+                Duration::from_millis(200),
+                ReportError::Unavailable,
+            ),
+        ] {
+            let (url, handle) = fixture_path(status, body, "customer-token", delay, path);
+            let (sourcing, sourcing_handle) =
+                fixture(200, REPORT, "sourcing-token", Duration::ZERO);
+            let clients = ReportingClients::new(
+                &sourcing,
+                "sourcing-token",
+                "invalid",
+                "",
+                Duration::from_millis(50),
+            )
+            .unwrap()
+            .with_customer_facing(&url, "customer-token");
+            let customer = async {
+                if statuses {
+                    clients.customer_facing_entry_statuses().await.map(|_| ())
+                } else {
+                    clients.customer_facing_report().await.map(|_| ())
+                }
+            };
+            let ((sourcing, _), customer) = tokio::join!(clients.reports(), customer);
+            assert_eq!(sourcing.unwrap().tables[0].row_count, 12);
+            assert_eq!(customer.unwrap_err(), expected);
+            handle.join().unwrap();
+            sourcing_handle.join().unwrap();
+        }
+    }
+    let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+        .unwrap()
+        .with_customer_facing("http://example.test", "");
+    assert_eq!(
+        clients.customer_facing_report().await.unwrap_err(),
+        ReportError::Configuration
+    );
+    assert_eq!(
+        clients.customer_facing_entry_statuses().await.unwrap_err(),
+        ReportError::Configuration
+    );
+}

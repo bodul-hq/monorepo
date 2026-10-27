@@ -1,6 +1,6 @@
 use crate::offers::aggregate::RetailerOfferAggregate;
 use crate::offers::command::ImportOfferDetailsCommand;
-use crate::offers::event::RetailerOfferEvent;
+use crate::offers::event::{RetailerOfferEvent, SequencedOfferEvent};
 use crate::offers::retailer_offer_id::RetailerOfferId;
 use crate::read_offers_identifiers::entity::RetailerOfferIdentifiers;
 use bodul_shared::prelude::RetailerCode;
@@ -36,30 +36,52 @@ where
         &self,
         command: ImportOfferDetailsCommand,
     ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+        self.process_offer(command)
+            .map(|events| events.into_iter().map(|event| event.event).collect())
+    }
+
+    fn process_offer(
+        &self,
+        command: ImportOfferDetailsCommand,
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
+        let observation = super::command::OfferObservation {
+            was_price: command.was_price,
+            availability: command.availability,
+            item_condition: command.item_condition,
+            content: command.content,
+            identifiers: retailer_sauce::identifier::ProductIdentifiers {
+                gtin: command.gtin,
+                sku: command.sku,
+                external_identifiers: command.external_identifiers,
+            },
+            scraped_at: command.scraped_at,
+            localization: command.localization,
+        };
+        observation.guard().map_err(err_update)?;
         let exists = self
             .identifiers_repository
             .find(command.retailer_code, &command.url)
-            .map_err(|error| testimony::prelude::EventStoreError::LoadFailed(error.to_string()))?;
+            .map_err(err_update)?;
 
         if let Some(read_row) = exists {
             let id = read_row.id;
 
             self.update_offer(
                 id,
-                //command.retailer_code,
                 command.title,
                 command.price,
-                //command.url,
+                command.images,
+                observation,
             )
         } else {
-            let xxx = self.create_offer_event(
+            self.create_offer_event(
                 command.retailer_code,
                 command.title,
                 command.price,
                 command.url,
-            )?;
-
-            Ok(xxx)
+                command.images,
+                observation,
+            )
         }
     }
 
@@ -69,18 +91,29 @@ where
         title: String,
         price: Money,
         url: String,
-    ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+        images: Vec<String>,
+        observation: super::command::OfferObservation,
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
-        let mut aggregate = RetailerOfferAggregate::create(
+        let mut aggregate = RetailerOfferAggregate::create_with_observation(
             id,
             retailer_code,
-            title.clone(),
-            price.clone(),
-            url.clone(),
-        );
-
-        let events = aggregate.get_just_events().clone();
+            title,
+            price,
+            url,
+            images,
+            observation,
+        )
+        .map_err(err_update)?;
+        let events = aggregate
+            .uncommitted_events
+            .iter()
+            .map(|envelope| SequencedOfferEvent {
+                event: envelope.event().clone(),
+                sequence: envelope.sequence(),
+            })
+            .collect();
 
         self.repository.save(&mut aggregate)?;
 
@@ -90,27 +123,27 @@ where
     fn update_offer(
         &self,
         id: RetailerOfferId,
-        // retailer_code: RetailerCode,
         title: String,
         price: Money,
-        // url: String,
-    ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+        images: Vec<String>,
+        observation: super::command::OfferObservation,
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
-            .load(id.clone())
-            // .map_err(|e| UpdateChannelsError::RepositoryError(e.to_string()))?
-            // .ok_or_else(|| UpdateChannelsError::RetailerOfferNotFound(id.to_string()))?;
-            .unwrap()
-            .unwrap();
-
-        let _ = aggregate.update(title, price);
-
-        let events = aggregate.get_just_events().clone();
-
-        self.repository
-            .save(&mut aggregate)
-            //.map_err(|e| UpdateChannelsError::RepositoryError(e.to_string()))?;
-            .unwrap();
+            .load(id.clone())?
+            .ok_or_else(|| err_update(format!("offer {id} not found")))?;
+        aggregate
+            .update_with_observation(title, price, images, observation)
+            .map_err(err_update)?;
+        let events = aggregate
+            .uncommitted_events
+            .iter()
+            .map(|envelope| SequencedOfferEvent {
+                event: envelope.event().clone(),
+                sequence: envelope.sequence(),
+            })
+            .collect();
+        self.repository.save(&mut aggregate)?;
 
         Ok(events)
     }
@@ -128,7 +161,7 @@ pub enum UpdateChannelsError {
 
 // Mulac publishes the returned events, so this adapter uses Testimony's no-op
 // publisher to avoid publishing the same event through both systems.
-impl<S, R> kernel::CommandHandlerPort<ImportOfferDetailsCommand, RetailerOfferEvent>
+impl<S, R> kernel::CommandHandlerPort<ImportOfferDetailsCommand, SequencedOfferEvent>
     for ProcessOfferHandler<S, NoOpEventPublisher, R>
 where
     S: EventStore<RetailerOfferId, RetailerOfferEvent> + Send + Sync,
@@ -137,8 +170,8 @@ where
     fn execute(
         &self,
         command: ImportOfferDetailsCommand,
-    ) -> Result<Vec<RetailerOfferEvent>, kernel::CommandError> {
-        self.create_offer(command)
+    ) -> Result<Vec<SequencedOfferEvent>, kernel::CommandError> {
+        self.process_offer(command)
             .map_err(|error| kernel::CommandError::HandlerExecution(error.to_string()))
     }
 }
@@ -164,3 +197,7 @@ pub trait RetailerOfferIdentifiersRepository {
 
 pub type RetailerOfferRepository<S, P = NoOpEventPublisher> =
     EventSourcedRepository<RetailerOfferAggregate, S, P>;
+
+fn err_update(error: impl std::fmt::Display) -> RepositoryError {
+    testimony::prelude::EventStoreError::LoadFailed(error.to_string()).into()
+}

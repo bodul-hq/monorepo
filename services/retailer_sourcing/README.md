@@ -3,7 +3,8 @@
 Finds what retailers sell. It crawls each retailer's sitemaps, sorts the page
 URLs into products, catalogs and other content, records every product URL as an
 offer, downloads the offer pages, and reads the offer data out of them: it
-extracts each page into JSON, normalizes it and structuralizes it.
+extracts each page into JSON, normalizes and structuralizes it, then prepares an
+immutable export of its priced variations.
 
 The code is organised as feature slices
 ([ADR 4](../../docs/adr/0004-feature-slices-for-retailer-sourcing.md)). Each
@@ -20,7 +21,7 @@ POST /api/sitemap-retrievals
               └─▶ consolidate_sitemap reaction ──▶ ConsolidateSitemap ──▶ consolidate_sitemap handler ──▶ SitemapConsolidated
                     └─▶ discover_offers reaction ──▶ DiscoverOffers ──▶ discover_offers handler ──▶ OfferDiscovered × N
                           └─▶ download_offer_page reaction ──▶ DownloadOfferPage × N ──▶ download_offer_page handler
-                                ──▶ OfferPageWasDownloaded | no event (download failed)
+                                ──▶ OfferPageWasDownloaded | retry (download failed)
                                   └─▶ extract_offer_page reaction ──▶ ExtractOfferPage ──▶ extract_offer_page handler ──▶ OfferPageWasExtracted
                                         └─▶ normalize_offer reaction ──▶ NormalizeOffer ──▶ normalize_offer handler ──▶ OfferWasNormalized
                                               └─▶ structuralize_offer reaction ──▶ StructuralizeOffer ──▶ structuralize_offer handler ──▶ OfferWasStructuralized
@@ -32,16 +33,22 @@ POST /api/sitemap-retrievals
 | 2    | `ProcessSitemap`     | Parses the stored files into one sitemap tree, stores it in `sitemaps_processed`.                                                                                                                                                          | `SitemapProcessed`                                       | `consolidate_sitemap`: queue `ConsolidateSitemap`                     |
 | 3    | `ConsolidateSitemap` | Sorts every URL of the tree into product, catalog, content, not interested and unknown, using the retailer's link rules; stores the groups in `sitemaps_consolidated`.                                                                     | `SitemapConsolidated`                                    | `discover_offers`: queue `DiscoverOffers`, unless it found 0 products |
 | 4    | `DiscoverOffers`     | Reads the product URLs and gives each its own `offer_id`. Writes nothing.                                                                                                                                                                  | `OfferDiscovered`, one per URL                           | `download_offer_page`: queue one `DownloadOfferPage` per offer        |
-| 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. A failed download is logged, and the command still completes.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
+| 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. Waits six seconds before each download attempt. A failed download fails the command for retry.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
 | 6    | `ExtractOfferPage`   | Extracts the offer's page from `offer_details_raw` into JSON with the retailer's architecture and stores it in `offer_details_extracted`.                                                                                                  | `OfferPageWasExtracted`                                  | `normalize_offer`: queue `NormalizeOffer`                             |
 | 7    | `NormalizeOffer`     | Normalizes the extracted JSON with the retailer's normalizer and stores it in `offer_details_normalized`. When the retailer produces no document for the page, stores nothing.                                                             | `OfferWasNormalized`; none when there is no document     | `structuralize_offer`: queue `StructuralizeOffer`                     |
-| 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | none yet                                                              |
+| 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | `processing_for_export`: queue `ProcessOfferForExport`                                                              |
+| 9 | `ProcessOfferForExport` | Prepares a pinned immutable export of priced variations, recording missing-price exclusions. | `OfferExportWasPrepared` | `record_export_messages` listener: records one outbox message per entry |
 
 Steps 6 to 8 fail the command when the input row is missing, when the retailer
 has no such step, or when the step fails, including a retailer whose step is
-still a `todo!()` stub; the bus retries a failed command on a later run. Only
-`ankerau` has every step implemented so far. Each of their tables holds one row
-per offer, replaced when the step runs again.
+still a `todo!()` stub; the bus retries a failed command on a later run. Each
+of their tables holds one row per offer, replaced when the step runs again.
+
+Implemented extraction, normalization and structuralization pipelines span
+Anker, Minisforum and Ugreen storefronts. Support is storefront-specific; see
+the [Anker](../../lib/retailers_anker/README.md),
+[Minisforum](../../lib/retailers_minisforum/README.md) and
+[Ugreen](../../lib/retailers_ugreen/README.md) READMEs for coverage and limitations.
 
 All seven pipeline tables keep metadata in PostgreSQL and payloads in object
 storage. Raw bodies are uploaded unchanged; JSON documents are uploaded as
@@ -59,7 +66,7 @@ src/
   main.rs                    routes, startup; registers each context
   platform/                  plumbing that knows nothing about the domain
     bus.rs                   command and event bus over Mulac
-    bus_api.rs               POST /api/commands/run and /api/events/run
+    bus_api.rs               POST /api/commands/run, /api/events/run and /api/outbox/run
     db.rs                    Postgres pool and embedded migrations
     http.rs                  blocking HTTP client
   sitemap_discovery/         context: sitemaps → sorted URLs
@@ -72,17 +79,29 @@ src/
     extract_offer_page/      step 6
     normalize_offer/         step 7
     structuralize_offer/     step 8
+    processing_for_export/   step 9
+  offer_delivery/            context: completed exports → outbox messages
+    record_export_messages/  listener on OfferExportWasPrepared
 migrations/                  Mulac's tables, then each context's tables
 ```
 
 A slice holds `command.rs`, `handler.rs`, `event.rs`, `entity.rs` (domain
 values), `store/record.rs` (PostgreSQL representations and conversions),
-`store.rs` (its own queries), and `reacts_to.rs` when a reaction starts it. Each
-context and slice exposes only its `prelude` module, with `register()`, any
-`routes()`, and the events others may use. Contexts talk to each other only
+`store.rs` (its own queries), and `reacts_to.rs` when a reaction starts it. A
+slice that consumes an event with its envelope metadata and writes state itself,
+rather than queueing a command, has a `listener.rs` registered with
+`Bus::listen`. Each context and slice exposes only its `prelude` module, with
+`register()`, any `routes()`, and the events others may use. Contexts talk to each other only
 through events.
 
 ## Running it
+
+The services workspace uses the local Mulac checkout next to `monorepo`, at
+`../mulac` relative to the repository root. Revision
+`9474319fff2237d81828a23d97df5d2f97741858` was verified for this integration.
+Cargo path dependencies compile the current checkout; they do not pin a Git
+revision. Keep that checkout available in development and build environments.
+See [ADR 17](../../docs/adr/0017-retailer-sourcing-local-mulac.md).
 
 The service needs Postgres for the workflow; without `DATABASE_URL` it serves
 HTTP only and the routes below return `503`. On startup it applies pending
@@ -94,8 +113,58 @@ When `DATABASE_URL` is configured, `OBJECT_STORAGE_URL` and
 `OBJECT_STORAGE_TOKEN` are required. Configuration is checked before connecting
 to PostgreSQL or applying migrations. The client uses REST, a 30-second request
 timeout, and no automatic retries or redirects. Start an object storage service
-that allows all seven pipeline buckets. Without `DATABASE_URL`, the HTTP-only
-mode needs no object storage configuration.
+that allows the seven existing pipeline buckets and `offer_export`. Without
+`DATABASE_URL`, the HTTP-only mode needs no object storage configuration.
+
+### HTTP outbox delivery
+
+Set `OFFERS_URL` to an HTTP(S) origin, for example `http://127.0.0.1:3001`,
+without credentials, a path, query or fragment. An unset value disables
+delivery. An explicitly empty or invalid value fails startup. Configuration is
+validated even in HTTP-only mode, but no connection to offers is made at startup.
+Shell and Make command-line values override `.env`.
+
+`POST /api/outbox/run` accepts `{"limit":1}` through `{"limit":1000}` and waits
+for one batch. Missing database or destination configuration returns `503`
+without reserving rows; invalid requests return `400` first. The endpoint uses
+Mulac's shared schemas, JSON content-type validation, and sanitized task errors.
+Full success returns `{"processed":N,"errors":[]}`; item/storage failures use
+`200` with null `processed` and error messages. Successful items remain committed.
+
+The publisher posts each outbox payload as a JSON object to `/api/inbox` with
+`routing_key: "ImportOfferDetails"`. Outbox metadata must contain destination
+`routing_key: "offers"`, a stable `message_id`, and the remaining Mulac event
+metadata fields. The import payload contains `retailer_code` in enum form
+(for example `AnkerAu`), `title`, `price: {amount,currency}`, and the exact `url`.
+Each variation needs its own stable delivery ID. The `record_export_messages`
+listener writes these rows; see [Recording export messages](#recording-export-messages).
+There is no legacy application-generated outbox format to migrate. Manually
+seeded rows must supply complete valid metadata before running delivery.
+
+Only `202` with the same message UUID confirms durable acceptance. Requests and
+acknowledgements share a ten-second deadline and acknowledgement bodies are
+limited to 64 KiB. There are no redirects, client retries, automatic queue runs,
+or RabbitMQ fallback. Failures follow Mulac's six-attempt retry schedule.
+Source event ID/type/causation remain in the local outbox; the current inbox
+HTTP contract carries only message ID, correlation ID and source. An absent
+source defaults to `retailer_sourcing`.
+
+A lost response or failed completion write may resend the same message. Offers
+deduplicates by message ID and retains the first payload; never reuse an ID for
+different content. A failed completion can leave a reserved row for operator
+recovery after fixing the underlying error. There is no background reservation
+sweeper. Inbox acceptance does not mean that the offer was imported: explicitly
+run offers' inbox, commands and events afterward. See
+[ADR 20](../../docs/adr/0020-temporary-http-outbox-delivery.md).
+
+`make ci` covers HTTP contract/error behavior and `make test-postgres` covers
+real PostgreSQL outbox completion, partial batches, retries, repeated inbox
+delivery and failed local completion using isolated schemas. The latter starts
+a local Mulac inbox HTTP receiver backed by a separate schema. For an operational
+walkthrough, start offers against a separate test database, seed sourcing's
+outbox with a valid import and metadata, run `/api/outbox/run`, then advance
+offers' queues and inspect its projection. The Bruno **Run outbox** request
+exercises the sender route.
 
 ```sh
 make .env          # once: database and object storage configuration
@@ -120,9 +189,28 @@ delivered again.
 
 ## Driving the workflow
 
-Nothing processes the queues in the background (the polling workers are
-commented out in `Bus::start`). Queue retrievals, then run commands and events
-in turns:
+With `DATABASE_URL` configured, the executable starts four command workers by
+default. `COMMAND_WORKERS` sets their count; `0` keeps commands manual. Unset
+means four; empty, negative, malformed, overflowing or non-Unicode values fail
+startup with a `COMMAND_WORKERS` error. Without a database, no workers start.
+Shell and command-line settings override `.env`, including an explicit `0`.
+
+Each worker polls every second and reserves up to ten commands, processing its
+batch sequentially. These are concurrent task loops, not dedicated threads.
+`POST /api/commands/run` stays available and can add command concurrency beyond
+this count. Events and the outbox still require explicit API runs; command
+workers alone do not drive the whole pipeline.
+
+Offer downloads wait six seconds before every fetch, including retries and
+repeated URLs. Sitemap crawls choose a fresh random whole-second delay from one
+through five between actual fetch attempts, including failed attempts. There is
+no initial or final sitemap delay, and skipped URLs do not add delays. Pacing is
+per invocation/crawl: concurrent workers may fetch the same retailer together.
+Legacy retailer-library `sitemap_pause` functions are no longer used here.
+
+`Bus::start` and `start_features` remain worker-free, with zero inline drain
+rounds. Only the executable starts workers, after the database, routes/listener
+and shutdown signals are ready. Queue retrievals and explicitly run events:
 
 | Route                          | Body                          | Does                                                                      |
 | ------------------------------ | ----------------------------- | ------------------------------------------------------------------------- |
@@ -130,7 +218,9 @@ in turns:
 | `POST /api/commands/run`       | `{"limit": 10}`               | Runs up to `limit` queued commands and waits for them                     |
 | `POST /api/events/run`         | `{"limit": 10}`               | Runs up to `limit` queued events; their reactions queue the next commands |
 
-One retailer from start to finish takes alternating runs:
+With `COMMAND_WORKERS=0`, one retailer from start to finish takes alternating
+runs (with workers enabled, wait for each command stage instead of calling
+`commands/run`):
 
 1. `sitemap-retrievals` with the retailer.
 2. `commands/run`: retrieves the sitemaps (can take minutes; keep the limit small).
@@ -139,10 +229,40 @@ One retailer from start to finish takes alternating runs:
 5. `events/run`, then `commands/run`: discovers the offers.
 6. `events/run`, then `commands/run` until it reports `"processed": 0`: downloads the offer pages.
 7. `events/run`, then `commands/run`, three more times: extracts, normalizes and structuralizes the offers.
+8. `events/run`, then `commands/run`: prepares immutable `offer_export` snapshots.
+9. `events/run`: dispatches `OfferExportWasPrepared`, which records one outbox message per exported variation.
+10. `outbox/run` (needs `OFFERS_URL`): delivers the recorded messages to offers' inbox.
 
 Run responses look like `{"processed": 3, "errors": []}`. When something fails,
 `processed` is `null` and `errors` lists the failures; failed commands are
 retried on a later run.
+
+Both runners require a JSON object with an integer `limit` from 1 through 1000;
+unknown fields are ignored. They now use Mulac's shared validation and error
+contract:
+
+| Response | Meaning |
+| --- | --- |
+| `200`, JSON `RunResponse` | Batch finished. Reservation, storage, handler, and subscriber failures appear in `errors`; successful items remain committed. |
+| `400`, plain text | Invalid JSON or limit, including missing, null, negative, fractional, or wrongly typed values. |
+| `413`, plain text | Body exceeds Axum's configured size limit. |
+| `415`, plain text | Missing or non-JSON content type. |
+| `500`, plain text `queue processing task failed` | The blocking task failed; internal panic/join details are hidden. |
+| `503`, JSON `{ "error": "the command bus is not running; start the service with DATABASE_URL" }` | A valid request reached an unconfigured bus. |
+
+Request validation runs before the unavailable-bus check. This changes the old
+JSON range-error body to plain text and typed-JSON `422` errors to `400`.
+Successful batch responses, route paths, and authentication are unchanged.
+OpenAPI publishes one shared `RunRequest`/`RunResponse` pair for both queues.
+
+No queue schema migration is required for this upgrade. Existing command/event
+names, payloads, metadata, and retry state remain compatible. Queue progress
+requires explicit event and outbox runs. No automatic stale-reservation sweep
+is started. Rows left reserved by an interrupted process require operator
+recovery before they can run again. Graceful shutdown immediately cancels worker
+polling, drains HTTP requests and joins every worker. A reserved command batch
+finishes before its worker stops, so shutdown can wait for sleeps and network
+requests. A server failure also cancels and joins all workers.
 
 The Bruno collection in `../../bruno/retailer_sourcing` has a request for each
 route.
@@ -166,6 +286,12 @@ volume on the log folder to keep them.
 `make ci` runs formatting, clippy and the tests. Handler tests use in-memory
 fakes, so they need no database or network. `make test-postgres` checks store
 queries and transactions in isolated schemas; see the database test setup below.
+Queue HTTP tests cover shared validation, schema reuse, batch isolation, partial
+failure, and sanitized task errors. PostgreSQL queue tests insert the original
+wire format directly, including null metadata and prior errors, then verify
+command → event → next-command progression, metadata preservation, and retries
+through the actual HTTP routes. Worker tests also cover manual mode, concurrent
+batch reservation, queued events, and shutdown while a command is running.
 
 ## Domain entities and PostgreSQL records
 
@@ -516,3 +642,205 @@ status labels are `received` (0), `reserved` (2), `failed` (4), `completed` (5),
 with `status_text: "unknown"`. Counts scan the queues and may cost more than the
 estimated database table report. Responses use `Cache-Control: no-store`; the
 dashboard refreshes them on each page load.
+
+## Processing for export
+
+`processing_for_export` consumes the immutable reference included in new
+`OfferWasStructuralized` events. It never resolves a delayed event through the
+latest `offer_details_structuralized` row. Older events still deserialize, but
+the resulting export command fails with `run fresh structuralization before
+exporting`; start a fresh retrieval to emit new pinned source references.
+No latest-snapshot fallback is performed.
+
+Each priced variation becomes an `ImportOfferDetails`-compatible payload with
+retailer code, title, exact variant URL and integer minor-unit price/currency.
+Schema v2 also carries filtered variation images; see the version contract below.
+Missing prices are recorded under `exclusions` with the variation index, URL
+and `missing_price` reason. Unavailable stock is included when priced. Blank
+titles, malformed money, negative prices, invalid HTTP(S) URLs and repeated
+exact variation URLs fail preparation rather than producing ambiguous exports.
+Empty or wholly excluded documents produce a completed export with no entries.
+
+Migration `2026-10-24-000013_offer_export` adds only the export table. Its unique
+key is `(offer_id, source_object_id, schema_version)`. A preparation persists
+stable snapshot and entry UUIDs, typed source/stats metadata, and the exact
+pending body before upload. `status = 'prepared'` rows retain `prepared_body`
+when upload or completion fails. The next command attempt resumes those same
+bytes and IDs. On completion, `status = 'completed'` records the storage
+reference and completion time and clears `prepared_body`. Completed documents
+are immutable artifacts in the `offer_export` bucket, using the snapshot UUID
+as their idempotency key. Deploy the object-storage allowlist first.
+
+`OfferExportWasPrepared` references the completed snapshot and its source.
+`offer_discovery::prelude::ExportStore::load` reads a completed domain snapshot
+and validates its object reference. Repeated events may reference the same
+export; downstream delivery must use the stable per-entry UUIDs to deduplicate.
+This stage produces no outbox rows or HTTP requests to offers itself.
+Rollback removes local export metadata and leaves already uploaded objects.
+
+`make ci` covers fixture conversion and guards. `make test-postgres` covers
+source replacement, concurrent preparation, crash recovery, additive migration
+behavior and separate HTTP queue batches. `make test-object-storage` also
+checks the new bucket against a running object-storage service. Offers' unit
+tests deserialize the same checked-in import fixture through its real command.
+See [ADR 19](../../docs/adr/0019-immutable-offer-export-preparation.md).
+
+## Recording export messages
+
+`offer_delivery::record_export_messages` listens to `OfferExportWasPrepared`.
+It loads the completed snapshot the event names through `ExportStore::load`.
+It never uses the latest structuralized document or a pending preparation.
+The listener checks that the snapshot and event agree on export UUID, source
+and schema version `1`. It then records one row in `outbox_entries` per
+export entry, all in one transaction:
+
+| Column / metadata | Value |
+| --- | --- |
+| `id`, `meta.message_id` | The entry's stable UUID |
+| `payload` | The entry's `ImportOfferDetails` payload, unwrapped |
+| `meta.routing_key` | `offers` |
+| `meta.event_type` | `OfferExportWasPrepared` |
+| `meta.event_id`, `correlation_id`, `causation_id`, `source` | The event envelope's values |
+| `meta.content_type` | `application/json` |
+| `status` | `0` (received) |
+
+Exclusions produce no messages. An empty or wholly excluded export succeeds
+with none. Recording reads PostgreSQL and object storage only. It works while
+offers is offline or `OFFERS_URL` is unset, and it never runs the outbox.
+
+Recording is idempotent. Inserts use `ON CONFLICT (id) DO NOTHING`, so a
+duplicate, concurrent or replayed notification never changes an existing row.
+That holds even with a new envelope UUID: the first metadata, status,
+attempts, reservation and completion are kept, and completed rows are not
+resent. A retry after a partial failure adds only the missing entries.
+Reusing an entry UUID with a different payload, destination or event type
+fails the event and rolls back the whole export's rows. An event without
+envelope metadata also fails.
+
+These failures fail the event visibly and follow Mulac's event retry
+schedule:
+- a missing or still-pending export
+- an object-storage error
+- a malformed or inconsistent snapshot
+- an unsupported schema
+- a source mismatch
+
+They appear in `/api/events/run` `errors`, with `status = 4` (failed, retry
+scheduled with backoff) and incremented `attempts` in `event_entries`. At the
+sixth failed attempt the event becomes dead (`status = 7`). Fix the cause, then
+set `status = 0, attempts = 0, scheduled_at = now()` on it and run events again.
+
+Observe recorded messages and their delivery state with:
+
+```sql
+SELECT id, status, attempts, last_error, meta->>'event_id' AS event_id
+FROM outbox_entries
+WHERE meta->>'event_type' = 'OfferExportWasPrepared'
+ORDER BY received_at;
+```
+
+Status `0` is received, `2` reserved, `4` failed (retry scheduled), `5`
+completed (offers' inbox returned `202`) and `7` dead (six attempts used). A
+dead or failed row needs the underlying error fixed. It can then be
+rescheduled by setting `status = 0, attempts = 0, scheduled_at = now()`. Rows
+left `reserved` by an interrupted run have no automatic sweeper. After
+confirming no run is in progress, release them with
+`status = 0, reservation_id = NULL, reserved_at = NULL`. Never reset an
+operational database to recover.
+
+There is no automatic historical backfill. Events marked done before this
+listener existed are not delivered again. To record an older export,
+explicitly queue a new `OfferExportWasPrepared` event for it, or rerun its
+export from a fresh structuralization. The stable entry UUIDs keep this safe.
+
+`make ci` covers the listener's mapping and failure handling with fakes.
+`make test-postgres` covers these against real PostgreSQL:
+- the queue path with exact metadata
+- zero, mixed and excluded entries
+- a fresh-envelope replay
+- concurrent notifications
+- partial recording then retry, next to a delivered row
+- conflicting identities
+- a delayed event after newer source data
+- retryable failures
+- delivery of recorded rows to a local Mulac inbox
+
+That inbox test shows HTTP acceptance only. Offers' import still needs its
+own inbox, command and event runs.
+
+## Offer images and export versions
+
+New export commands explicitly use `schema_version: 2`; already queued commands
+without it retain v1. V1 snapshots and their outgoing messages omit `images`.
+V2 includes an ordered `images` array, including `[]`. Both versions may coexist
+for the same source, and pending bytes, snapshot IDs and entry message IDs are
+never rewritten during retries. Unknown or inconsistent versions fail visibly.
+
+Images preserve exact source strings and order. Invalid absolute HTTP(S) URLs
+are skipped; URLs with credentials, padding, control characters or more than
+2048 bytes are invalid. Duplicate strings keep their first occurrence. Logs
+record skipped counts, not full URLs. A malformed array type fails conversion.
+No image is downloaded. Price/exclusion and retailer-code behavior is unchanged.
+See [ADR 24](../../docs/adr/0024-append-only-offer-images.md) and the
+[combined walkthrough](../../docs/offer-images-walkthrough.md).
+
+Known retired retailer handles are resolved through
+`retailer_data_extractor::offer_download_url` before downloading. Currently this
+covers only the UGREEN NAS DE/UK `dxp4800-pro` short URLs. The stored source,
+event and discovery identity retain the original URL; only the HTTP request uses
+the verified replacement. Other HTTP errors still fail and retry normally.
+Updating the service lets pending normalization commands read their existing
+extractions with the corrected retailer parsers; no re-extraction is required
+for these metadata/gallery fixes. Exhausted commands still require the existing
+queue retry procedure. This change does not reset queue statuses.
+
+## Scrape time
+
+The successful download instant travels with immutable artifact references through
+v3 and newer exports to `OfferCreated` and `OfferScrapedAtUpdated`. Old imports/events retain
+unknown time. Newer times advance the aggregate and both projections even when
+content is unchanged; absent, equal and older times never erase or regress it.
+Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
+independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
+for provenance, compatibility and deployment order.
+
+## Localization, identifiers and revisions
+
+New sourcing exports use schema v5: v3 added scrape time, v4 added a localization
+observation, and v5 adds GTIN, SKU and the three Shopify identifiers. Prepared
+v1–v4 snapshots keep their original payload shapes and IDs. Missing localization
+means no observation; an explicit object replaces both facts, including unknowns.
+Missing/null identifiers retain known values; supplied fields enrich or correct
+them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
+Localization-only and identifier-only changes have their own domain events.
+
+Offers preserves each Testimony revision in Mulac event and outbox metadata;
+legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
+building/deploying this version. This does not change HTTP inbox metadata or add
+source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
+and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
+[28](../../docs/adr/0028-source-backed-offer-localization.md) and
+[29](../../docs/adr/0029-offer-product-identifiers.md).
+
+### Comparison price, availability, condition and descriptions
+
+New export commands select schema v8. Readers and immutable preparation support
+v1–v8: v6 adds same-variant `was_price`, v7 adds `availability` and
+`item_condition`, and v8 adds `content: {description}`. Old pinned commands keep
+their requested version and serialization; retries do not regenerate completed
+snapshots or delivery identities.
+
+Each implemented structuralizer emits these fields. Facts are source-backed:
+a purchase flag is `available`/`unavailable`, and explicit inventory evidence is
+`in_stock`/`out_of_stock`/`sold_out`; unknown raw statuses remain `Other`. Condition
+is never assumed new. Only a higher comparison price in the payable currency
+is carried; current-price selection stays unchanged. Description carries the
+existing normalized primary product description, with exact text and markup.
+
+Legacy artifacts omitting fields produce omitted observations. Explicit null
+pricing/status and `{description:null}` survive conversion as clears. Reject
+malformed facts before saving a prepared export. Keep titles and images flat,
+and exclude variants lacking a payable price as before. Deploy downstream
+readers and migrations before enabling the v8 writer. See
+[ADRs 34–36](../../docs/adr/README.md) and the
+[verification record](../../docs/plans/24-27-offer-facts-verification.md).

@@ -6,13 +6,16 @@ use testimony::prelude::EventStore;
 use testimony_infra::prelude::DbPool;
 use uuid::Uuid;
 
+mod content;
+mod facts;
+
 use crate::{
     bootstrap::MIGRATIONS,
     infra::repository::OfferEventStore,
     offers::{event::RetailerOfferEvent, retailer_offer_id::RetailerOfferId},
 };
 
-struct TestSchema {
+pub(crate) struct TestSchema {
     connection: PgConnection,
     name: String,
 }
@@ -52,7 +55,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
         json!({
             "retailer_code":"AnkerAu", "title":"USB charger",
             "price":{"amount":1999,"currency":"AUD"},
-            "url":"https://example.com/charger?color=red"
+            "url":"https://example.com/charger?color=red", "images":[]
         })
     );
     assert_eq!(
@@ -395,6 +398,7 @@ fn read_repositories_insert_contracts() {
                 "inbox_entries",
                 "outbox_entries",
                 "read_offer_identities",
+                "read_offer_images",
                 "read_offers",
             ]
         );
@@ -526,6 +530,7 @@ async fn registered_projectors_create_and_update_read_models() {
     }
     let mut expected = before;
     expected["title"] = json!("Updated charger");
+    expected["content"][0]["title"] = json!("Updated charger");
     expected["price_amount"] = json!(1299);
     expected["currency"] = json!("EUR");
     assert_eq!(read(), expected);
@@ -580,7 +585,12 @@ async fn registered_projectors_create_and_update_read_models() {
     kernel.shutdown();
 }
 
-async fn run_queue(client: &TestClient<poem::Route>, queue: &str, limit: usize, processed: usize) {
+pub(crate) async fn run_queue(
+    client: &TestClient<poem::Route>,
+    queue: &str,
+    limit: usize,
+    processed: usize,
+) {
     let response = client
         .post(format!("/api/{queue}/run"))
         .body_json(&json!({"limit": limit}))
@@ -592,7 +602,7 @@ async fn run_queue(client: &TestClient<poem::Route>, queue: &str, limit: usize, 
         .await;
 }
 
-fn inbox_test_database() -> (TestSchema, DbPool) {
+pub(crate) fn inbox_test_database() -> (TestSchema, DbPool) {
     let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).unwrap(),
@@ -622,7 +632,7 @@ struct InboxTestSnapshot {
     data: Value,
 }
 
-fn inbox_test_snapshot(pool: &DbPool, sql: &str) -> Value {
+pub(crate) fn inbox_test_snapshot(pool: &DbPool, sql: &str) -> Value {
     use diesel::RunQueryDsl;
     diesel::sql_query(sql)
         .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
@@ -754,6 +764,16 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        was_price: Default::default(),
+        availability: Default::default(),
+        item_condition: Default::default(),
+        content: None,
+        gtin: None,
+        sku: None,
+        external_identifiers: Default::default(),
+        localization: None,
+        scraped_at: None,
+        images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "USB charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
@@ -832,6 +852,16 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     };
     for number in 0..3 {
         let command = crate::offers::command::ImportOfferDetailsCommand {
+            was_price: Default::default(),
+            availability: Default::default(),
+            item_condition: Default::default(),
+            content: None,
+            gtin: None,
+            sku: None,
+            external_identifiers: Default::default(),
+            localization: None,
+            scraped_at: None,
+            images: Vec::new(),
             retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
             title: "Charger".into(),
             price: money::Money::new(1999, money::Currency::AUD),
@@ -969,6 +999,7 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
                 event_type: crate::offers::event::OFFER_CREATED_EVENT.into(),
                 payload: "{}".into(),
                 metadata: Some(kernel::NewEventMetadata {
+                    sequence: None,
                     event_id: Uuid::new_v4(),
                     correlation_id: None,
                     causation_id: None,
@@ -1114,6 +1145,16 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        was_price: Default::default(),
+        availability: Default::default(),
+        item_condition: Default::default(),
+        content: None,
+        gtin: None,
+        sku: None,
+        external_identifiers: Default::default(),
+        localization: None,
+        scraped_at: None,
+        images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
@@ -1221,4 +1262,374 @@ async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events()
     // The backoff keeps the failed event out of the next batch.
     run_queue(&client, "events", 10, 0).await;
     kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
+    use crate::offers::event::OfferImageAddedEvent;
+    use crate::read_offer::repository::{
+        InMemoryRetailerOfferRepository, PostgresRetailerOfferRepository, RetailerOfferRepository,
+    };
+    let (_schema, pool) = inbox_test_database();
+    let repositories: Vec<Box<dyn RetailerOfferRepository>> = vec![
+        Box::new(PostgresRetailerOfferRepository::new(pool)),
+        Box::new(InMemoryRetailerOfferRepository::new()),
+    ];
+    for repository in repositories {
+        let entity = crate::read_offer::entity::RetailerOffer {
+            facts: crate::offers::event::OfferFacts {
+                content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
+            identifiers: Default::default(),
+            localization: Default::default(),
+            scraped_at: None,
+            images: Vec::new(),
+            id: RetailerOfferId::new(Uuid::now_v7().to_string()),
+            retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+            title: "Charger".into(),
+            price: money::Money::new(1999, money::Currency::AUD),
+            url: "https://shop.example/charger".into(),
+            created_at: chrono::Utc::now(),
+        };
+        let a = OfferImageAddedEvent {
+            id: entity.id.clone(),
+            image_url: "https://shop.example/A".into(),
+            position: 0,
+        };
+        let b = OfferImageAddedEvent {
+            id: entity.id.clone(),
+            image_url: "https://shop.example/B".into(),
+            position: 1,
+        };
+        assert!(repository.add_image(&b).is_err());
+        repository.insert(&entity).unwrap();
+        assert!(repository.images(&entity.id).unwrap().is_empty());
+        repository.add_image(&b).unwrap();
+        repository.add_image(&a).unwrap();
+        repository.add_image(&a).unwrap();
+        for event in [
+            OfferImageAddedEvent {
+                position: 2,
+                ..a.clone()
+            },
+            OfferImageAddedEvent {
+                image_url: "https://shop.example/conflict".into(),
+                ..a.clone()
+            },
+        ] {
+            assert!(repository.add_image(&event).is_err());
+        }
+        repository.update_title(&entity.id, "updated").unwrap();
+        repository
+            .update_price(&entity.id, &money::Money::new(42, money::Currency::EUR))
+            .unwrap();
+        assert_eq!(
+            repository.images(&entity.id).unwrap(),
+            [a.image_url, b.image_url]
+        );
+    }
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn image_imports_emit_append_only_events_through_existing_handler() {
+    let (_schema, pool) = inbox_test_database();
+    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let a = "https://shop.example/A";
+    let b = "https://shop.example/B";
+    let c = "https://shop.example/C";
+    for (images, events) in [
+        (json!([a, a, b, "/bad"]), 1),
+        (json!([b, c, a, c]), 1),
+        (json!([]), 0),
+        (json!([c, a, b]), 0),
+    ] {
+        let input = json!({"retailer_code":"ankerau","title":"charger","price_amount":1999,"currency":"AUD","url":"https://shop.example/charger","images":images});
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, events).await;
+    }
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg(image_url ORDER BY position) AS data FROM read_offer_images"
+        ),
+        json!([a, b, c])
+    );
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM event_store"),
+        2
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM outbox_entries"
+        ),
+        2
+    );
+    let created = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferCreated'",
+    );
+    assert_eq!(created["images"], json!([a, b]));
+    let added = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferImageAdded'",
+    );
+    assert_eq!(added["image_url"], c);
+    assert_eq!(added["position"], 2);
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_migration_preserves_preexisting_offer_rows() {
+    let (_schema, pool) = inbox_test_database();
+    let mut connection = pool.get().unwrap();
+    connection
+        .batch_execute(include_str!(
+            "../migrations/2026-10-25-000001_offer_images/down.sql"
+        ))
+        .unwrap();
+    connection.batch_execute("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at,content) VALUES (gen_random_uuid(),'ankerau','https://shop.example/old','Old offer',123,'AUD',now(),'[{\"language\":null,\"title\":\"Old offer\",\"description\":null}]')").unwrap();
+    let before = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    connection
+        .batch_execute(include_str!(
+            "../migrations/2026-10-25-000001_offer_images/up.sql"
+        ))
+        .unwrap();
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o"),
+        before
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM read_offer_images"
+        ),
+        0
+    );
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn creation_projection_rolls_back_parent_and_images_together() {
+    use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
+    let (_schema, pool) = inbox_test_database();
+    let entity = crate::read_offer::entity::RetailerOffer {
+        facts: crate::offers::event::OfferFacts {
+            content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+            ..Default::default()
+        },
+        identifiers: Default::default(),
+        localization: Default::default(),
+        scraped_at: None,
+        id: RetailerOfferId::new(Uuid::now_v7().to_string()),
+        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        title: "Charger".into(),
+        url: "https://shop.example/atomic".into(),
+        price: money::Money::new(1999, money::Currency::AUD),
+        created_at: chrono::Utc::now(),
+        images: vec![
+            "https://shop.example/A".into(),
+            "https://shop.example/B".into(),
+        ],
+    };
+    let repository = PostgresRetailerOfferRepository::new(pool.clone());
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "ALTER TABLE read_offer_images ADD CONSTRAINT fail_second_image CHECK (position <> 1)",
+        )
+        .unwrap();
+    assert!(repository.insert(&entity).is_err());
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_build_object('offers',(SELECT count(*) FROM read_offers),'images',(SELECT count(*) FROM read_offer_images)) AS data"
+        ),
+        json!({"offers":0,"images":0})
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE read_offer_images DROP CONSTRAINT fail_second_image")
+        .unwrap();
+    repository.insert(&entity).unwrap();
+    assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn scrape_only_import_persists_history_projection_and_outbox() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/scrape", "scraped_at":"2026-10-26T14:00:00.123456+02:00"});
+    for (time, events) in [
+        ("2026-10-26T14:00:00.123456+02:00", 1),
+        ("2026-10-26T12:00:01.123456Z", 1),
+        ("2026-10-26T12:00:00.123456Z", 0),
+    ] {
+        input["scraped_at"] = json!(time);
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, events).await;
+    }
+    let row = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    assert_eq!(row["scraped_at"], "2026-10-26T12:00:01.123456+00:00");
+    let count = inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM event_store");
+    assert_eq!(count, 2);
+    let event = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferScrapedAtUpdated'",
+    );
+    assert_eq!(event["scraped_at"], "2026-10-26T12:00:01.123456Z");
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn every_event_keeps_its_testimony_revision_through_outbox_replay() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/revision"});
+    for update in [false, true, true] {
+        if update {
+            input["title"] = json!("New charger");
+            input["price_amount"] = json!(200);
+            input["images"] = json!(["https://shop.example/a.png", "https://shop.example/b.png"]);
+        }
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        let response = client
+            .post("/api/events/run")
+            .body_json(&json!({"limit":100}))
+            .send()
+            .await;
+        response.assert_status_is_ok();
+    }
+    let sequences = inbox_test_snapshot(
+        &pool,
+        "SELECT jsonb_agg(sequence ORDER BY sequence) AS data FROM event_store",
+    );
+    assert_eq!(sequences, json!([1, 2, 3, 4, 5]));
+    for table in ["event_entries", "outbox_entries"] {
+        let actual = inbox_test_snapshot(
+            &pool,
+            &format!(
+                "SELECT jsonb_agg((meta->>'sequence')::bigint ORDER BY (meta->>'sequence')::bigint) AS data FROM {table}"
+            ),
+        );
+        assert_eq!(actual, sequences);
+        assert_eq!(
+            inbox_test_snapshot(
+                &pool,
+                &format!(
+                    "SELECT to_jsonb(count(*)) AS data FROM {table} WHERE payload::jsonb ? 'sequence'"
+                )
+            ),
+            0
+        );
+    }
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM event_store WHERE sequence <> (metadata->>'sequence')::bigint"
+        ),
+        0
+    );
+    let before = inbox_test_snapshot(
+        &pool,
+        "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM outbox_entries o",
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("UPDATE event_entries SET status=0,attempts=0,scheduled_at=now() WHERE event_type <> 'OfferCreated'")
+        .unwrap();
+    run_queue(&client, "events", 100, 4).await;
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM outbox_entries o"
+        ),
+        before
+    );
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrichment() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/facts"});
+    for step in 0..4 {
+        if step == 1 {
+            input["gtin"] = json!("0012345678905");
+            input["sku"] = json!("A1");
+            input["localization"] =
+                json!({"target_market":{"kind":"region","label":"Europe"},"language":"en-AU"});
+        }
+        if step == 2 {
+            input.as_object_mut().unwrap().remove("gtin");
+            input.as_object_mut().unwrap().remove("sku");
+            input.as_object_mut().unwrap().remove("localization");
+        }
+        if step == 3 {
+            input["sku"] = json!("A2");
+            input["localization"] = json!({"target_market":null,"language":null});
+        }
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, [1, 3, 0, 3][step]).await;
+    }
+    let row = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    assert_eq!(row["gtin"], "0012345678905");
+    assert_eq!(row["sku"], "A2");
+    assert!(row["language"].is_null());
+    assert_eq!(
+        row["content"],
+        json!([
+            {"language":null,"title":"Charger","description":null},
+            {"language":"en-AU","title":"Charger","description":null}
+        ])
+    );
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM read_offers"),
+        1
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg((meta->>'sequence')::bigint ORDER BY (meta->>'sequence')::bigint) AS data FROM outbox_entries"
+        ),
+        json!([1, 2, 3, 4, 5, 6, 7])
+    );
 }

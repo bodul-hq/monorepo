@@ -14,6 +14,7 @@ pub const BUCKETS: &[&str] = &[
     "offer_details_extracted",
     "offer_details_normalized",
     "offer_details_structuralized",
+    "offer_export",
 ];
 
 pub fn bucket(value: &str) -> Result<(), Error> {

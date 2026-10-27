@@ -5,6 +5,7 @@
 //! and normalization keeps both. Each field is taken from whichever rendering states it cleanly.
 
 use super::normalized::{self, AnkerdeNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -43,6 +44,17 @@ impl AnkerDeDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        Some(&variant.price),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(if variations_count == 1 {
+                        island.offer.availability.clone()
+                    } else {
+                        offer_facts::purchase_available(variant.available_for_sale)
+                    }),
+                    item_condition: None,
+                    content: offer_facts::content(Some(product.description.as_str())),
                     title: product.title.clone(),
                     identifiers,
                     images: gallery(&product),
@@ -58,6 +70,10 @@ impl AnkerDeDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, from the record, shared by every variation.
     pub title: String,
@@ -186,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         input["product"]["variants"]
             .as_array_mut()
@@ -196,6 +212,10 @@ mod tests {
         assert_eq!(
             structuralized(&input),
             json!({"variations": [{
+                "was_price": null,
+                "availability": "in_stock",
+                "item_condition": null,
+                "content": {"description": "Beschreibung"},
                 "identifiers": {
                     "sku": "A2345341",
                     "shopify_product_gid": "gid://shopify/Product/1",

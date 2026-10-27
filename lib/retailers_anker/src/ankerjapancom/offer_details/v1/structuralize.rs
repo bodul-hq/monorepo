@@ -6,6 +6,7 @@
 //! field taken from whichever rendering states it at the right scope.
 
 use super::normalized::{AnkerJapanComNormalizedDocument, record};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -33,7 +34,8 @@ impl AnkerJapanComDocument {
         // product on this storefront. Do not invent an island or drop the Liquid variants.
         let product_url = ld_json
             .product
-            .map(|p| p.url)
+            .as_ref()
+            .map(|p| p.url.clone())
             .unwrap_or_else(|| format!("https://www.ankerjapan.com/products/{}", product.handle));
 
         let variations_count = product.variants.len();
@@ -48,6 +50,23 @@ impl AnkerJapanComDocument {
             )?;
 
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    variant.price.as_ref(),
+                    variant.compare_at_price.as_ref(),
+                ),
+                availability: ld_json
+                    .product
+                    .as_ref()
+                    .and_then(|island| {
+                        island
+                            .offers
+                            .iter()
+                            .find(|offer| offer.variant_id == variant.id)
+                    })
+                    .and_then(|offer| offer.availability.clone())
+                    .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                item_condition: None,
+                content: offer_facts::content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -62,6 +81,10 @@ impl AnkerJapanComDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The record's, shared by every variation: the island's `name` prefixes it with `【公式】`
     /// ("official").
@@ -184,13 +207,17 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         single_variant(&mut input);
 
         assert_eq!(
             structuralized(&input),
             json!({"variations": [{
+                "was_price": null,
+                "availability": "available",
+                "item_condition": null,
+                "content": {"description": "<p>Description</p>"},
                 "identifiers": {
                     "gtin": "4571411181795",
                     "sku": "A1",

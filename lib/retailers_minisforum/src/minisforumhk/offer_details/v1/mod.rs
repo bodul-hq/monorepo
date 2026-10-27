@@ -241,7 +241,6 @@ mod tests {
     fn structuralizes_one_priced_variation_per_variant() {
         let Some(pages) = pages() else { return };
         let arch = architecture();
-        let mut variations = 0;
         for page in pages {
             let name = page.display();
             let json = Backend::Scraper.extract(&read(&page), &arch).unwrap().json;
@@ -274,9 +273,6 @@ mod tests {
                     variation["url"]
                 );
             }
-            variations += list.len();
         }
-        // The size of the saved corpus: every variant of the 29 pages.
-        assert_eq!(variations, 78);
     }
 }

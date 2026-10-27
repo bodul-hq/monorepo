@@ -1,0 +1,370 @@
+use super::*;
+use poem::{http::StatusCode, test::TestClient};
+use serde_json::{Value, json};
+
+struct Memory(Vec<Offer>);
+
+impl Repository for Memory {
+    fn search(&self, _: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        self.load(limit, offset)
+    }
+    fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        Ok(self
+            .0
+            .iter()
+            .skip(offset as usize)
+            .take(limit as usize)
+            .cloned()
+            .collect())
+    }
+}
+
+pub(crate) fn offers(items: Vec<Offer>) -> Offers {
+    Offers::new(Arc::new(Memory(items)))
+}
+
+fn fixture(index: u128) -> Offer {
+    Offer {
+        was_price: (index == 0).then(|| OfferPrice {
+            amount: i64::MAX.to_string(),
+            currency: "AUD".into(),
+        }),
+        availability: (index == 0).then(|| {
+            OfferAvailability::from_record(json!({"other":"http://schema.org/OutOfStock"})).unwrap()
+        }),
+        item_condition: (index == 0).then(|| {
+            OfferItemCondition::from_record(json!({"other":"http://schema.org/NewCondition"}))
+                .unwrap()
+        }),
+        content: vec![OfferContent {
+            language: (index == 0).then(|| "fr".into()),
+            title: " \tČaj 🔌\n".into(),
+            description: (index == 0).then(|| "<p>raw &amp; source</p>".into()),
+        }],
+        gtin: (index == 0).then(|| "0012345678905".into()),
+        sku: (index == 0).then(|| "A1-BLACK".into()),
+        external_identifiers: Default::default(),
+        localization: if index == 0 {
+            OfferLocalization::from_record(
+                Some(json!({"kind":"country","code":"CA"})),
+                Some("fr".into()),
+            )
+            .unwrap()
+        } else {
+            Default::default()
+        },
+        scraped_at: None,
+        images: Vec::new(),
+        id: Uuid::from_u128(index).to_string(),
+        retailer_code: "ankerau".into(),
+        title: " \tČaj 🔌\n".into(),
+        price: OfferPrice {
+            amount: i64::MAX.to_string(),
+            currency: "AUD".into(),
+        },
+        url: "https://shop.example/Charger?a=1&variant=2#details".into(),
+        created_at: "2026-10-24T12:00:00.123456Z".into(),
+    }
+}
+
+fn client(offers: Offers) -> TestClient<poem::Route> {
+    let mut state = crate::queue_tests::state();
+    state.offers = offers;
+    TestClient::new(crate::app(state))
+}
+
+#[tokio::test]
+async fn pagination_defaults_boundaries_and_transport_parity() {
+    let client = client(offers((0..31).map(fixture).collect()));
+    for (suffix, limit, offset, count, more) in [
+        ("", 30, 0, 30, true),
+        ("?offset=30", 30, 30, 1, false),
+        ("?limit=1&offset=29", 1, 29, 1, true),
+        ("?limit=1&offset=30", 1, 30, 1, false),
+        ("?limit=100&offset=31", 100, 31, 0, false),
+        ("?offset=2147483647", 30, i32::MAX, 0, false),
+    ] {
+        let response = client.get(format!("/api/offers{suffix}")).send().await;
+        response.assert_status_is_ok();
+        let page: Value = response.json().await.value().deserialize();
+        assert_eq!(page["limit"], limit);
+        assert_eq!(page["offset"], offset);
+        assert_eq!(page["items"].as_array().unwrap().len(), count);
+        assert_eq!(page["has_more"], more);
+        let query = format!(
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ language title description }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
+        );
+        for get in [false, true] {
+            let response = if get {
+                client.get("/graphql").query("query", &query).send().await
+            } else {
+                client
+                    .post("/graphql")
+                    .body_json(&json!({"query":query}))
+                    .send()
+                    .await
+            };
+            response.assert_status_is_ok();
+            let result: Value = response.json().await.value().deserialize();
+            let mut expected = page.clone();
+            let obj = expected.as_object_mut().unwrap();
+            let more = obj.remove("has_more").unwrap();
+            obj.insert("hasMore".into(), more);
+            for item in obj["items"].as_array_mut().unwrap() {
+                let item = item.as_object_mut().unwrap();
+                let mut identifiers = item.remove("external_identifiers").unwrap();
+                let ids = identifiers.as_object_mut().unwrap();
+                for (from, to) in [
+                    ("shopify_product_gid", "shopifyProductGid"),
+                    (
+                        "shopify_product_variation_gid",
+                        "shopifyProductVariationGid",
+                    ),
+                    ("shopify_handle", "shopifyHandle"),
+                ] {
+                    let value = ids.remove(from).unwrap();
+                    ids.insert(to.into(), value);
+                }
+                item.insert("externalIdentifiers".into(), identifiers);
+                for field in ["availability", "item_condition"] {
+                    if let Some(kind) = item[field].get_mut("kind") {
+                        *kind = json!(kind.as_str().unwrap().to_uppercase());
+                    }
+                }
+                let localization = item["localization"].as_object_mut().unwrap();
+                let mut market = localization.remove("target_market").unwrap();
+                if let Some(kind) = market.get_mut("kind") {
+                    *kind = json!(kind.as_str().unwrap().to_uppercase());
+                }
+                localization.insert("targetMarket".into(), market);
+                for (from, to) in [
+                    ("was_price", "wasPrice"),
+                    ("item_condition", "itemCondition"),
+                    ("retailer_code", "retailerCode"),
+                    ("created_at", "createdAt"),
+                    ("scraped_at", "scrapedAt"),
+                ] {
+                    let value = item.remove(from).unwrap();
+                    item.insert(to.into(), value);
+                }
+            }
+            assert_eq!(result, json!({"data":{"offers":expected}}));
+        }
+    }
+    let response = client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ offers { limit offset hasMore } }"}))
+        .send()
+        .await;
+    response
+        .assert_json(json!({"data":{"offers":{"limit":30,"offset":0,"hasMore":true}}}))
+        .await;
+}
+
+#[tokio::test]
+async fn invalid_pagination_is_rejected_by_both_transports() {
+    let client = client(offers(Vec::new()));
+    for params in [
+        "limit=0",
+        "limit=-1",
+        "limit=101",
+        "limit=2147483648",
+        "limit=1.5",
+        "limit=no",
+        "limit=",
+        "offset=-1",
+        "offset=2147483648",
+        "offset=1.5",
+        "offset=no",
+        "offset=",
+    ] {
+        client
+            .get(format!("/api/offers?{params}"))
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+    }
+    for args in [
+        "limit:0",
+        "limit:-1",
+        "limit:101",
+        "limit:2147483648",
+        "limit:1.5",
+        "limit:null",
+        "offset:-1",
+        "offset:2147483648",
+        "offset:1.5",
+        "offset:null",
+    ] {
+        let response = client
+            .post("/graphql")
+            .body_json(&json!({"query":format!("{{ offers({args}) {{ limit }} }}")}))
+            .send()
+            .await;
+        let result: Value = response.json().await.value().deserialize();
+        assert!(result["errors"].is_array(), "{args}: {result}");
+    }
+}
+
+struct Broken(bool);
+impl Repository for Broken {
+    fn search(&self, _: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+        self.load(limit, offset)
+    }
+    fn load(&self, _: i64, _: i64) -> Result<Vec<Offer>, ()> {
+        assert!(!self.0, "private database diagnostic");
+        Err(())
+    }
+}
+
+#[tokio::test]
+async fn empty_pages_and_sanitized_read_failures() {
+    client(offers(Vec::new()))
+        .get("/api/offers")
+        .send()
+        .await
+        .assert_json(json!({"items":[],"limit":30,"offset":0,"has_more":false}))
+        .await;
+    for panic in [false, true] {
+        let client = client(Offers::new(Arc::new(Broken(panic))));
+        let response = client.get("/api/offers").send().await;
+        response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
+        response.assert_text("offers could not be retrieved").await;
+        let response = client
+            .post("/graphql")
+            .body_json(&json!({"query":"{ offers { items { id } } }"}))
+            .send()
+            .await;
+        let result: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            result["errors"][0]["message"],
+            "offers could not be retrieved"
+        );
+        assert!(!result.to_string().contains("private"));
+    }
+}
+
+#[tokio::test]
+async fn schema_exposes_bounds_and_string_money() {
+    let client = client(offers(Vec::new()));
+    let response = client.get("/api/openapi.json").send().await;
+    let spec: Value = response.json().await.value().deserialize();
+    let op = &spec["paths"]["/offers"]["get"];
+    assert_eq!(op["parameters"][0]["schema"]["default"], 30);
+    assert_eq!(
+        op["parameters"][0]["schema"]["maximum"].as_f64(),
+        Some(100.0)
+    );
+    assert_eq!(op["parameters"][1]["schema"]["default"], 0);
+    assert_eq!(
+        spec["components"]["schemas"]["OfferPrice"]["properties"]["amount"]["type"],
+        "string"
+    );
+    assert_eq!(
+        spec["components"]["schemas"]["Offer"]["properties"]["content"]["type"],
+        "array"
+    );
+    assert_eq!(
+        spec["components"]["schemas"]["OfferContent"]["properties"]["title"]["type"],
+        "string"
+    );
+    for status in ["200", "400", "500"] {
+        assert!(op["responses"][status].is_object());
+    }
+}
+
+#[test]
+fn search_query_boundaries() {
+    assert_eq!(normalize_query(" \tČaj\u{2003}USB\n ").unwrap(), "Čaj USB");
+    assert_eq!(
+        normalize_query("'100%_USB+充電器'").unwrap(),
+        "'100%_USB+充電器'"
+    );
+    assert!(normalize_query(&"é".repeat(200)).is_ok());
+    for invalid in ["", " \n", "!?%_", "a\0b", "a\u{7f}", &"é".repeat(201)] {
+        assert!(normalize_query(invalid).is_err(), "{invalid:?}");
+    }
+}
+
+#[tokio::test]
+async fn search_defaults_validation_and_sanitized_failures() {
+    let client = client(offers((0..31).map(fixture).collect()));
+    let response = client
+        .get("/api/offers/search")
+        .query("q", &" Čaj \n USB ")
+        .send()
+        .await;
+    response.assert_status_is_ok();
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(page["limit"], 30);
+    assert_eq!(page["offset"], 0);
+    assert_eq!(page["has_more"], true);
+    let browse = client.get("/api/offers").send().await;
+    browse.assert_json(page).await;
+    client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ searchOffers(q: \"charger\") { limit offset hasMore } }"}))
+        .send()
+        .await
+        .assert_json(json!({"data":{"searchOffers":{"limit":30,"offset":0,"hasMore":true}}}))
+        .await;
+    for query in ["", " ", "!?", "a\0b", &"x".repeat(201)] {
+        client
+            .get("/api/offers/search")
+            .query("q", &query)
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+        let response = client.post("/graphql").body_json(&json!({"query":"query($q:String!) { searchOffers(q:$q) { limit } }","variables":{"q":query}})).send().await;
+        let value: Value = response.json().await.value().deserialize();
+        assert!(value["errors"].is_array());
+    }
+    for suffix in [
+        "",
+        "?q=charger&limit=0",
+        "?q=charger&offset=-1",
+        "?q=charger&offset=2147483648",
+    ] {
+        client
+            .get(format!("/api/offers/search{suffix}"))
+            .send()
+            .await
+            .assert_status(StatusCode::BAD_REQUEST);
+    }
+    for panic in [false, true] {
+        let broken = self::client(Offers::new(Arc::new(Broken(panic))));
+        let response = broken.get("/api/offers/search?q=charger").send().await;
+        response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
+        response.assert_text("offers could not be retrieved").await;
+        let response = broken
+            .post("/graphql")
+            .body_json(&json!({"query":"{ searchOffers(q: \"charger\") { limit } }"}))
+            .send()
+            .await;
+        let value: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            value["errors"][0]["message"],
+            "offers could not be retrieved"
+        );
+    }
+}
+
+#[tokio::test]
+async fn search_normalizes_before_repository_and_fetches_one_extra() {
+    struct Capture;
+    impl Repository for Capture {
+        fn load(&self, _: i64, _: i64) -> Result<Vec<Offer>, ()> {
+            panic!("browse must not run")
+        }
+        fn search(&self, q: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
+            assert_eq!((q, limit, offset), ("Čaj USB", 2, 4));
+            Ok(vec![fixture(1), fixture(2)])
+        }
+    }
+    let page = Offers::new(Arc::new(Capture))
+        .search(" \tČaj\u{2003}USB\n", 1, 4)
+        .await
+        .unwrap();
+    assert_eq!(page.items.len(), 1);
+    assert!(page.has_more);
+}

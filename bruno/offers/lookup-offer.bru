@@ -1,7 +1,7 @@
 meta {
   name: Look up offer
   type: http
-  seq: 7
+  seq: 9
 }
 
 get {
@@ -10,11 +10,11 @@ get {
   auth: none
 }
 
-docs {
-  Looks up the exact retailer and URL identity. Returns 404 until the offer has been projected.
-}
-
 params:query {
   retailer_code: {{retailerCode}}
   url: {{offerUrl}}
+}
+
+docs {
+  Looks up the exact retailer and URL identity. Returns 404 until the offer has been projected.
 }

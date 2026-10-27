@@ -23,6 +23,8 @@ pub struct Data {
     pub fail_create_at: Option<usize>,
     pub get_response: Option<(u16, String)>,
     pub reads: Vec<(String, Uuid)>,
+    /// Gate one bucket's reads to exercise concurrent initial preparation.
+    pub read_barrier: Option<(String, Arc<tokio::sync::Barrier>)>,
 }
 pub struct Server {
     pub runtime: Runtime,
@@ -90,6 +92,16 @@ async fn retrieve(
 ) -> Response {
     if !authorized(&headers) {
         return StatusCode::UNAUTHORIZED.into_response();
+    }
+    let barrier = data
+        .lock()
+        .unwrap()
+        .read_barrier
+        .as_ref()
+        .filter(|(expected, _)| expected == &bucket)
+        .map(|(_, barrier)| barrier.clone());
+    if let Some(barrier) = barrier {
+        barrier.wait().await;
     }
     let mut data = data.lock().unwrap();
     data.reads.push((bucket.clone(), id));

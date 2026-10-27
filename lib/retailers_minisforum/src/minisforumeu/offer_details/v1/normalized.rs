@@ -4,7 +4,8 @@
 //! behind as the commented-out exclusion records in `product`.
 //!
 //! The page's other islands (the merchant feed app's `Product`, the SEO app's `@graph`, the
-//! `Organization` and the reviews app's `Product`) are neither checked nor kept. They are typed
+//! `Organization`, standalone `BreadcrumbList` and the reviews app's `Product`) are neither
+//! checked nor kept. They are typed
 //! in `raw`, so that a change in their shape fails the page, but each one restates the record or
 //! says nothing about the offer: the feed's price is of one selected variant and malformed on 18
 //! of the 274 saved pages, the graph's prices are floats, and the reviews carry no variants.

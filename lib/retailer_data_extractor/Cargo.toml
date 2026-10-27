@@ -14,6 +14,10 @@ retailers_minisforum = { path = "../retailers_minisforum" }
 retailers_ugreen = { path = "../retailers_ugreen" }
 retailers_wip = { path = "../retailers_wip" }
 
+scraper = { version = "0.27.0", default-features = false }
+serde.workspace = true
+serde_json.workspace = true
+
 [dev-dependencies]
 # Match the JSON feature enabled by object-storage clients in apps and services.
 serde_json = { workspace = true, features = ["arbitrary_precision"] }

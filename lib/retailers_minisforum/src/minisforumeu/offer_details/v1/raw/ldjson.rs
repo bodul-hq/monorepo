@@ -1,6 +1,8 @@
 use html_extractor::serde_json::{self, Value};
 use serde::de::DeserializeOwned;
 
+use super::metadata::{BreadcrumbList, Organization};
+
 /// One `script[type="application/ld+json"]`. The SEO app marks its script with `data-seoant`
 /// attributes (274 of 274 pages) and the reviews app with an `id` (126 pages); the rest carry
 /// only `type`. Each attribute is optional, any other one fails the page.
@@ -23,7 +25,8 @@ pub struct LdJsonScript {
 /// its own struct:
 ///
 /// - `@graph` and no `@type`: the SEO app's [`Graph`] envelope (274 pages).
-/// - `Organization`: the theme's (274).
+/// - `Organization`: the theme's (274), plus the expanded company metadata on newer pages.
+/// - `BreadcrumbList`: standalone navigation metadata on newer pages.
 /// - `ProductGroup`: the theme's, for a product with a variant list (248).
 /// - `Product` with `review`: the reviews app's [`ReviewedProduct`] (126).
 /// - `Product` with `@id`: the theme's, for a product without one (24).
@@ -35,7 +38,8 @@ pub struct LdJsonScript {
 #[serde(try_from = "Value")]
 pub enum LdJson {
     Graph(Graph),
-    Organization(Organization),
+    Organization(Box<Organization>),
+    BreadcrumbList(BreadcrumbList),
     ProductGroup(ProductGroup),
     Product(Product),
     /// Boxed, with [`LdJson::ReviewedProduct`]: these two are several times the size of the rest.
@@ -61,6 +65,7 @@ impl TryFrom<Value> for LdJson {
 
         match object.get("@type").and_then(Value::as_str) {
             Some("Organization") => strict(island).map(LdJson::Organization),
+            Some("BreadcrumbList") => strict(island).map(LdJson::BreadcrumbList),
             Some("ProductGroup") => strict(island).map(LdJson::ProductGroup),
             Some("Product") if object.contains_key("review") => {
                 strict(island).map(|product| LdJson::ReviewedProduct(Box::new(product)))
@@ -87,18 +92,6 @@ pub struct Graph {
     pub context: String,
     #[serde(rename = "@graph")]
     pub graph: Vec<Value>,
-}
-
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Organization {
-    #[serde(rename = "@context")]
-    pub context: String,
-    #[serde(rename = "@type")]
-    pub island_type: String,
-    pub name: String,
-    pub logo: String,
-    pub url: String,
 }
 
 /// The theme's island for a product with a variant list: 248 pages, 48 of them with a single
@@ -642,7 +635,7 @@ pub(crate) mod tests {
 
     #[test]
     fn an_unseen_island_type_fails() {
-        for island_type in ["BreadcrumbList", "FAQPage"] {
+        for island_type in ["WebSite", "FAQPage"] {
             let error = deserialize(&json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(

@@ -69,12 +69,8 @@ impl Product {
     pub(crate) fn from_raw(record: ProductJson, island: Island) -> Result<Product, NormalizeError> {
         let currency = offer_currency(&island.offers.price_currency)?;
 
-        if island.name != record.title {
-            return Err(NormalizeError::ProductNameMismatch {
-                island: island.name,
-                record: record.title,
-            });
-        }
+        // SEO names now include search keywords and can differ from Liquid's title.
+        // Check product identity by the handle in both URLs below; keep Liquid's title.
 
         let path = format!("/products/{}", record.handle);
         for url in [&island.url, &island.offers.url] {
@@ -100,11 +96,23 @@ impl Product {
         };
 
         let groups = record.selling_plan_groups;
-        let variants = record
+        let mut variants: Vec<Variant> = record
             .variants
             .into_iter()
             .map(|variant| Variant::from_raw(variant, &options, &groups, currency))
             .collect::<Result<_, _>>()?;
+
+        if let [variant] = variants.as_mut_slice() {
+            variant.availability =
+                Some(retailer_sauce::availability::Availability::from_schema_org(
+                    island.offers.availability,
+                ));
+            variant.item_condition = Some(
+                retailer_sauce::item_condition::ItemCondition::from_schema_org(
+                    island.offers.item_condition,
+                ),
+            );
+        }
 
         Ok(Product {
             id: product_gid(record.id),
@@ -141,6 +149,10 @@ fn is_default_title(record: &ProductJson) -> bool {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    #[serde(default)]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title`.
     pub title: String,
@@ -199,6 +211,8 @@ impl Variant {
             .collect::<Result<_, _>>()?;
 
         Ok(Variant {
+            availability: None,
+            item_condition: None,
             id: variant_gid(raw.id),
             title: raw.title,
             // public_title: raw.public_title,

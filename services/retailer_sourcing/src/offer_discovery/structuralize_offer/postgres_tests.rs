@@ -19,7 +19,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let store = PgStore::new(db.pool.clone(), objects.clone());
     let mut conn = db.pool.get().unwrap();
     let offer_id = Uuid::now_v7();
-    assert!(store.normalized_offer(offer_id).unwrap().is_none());
+    assert!(store.normalized_offer(offer_id, None).unwrap().is_none());
     let input_value = json!({"input":"ž 🔎"});
     let input_body = input_value.to_string();
     let input_storage = objects
@@ -33,11 +33,33 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     .bind::<Jsonb, _>(Json(input_storage))
     .execute(&mut conn)
     .unwrap();
-    let input = store.normalized_offer(offer_id).unwrap().unwrap();
+    let input = store.normalized_offer(offer_id, None).unwrap().unwrap();
     assert_eq!(input.offer_id, offer_id);
     assert_eq!(input.object_storage_id, input_storage.object_storage_id);
     assert_eq!(json!(input.document), input_value);
+    let replacement = objects
+        .create_offer(NORMALIZED_OFFERS_BUCKET, r#"{"replacement":true}"#)
+        .unwrap();
+    diesel::sql_query("UPDATE offer_details_normalized SET storage = $1 WHERE offer_id = $2")
+        .bind::<Jsonb, _>(Json(replacement))
+        .bind::<SqlUuid, _>(offer_id)
+        .execute(&mut conn)
+        .unwrap();
+    let pinned = store
+        .normalized_offer(offer_id, Some(input_storage))
+        .unwrap()
+        .unwrap();
+    assert_eq!(pinned, input);
+    assert_eq!(
+        store
+            .normalized_offer(offer_id, None)
+            .unwrap()
+            .unwrap()
+            .object_storage_id,
+        replacement.object_storage_id
+    );
     let mut entity = StructuralizedOffer {
+        scraped_at: None,
         offer_id,
         document: json!({"value":"first ž"}),
     };
@@ -50,9 +72,9 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     ] {
         entity.document = value;
         let stored = store.store_structuralized_offer(&entity).unwrap();
-        assert_eq!(stored.entity, entity);
         let row = json_query(&mut conn, ROW);
         let storage: OfferStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+        assert_eq!(stored, storage);
         assert_eq!(stored.object_storage_id, storage.object_storage_id);
         assert_eq!(row["offer_id"], offer_id.to_string());
         assert_eq!(
@@ -104,6 +126,7 @@ fn postgres_failures_preserve_local_state() {
     let store = PgStore::new(db.pool.clone(), objects.clone());
     let mut conn = db.pool.get().unwrap();
     let entity = StructuralizedOffer {
+        scraped_at: None,
         offer_id: Uuid::now_v7(),
         document: json!({"a":"ž"}),
     };
@@ -139,16 +162,16 @@ fn postgres_failures_preserve_local_state() {
     .unwrap();
     for (status, body) in [(404, "{}"), (503, "{}"), (200, "malformed")] {
         server.data.lock().unwrap().get_response = Some((status, body.into()));
-        assert!(store.normalized_offer(entity.offer_id).is_err());
+        assert!(store.normalized_offer(entity.offer_id, None).is_err());
     }
     server.data.lock().unwrap().get_response = None;
     assert!(matches!(
-        store.normalized_offer(entity.offer_id),
+        store.normalized_offer(entity.offer_id, None),
         Err(super::store::StoreError::Serialization(_))
     ));
     conn.batch_execute("UPDATE offer_details_normalized SET storage='{}'")
         .unwrap();
-    assert!(store.normalized_offer(entity.offer_id).is_err());
+    assert!(store.normalized_offer(entity.offer_id, None).is_err());
 }
 
 #[test]
@@ -159,6 +182,7 @@ fn postgres_concurrent_updates_keep_identity_and_complete_references() {
     let objects = server.client();
     let store = PgStore::new(db.pool.clone(), objects.clone());
     let entity = StructuralizedOffer {
+        scraped_at: None,
         offer_id: Uuid::now_v7(),
         document: json!({"initial":true}),
     };

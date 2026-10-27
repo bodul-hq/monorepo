@@ -4,6 +4,8 @@ use crate::offer_discovery::download_offer_page::prelude::OfferPageWasDownloaded
 /// Extracts every offer page as soon as it is downloaded.
 pub fn on(event: &OfferPageWasDownloaded) -> Option<ExtractOfferPage> {
     Some(ExtractOfferPage {
+        storage: event.storage,
+        scraped_at: event.scraped_at,
         offer_id: event.offer_id,
         consolidated_sitemap_id: event.consolidated_sitemap_id,
         retailer_code: event.retailer_code,
@@ -21,6 +23,8 @@ mod tests {
     #[test]
     fn extracts_the_page_that_was_downloaded() {
         let event = OfferPageWasDownloaded {
+            storage: None,
+            scraped_at: None,
             offer_id: Uuid::now_v7(),
             consolidated_sitemap_id: Uuid::now_v7(),
             retailer_code: RetailerCode::AnkerAu,
@@ -30,6 +34,8 @@ mod tests {
         assert_eq!(
             on(&event),
             Some(ExtractOfferPage {
+                storage: event.storage,
+                scraped_at: event.scraped_at,
                 offer_id: event.offer_id,
                 consolidated_sitemap_id: event.consolidated_sitemap_id,
                 retailer_code: RetailerCode::AnkerAu,

@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub(super) struct RawOffer {
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub offer_id: Uuid,
     pub retailer_code: RetailerCode,
     pub url: String,

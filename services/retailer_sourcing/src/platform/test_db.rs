@@ -23,6 +23,25 @@ pub(crate) struct Database {
     pub pool: DbPool,
 }
 impl Database {
+    /// Keep historical migration tests independent of newly appended migrations.
+    pub fn at(version: &str) -> Self {
+        let db = Self::new();
+        {
+            let mut connection = db.pool.get().unwrap();
+            assert!(
+                connection
+                    .applied_migrations()
+                    .unwrap()
+                    .iter()
+                    .any(|entry| entry.to_string() == version)
+            );
+            while connection.applied_migrations().unwrap()[0].to_string() != version {
+                connection.revert_last_migration(MIGRATIONS).unwrap();
+            }
+        }
+        db
+    }
+
     pub fn new() -> Self {
         let url = std::env::var("DATABASE_URL_TEST")
             .expect("DATABASE_URL_TEST is required; use make test-postgres");
@@ -89,7 +108,7 @@ mod postgres_tests {
     #[test]
     #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
     fn postgres_table_renames_preserve_rows_payloads_and_foreign_keys() {
-        let db = Database::new();
+        let db = Database::at("20261016000012");
         let mut conn = db.pool.get().unwrap();
         conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
         conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo raw object storage.

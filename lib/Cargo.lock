@@ -859,6 +859,7 @@ checksum = "d56e28588da92eee5c3201a6eff33fabdd49b62269c8938d4ff050ce4d900deb"
 dependencies = [
  "displaydoc",
  "litemap",
+ "serde",
  "tinystr",
  "writeable",
  "zerovec",
@@ -945,6 +946,20 @@ checksum = "cb68373c0d6620ef8105e855e7745e18b0d00d3bdb07fb532e434244cdb9a714"
 dependencies = [
  "icu_normalizer",
  "icu_properties",
+]
+
+[[package]]
+name = "inbox_client"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "url",
+ "uuid",
 ]
 
 [[package]]
@@ -1788,6 +1803,8 @@ dependencies = [
  "retailers_minisforum",
  "retailers_ugreen",
  "retailers_wip",
+ "scraper",
+ "serde",
  "serde_json",
 ]
 
@@ -1796,7 +1813,9 @@ name = "retailer_sauce"
 version = "0.1.0"
 dependencies = [
  "bodul_shared",
+ "everyday",
  "html-extractor",
+ "icu_locale_core",
  "serde",
  "serde_json",
  "thiserror",
@@ -2184,6 +2203,9 @@ dependencies = [
 [[package]]
 name = "shared"
 version = "0.1.0"
+dependencies = [
+ "url",
+]
 
 [[package]]
 name = "shlex"
@@ -2469,6 +2491,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1e27c91459209c2986af3dcf603a5a74a4368754ce37414f59acc971167f643"
 dependencies = [
  "displaydoc",
+ "serde_core",
  "zerovec",
 ]
 
@@ -3017,6 +3040,7 @@ version = "0.11.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb0464e17806c1d976d5cba29399c7f08e516e279e2ba493f63123b5fca67dd8"
 dependencies = [
+ "serde",
  "yoke",
  "zerofrom",
  "zerovec-derive",

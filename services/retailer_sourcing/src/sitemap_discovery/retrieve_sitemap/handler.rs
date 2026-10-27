@@ -11,6 +11,13 @@ use super::store::StoreError;
 use crate::platform::bus::Handle;
 use crate::platform::http::{self, FetchError};
 
+const MIN_SITEMAP_DELAY_SECONDS: u64 = 1;
+const MAX_SITEMAP_DELAY_SECONDS: u64 = 5;
+
+fn sitemap_delay(rng: &mut fastrand::Rng) -> Duration {
+    Duration::from_secs(rng.u64(MIN_SITEMAP_DELAY_SECONDS..=MAX_SITEMAP_DELAY_SECONDS))
+}
+
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
     fn store_documents(
@@ -40,12 +47,6 @@ pub trait RootSitemaps: Send + Sync + 'static {
     fn sitemap_greylisted(&self, _retailer_code: RetailerCode, _url: &str) -> bool {
         true
     }
-
-    /// How long the crawl pauses between groups of downloads. None by
-    /// default.
-    fn sitemap_pause(&self, _retailer_code: RetailerCode) -> Duration {
-        Duration::ZERO
-    }
 }
 
 impl RootSitemaps for Retailers {
@@ -56,10 +57,6 @@ impl RootSitemaps for Retailers {
 
     fn sitemap_greylisted(&self, retailer_code: RetailerCode, url: &str) -> bool {
         Retailers::sitemap_greylisted(*self, retailer_code, url)
-    }
-
-    fn sitemap_pause(&self, retailer_code: RetailerCode) -> Duration {
-        Retailers::sitemap_pause(*self, retailer_code)
     }
 }
 
@@ -97,6 +94,17 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
         &self,
         command: RetrieveSitemap,
     ) -> Result<Vec<SitemapRetrieved>, RetrieveSitemapError> {
+        let mut rng = fastrand::Rng::new();
+        self.handle_with_pause(command, || std::thread::sleep(sitemap_delay(&mut rng)))
+    }
+}
+
+impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handler<S, F, R> {
+    fn handle_with_pause(
+        &self,
+        command: RetrieveSitemap,
+        pause: impl FnMut(),
+    ) -> Result<Vec<SitemapRetrieved>, RetrieveSitemapError> {
         let retrieval_id = command.retrieval_id();
         let retailer_code = command.retailer_code();
 
@@ -106,7 +114,6 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
 
         // A problem with one sitemap file skips that file; the crawl goes on.
         let greylisted = |url: &str| self.retailers.sitemap_greylisted(retailer_code, url);
-        let pause = self.retailers.sitemap_pause(retailer_code);
         let (documents, not_greylisted, errors) =
             crawl(&self.fetcher, &root_urls, greylisted, pause);
         for url in &not_greylisted {
@@ -137,6 +144,20 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn random_delays_are_whole_seconds_and_include_both_bounds() {
+        let mut rng = fastrand::Rng::with_seed(42);
+        let seconds: std::collections::HashSet<_> = (0..1000)
+            .map(|_| {
+                let delay = super::sitemap_delay(&mut rng);
+                assert_eq!(delay.subsec_nanos(), 0);
+                assert!((1..=5).contains(&delay.as_secs()));
+                delay.as_secs()
+            })
+            .collect();
+        assert_eq!(seconds, (1..=5).collect());
+    }
+
     use std::collections::HashMap;
     use std::sync::Mutex;
 
@@ -239,7 +260,7 @@ mod tests {
         let command = command();
         let retrieval_id = command.retrieval_id();
 
-        let events = handler.handle(command).unwrap();
+        let events = handler.handle_with_pause(command, || {}).unwrap();
 
         assert_eq!(
             events,
@@ -263,7 +284,7 @@ mod tests {
         ]));
         let handler = handler(pages, Roots(Some(vec![ROOT.to_string()])));
 
-        let events = handler.handle(command()).unwrap();
+        let events = handler.handle_with_pause(command(), || {}).unwrap();
 
         assert_eq!(events[0].document_count, 2);
     }
@@ -277,7 +298,7 @@ mod tests {
         ]));
         let handler = Handler::new(FakeStore::default(), pages, AllBut(PAGES));
 
-        let events = handler.handle(command()).unwrap();
+        let events = handler.handle_with_pause(command(), || {}).unwrap();
 
         assert_eq!(events[0].document_count, 2);
         assert_eq!(
@@ -290,7 +311,7 @@ mod tests {
     fn fails_when_the_retailer_has_no_sitemaps() {
         let handler = handler(Pages(HashMap::new()), Roots(None));
 
-        let error = handler.handle(command()).unwrap_err();
+        let error = handler.handle_with_pause(command(), || {}).unwrap_err();
 
         assert!(matches!(
             error,
@@ -306,7 +327,7 @@ mod tests {
         );
         handler.store.fail = true;
         assert!(matches!(
-            handler.handle(command()),
+            handler.handle_with_pause(command(), || {}),
             Err(RetrieveSitemapError::Store(_))
         ));
     }

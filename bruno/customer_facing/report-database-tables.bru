@@ -1,0 +1,21 @@
+meta {
+  name: Report database tables
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{customerFacingBaseUrl}}/api/reporting/database-tables
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: customer-facing-development-token
+}
+
+docs {
+  Estimated live rows and storage sizes for ordinary tables in the active schema.
+  Counts may lag writes. Reporting never runs ANALYZE or processes queues.
+  Match the token to CUSTOMER_FACING_REPORTING_TOKEN if overridden on the service.
+}

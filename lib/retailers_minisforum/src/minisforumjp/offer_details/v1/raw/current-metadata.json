@@ -1,0 +1,131 @@
+[
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CN",
+        "addressLocality": "Shenzhen",
+        "addressRegion": "Guangdong"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Japan"
+      },
+      "brand": [
+        {
+          "@type": "Brand",
+          "description": "Example metadata",
+          "name": "Minisforum"
+        },
+        {
+          "@type": "Brand",
+          "description": "Example metadata",
+          "name": "AtomMan"
+        }
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "areaServed": "JP",
+          "availableLanguage": [
+            "Japanese",
+            "English"
+          ],
+          "contactType": "customer service",
+          "email": "jpstore@minisforum.com"
+        },
+        {
+          "@type": "ContactPoint",
+          "availableLanguage": [
+            "English",
+            "Japanese"
+          ],
+          "contactType": "technical support",
+          "email": "support@minisforum.com"
+        }
+      ],
+      "description": "Example metadata",
+      "foundingDate": "2018",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "itemListElement": [
+          {
+            "@type": "OfferCatalog",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Product",
+                  "name": "AI X1 PRO",
+                  "url": "https://www.minisforum.jp/products/ai-x1-pro-470"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Product",
+                  "name": "MS-03",
+                  "url": "https://www.minisforum.jp/products/ms-03-new"
+                }
+              }
+            ],
+            "name": "AI Mini PCs"
+          },
+          {
+            "@type": "OfferCatalog",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Product",
+                  "name": "G1 PRO",
+                  "url": "https://www.minisforum.jp/products/g1-pro"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Product",
+                  "name": "G7 PRO",
+                  "url": "https://www.minisforum.jp/products/g7-pro"
+                }
+              }
+            ],
+            "name": "Gaming Mini PCs"
+          }
+        ],
+        "name": "Minisforum Japan Product Catalog"
+      },
+      "knowsAbout": [
+        "Mini PCs",
+        "Small Form Factor Computers"
+      ],
+      "legalName": "MINISFORUM Technology Co., Ltd.",
+      "logo": "https://www.minisforum.jp/cdn/shop/files/MINISFORUM_logo_NO_BG.avif",
+      "name": "Minisforum",
+      "sameAs": [
+        "https://www.facebook.com/minisforum.official",
+        "https://www.instagram.com/minisforumofficial"
+      ],
+      "url": "https://www.minisforum.jp"
+    },
+    "type": "application/ld+json"
+  },
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "inLanguage": "ja",
+      "name": "Minisforum JP",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "query-input": "required name=search_term_string",
+        "target": "https://www.minisforum.jp/search?q={search_term_string}"
+      },
+      "url": "https://www.minisforum.jp"
+    },
+    "type": "application/ld+json"
+  }
+]

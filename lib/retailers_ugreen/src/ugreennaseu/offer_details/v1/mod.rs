@@ -15,7 +15,7 @@
 //! Most pages use the theme's landing template; the rest, including Seel's
 //! `products-worry-free-purchase` add-on, use Dawn's default one. Both render, on every page,
 //! the PayPal metadata tag, Shopify's analytics `meta`, the title, the main product form and the
-//! gallery. The variant picker is absent on some products, and the price block is absent on
+//! gallery where the template includes one. The variant picker is absent on some products, and the price block is absent on
 //! worry-free-purchase. Glood's loader embeds the complete Liquid product on every saved page,
 //! including the two-variant French HDMI cable with no picker. Normalize cross-checks these
 //! records against analytics and any picker/back-in-stock records. Structuralize emits one
@@ -144,9 +144,11 @@ pub fn architecture() -> Architecture {
         // The gallery's main images: the landing template wraps each in an
         // `.image-zoom-wrapper`, Dawn's default template in a `.product__media`. Thumbnails,
         // icons and discount flags in the gallery are not product images.
+        // Current regional themes use the German gallery markup too. Select only
+        // image media, excluding video posters, thumbnails and discount badges.
         collection(
             &format!(
-                "{MAIN} media-gallery .image-zoom-wrapper img, {MAIN} media-gallery .product__media img"
+                "{MAIN} media-gallery .image-zoom-wrapper img, {MAIN} media-gallery .product__media img, {MAIN} media-gallery .ug-product-gallery__item[data-media-type=\"image\"] .ug-product-gallery__media img"
             ),
             "images",
             vec![particle(
@@ -181,6 +183,37 @@ mod tests {
     use html_extractor::Backend;
 
     use super::architecture;
+
+    #[test]
+    fn current_gallery_selects_only_product_image_slides() {
+        let html = r#"<section id="shopify-section-template--1__main"><media-gallery>
+          <div class="ug-product-gallery__item" data-media-type="image">
+            <img src="//cdn.example.com/badge.png">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/A.jpg" alt="A"></div>
+          </div>
+          <div class="ug-product-gallery__item" data-media-type="video">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/poster.jpg"></div>
+          </div>
+          <div class="ug-product-gallery__item" data-media-type="image">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/B.jpg" alt="B"></div>
+          </div>
+          <div class="ug-product-gallery__thumbnails"><img src="//cdn.example.com/thumb.jpg"></div>
+        </media-gallery></section>
+        <section id="recommendations"><media-gallery><div class="ug-product-gallery__item" data-media-type="image">
+          <div class="ug-product-gallery__media"><img src="//cdn.example.com/other.jpg"></div>
+        </div></media-gallery></section>"#;
+        let extracted = Backend::Scraper
+            .extract(html, &architecture())
+            .unwrap()
+            .json;
+        assert_eq!(
+            extracted["images"],
+            html_extractor::serde_json::json!([
+                {"src":"//cdn.example.com/A.jpg","alt":"A"},
+                {"src":"//cdn.example.com/B.jpg","alt":"B"}
+            ])
+        );
+    }
 
     /// Saved product pages, kept outside the repository next to the monorepo checkout.
     const DATA_DIR: &str = concat!(
@@ -242,9 +275,12 @@ mod tests {
                 "{name}: selected variant {selected} not in analytics"
             );
 
+            let glood: super::raw::GloodScript =
+                html_extractor::serde_json::from_value(json["glood"].clone()).unwrap();
             assert!(
-                json["images"].as_array().is_some_and(|i| !i.is_empty()),
-                "{name}: no images"
+                json["images"].as_array().is_some_and(|i| !i.is_empty())
+                    || !glood.product().unwrap().images.is_empty(),
+                "{name}: no rendered or Liquid images"
             );
 
             assert!(

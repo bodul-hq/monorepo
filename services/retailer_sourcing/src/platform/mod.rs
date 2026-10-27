@@ -7,6 +7,8 @@ pub mod bus_api;
 pub mod db;
 pub mod http;
 pub mod logging;
+pub mod offers_publisher;
+pub mod outbox;
 pub mod state;
 pub use retailer_sourcing::object_storage;
 #[cfg(test)]

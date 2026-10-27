@@ -1,7 +1,7 @@
 meta {
   name: Import directly (testing)
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -15,6 +15,7 @@ body:json {
     "retailer_code": "ankerau",
     "url": "https://shop.example/charger-{{$randomUUID}}",
     "title": "USB charger",
+      "images": ["https://shop.example/front.jpg", "https://shop.example/back.jpg"],
     "price_amount": 999,
     "currency": "AUD"
   }

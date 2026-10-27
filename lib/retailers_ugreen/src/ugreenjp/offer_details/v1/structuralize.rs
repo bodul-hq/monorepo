@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{UgreenJpNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -39,6 +40,13 @@ impl UgreenJpDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(offer_facts::in_stock(variant.available)),
+                    item_condition: None,
+                    content: offer_facts::content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -54,6 +62,10 @@ impl UgreenJpDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -141,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let images = [
             "https://ugreen.jp/cdn/shop/files/60521-1.png?v=1726277735",
             "https://ugreen.jp/cdn/shop/files/60521-2.png?v=1726277735",
@@ -152,6 +164,10 @@ mod tests {
             structuralized(normalized_document()),
             json!({"variations": [
                 {
+                    "was_price": null,
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": "L字型コネクター設計、\nApple 正規ライセンス MFi 取得"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "60521",
@@ -165,6 +181,10 @@ mod tests {
                     "images": images,
                 },
                 {
+                    "was_price": null,
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": "L字型コネクター設計、\nApple 正規ライセンス MFi 取得"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "70733",
@@ -189,6 +209,10 @@ mod tests {
         assert_eq!(
             output,
             json!({"variations": [{
+                "was_price": {"amount": 65880, "currency": "JPY"},
+                "availability": "in_stock",
+                "item_condition": null,
+                "content": {"description": "大容量128TBストレージ\nパワフルで効率的なハードウェア"},
                 "identifiers": {
                     "gtin": null,
                     "sku": null,

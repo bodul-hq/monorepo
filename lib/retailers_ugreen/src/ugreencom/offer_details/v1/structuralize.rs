@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{UgreenComNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -39,6 +40,10 @@ impl UgreenComDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(variant.price.as_ref(), None),
+                    availability: None,
+                    item_condition: None,
+                    content: offer_facts::content(None),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -54,6 +59,10 @@ impl UgreenComDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -147,10 +156,14 @@ mod tests {
     }
 
     #[test]
-    fn the_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn the_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         assert_eq!(
             structuralized(normalized_document()),
             json!({"variations": [{
+                "was_price": null,
+                "availability": null,
+                "item_condition": null,
+                "content": {"description": null},
                 "identifiers": {
                     "gtin": null,
                     "sku": "usa-15495",

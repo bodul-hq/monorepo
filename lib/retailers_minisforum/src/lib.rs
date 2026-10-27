@@ -9,6 +9,7 @@ mod minisforumru;
 mod minisforumuk;
 mod minisforumus;
 
+mod offer_facts;
 mod registry;
 
 pub mod prelude;

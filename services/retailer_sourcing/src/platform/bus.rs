@@ -1,24 +1,24 @@
 //! Command and event bus on top of the Mulac kernel.
 //!
-//! Features register handlers and reactions here and never touch Mulac
+//! Features register handlers, reactions and listeners here and never touch Mulac
 //! directly. Mulac stores every command and event in Postgres, delivers each one
 //! at least once, and retries a failed command with backoff.
 //!
-//! Nothing processes the queues in the background: [`BusHandle::run_commands`]
-//! and [`BusHandle::run_events`] process a given number on request.
+//! The executable explicitly starts command workers. The HTTP routes also
+//! delegate bounded batches to Mulac's command and event adapters.
 
 use std::fmt::Display;
 use std::sync::Arc;
 use std::time::Instant;
 
-use kernel::io::{
-    CommandConsumer, CommandGateway, EventConsumer, NewCommand, NewCommandEnvelope,
-    NewCommandMetadata, ReservableCommandSpec, ReservableEventSpec,
-};
+use commanding_api::io::CommandingService;
+use eventing_api::io::EventingService;
+use kernel::io::{CommandGateway, NewCommand, NewCommandEnvelope, NewCommandMetadata};
 use kernel::{
     ApplicationEvent, CommandError, CommandHandlerPort, EventError, EventSubscriberPort,
-    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope,
+    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope, PersistentKernelHandle,
 };
+use mulac_axum::io::{CommandingAdapter, EventingAdapter};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use uuid::Uuid;
@@ -50,6 +50,27 @@ impl<E: Event> Publish for E {
     fn event_type(&self) -> &'static str {
         E::NAME
     }
+}
+
+/// Where an event came from, as recorded in its envelope.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EventContext {
+    pub event_id: Uuid,
+    pub correlation_id: Option<Uuid>,
+    pub causation_id: Option<Uuid>,
+    pub source: Option<String>,
+}
+
+/// Consumes one event type with its envelope metadata, for subscribers that
+/// write state themselves rather than queue a command.
+pub trait Listen: Send + Sync + 'static {
+    type Event: Event;
+    type Error: Display;
+
+    /// The subscriber name Mulac registers.
+    const NAME: &'static str;
+
+    fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error>;
 }
 
 /// Handles one command type and returns the events it produced. Handlers
@@ -93,6 +114,14 @@ impl Bus {
         }));
     }
 
+    /// Registers a listener for its event type.
+    pub fn listen<L: Listen>(&mut self, listener: L) {
+        let port: Arc<dyn EventSubscriberPort> = Arc::new(Listener(listener));
+        self.registrations.push(Box::new(move |kernel| {
+            kernel.event_subscriber(<L::Event as Event>::NAME, L::NAME, port)
+        }));
+    }
+
     /// Builds the bus over `pool`. Queued work runs only through the returned
     /// handle.
     pub fn start(self, pool: DbPool) -> Result<BusHandle, KernelError> {
@@ -104,26 +133,13 @@ impl Bus {
             });
         let handle = kernel.start_persistent(pool, 0)?;
 
-        // Background workers are switched off: queued commands and events run
-        // only through `run_commands` and `run_events` (the `/api/commands/run`
-        // and `/api/events/run` routes). Uncomment to have Mulac poll both
-        // queues every second as well.
-        //
-        // tokio::spawn(kernel::io::run_command_worker(
-        //     handle.command_consumer(),
-        //     handle.child_token(),
-        // ));
-        // tokio::spawn(kernel::io::run_event_worker(
-        //     handle.event_consumer(),
-        //     handle.child_token(),
-        // ));
-
         Ok(BusHandle {
             dispatcher: Dispatcher {
                 gateway: handle.state().command_gateway(),
             },
-            commands: handle.command_consumer(),
-            events: handle.event_consumer(),
+            commands: CommandingAdapter::new(CommandingService::new(handle.command_consumer())),
+            events: EventingAdapter::new(EventingService::new(handle.event_consumer())),
+            kernel: Arc::new(handle),
         })
     }
 }
@@ -132,33 +148,9 @@ impl Bus {
 #[derive(Clone)]
 pub struct BusHandle {
     dispatcher: Dispatcher,
-    commands: Arc<CommandConsumer>,
-    events: Arc<EventConsumer>,
-}
-
-/// What one run of queued commands or events did.
-#[derive(Debug)]
-pub struct RunReport {
-    /// How many were processed, when all of them succeeded. Mulac doesn't
-    /// count the successes in a run that had failures.
-    pub processed: Option<usize>,
-    /// One message per failure. Failed commands are retried in a later run.
-    pub errors: Vec<String>,
-}
-
-impl RunReport {
-    fn from_result<E: Display>(result: Result<usize, Vec<E>>) -> Self {
-        match result {
-            Ok(processed) => Self {
-                processed: Some(processed),
-                errors: Vec::new(),
-            },
-            Err(errors) => Self {
-                processed: None,
-                errors: errors.iter().map(ToString::to_string).collect(),
-            },
-        }
-    }
+    pub(super) commands: CommandingAdapter,
+    pub(super) events: EventingAdapter,
+    kernel: Arc<PersistentKernelHandle>,
 }
 
 impl BusHandle {
@@ -166,18 +158,61 @@ impl BusHandle {
         &self.dispatcher
     }
 
-    /// Processes up to `limit` queued commands that are due. Blocks on the
-    /// handlers and the database, so call it off the async runtime.
-    pub fn run_commands(&self, limit: usize) -> RunReport {
-        RunReport::from_result(self.commands.consume(&ReservableCommandSpec::new(limit)))
+    /// Starts exactly `count` command loops; events remain manual. Bus construction
+    /// itself stays worker-free so callers control the workers' lifetime.
+    pub fn start_command_workers(&self, count: usize) -> CommandWorkers {
+        let handles = (0..count)
+            .map(|_| {
+                tokio::spawn(kernel::io::run_command_worker(
+                    self.kernel.command_consumer(),
+                    self.kernel.child_token(),
+                ))
+            })
+            .collect();
+        if count == 0 {
+            tracing::info!(
+                command_workers = count,
+                "command workers disabled: manual command processing"
+            );
+        } else {
+            tracing::info!(command_workers = count, "command workers started");
+        }
+        CommandWorkers { handles }
     }
 
-    /// Processes up to `limit` queued events that are due. Blocks on the
-    /// reactions and the database, so call it off the async runtime.
-    pub fn run_events(&self, limit: usize) -> RunReport {
-        RunReport::from_result(self.events.consume(&ReservableEventSpec::new(limit)))
+    /// Cancel workers immediately; an already reserved batch finishes before
+    /// its worker exits. The caller must also join the workers.
+    pub fn shutdown(&self) {
+        self.kernel.shutdown();
     }
 }
+
+/// All command loops owned by the executable, joined after HTTP drains.
+#[derive(Default)]
+pub struct CommandWorkers {
+    handles: Vec<tokio::task::JoinHandle<()>>,
+}
+
+impl CommandWorkers {
+    pub async fn join(self) -> Result<(), tokio::task::JoinError> {
+        let count = self.handles.len();
+        let mut first_error = None;
+        for handle in self.handles {
+            if let Err(error) = handle.await {
+                tracing::error!(%error, "command worker failed to join");
+                if first_error.is_none() {
+                    first_error = Some(error);
+                }
+            }
+        }
+        tracing::info!(command_workers = count, "command workers stopped");
+        first_error.map_or(Ok(()), Err)
+    }
+}
+
+#[cfg(test)]
+#[path = "command_workers_tests.rs"]
+mod command_workers_tests;
 
 /// Queues commands from outside the bus, such as from an HTTP request.
 #[derive(Clone)]
@@ -310,6 +345,49 @@ where
     }
 }
 
+struct Listener<L>(L);
+
+impl<L: Listen> EventSubscriberPort for Listener<L> {
+    fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let name = <L::Event as Event>::NAME;
+        let start = Instant::now();
+        let result = self.listen(envelope);
+        let elapsed_ms = start.elapsed().as_millis() as u64;
+        let status = if result.is_ok() { "ok" } else { "error" };
+        tracing::info!(
+            target: TIMING_TARGET,
+            kind = "event",
+            name,
+            listener = L::NAME,
+            elapsed_ms,
+            status
+        );
+        if let Err(error) = &result {
+            tracing::error!(event = name, listener = L::NAME, "listener failed: {error}");
+        }
+        result
+    }
+}
+
+impl<L: Listen> Listener<L> {
+    fn listen(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let event: L::Event = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
+        let metadata = envelope.metadata.as_ref().ok_or_else(|| {
+            subscriber_error(format!(
+                "event {} has no envelope metadata",
+                <L::Event as Event>::NAME
+            ))
+        })?;
+        let context = EventContext {
+            event_id: metadata.event_id,
+            correlation_id: metadata.correlation_id,
+            causation_id: metadata.causation_id,
+            source: metadata.source.clone(),
+        };
+        self.0.listen(event, &context).map_err(subscriber_error)
+    }
+}
+
 fn command_envelope<C: Command>(
     command: &C,
     metadata: NewCommandMetadata,
@@ -364,6 +442,80 @@ mod tests {
             }
             Ok(vec![Ponged { id: command.id }])
         }
+    }
+
+    struct Record(std::sync::Mutex<Vec<(u32, EventContext)>>);
+
+    impl Listen for Record {
+        type Event = Ponged;
+        type Error = String;
+        const NAME: &'static str = "RecordPonged";
+
+        fn listen(&self, event: Ponged, context: &EventContext) -> Result<(), String> {
+            if event.id == 0 {
+                return Err("id must not be zero".to_string());
+            }
+            self.0.lock().unwrap().push((event.id, context.clone()));
+            Ok(())
+        }
+    }
+
+    fn ponged(id: u32, metadata: Option<kernel::NewEventMetadata>) -> NewEventEnvelope {
+        NewEventEnvelope {
+            event_type: Ponged::NAME.to_string(),
+            payload: serde_json::to_string(&Ponged { id }).unwrap(),
+            metadata,
+        }
+    }
+
+    fn metadata() -> kernel::NewEventMetadata {
+        kernel::NewEventMetadata {
+            sequence: None,
+            event_id: Uuid::now_v7(),
+            correlation_id: Some(Uuid::now_v7()),
+            causation_id: Some(Uuid::now_v7()),
+            source: Some("test".to_string()),
+        }
+    }
+
+    #[test]
+    fn listeners_receive_the_envelope_metadata() {
+        let listener = Listener(Record(Default::default()));
+        let metadata = metadata();
+
+        listener.handle(&ponged(7, Some(metadata.clone()))).unwrap();
+
+        let calls = listener.0.0.lock().unwrap();
+        assert_eq!(
+            *calls,
+            [(
+                7,
+                EventContext {
+                    event_id: metadata.event_id,
+                    correlation_id: metadata.correlation_id,
+                    causation_id: metadata.causation_id,
+                    source: metadata.source,
+                }
+            )]
+        );
+    }
+
+    #[test]
+    fn listeners_reject_events_without_metadata_and_report_failures() {
+        let listener = Listener(Record(Default::default()));
+
+        let missing = listener.handle(&ponged(7, None)).unwrap_err();
+        let failed = listener.handle(&ponged(0, Some(metadata()))).unwrap_err();
+
+        assert!(
+            matches!(&missing, EventError::SubscriberExecution(message) if message.contains("no envelope metadata")),
+            "{missing:?}"
+        );
+        assert!(
+            matches!(&failed, EventError::SubscriberExecution(message) if message == "id must not be zero"),
+            "{failed:?}"
+        );
+        assert!(listener.0.0.lock().unwrap().is_empty());
     }
 
     #[test]

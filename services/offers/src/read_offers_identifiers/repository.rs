@@ -5,9 +5,11 @@ pub use in_memory::InMemoryRetailerOfferIdentifiersRepository;
 pub use postgres::PostgresRetailerOfferIdentifiersRepository;
 
 use super::entity::RetailerOfferIdentifiers;
+use crate::offers::retailer_offer_id::RetailerOfferId;
+use retailer_sauce::identifier::ProductIdentifiers;
 
 #[derive(Debug, thiserror::Error)]
-#[error("could not insert offer read model: {0}")]
+#[error("offer identity read model operation failed: {0}")]
 pub struct RetailerOfferIdentifiersRepositoryError(String);
 
 /// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
@@ -16,15 +18,39 @@ pub trait RetailerOfferIdentifiersRepository: Send + Sync {
         &self,
         entity: &RetailerOfferIdentifiers,
     ) -> Result<(), RetailerOfferIdentifiersRepositoryError>;
+
+    /// Applies the event's complete decided set; fails if the identity is missing.
+    fn update_identifiers(
+        &self,
+        id: &RetailerOfferId,
+        identifiers: &ProductIdentifiers,
+    ) -> Result<(), RetailerOfferIdentifiersRepositoryError>;
 }
 
 fn err_insert(error: impl std::fmt::Display) -> RetailerOfferIdentifiersRepositoryError {
     RetailerOfferIdentifiersRepositoryError(error.to_string())
 }
 
+fn err_update(error: impl std::fmt::Display) -> RetailerOfferIdentifiersRepositoryError {
+    RetailerOfferIdentifiersRepositoryError(error.to_string())
+}
+
+fn err_identity_missing() -> RetailerOfferIdentifiersRepositoryError {
+    err_update("offer identity has not been inserted")
+}
+
+fn validate_update(
+    id: &RetailerOfferId,
+    identifiers: &ProductIdentifiers,
+) -> Result<uuid::Uuid, RetailerOfferIdentifiersRepositoryError> {
+    identifiers.guard().map_err(err_update)?;
+    uuid::Uuid::parse_str(id.value()).map_err(err_update)
+}
+
 fn validate(
     entity: &RetailerOfferIdentifiers,
 ) -> Result<uuid::Uuid, RetailerOfferIdentifiersRepositoryError> {
+    entity.identifiers.guard().map_err(err_insert)?;
     let id = uuid::Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
     if entity.url.len() > 2048 || entity.url.contains('\0') {
         return Err(err_insert(
@@ -41,6 +67,7 @@ pub(crate) mod tests {
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferIdentifiersRepository) {
         let entity = RetailerOfferIdentifiers {
+            identifiers: Default::default(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             url: "https://example.com/Charger?color=red#details".to_owned(),
@@ -60,6 +87,13 @@ pub(crate) mod tests {
         other.id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
         other.url = "x".repeat(2049);
         assert!(repository.insert(&other).is_err());
+        other.url = "https://example.com/invalid-identifiers".into();
+        for value in ["", "contains\0nul"] {
+            other.identifiers.sku = Some(retailer_sauce::identifier::Sku {
+                value: value.into(),
+            });
+            assert!(repository.insert(&other).is_err());
+        }
     }
 
     #[test]
