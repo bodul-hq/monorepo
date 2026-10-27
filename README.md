@@ -21,6 +21,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | ------------------------- | --------------------------------------------------------------------------- |
 | `shared`                  | Code shared across the monorepo, including the `health()` liveness response |
 | `object_storage_client`   | Async object storage client using REST or GraphQL                           |
+| `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery      |
 | `money`                   | Money handling                                                              |
 | `everyday`                | Common business, date/time, country, and geographic value types             |
 | `everyday_infra`          | Serialization and chrono adapters for everyday value types                  |

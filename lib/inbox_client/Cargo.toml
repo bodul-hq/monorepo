@@ -1,0 +1,18 @@
+[package]
+name = "inbox_client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { version = "1.53.2", features = ["rt", "time"] }
+url = "2"
+uuid = { version = "1", features = ["serde"] }
+
+[dev-dependencies]
+axum = "0.8.9"
+tokio = { version = "1.53.2", features = ["macros", "net", "rt-multi-thread"] }
+uuid = { version = "1", features = ["serde", "v7"] }

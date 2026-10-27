@@ -16,6 +16,7 @@ members = [
     "testimony_infra",
     "everyday",
     "everyday_infra",
+    "inbox_client",
 ]
 
 [workspace.dependencies]
