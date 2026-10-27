@@ -237,8 +237,15 @@ impl UgreenNasEuNormalizedDocument {
             });
         }
         let mut images = Vec::new();
-        for image in raw.images {
-            let url = image_url(&image.src)?;
+        // Older extractions can miss the new gallery markup. Glood carries the same
+        // product's ordered Liquid images, after the identity checks above.
+        let sources = if raw.images.is_empty() {
+            glood.images
+        } else {
+            raw.images.into_iter().map(|image| image.src).collect()
+        };
+        for source in sources {
+            let url = image_url(&source)?;
             if !images.contains(&url) {
                 images.push(url);
             }

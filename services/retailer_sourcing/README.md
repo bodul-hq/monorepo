@@ -760,3 +760,13 @@ record skipped counts, not full URLs. A malformed array type fails conversion.
 No image is downloaded. Price/exclusion and retailer-code behavior is unchanged.
 See [ADR 24](../../docs/adr/0024-append-only-offer-images.md) and the
 [combined walkthrough](../../docs/offer-images-walkthrough.md).
+
+Known retired retailer handles are resolved through
+`retailer_data_extractor::offer_download_url` before downloading. Currently this
+covers only the UGREEN NAS DE/UK `dxp4800-pro` short URLs. The stored source,
+event and discovery identity retain the original URL; only the HTTP request uses
+the verified replacement. Other HTTP errors still fail and retry normally.
+Updating the service lets pending normalization commands read their existing
+extractions with the corrected retailer parsers; no re-extraction is required
+for these metadata/gallery fixes. Exhausted commands still require the existing
+queue retry procedure. This change does not reset queue statuses.

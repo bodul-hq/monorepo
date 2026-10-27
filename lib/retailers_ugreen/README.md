@@ -8,7 +8,8 @@ stages. They emit their variant documents through the facade and
 `structuralize-offer-details`.
 
 `ugreenca`, `ugreende`, `ugreennasjp`, `ugreenkr`, `ugreennl`, `ugreenuk` and
-`ugreenus` have extraction and normalization pipelines in `offer_details/v1`.
+`ugreenus` have extraction, normalization and structuralization pipelines in
+`offer_details/v1`, with all three stages registered.
 
 `ugreennas` implements extraction, normalization and structuralization in
 `offer_details/v1`, with one output variation per Shopify variant. It reads the
@@ -29,9 +30,7 @@ and saved-page tests. The corpus tests read
 when it is absent. From the root, run `make process-offer-details
 RETAILERS=ugreennas` to write all three stages.
 
-`ugreenca`, `ugreende` and `ugreennasjp` also have extraction and normalization
-in `offer_details/v1`:
-
+The extraction and normalization stages read storefront-specific data:
 
 - `architecture()` extracts the page's data islands. The storefronts run
   different Shopify themes, so each reads its own set:
@@ -77,8 +76,11 @@ The KR, NL, UK and US pipelines have read-only corpus tests in
 and check normalized JSON round trips. Missing external data skips those tests;
 an empty directory or a failing page fails the test. Inline fixtures run without
 the data checkout. Run them with `cargo test -p retailers_ugreen`; `make ci`
-also runs formatting and lint checks. These four pipelines do not yet
-structuralize.
+also runs formatting and lint checks. All four pipelines have registered
+structuralizers that emit validated offer variations. The facade's
+`structuralization_report` integration test checks their registration even
+without the data checkout and structuralizes saved normalized documents when
+present; it also covers `ugreenca`, `ugreende` and `ugreennasjp`.
 
 The EU, France, Italy and UK NAS pipelines implement all three offer stages.
 Strict raw models reject unknown fields. Normalization reads Glood's embedded
@@ -107,3 +109,20 @@ regional URL paths; missing external data skips corpus tests, while an empty
 corpus fails. From the root, run `make process-offer-details
 RETAILERS="ugreennaseu ugreennasfr ugreennasit ugreennasuk"` to write extracted,
 normalized and structurized files.
+
+Current India contact metadata may omit `telephone`. For NAS EU/FR/IT/UK,
+an empty extracted gallery falls back to the same product's ordered Liquid
+images in Glood, after checking its identity against analytics. URLs are validated
+and deduplicated; an empty gallery in both sources still fails.
+
+`offer_download_url` resolves only the verified retired DE/UK
+`https://ai-<region>.ugreen.com/products/dxp4800-pro` URLs to
+`/products/ugreen-nasync-dxp4800-pro-4-bay-nas`. Both replacement pages returned
+HTTP 200 on 2026-10-26 while the short URLs returned 404. All other URLs keep
+normal HTTP failure handling. Sourcing uses this resolution for already queued
+commands as well as new downloads, preserving original discovery IDs and URLs.
+
+The NAS AU/CA/ES/EU/FR/IT/UK extractors also recognize current
+`ug-product-gallery` image slides, as DE already did. Video posters, discount
+badges, thumbnails and recommendation sections are excluded. This keeps new
+extractions complete while the fallback handles previously saved extractions.

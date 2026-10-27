@@ -52,12 +52,14 @@ impl<S: Store, F: FetchOfferPage> Handle for Handler<S, F> {
         &self,
         command: DownloadOfferPage,
     ) -> Result<Vec<OfferPageWasDownloaded>, DownloadOfferPageError> {
+        let download_url =
+            retailer_data_extractor::offer_download_url(command.retailer_code, &command.url);
         // A failed download fails the command, so it is retried later.
         let body =
             self.fetcher
-                .fetch(&command.url)
+                .fetch(download_url)
                 .map_err(|error| DownloadOfferPageError::Fetch {
-                    url: command.url.clone(),
+                    url: download_url.to_owned(),
                     error,
                 })?;
 
@@ -144,6 +146,29 @@ mod tests {
             consolidated_sitemap_id: Uuid::now_v7(),
             retailer_code: RetailerCode::UgreenCa,
             url: URL.to_string(),
+        }
+    }
+
+    #[test]
+    fn queued_retired_urls_download_replacements_without_changing_identity() {
+        struct ReplacementPage;
+        impl FetchOfferPage for ReplacementPage {
+            fn fetch(&self, url: &str) -> Result<String, FetchError> {
+                assert!(url.ends_with("/products/ugreen-nasync-dxp4800-pro-4-bay-nas"));
+                Ok("<html>replacement</html>".into())
+            }
+        }
+        for (retailer, region) in [
+            (RetailerCode::UgreenNasDe, "de"),
+            (RetailerCode::UgreenNasUk, "uk"),
+        ] {
+            let mut command = command();
+            command.retailer_code = retailer;
+            command.url = format!("https://ai-{region}.ugreen.com/products/dxp4800-pro");
+            let handler = Handler::new(FakeStore::default(), ReplacementPage);
+            let events = handler.handle(command.clone()).unwrap();
+            assert_eq!(events[0].offer_id, command.offer_id);
+            assert_eq!(events[0].url, command.url);
         }
     }
 

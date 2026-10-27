@@ -159,11 +159,16 @@ pub fn architecture() -> Architecture {
         // `product-gallery` on product pages, and Dawn's media list (the image inside
         // `modal-opener`; `<noscript>` holds a copy) on `worry-free-purchase`. The thumbnails
         // repeat the slides.
+        // Current regional themes use the German gallery markup too. Select only
+        // image media, excluding video posters, thumbnails and discount badges.
         collection(
             &format!(
-                "{}, {}",
+                "{}, {}, {}",
                 main("media-gallery .product-gallery__main-wrapper .image-zoom-wrapper img"),
                 main("media-gallery .product__media-list modal-opener img"),
+                main(
+                    "media-gallery .ug-product-gallery__item[data-media-type=\"image\"] .ug-product-gallery__media img"
+                ),
             ),
             "images",
             vec![particle(
@@ -209,6 +214,37 @@ mod tests {
     use html_extractor::serde_json::Value;
 
     use super::{architecture, normalize, structuralize};
+
+    #[test]
+    fn current_gallery_selects_only_product_image_slides() {
+        let html = r#"<section id="shopify-section-template--1__main"><media-gallery>
+          <div class="ug-product-gallery__item" data-media-type="image">
+            <img src="//cdn.example.com/badge.png">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/A.jpg" alt="A"></div>
+          </div>
+          <div class="ug-product-gallery__item" data-media-type="video">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/poster.jpg"></div>
+          </div>
+          <div class="ug-product-gallery__item" data-media-type="image">
+            <div class="ug-product-gallery__media"><img src="//cdn.example.com/B.jpg" alt="B"></div>
+          </div>
+          <div class="ug-product-gallery__thumbnails"><img src="//cdn.example.com/thumb.jpg"></div>
+        </media-gallery></section>
+        <section id="recommendations"><media-gallery><div class="ug-product-gallery__item" data-media-type="image">
+          <div class="ug-product-gallery__media"><img src="//cdn.example.com/other.jpg"></div>
+        </div></media-gallery></section>"#;
+        let extracted = Backend::Scraper
+            .extract(html, &architecture())
+            .unwrap()
+            .json;
+        assert_eq!(
+            extracted["images"],
+            html_extractor::serde_json::json!([
+                {"src":"//cdn.example.com/A.jpg","alt":"A"},
+                {"src":"//cdn.example.com/B.jpg","alt":"B"}
+            ])
+        );
+    }
 
     /// Saved product pages, kept outside the repository next to the monorepo checkout.
     const DATA_DIR: &str = concat!(

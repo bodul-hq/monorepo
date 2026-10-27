@@ -246,6 +246,20 @@ mod tests {
         UgreenInNormalizedDocument::from_raw(raw)
     }
 
+    #[test]
+    fn missing_contact_telephone_does_not_change_offer_facts() {
+        let mut input = document();
+        for script in input["ld-json"].as_array_mut().unwrap() {
+            if script["data"]["@type"] == "Organization" {
+                script["data"]["contactPoint"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("telephone");
+            }
+        }
+        assert_eq!(normalized(input), normalized(document()));
+    }
+
     fn normalized(document: Value) -> Value {
         serde_json::to_value(normalize(document).expect("the fixture normalizes"))
             .expect("serializes")

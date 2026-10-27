@@ -110,6 +110,11 @@ pub fn classify_link_for(
         })
 }
 
+/// Resolve explicitly known retired product URLs without changing discovery identity.
+pub fn offer_download_url(retailer_code: RetailerCode, url: &str) -> &str {
+    retailers_ugreen::prelude::offer_download_url(retailer_code, url)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
