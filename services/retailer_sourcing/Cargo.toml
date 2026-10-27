@@ -14,6 +14,7 @@ commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
 eventing_api.workspace = true
+fastrand = "2.5"
 flate2 = "1"
 inbox_api.workspace = true
 inbox_client.workspace = true

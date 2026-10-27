@@ -20,15 +20,9 @@ mod consolidate_sitemap;
 mod process_sitemap;
 mod retrieve_sitemap;
 
-use std::time::Duration;
-
 use bodul_shared::SitemapConfig;
 use bodul_shared::link::LinkKind;
 use bodul_shared::retailer::RetailerCode;
-
-/// The pause between groups of sitemap downloads for a retailer that doesn't
-/// set its own.
-const DEFAULT_SITEMAP_PAUSE: Duration = Duration::from_secs(1);
 
 /// The retailer registry: each retailer's root sitemaps and link rules.
 #[derive(Debug, Clone, Copy, Default)]
@@ -43,11 +37,6 @@ impl Retailers {
     /// retailer this crate doesn't know downloads every one.
     fn sitemap_greylisted(self, retailer_code: RetailerCode, url: &str) -> bool {
         retailer_data_extractor::sitemap_greylisted_for(retailer_code, url).unwrap_or(true)
-    }
-
-    /// How long the retailer's crawl pauses between groups of downloads.
-    fn sitemap_pause(self, retailer_code: RetailerCode) -> Duration {
-        retailer_data_extractor::sitemap_pause_for(retailer_code).unwrap_or(DEFAULT_SITEMAP_PAUSE)
     }
 
     fn classify_link(

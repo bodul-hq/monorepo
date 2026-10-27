@@ -821,3 +821,12 @@ and exclude variants lacking a payable price as before. Deploy downstream
 readers and migrations before enabling the v8 writer. See
 [ADRs 34–36](../../docs/adr/README.md) and the
 [verification record](../../docs/plans/24-27-offer-facts-verification.md).
+
+## Fetch pacing
+
+Offer-page handlers wait six seconds before every fetch attempt. Sitemap crawls
+wait a fresh random whole-second delay from one through five between actual
+fetch attempts, including failures. No delay is added before the first attempt,
+after the last attempt, or for skipped URLs. Pacing is per handler or crawl,
+so concurrent command runners can still fetch concurrently. The retailer-library
+`sitemap_pause` API remains available but no longer controls this service.

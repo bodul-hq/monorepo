@@ -73,7 +73,7 @@ command and emits one event, and the next slice reacts to that event:
 
 | #   | Command              | What it does                                  | Retailer hook it calls                                  |
 | --- | -------------------- | --------------------------------------------- | ------------------------------------------------------- |
-| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted`, `sitemap_pause` |
+| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted` |
 | 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted`                  |
 | 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                                         |
 | 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                                    |
@@ -179,7 +179,7 @@ middle one the prelude name the registry calls.
 | ------------------------------------------------------ | ------------------------------- | ---------------------------------------------- |
 | `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                                |
 | `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap     |
-| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | `Duration` between groups of 3 downloads       |
+| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service       |
 | `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                     |
 | `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`             |
 | `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<bodul_shared::NormalizedData, String>` |
@@ -220,7 +220,7 @@ pub fn sitemap_greylisted(_url: &str) -> bool {
     true
 }
 
-/// How long the crawl pauses between groups of sitemap downloads.
+/// Legacy pause policy, retained for library compatibility; not used by retailer_sourcing.
 pub fn sitemap_pause() -> Duration {
     Duration::from_secs(1)
 }
@@ -261,9 +261,12 @@ Rules:
   }
   ```
 
-- **`sitemap_pause`**: 1 second by default. Use 5 seconds for a store that
-  rate-limits or drops requests (`ugreencom`, `ugreeneu`, `ugreennaseu` do).
-  The crawl pauses after every 3 downloads.
+- **`sitemap_pause`** remains part of the public retailer-library API for
+  compatibility. `retailer_sourcing` no longer consumes it: each crawl waits a
+  fresh random whole-second delay from 1 through 5 between actual sitemap
+  fetch attempts, including failed attempts. It does not delay before the
+  first attempt, after the last, or for skipped URLs. This is per crawl;
+  concurrent command workers can crawl a retailer at the same time.
 - **`classify_link`** sorts a URL into a `LinkKind`:
 
 | `LinkKind`      | Meaning                                                     |

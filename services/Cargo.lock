@@ -3024,6 +3024,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "eventing_api",
+ "fastrand",
  "flate2",
  "http-body-util",
  "inbox_api",
