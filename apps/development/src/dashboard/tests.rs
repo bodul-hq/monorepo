@@ -1,7 +1,7 @@
 use super::*;
 use client::TableStats;
 
-// Existing two-service cases also verify that an unavailable Offers service is isolated.
+// Existing two-service cases also verify that unavailable downstream services are isolated.
 fn render(
     sourcing: Result<Report, ReportError>,
     storage: Result<Report, ReportError>,
@@ -11,6 +11,8 @@ fn render(
         sourcing,
         storage,
         entries,
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
     )
@@ -32,14 +34,16 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
                 count: 42,
             }],
         }),
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
     );
-    assert!(html.contains("3<small> / 3</small>"));
+    assert!(html.contains("3<small> / 4</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
     assert!(html.contains("Offers command and event status"));
     assert!(html.contains("Retailer Sourcing command and event status"));
     assert!(html.contains("<td>42</td>"));
     assert!(html.contains("<strong>6</strong>"));
-    assert!(!html.contains("Summary totals include available services only"));
+    assert!(html.contains("Summary totals include available services only"));
 }
 
 fn report() -> Report {
@@ -176,4 +180,68 @@ fn renders_exact_status_counts_and_empty_queues() {
     assert!(html.contains("1,234"));
     assert!(html.contains("No entries yet"));
     assert!(html.contains("Exact counts by current status"));
+}
+
+#[test]
+fn customer_facing_contributes_to_totals_with_independent_reports() {
+    let empty_entries = || EntryStatuses {
+        generated_at: "2026-10-25T12:00:00Z".into(),
+        command_entries: vec![],
+        event_entries: vec![],
+    };
+    let html = super::render(
+        Ok(report()),
+        Ok(report()),
+        Ok(empty_entries()),
+        Ok(report()),
+        Ok(empty_entries()),
+        Ok(report()),
+        Ok(empty_entries()),
+    );
+    assert!(html.contains("4<small> / 4</small>"));
+    assert!(html.contains("<h2>Customer Facing</h2>"));
+    assert!(html.contains("Customer Facing command and event status"));
+    assert!(html.contains("<strong>8</strong>"));
+    assert!(html.contains("4.0 MiB"));
+    assert!(!html.contains("Summary totals include available services only"));
+    assert!(html.contains("No entries yet"));
+
+    for error in [
+        ReportError::Unavailable,
+        ReportError::Authentication,
+        ReportError::Malformed,
+        ReportError::Configuration,
+    ] {
+        let html = super::render(
+            Ok(report()),
+            Ok(report()),
+            Ok(empty_entries()),
+            Ok(report()),
+            Ok(empty_entries()),
+            Err(error),
+            Ok(empty_entries()),
+        );
+        assert!(html.contains("3<small> / 4</small>"));
+        assert!(html.contains("<h2>Offers</h2>"));
+        assert!(html.contains("<strong>6</strong>"));
+        assert!(html.contains("Summary totals include available services only"));
+        assert!(html.contains("No entries yet"));
+
+        let mut customer = report();
+        customer.tables[0].table_name = "<customer-table>".into();
+        let html = super::render(
+            Ok(report()),
+            Ok(report()),
+            Ok(empty_entries()),
+            Ok(report()),
+            Ok(empty_entries()),
+            Ok(customer),
+            Err(error),
+        );
+        assert!(html.contains("4<small> / 4</small>"));
+        assert!(html.contains("&lt;customer-table&gt;"));
+        assert!(!html.contains("<customer-table>"));
+        assert!(!html.contains("customer-facing-development-token"));
+        assert!(!html.contains("172.28.100.42"));
+    }
 }

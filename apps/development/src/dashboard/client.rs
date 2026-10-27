@@ -62,6 +62,8 @@ pub(super) struct ReportingClients {
     entries: Result<Endpoint, ReportError>,
     offers: Result<Endpoint, ReportError>,
     offers_entries: Result<Endpoint, ReportError>,
+    customer_facing: Result<Endpoint, ReportError>,
+    customer_facing_entries: Result<Endpoint, ReportError>,
 }
 impl ReportingClients {
     pub(super) fn from_env() -> Result<Self, reqwest::Error> {
@@ -75,10 +77,15 @@ impl ReportingClients {
             Duration::from_secs(5),
         )
         .map(|clients| {
-            clients.with_offers(
-                &env("OFFERS_URL", "http://172.28.100.41:3000"),
-                &env("OFFERS_TOKEN", "offers-development-token"),
-            )
+            clients
+                .with_offers(
+                    &env("OFFERS_URL", "http://172.28.100.41:3000"),
+                    &env("OFFERS_TOKEN", "offers-development-token"),
+                )
+                .with_customer_facing(
+                    &env("CUSTOMER_FACING_URL", "http://172.28.100.42:3000"),
+                    &env("CUSTOMER_FACING_TOKEN", "customer-facing-development-token"),
+                )
         })
     }
     pub(super) fn new(
@@ -94,6 +101,8 @@ impl ReportingClients {
                 .redirect(reqwest::redirect::Policy::none())
                 .retry(reqwest::retry::never())
                 .build()?,
+            customer_facing: Err(ReportError::Configuration),
+            customer_facing_entries: Err(ReportError::Configuration),
             offers: Err(ReportError::Configuration),
             offers_entries: Err(ReportError::Configuration),
             sourcing: endpoint(sourcing_url, sourcing_token),
@@ -105,6 +114,20 @@ impl ReportingClients {
         self.offers = endpoint(url, token);
         self.offers_entries = status_endpoint(url, token);
         self
+    }
+    pub(super) fn with_customer_facing(mut self, url: &str, token: &str) -> Self {
+        self.customer_facing = endpoint(url, token);
+        self.customer_facing_entries = status_endpoint(url, token);
+        self
+    }
+    pub(super) async fn customer_facing_report(&self) -> Result<Report, ReportError> {
+        self.fetch(&self.customer_facing).await
+    }
+    pub(super) async fn customer_facing_entry_statuses(
+        &self,
+    ) -> Result<EntryStatuses, ReportError> {
+        self.fetch_entry_statuses(&self.customer_facing_entries)
+            .await
     }
     pub(super) async fn offers_report(&self) -> Result<Report, ReportError> {
         self.fetch(&self.offers).await

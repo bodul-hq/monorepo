@@ -42,6 +42,8 @@ reset. No other service's tables or database are needed.
 | Method and path | Behavior |
 | --- | --- |
 | `GET /api/health` | `200`, text `ok`; does not probe PostgreSQL |
+| `GET /api/reporting/database-tables` | Authenticated table storage and estimated row counts |
+| `GET /api/reporting/entry-statuses` | Authenticated exact command/event counts by status |
 | `GET /api/offers` | Paginated offers, with `limit` and `offset` query parameters |
 | `POST /api/inbox` | Store a message and return `202`, `{"message_id":"<uuid>"}` |
 | `POST /api/inbox/run` | Convert one batch of due inbox messages into queued commands |
@@ -284,3 +286,48 @@ for the runtime and startup decision.
 
 See [ADR 22](../../docs/adr/0022-customer-facing-offer-projection.md) for the
 projection transaction and metadata-preserving consumer decision.
+
+## Development dashboard reports
+
+The [development dashboard](../../apps/development/README.md#database-dashboard)
+reads two service-owned REST reports. Both require bearer authentication;
+`CUSTOMER_FACING_REPORTING_TOKEN` defaults to `customer-facing-development-token`.
+An explicitly empty token authorizes no requests. The Makefile loads this
+setting from `.env`, preserving shell and command-line overrides.
+
+```sh
+curl http://localhost:3003/api/reporting/database-tables \
+  -H 'Authorization: Bearer customer-facing-development-token'
+curl http://localhost:3003/api/reporting/entry-statuses \
+  -H 'Authorization: Bearer customer-facing-development-token'
+```
+
+`database-tables` returns `schema_name`, UTC `generated_at`,
+`row_count_kind: "estimated"`, and `tables`. Each table has `table_name`,
+`row_count`, `table_bytes`, `index_bytes`, and `total_bytes`. Ordinary tables in
+the active schema include offers, queues, and migration records; views and
+system schemas are excluded. Tables are sorted alphabetically. Row counts use
+PostgreSQL live-row estimates and can lag recent writes; zero does not prove a
+table is empty. Table bytes include TOAST and auxiliary storage; total bytes
+are table plus index bytes. Reporting never runs `ANALYZE` or scans application
+tables to calculate row estimates.
+
+`entry-statuses` returns UTC `generated_at`, `command_entries`, and
+`event_entries`. Each entry has numeric `status`, `status_text`, and exact
+`count`, sorted by status. Both queues are counted in one SQL statement.
+Labels are `0 received`, `2 reserved`, `4 failed`, `5 completed`, `7 dead`,
+and `8 archive`; other codes remain visible as `unknown`. Empty queues return
+empty arrays. Inbox/outbox status breakdowns are not included.
+
+All report responses use `Cache-Control: no-store`. Missing or incorrect
+credentials return `401`, database unavailability returns `503`, and query or
+blocking-task failures return sanitized `500` errors. Reporting does not run
+queues or change their rows. Other routes keep their existing access rules.
+Bruno includes **Report database tables** and **Report command and event
+statuses**; adjust their development bearer token if overriding the service.
+
+The development app defaults `CUSTOMER_FACING_URL` to
+`http://172.28.100.42:3000`. Its `CUSTOMER_FACING_TOKEN` must match this service's
+reporting token. Use `CUSTOMER_FACING_URL=http://localhost:3003` when running
+customer-facing locally on port 3003. Restart each process after configuration
+changes; recreate containers when changing their environment.

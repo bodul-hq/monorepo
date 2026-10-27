@@ -21,14 +21,31 @@ impl Dashboard {
 
 #[handler]
 pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
-    let ((sourcing, storage), entries, offers, offers_entries) = tokio::join!(
+    let (
+        (sourcing, storage),
+        entries,
+        offers,
+        offers_entries,
+        customer_facing,
+        customer_facing_entries,
+    ) = tokio::join!(
         state.clients.reports(),
         state.clients.entry_statuses(),
         state.clients.offers_report(),
         state.clients.offers_entry_statuses(),
+        state.clients.customer_facing_report(),
+        state.clients.customer_facing_entry_statuses(),
     );
-    let mut response =
-        Html(render(sourcing, storage, entries, offers, offers_entries)).into_response();
+    let mut response = Html(render(
+        sourcing,
+        storage,
+        entries,
+        offers,
+        offers_entries,
+        customer_facing,
+        customer_facing_entries,
+    ))
+    .into_response();
     response
         .headers_mut()
         .insert("cache-control", "no-store".parse().unwrap());
@@ -41,12 +58,21 @@ fn render(
     entries: Result<EntryStatuses, ReportError>,
     offers: Result<Report, ReportError>,
     offers_entries: Result<EntryStatuses, ReportError>,
+    customer_facing: Result<Report, ReportError>,
+    customer_facing_entries: Result<EntryStatuses, ReportError>,
 ) -> String {
     let reports = [
         (&sourcing, "Retailer Sourcing", "Pipeline metadata", "01"),
         (&storage, "Object Storage", "Stored artifacts", "02"),
         (&offers, "Offers", "Offer events and metadata", "03"),
+        (
+            &customer_facing,
+            "Customer Facing",
+            "Customer offer projections",
+            "04",
+        ),
     ];
+    let service_count = reports.len();
     let available = reports.iter().filter(|(r, _, _, _)| r.is_ok()).count();
     let total_bytes: u128 = reports
         .iter()
@@ -63,16 +89,17 @@ fn render(
     html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
     let _ = write!(
         html,
-        r#"<section class="overview" aria-label="Overview"><div><span class="metric-label">Services available</span><strong>{available}<small> / 3</small></strong></div><div><span class="metric-label">Tables reported</span><strong>{total_tables}</strong></div><div><span class="metric-label">Storage reported</span><strong>{}</strong></div><div class="refresh-note"><span class="mini-dot" aria-hidden="true"></span><div><b>Refresh on demand</b><span>Reports update when you load this page.</span></div></div></section>"#,
+        r#"<section class="overview" aria-label="Overview"><div><span class="metric-label">Services available</span><strong>{available}<small> / {service_count}</small></strong></div><div><span class="metric-label">Tables reported</span><strong>{total_tables}</strong></div><div><span class="metric-label">Storage reported</span><strong>{}</strong></div><div class="refresh-note"><span class="mini-dot" aria-hidden="true"></span><div><b>Refresh on demand</b><span>Reports update when you load this page.</span></div></div></section>"#,
         bytes(total_bytes)
     );
-    if available < 3 {
+    if available < service_count {
         html.push_str(
             r#"<p class="partial-note">Summary totals include available services only.</p>"#,
         );
     }
     render_entries(&mut html, "Retailer Sourcing", entries);
     render_entries(&mut html, "Offers", offers_entries);
+    render_entries(&mut html, "Customer Facing", customer_facing_entries);
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(

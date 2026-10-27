@@ -6,6 +6,7 @@ mod orchestration;
 mod postgres_tests;
 #[cfg(test)]
 mod queue_tests;
+mod reporting;
 
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema};
 use async_graphql_poem::GraphQL;
@@ -52,10 +53,21 @@ async fn graphiql() -> Html<String> {
     )
 }
 
+#[cfg(test)]
 fn app(state: AppState) -> Route {
+    app_with_reporting_token(state, reporting::DEFAULT_REPORTING_TOKEN.into())
+}
+
+fn app_with_reporting_token(state: AppState, token: String) -> Route {
+    let reports = reporting::ReportingApi::new(state.reporting.clone(), token);
     let offers = state.offers.clone();
     let api = OpenApiService::new(
-        (Api, QueueApi(state), offer_read::OffersApi(offers.clone())),
+        (
+            Api,
+            QueueApi(state),
+            offer_read::OffersApi(offers.clone()),
+            reports,
+        ),
         "Customer Facing",
         env!("CARGO_PKG_VERSION"),
     )
@@ -91,12 +103,22 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
+    let token = match std::env::var("CUSTOMER_FACING_REPORTING_TOKEN") {
+        Ok(token) => token,
+        Err(std::env::VarError::NotPresent) => reporting::DEFAULT_REPORTING_TOKEN.into(),
+        Err(_) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "CUSTOMER_FACING_REPORTING_TOKEN must be valid Unicode",
+            ));
+        }
+    };
     let pool = bootstrap::database_pool()?;
     let shutdown = shutdown_signal()?;
     let (kernel, state) = orchestration::start_mulac(pool)
         .map_err(|_| std::io::Error::other("Mulac kernel could not start"))?;
     let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run_with_graceful_shutdown(app(state), shutdown, None)
+        .run_with_graceful_shutdown(app_with_reporting_token(state, token), shutdown, None)
         .await;
     kernel.shutdown();
     result

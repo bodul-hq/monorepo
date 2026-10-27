@@ -96,8 +96,9 @@ shows 30 offers per page with responsive HTML/CSS cards and Previous/Next links,
 using customer-facing's REST API. Set `CUSTOMER_FACING_URL` to that service's
 base URL (default `http://localhost:3003`). The
 [development app](apps/development/README.md) also provides `/dashboard`,
-combining authenticated database table reports from retailer sourcing and object
-storage through private server-side clients.
+combining authenticated database table reports from retailer sourcing, object
+storage, offers, and customer-facing through private server-side clients. It also
+shows exact command/event status counts for the three pipeline services.
 
 ## Requirements
 

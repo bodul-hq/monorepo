@@ -2,6 +2,7 @@
 
 mod browsing;
 mod projection;
+mod reporting;
 
 use std::sync::{Arc, Mutex};
 

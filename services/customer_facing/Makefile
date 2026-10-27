@@ -10,7 +10,16 @@ endif
 ifneq ($(origin PORT),undefined)
 customer_facing_port := $(value PORT)
 endif
+ifneq ($(origin CUSTOMER_FACING_REPORTING_TOKEN),undefined)
+customer_facing_reporting_token := $(value CUSTOMER_FACING_REPORTING_TOKEN)
+endif
 include $(wildcard .env)
+ifneq ($(origin customer_facing_reporting_token),undefined)
+CUSTOMER_FACING_REPORTING_TOKEN := $(customer_facing_reporting_token)
+endif
+ifneq ($(origin CUSTOMER_FACING_REPORTING_TOKEN),undefined)
+export CUSTOMER_FACING_REPORTING_TOKEN
+endif
 ifneq ($(origin customer_facing_database_url),undefined)
 DATABASE_URL := $(customer_facing_database_url)
 endif
