@@ -18,6 +18,22 @@ impl PostgresRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for PostgresRetailerOfferRepository {
+    fn update_identifiers(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        identifiers.guard().map_err(super::err_update)?;
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query("UPDATE read_offers SET gtin=$2, sku=$3, shopify_product_gid=$4, shopify_product_variation_gid=$5, shopify_handle=$6 WHERE id=$1").bind::<SqlUuid, _>(id)
+        .bind::<diesel::sql_types::Nullable<Text>, _>(identifiers.gtin.as_ref().map(|value| &value.value))
+            .bind::<diesel::sql_types::Nullable<Text>, _>(identifiers.sku.as_ref().map(|value| &value.value))
+            .bind::<diesel::sql_types::Nullable<Text>, _>(identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
+            .bind::<diesel::sql_types::Nullable<Text>, _>(identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
+            .bind::<diesel::sql_types::Nullable<Text>, _>(identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value))
+            .execute(&mut self.pool.get().map_err(super::err_update)?).map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
     fn update_localization(
         &self,
         id: &crate::offers::retailer_offer_id::RetailerOfferId,
@@ -111,8 +127,8 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
         connection
             .transaction::<_, diesel::result::Error, _>(|connection| {
                 diesel::sql_query(
-                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
                 )
                 .bind::<SqlUuid, _>(id)
                 .bind::<Text, _>(entity.retailer_code.as_str())
@@ -124,6 +140,11 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Timestamptz>, _>(entity.scraped_at)
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(&market)
                 .bind::<diesel::sql_types::Nullable<Text>, _>(&entity.localization.language)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.gtin.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.sku.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value))
                 .execute(connection)?;
                 for (position, image_url) in entity.images.iter().enumerate() {
                     diesel::sql_query(

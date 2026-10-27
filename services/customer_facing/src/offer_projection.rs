@@ -23,6 +23,8 @@ use uuid::Uuid;
 
 #[derive(Deserialize)]
 struct Created {
+    #[serde(flatten)]
+    identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default)]
     localization: retailer_sauce::localization::Localization,
     #[serde(default)]
@@ -68,7 +70,18 @@ struct LocalizationChanged {
     localization: retailer_sauce::localization::Localization,
 }
 
+#[derive(Deserialize)]
+struct IdentifiersChanged {
+    id: Uuid,
+    #[serde(
+        flatten,
+        deserialize_with = "retailer_sauce::identifier::complete_identifiers"
+    )]
+    identifiers: retailer_sauce::identifier::ProductIdentifiers,
+}
+
 enum Change {
+    Identifiers(IdentifiersChanged),
     Localization(LocalizationChanged),
     ScrapedAt(ScrapedAtUpdated),
     Image(ImageAdded),
@@ -89,6 +102,9 @@ impl Change {
             return Err(invalid("price must be a JSON object"));
         }
         let change = match kind {
+            "OfferIdentifiersChanged" => {
+                Self::Identifiers(serde_json::from_value(payload).map_err(invalid)?)
+            }
             "OfferLocalizationChanged" => {
                 Self::Localization(serde_json::from_value(payload).map_err(invalid)?)
             }
@@ -120,7 +136,9 @@ impl Change {
                 Some(&offer.title)
             }
             Self::Title(change) => Some(&change.title),
-            Self::Price(_) | Self::ScrapedAt(_) | Self::Localization(_) => None,
+            Self::Price(_) | Self::ScrapedAt(_) | Self::Localization(_) | Self::Identifiers(_) => {
+                None
+            }
             Self::Image(change) => {
                 if !shared::images::is_valid(&change.image_url) {
                     return Err(invalid("invalid image URL"));
@@ -136,6 +154,12 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
+            Self::Identifiers(change) => diesel::sql_query("UPDATE offers SET gtin=$2, sku=$3, shopify_product_gid=$4, shopify_product_variation_gid=$5, shopify_handle=$6 WHERE id=$1").bind::<SqlUuid, _>(change.id)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.gtin.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.sku.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value)).execute(connection)?,
             Self::Localization(change) => {
                 diesel::sql_query("UPDATE offers SET target_market=$2, language=$3 WHERE id=$1")
                     .bind::<SqlUuid, _>(change.id)
@@ -164,8 +188,8 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
@@ -177,6 +201,11 @@ impl Change {
                 .bind::<diesel::sql_types::Nullable<Timestamptz>, _>(offer.scraped_at)
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(offer.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(&offer.localization.language)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.gtin.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.sku.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value))
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(

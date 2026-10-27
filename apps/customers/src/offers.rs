@@ -17,6 +17,8 @@ pub struct Page {
 
 #[derive(Debug, Deserialize)]
 pub struct Offer {
+    #[serde(flatten)]
+    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default, deserialize_with = "read_localization")]
     pub localization: retailer_sauce::localization::Localization,
     #[serde(default)]
@@ -89,7 +91,8 @@ impl OffersClient {
             || page.items.len() > PAGE_SIZE as usize
             || (page.has_more && page.items.len() != PAGE_SIZE as usize)
             || page.items.iter().any(|offer| {
-                offer.localization.guard().is_err()
+                offer.identifiers.guard().is_err()
+                    || offer.localization.guard().is_err()
                     || offer.id.is_empty()
                     || offer.retailer_code.is_empty()
                     || offer.created_at.is_empty()

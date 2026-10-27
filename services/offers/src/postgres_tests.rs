@@ -760,6 +760,9 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        gtin: None,
+        sku: None,
+        external_identifiers: Default::default(),
         localization: None,
         scraped_at: None,
         images: Vec::new(),
@@ -841,6 +844,9 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     };
     for number in 0..3 {
         let command = crate::offers::command::ImportOfferDetailsCommand {
+            gtin: None,
+            sku: None,
+            external_identifiers: Default::default(),
             localization: None,
             scraped_at: None,
             images: Vec::new(),
@@ -1127,6 +1133,9 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        gtin: None,
+        sku: None,
+        external_identifiers: Default::default(),
         localization: None,
         scraped_at: None,
         images: Vec::new(),
@@ -1253,6 +1262,7 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
     ];
     for repository in repositories {
         let entity = crate::read_offer::entity::RetailerOffer {
+            identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
@@ -1396,6 +1406,7 @@ fn creation_projection_rolls_back_parent_and_images_together() {
     use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
     let (_schema, pool) = inbox_test_database();
     let entity = crate::read_offer::entity::RetailerOffer {
+        identifiers: Default::default(),
         localization: Default::default(),
         scraped_at: None,
         id: RetailerOfferId::new(Uuid::now_v7().to_string()),
@@ -1539,5 +1550,55 @@ async fn every_event_keeps_its_testimony_revision_through_outbox_replay() {
             "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM outbox_entries o"
         ),
         before
+    );
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrichment() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/facts"});
+    for step in 0..4 {
+        if step == 1 {
+            input["gtin"] = json!("0012345678905");
+            input["sku"] = json!("A1");
+            input["localization"] =
+                json!({"target_market":{"kind":"region","label":"Europe"},"language":"en-AU"});
+        }
+        if step == 2 {
+            input.as_object_mut().unwrap().remove("gtin");
+            input.as_object_mut().unwrap().remove("sku");
+            input.as_object_mut().unwrap().remove("localization");
+        }
+        if step == 3 {
+            input["sku"] = json!("A2");
+            input["localization"] = json!({"target_market":null,"language":null});
+        }
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, [1, 2, 0, 2][step]).await;
+    }
+    let row = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    assert_eq!(row["gtin"], "0012345678905");
+    assert_eq!(row["sku"], "A2");
+    assert!(row["language"].is_null());
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM read_offers"),
+        1
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg((meta->>'sequence')::bigint ORDER BY (meta->>'sequence')::bigint) AS data FROM outbox_entries"
+        ),
+        json!([1, 2, 3, 4, 5])
     );
 }

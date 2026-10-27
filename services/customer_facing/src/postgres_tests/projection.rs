@@ -86,7 +86,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let mut expected = json!({
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
-        "target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
+        "gtin":null,"sku":null,"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null,"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
     let title_message = apply(
@@ -695,4 +695,55 @@ async fn scrape_time_is_monotonic_with_atomic_receipts_and_public_api_parity() {
             .is_empty()
     );
     assert_eq!(projection_counts(&pool), before);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn localization_and_identifiers_replace_decided_state_with_atomic_receipts() {
+    let (_schema, pool) = database(true);
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    apply(&client, "OfferCreated", &created(id)).await;
+    let known = json!({"id":id,"localization":{"target_market":{"kind":"country","code":"CA"},"language":"fr"}});
+    apply(&client, "OfferLocalizationChanged", &known).await;
+    assert_eq!(offer(&pool)["language"], "fr");
+    assert_eq!(
+        offer(&pool)["target_market"],
+        known["localization"]["target_market"]
+    );
+    let identifiers = json!({"id":id,"gtin":"0012345678905","sku":"A1-BLACK","external_identifiers":{"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}});
+    let message = apply(&client, "OfferIdentifiersChanged", &identifiers).await;
+    let before = offer(&pool);
+    replay_inbox(&pool, message);
+    advance(&client, "inbox", 1).await;
+    advance(&client, "commands", 1).await;
+    assert_eq!(offer(&pool), before);
+    assert_eq!(before["gtin"], "0012345678905");
+    apply(
+        &client,
+        "OfferLocalizationChanged",
+        &json!({"id":id,"localization":{"target_market":null,"language":null}}),
+    )
+    .await;
+    assert!(offer(&pool)["language"].is_null());
+    assert_eq!(offer(&pool)["sku"], "A1-BLACK");
+    let response = client.get("/api/offers").send().await;
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        page["items"][0]["external_identifiers"],
+        identifiers["external_identifiers"]
+    );
+    let counts_before = projection_counts(&pool);
+    let mut missing = identifiers.clone();
+    missing["id"] = json!(Uuid::now_v7());
+    submit(&client, "OfferIdentifiersChanged", &missing, Uuid::now_v7()).await;
+    advance(&client, "inbox", 1).await;
+    assert!(
+        !run(&client, "commands", 100).await["errors"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(projection_counts(&pool), counts_before);
 }

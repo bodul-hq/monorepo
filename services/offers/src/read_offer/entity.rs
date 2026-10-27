@@ -6,6 +6,7 @@ use crate::offers::retailer_offer_id::RetailerOfferId;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct RetailerOffer {
+    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     pub localization: retailer_sauce::localization::Localization,
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub id: RetailerOfferId,

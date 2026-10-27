@@ -117,5 +117,7 @@ See [ADR 23](../../docs/adr/0023-offer-browsing-and-customers-homepage.md).
 Image behavior and rollout: [ADR 24](../../docs/adr/0024-append-only-offer-images.md),
 [combined walkthrough](../../docs/offer-images-walkthrough.md).
 
-The offers response model carries validated localization facts with unknown defaults
-for older APIs. Cards do not display these facts or change their language.
+The response model also accepts source-backed localization, GTIN, SKU and optional
+Shopify identifiers. Older API responses default to unknown values. These fields
+are validated but not displayed; card HTML, page language and currency formatting
+are unchanged. See the [offer facts walkthrough](../../docs/offer-facts-walkthrough.md).

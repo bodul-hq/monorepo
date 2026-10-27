@@ -160,12 +160,20 @@ fn configuration_defaults_and_invalid_urls() {
 fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     let mut value = page(1, 0, false)["items"][0].clone();
     let legacy: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(legacy.identifiers, Default::default());
     assert_eq!(legacy.localization, Default::default());
+    value["gtin"] = json!("0012345678905");
+    value["sku"] = json!("A1-BLACK");
+    value["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"});
     value["localization"] =
         json!({"target_market":{"kind":"country","code":"CA","label":null},"language":"fr"});
     let offer: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(offer.identifiers.gtin.unwrap().value, "0012345678905");
     assert_eq!(offer.localization.language.as_deref(), Some("fr"));
     for (field, invalid) in [
+        ("gtin", json!(123)),
+        ("sku", json!("")),
+        ("external_identifiers", json!(null)),
         ("localization", json!(null)),
         ("localization", json!({"language":"bad_tag"})),
     ] {

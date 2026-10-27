@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};
 
-pub const SCHEMA_VERSION: u32 = 4;
+pub const SCHEMA_VERSION: u32 = 5;
 
 pub fn legacy_schema_version() -> u32 {
     1
@@ -26,6 +26,16 @@ pub struct ExportSource {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OfferImport {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gtin: Option<retailer_sauce::identifier::Gtin>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sku: Option<retailer_sauce::identifier::Sku>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "retailer_sauce::identifier::external_object"
+    )]
+    pub external_identifiers: Option<retailer_sauce::identifier::ExternalIdentifiers>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
@@ -87,9 +97,27 @@ pub struct OfferExport {
 
 impl OfferExport {
     pub fn valid_schema(&self) -> bool {
-        matches!(self.schema_version, 1..=4)
+        matches!(self.schema_version, 1..=5)
             && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
+                if entry.payload.external_identifiers.is_some() != (self.schema_version >= 5)
+                    || (self.schema_version < 5
+                        && (entry.payload.gtin.is_some() || entry.payload.sku.is_some()))
+                {
+                    return false;
+                }
+                let identifiers = retailer_sauce::identifier::ProductIdentifiers {
+                    gtin: entry.payload.gtin.clone(),
+                    sku: entry.payload.sku.clone(),
+                    external_identifiers: entry
+                        .payload
+                        .external_identifiers
+                        .clone()
+                        .unwrap_or_default(),
+                };
+                if identifiers.guard().is_err() {
+                    return false;
+                }
                 if entry
                     .payload
                     .localization

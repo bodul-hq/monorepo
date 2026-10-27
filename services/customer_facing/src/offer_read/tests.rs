@@ -22,6 +22,9 @@ pub(crate) fn offers(items: Vec<Offer>) -> Offers {
 
 fn fixture(index: u128) -> Offer {
     Offer {
+        gtin: (index == 0).then(|| "0012345678905".into()),
+        sku: (index == 0).then(|| "A1-BLACK".into()),
+        external_identifiers: Default::default(),
         localization: if index == 0 {
             OfferLocalization::from_record(
                 Some(json!({"kind":"country","code":"CA"})),
@@ -70,7 +73,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
         );
         for get in [false, true] {
             let response = if get {
@@ -90,6 +93,20 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
             obj.insert("hasMore".into(), more);
             for item in obj["items"].as_array_mut().unwrap() {
                 let item = item.as_object_mut().unwrap();
+                let mut identifiers = item.remove("external_identifiers").unwrap();
+                let ids = identifiers.as_object_mut().unwrap();
+                for (from, to) in [
+                    ("shopify_product_gid", "shopifyProductGid"),
+                    (
+                        "shopify_product_variation_gid",
+                        "shopifyProductVariationGid",
+                    ),
+                    ("shopify_handle", "shopifyHandle"),
+                ] {
+                    let value = ids.remove(from).unwrap();
+                    ids.insert(to.into(), value);
+                }
+                item.insert("externalIdentifiers".into(), identifiers);
                 let localization = item["localization"].as_object_mut().unwrap();
                 let mut market = localization.remove("target_market").unwrap();
                 if let Some(kind) = market.get_mut("kind") {

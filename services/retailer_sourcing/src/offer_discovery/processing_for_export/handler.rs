@@ -173,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v4() {
+    fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v5() {
         let mut value = serde_json::to_value(command()).unwrap();
         value.as_object_mut().unwrap().remove("schema_version");
         let legacy: ProcessOfferForExport = serde_json::from_value(value.clone()).unwrap();
@@ -181,7 +181,7 @@ mod tests {
         let source: OfferWasStructuralized = serde_json::from_value(value).unwrap();
         assert_eq!(
             super::super::reacts_to::on(&source).unwrap().schema_version,
-            4
+            5
         );
     }
 }

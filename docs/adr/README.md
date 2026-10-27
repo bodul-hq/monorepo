@@ -27,11 +27,10 @@
 | [23](0023-offer-browsing-and-customers-homepage.md) | Customer-facing offer browsing and the customers homepage | Accepted |
 | [24](0024-append-only-offer-images.md) | Append-only offer images with compatible v2 exports | Accepted; supersedes only ADR 19 image exclusion and ADR 21/22 three-event restrictions |
 | [25](0025-initial-images-in-offer-created.md) | Initial images in OfferCreated | Accepted; supersedes ADR 24 creation-event behavior |
-
 | [26](0026-offer-scrape-provenance.md) | Immutable scrape provenance and monotonic scrape time | Accepted |
 | [27](0027-offer-revision-metadata.md) | Preserve Testimony revisions through Mulac | Accepted |
-
 | [28](0028-source-backed-offer-localization.md) | Source-backed target market and language | Accepted |
+| [29](0029-offer-product-identifiers.md) | Offer product identifiers | Accepted |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

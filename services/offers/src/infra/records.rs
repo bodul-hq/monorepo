@@ -1,22 +1,25 @@
-use crate::offers::event::OfferLocalizationChangedEvent;
+use crate::offers::event::OfferIdentifiersChangedEvent;
 use serde::{Deserialize, Serialize};
 use testimony::prelude::HasAggregateId;
 
 use crate::offers::event::{
-    OfferCreatedEvent, OfferImageAddedEvent, OfferPriceChangedEvent, OfferScrapedAtUpdatedEvent,
-    OfferTitleChangedEvent, RetailerOfferEvent,
+    OfferCreatedEvent, OfferImageAddedEvent, OfferLocalizationChangedEvent, OfferPriceChangedEvent,
+    OfferScrapedAtUpdatedEvent, OfferTitleChangedEvent, RetailerOfferEvent,
 };
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
 pub enum OfferEventRecord {
     #[serde(
-        rename = "OfferCreated.v4",
+        rename = "OfferCreated.v5",
+        alias = "OfferCreated.v4",
         alias = "OfferCreated.v3",
         alias = "OfferCreated.v1",
         alias = "OfferCreated.v2"
     )]
     Created(OfferCreatedEvent),
+    #[serde(rename = "OfferIdentifiersChanged.v1")]
+    IdentifiersChanged(OfferIdentifiersChangedEvent),
     #[serde(rename = "OfferLocalizationChanged.v1")]
     LocalizationChanged(OfferLocalizationChangedEvent),
     #[serde(rename = "OfferImageAdded.v1")]
@@ -32,6 +35,9 @@ pub enum OfferEventRecord {
 impl From<&RetailerOfferEvent> for OfferEventRecord {
     fn from(event: &RetailerOfferEvent) -> Self {
         match event {
+            RetailerOfferEvent::OfferIdentifiersChanged(event) => {
+                Self::IdentifiersChanged(event.clone())
+            }
             RetailerOfferEvent::OfferLocalizationChanged(event) => {
                 Self::LocalizationChanged(event.clone())
             }
@@ -49,6 +55,7 @@ impl From<&RetailerOfferEvent> for OfferEventRecord {
 impl From<OfferEventRecord> for RetailerOfferEvent {
     fn from(record: OfferEventRecord) -> Self {
         match record {
+            OfferEventRecord::IdentifiersChanged(event) => Self::OfferIdentifiersChanged(event),
             OfferEventRecord::LocalizationChanged(event) => Self::OfferLocalizationChanged(event),
             OfferEventRecord::ScrapedAtUpdated(event) => Self::OfferScrapedAtUpdated(event),
             OfferEventRecord::ImageAdded(event) => Self::OfferImageAdded(event),
@@ -62,6 +69,7 @@ impl From<OfferEventRecord> for RetailerOfferEvent {
 impl HasAggregateId for OfferEventRecord {
     fn aggregate_id(&self) -> String {
         match self {
+            Self::IdentifiersChanged(event) => event.id.to_string(),
             Self::LocalizationChanged(event) => event.id.to_string(),
             Self::ScrapedAtUpdated(event) => event.id.to_string(),
             Self::ImageAdded(event) => event.id.to_string(),

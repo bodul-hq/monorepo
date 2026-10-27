@@ -91,6 +91,7 @@ impl RetailerOfferAggregate {
         }
         Self::guard_capacity(0, 0, images.len() as u64, 1)?;
         let event = OfferCreatedEvent {
+            identifiers: observation.identifiers,
             localization: observation.localization.unwrap_or_default(),
             scraped_at,
             images,
@@ -112,6 +113,7 @@ impl RetailerOfferAggregate {
         for image in &event.images {
             state.add_image(image.clone());
         }
+        state.identifiers = event.identifiers.clone();
         state.localization = event.localization.clone();
         state.observe_scrape(event.scraped_at);
         let sequence = 1;
@@ -183,6 +185,8 @@ impl RetailerOfferAggregate {
             .guard()
             .map_err(RetailerOfferError::InvalidObservation)?;
         let scraped_at = observation.scraped_at;
+        let identifiers = self.state.identifiers.enriched(&observation.identifiers);
+        let identifiers_changed = identifiers != self.state.identifiers;
         let localization_changed = observation
             .localization
             .as_ref()
@@ -207,7 +211,8 @@ impl RetailerOfferAggregate {
             u64::from(title_changed)
                 + u64::from(price_changed)
                 + u64::from(scrape_changed)
-                + u64::from(localization_changed),
+                + u64::from(localization_changed)
+                + u64::from(identifiers_changed),
         )?;
 
         if title_changed {
@@ -271,6 +276,18 @@ impl RetailerOfferAggregate {
                 self.sequence,
             ));
         }
+        if identifiers_changed {
+            let event = super::event::OfferIdentifiersChangedEvent {
+                id: self.state.id().clone(),
+                identifiers,
+            };
+            self.state.identifiers = event.identifiers.clone();
+            self.sequence += 1;
+            self.uncommitted_events.push(EventEnvelope::new(
+                RetailerOfferEvent::OfferIdentifiersChanged(event),
+                self.sequence,
+            ));
+        }
         Ok(())
     }
 }
@@ -317,6 +334,11 @@ impl Aggregate for RetailerOfferAggregate {
             .localization
             .guard()
             .expect("invalid localization history");
+        created
+            .identifiers
+            .guard()
+            .expect("invalid identifier history");
+        aggregate.state.identifiers = created.identifiers;
         aggregate.state.localization = created.localization;
         aggregate.state.observe_scrape(created.scraped_at);
         for image in created.images {
@@ -334,6 +356,14 @@ impl Aggregate for RetailerOfferAggregate {
                 "offer history sequence must be contiguous"
             );
             match envelope.into_event() {
+                RetailerOfferEvent::OfferIdentifiersChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    event
+                        .identifiers
+                        .guard()
+                        .expect("invalid identifier history");
+                    aggregate.state.identifiers = event.identifiers;
+                }
                 RetailerOfferEvent::OfferLocalizationChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event
@@ -412,6 +442,9 @@ mod tests {
 
     fn update_command() -> ImportOfferDetailsCommand {
         ImportOfferDetailsCommand {
+            gtin: None,
+            sku: None,
+            external_identifiers: Default::default(),
             localization: None,
             scraped_at: None,
             images: Vec::new(),
@@ -631,6 +664,7 @@ mod tests {
             panic!("expected an OfferCreated event");
         };
         let expected_event = OfferCreatedEvent {
+            identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
@@ -819,7 +853,7 @@ mod tests {
             offer.uncommitted_events[0].event(),
         ))
         .unwrap();
-        assert_eq!(serialized["type"], "OfferCreated.v4");
+        assert_eq!(serialized["type"], "OfferCreated.v5");
         assert_eq!(serialized["data"]["images"], serde_json::json!([a, b]));
         let replay =
             RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
@@ -1044,5 +1078,79 @@ mod localization_tests {
         assert_eq!(offer.state.localization, Default::default());
         let replay = RetailerOfferAggregate::from_history(id, offer.uncommitted_events.clone());
         assert_eq!(replay.state, offer.state);
+    }
+}
+
+#[cfg(test)]
+mod identifiers_tests {
+    use super::*;
+    use retailer_sauce::identifier::{Gtin, ProductIdentifiers, Sku};
+    #[test]
+    fn identifiers_enrich_correct_replay_and_leave_offer_identity_unchanged() {
+        let initial = ProductIdentifiers {
+            gtin: Some(Gtin {
+                value: "0012345678905".into(),
+            }),
+            sku: Some(Sku { value: "A1".into() }),
+            ..Default::default()
+        };
+        let observation = OfferObservation {
+            identifiers: initial.clone(),
+            ..Default::default()
+        };
+        let id = RetailerOfferId::new("identified");
+        let mut offer = RetailerOfferAggregate::create_with_observation(
+            id.clone(),
+            RetailerCode::AnkerAu,
+            "Charger".into(),
+            Money::new(100, money::Currency::AUD),
+            "https://shop.example/a".into(),
+            vec![],
+            observation,
+        )
+        .unwrap();
+        for identifiers in [ProductIdentifiers::default(), initial.clone()] {
+            let observation = OfferObservation {
+                identifiers,
+                ..Default::default()
+            };
+            offer
+                .update_with_observation(
+                    "Charger".into(),
+                    Money::new(100, money::Currency::AUD),
+                    vec![],
+                    observation,
+                )
+                .unwrap();
+            assert_eq!(offer.sequence, 1);
+        }
+        let correction = ProductIdentifiers {
+            sku: Some(Sku { value: "A2".into() }),
+            ..Default::default()
+        };
+        let observation = OfferObservation {
+            identifiers: correction,
+            ..Default::default()
+        };
+        offer
+            .update_with_observation(
+                "Charger".into(),
+                Money::new(100, money::Currency::AUD),
+                vec![],
+                observation,
+            )
+            .unwrap();
+        assert_eq!(offer.sequence, 2);
+        assert_eq!(offer.state.identifiers.gtin, initial.gtin);
+        assert_eq!(offer.state.id(), &id);
+        assert_eq!(offer.state.url(), "https://shop.example/a");
+        let replay = RetailerOfferAggregate::from_history(id, offer.uncommitted_events.clone());
+        assert_eq!(replay.state, offer.state);
+        let event =
+            crate::infra::records::OfferEventRecord::from(offer.uncommitted_events[1].event());
+        let json = serde_json::to_value(event).unwrap();
+        assert_eq!(json["type"], "OfferIdentifiersChanged.v1");
+        assert_eq!(json["data"]["sku"], "A2");
+        assert!(json["data"]["external_identifiers"].is_object());
     }
 }

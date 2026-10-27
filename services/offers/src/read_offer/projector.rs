@@ -20,6 +20,13 @@ impl<R: RetailerOfferRepository> RetailerOfferProjector<R> {
 impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<R> {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         match envelope.event_type.as_str() {
+            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT => {
+                let event: crate::offers::event::OfferIdentifiersChangedEvent =
+                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                self.repository
+                    .update_identifiers(&event.id, &event.identifiers)
+                    .map_err(err_projection_failed)
+            }
             crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT => {
                 let event: crate::offers::event::OfferLocalizationChangedEvent =
                     serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
@@ -45,6 +52,7 @@ impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<
                     serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
 
                 let entity = RetailerOffer {
+                    identifiers: event.identifiers,
                     localization: event.localization,
                     scraped_at: event.scraped_at,
                     images: event.images,
@@ -98,6 +106,17 @@ mod tests {
     struct RecordingRepository(Mutex<Option<RetailerOffer>>);
 
     impl RetailerOfferRepository for RecordingRepository {
+        fn update_identifiers(
+            &self,
+            id: &crate::offers::retailer_offer_id::RetailerOfferId,
+            identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+        ) -> Result<(), RetailerOfferRepositoryError> {
+            let mut state = self.0.lock().unwrap();
+            let entity = state.as_mut().unwrap();
+            assert_eq!(&entity.id, id);
+            entity.identifiers = identifiers.clone();
+            Ok(())
+        }
         fn update_localization(
             &self,
             id: &crate::offers::retailer_offer_id::RetailerOfferId,
@@ -163,6 +182,7 @@ mod tests {
     fn maps_supported_events_and_rejects_malformed_payloads() {
         let projector = RetailerOfferProjector::new(RecordingRepository::default());
         let event = OfferCreatedEvent {
+            identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
@@ -188,6 +208,7 @@ mod tests {
         ));
         projector.handle(&envelope).unwrap();
         let mut expected = RetailerOffer {
+            identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),

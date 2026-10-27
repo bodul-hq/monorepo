@@ -17,5 +17,7 @@ Retailer integrations.
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
 
-`localization` defines validated target-market and full language-tag facts.
-Unknown facts remain optional; extraction diagnostics are kept outside this contract.
+`localization` defines validated target-market and language observations.
+`identifier` also provides `ExternalIdentifiers` and a validated complete identifier
+set for exact-string propagation and enrichment. Existing identifier constructors
+retain their semantics; new propagation boundaries additionally reject embedded NUL.

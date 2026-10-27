@@ -241,7 +241,7 @@ queues the command and `/api/commands/run` executes it through
 input returns `400`; inbox storage failures return `500` with `inbox message
 could not be stored`. The generated offer UUID is new for every import:
 identity deduplication, update commands, and receipts are not wired yet.
-Stored records use `OfferCreated.v4` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
+Stored records use `OfferCreated.v2` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
 and `OfferPriceChanged.v1`. Existing records in earlier formats are not migrated.
 
 Other active routes are `/api/health`, `/api/openapi.json`, `/api/docs/`, and
@@ -514,7 +514,7 @@ Updates retain title-then-price ordering and append only unseen images. Importin
 remove images. The raw image event is
 `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`;
 the update event's Testimony tag is `OfferImageAdded.v1`. New creation records
-use `OfferCreated.v4`; readers also accept `OfferCreated.v1` without images.
+use `OfferCreated.v5`; readers also accept v1–v4, including v1 without images.
 Missing images in old creation payloads mean `[]`. History replay initializes
 images from creation before applying any subsequent additions.
 
@@ -537,15 +537,6 @@ binary that cannot deserialize stored image events. See
 [ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md) and the
 [image walkthrough](../../docs/offer-images-walkthrough.md).
 
-## Event revisions
-
-Each offer starts at revision 1. Every event retains its exact Testimony revision
-in Mulac event metadata and offers outbox metadata, including multi-event updates.
-No-op imports consume no revisions. Legacy metadata may omit sequence; present
-values are positive integers bounded by PostgreSQL BIGINT. The optional-sequence
-Mulac prerequisite `dc60f443e4a2ed4a3e763855fe473426732baef1` is required. HTTP forwarding does not carry this metadata or
-provide source-order guarantees. See [ADR 27](../../docs/adr/0027-offer-revision-metadata.md).
-
 ## Scrape time
 
 The successful download instant travels with immutable artifact references through
@@ -556,10 +547,20 @@ Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
 independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
 for provenance, compatibility and deployment order.
 
-## Source-backed localization
+## Localization, identifiers and revisions
 
-Export v4 carries an explicit localization observation. Omitted legacy observations
-preserve known facts; explicit unknowns replace them. Source evidence stays with
-artifacts, while APIs return the selected target market and full language tag.
-Customers receives these facts without rendering them on cards. New creation
-history uses v4 and retains earlier readers. See [ADR 28](../../docs/adr/0028-source-backed-offer-localization.md).
+New sourcing exports use schema v5: v3 added scrape time, v4 added a localization
+observation, and v5 adds GTIN, SKU and the three Shopify identifiers. Prepared
+v1–v4 snapshots keep their original payload shapes and IDs. Missing localization
+means no observation; an explicit object replaces both facts, including unknowns.
+Missing/null identifiers retain known values; supplied fields enrich or correct
+them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
+Localization-only and identifier-only changes have their own domain events.
+
+Offers preserves each Testimony revision in Mulac event and outbox metadata;
+legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
+building/deploying this version. This does not change HTTP inbox metadata or add
+source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
+and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
+[28](../../docs/adr/0028-source-backed-offer-localization.md) and
+[29](../../docs/adr/0029-offer-product-identifiers.md).

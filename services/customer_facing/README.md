@@ -368,10 +368,20 @@ Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
 independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
 for provenance, compatibility and deployment order.
 
-## Source-backed localization
+## Localization, identifiers and revisions
 
-Export v4 carries an explicit localization observation. Omitted legacy observations
-preserve known facts; explicit unknowns replace them. Source evidence stays with
-artifacts, while APIs return the selected target market and full language tag.
-Customers receives these facts without rendering them on cards. New creation
-history uses v4 and retains earlier readers. See [ADR 28](../../docs/adr/0028-source-backed-offer-localization.md).
+New sourcing exports use schema v5: v3 added scrape time, v4 added a localization
+observation, and v5 adds GTIN, SKU and the three Shopify identifiers. Prepared
+v1–v4 snapshots keep their original payload shapes and IDs. Missing localization
+means no observation; an explicit object replaces both facts, including unknowns.
+Missing/null identifiers retain known values; supplied fields enrich or correct
+them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
+Localization-only and identifier-only changes have their own domain events.
+
+Offers preserves each Testimony revision in Mulac event and outbox metadata;
+legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
+building/deploying this version. This does not change HTTP inbox metadata or add
+source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
+and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
+[28](../../docs/adr/0028-source-backed-offer-localization.md) and
+[29](../../docs/adr/0029-offer-product-identifiers.md).

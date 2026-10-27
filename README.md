@@ -76,7 +76,10 @@ pipeline runs only when `DATABASE_URL` is set (see below).
 
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
 history and projects offer events, with initial images in `OfferCreated` and
-ordered image additions on updates. Its current
+ordered image additions on updates. Offer facts now include optional scrape time,
+source-backed localization and typed product identifiers. Testimony revisions
+are retained in Mulac event/outbox metadata using its optional-sequence API. See
+the [verification walkthrough](docs/offer-facts-walkthrough.md). Its current
 typed handler relies on the identity projection and does not have durable import
 receipts. Queues run explicitly through the API. Set `DATABASE_URL` to
 enable persistence; see its [setup and walkthrough](services/offers/README.md)
@@ -109,8 +112,8 @@ shows exact command/event status counts for the three pipeline services.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
 - A sibling `mulac` checkout next to `monorepo` for the services workspace's
-  local Mulac dependencies. The queue adapters were verified with revision
-  `9474319fff2237d81828a23d97df5d2f97741858`; Cargo path dependencies use the
+  local Mulac dependencies. The optional-sequence API requires revision
+  `dc60f443e4a2ed4a3e763855fe473426732baef1` or a compatible later checkout; Cargo path dependencies use the
   checked-out files rather than pinning that revision. See [ADR 17](docs/adr/0017-retailer-sourcing-local-mulac.md).
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).

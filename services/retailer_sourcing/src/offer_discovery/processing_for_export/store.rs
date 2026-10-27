@@ -102,7 +102,7 @@ impl Store for PgStore {
         source: ExportSource,
         schema_version: u32,
     ) -> Result<PreparedExport, StoreError> {
-        if !matches!(schema_version, 1..=4) {
+        if !matches!(schema_version, 1..=5) {
             return Err(StoreError::InvalidRecord);
         }
         if let Some(record) = self.find(&source, schema_version)? {

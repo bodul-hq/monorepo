@@ -16,12 +16,31 @@ struct StructuralizedDocument {
 #[derive(Deserialize)]
 struct Variation {
     #[serde(default)]
+    identifiers: VariationIdentifiers,
+    #[serde(default)]
     localization: retailer_sauce::localization::Localization,
     title: String,
     url: String,
     price: Option<Money>,
     #[serde(default = "empty_images")]
     images: serde_json::Value,
+}
+
+#[derive(Default, Deserialize)]
+struct VariationIdentifiers {
+    gtin: Option<retailer_sauce::identifier::Gtin>,
+    sku: Option<retailer_sauce::identifier::Sku>,
+    #[serde(flatten)]
+    external: retailer_sauce::identifier::ExternalIdentifiers,
+}
+impl VariationIdentifiers {
+    fn into_identifiers(self) -> retailer_sauce::identifier::ProductIdentifiers {
+        retailer_sauce::identifier::ProductIdentifiers {
+            gtin: self.gtin,
+            sku: self.sku,
+            external_identifiers: self.external,
+        }
+    }
 }
 
 fn empty_images() -> serde_json::Value {
@@ -37,7 +56,7 @@ pub(super) fn convert(
     body: &str,
     schema_version: u32,
 ) -> Result<OfferExport, ConversionError> {
-    if !matches!(schema_version, 1..=4) {
+    if !matches!(schema_version, 1..=5) {
         return Err(ConversionError("unsupported schema version".into()));
     }
     if schema_version < 3 && source.storage.scraped_at.is_some() {
@@ -67,6 +86,8 @@ pub(super) fn convert(
         } else {
             None
         };
+        let identifiers = variation.identifiers.into_identifiers();
+        identifiers.guard().map_err(ConversionError)?;
         let Some(price) = variation.price else {
             exclusions.push(ExportExclusion {
                 variation_index,
@@ -79,6 +100,18 @@ pub(super) fn convert(
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                gtin: if schema_version >= 5 {
+                    identifiers.gtin
+                } else {
+                    None
+                },
+                sku: if schema_version >= 5 {
+                    identifiers.sku
+                } else {
+                    None
+                },
+                external_identifiers: (schema_version >= 5)
+                    .then_some(identifiers.external_identifiers),
                 localization: (schema_version >= 4).then_some(variation.localization),
                 scraped_at: if schema_version >= 3 {
                     source.storage.scraped_at
@@ -137,8 +170,10 @@ pub(super) mod tests {
 
     pub(crate) const ANKER: &str =
         include_str!("../../../tests/fixtures/offer_export/ankerau.json");
-    const UGREEN: &str = include_str!("../../../tests/fixtures/offer_export/ugreenca.json");
-    const MINISFORUM: &str = include_str!("../../../tests/fixtures/offer_export/minisforumus.json");
+    pub(crate) const UGREEN: &str =
+        include_str!("../../../tests/fixtures/offer_export/ugreenca.json");
+    pub(crate) const MINISFORUM: &str =
+        include_str!("../../../tests/fixtures/offer_export/minisforumus.json");
 
     pub(crate) fn source() -> ExportSource {
         ExportSource {
@@ -363,5 +398,57 @@ mod scrape_tests {
         let mut invalid = snapshot.clone();
         invalid.entries[0].payload.scraped_at = None;
         assert!(!invalid.valid_schema());
+    }
+}
+
+#[cfg(test)]
+mod extended_contract_tests {
+    use super::*;
+    #[test]
+    fn v5_keeps_exact_identifiers_and_legacy_exports_omit_new_fields() {
+        let body = serde_json::json!({"variations":[{"title":" USB charger ž ","url":"https://shop.example/Charger?q=red&variant=1#details","price":{"amount":1999,"currency":"AUD"},"images":["https://example.com/a.png"],"localization":{"target_market":{"kind":"country","code":"AU"},"language":"en-AU"},"identifiers":{"gtin":"0012345678905","sku":"A1-BLACK","shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}}]});
+        let mut source = tests::source();
+        source.storage.scraped_at = Some("2026-10-26T12:00:00.123456Z".parse().unwrap());
+        let snapshot = convert(source.clone(), &body.to_string(), 5).unwrap();
+        assert!(snapshot.valid_schema());
+        assert_eq!(
+            serde_json::to_value(&snapshot.entries[0].payload).unwrap(),
+            serde_json::from_str::<serde_json::Value>(include_str!(
+                "../../../tests/fixtures/offer_export/import_payload_v5.json"
+            ))
+            .unwrap()
+        );
+        for version in [1, 2, 3, 4] {
+            let mut source = source.clone();
+            if version < 3 {
+                source.storage.scraped_at = None;
+            }
+            let snapshot = convert(source, &body.to_string(), version).unwrap();
+            assert!(snapshot.valid_schema());
+            let json = serde_json::to_value(&snapshot.entries[0].payload).unwrap();
+            for field in ["gtin", "sku", "external_identifiers"] {
+                assert!(json.get(field).is_none());
+            }
+        }
+        for value in [
+            serde_json::json!(null),
+            serde_json::json!({"gtin":""}),
+            serde_json::json!({"sku":123}),
+            serde_json::json!({"shopify_handle":"\0"}),
+        ] {
+            let mut invalid = body.clone();
+            invalid["variations"][0]["identifiers"] = value;
+            assert!(convert(source.clone(), &invalid.to_string(), 5).is_err());
+        }
+        for fixture in [tests::ANKER, tests::UGREEN, tests::MINISFORUM] {
+            let snapshot = convert(source.clone(), fixture, 5).unwrap();
+            assert!(snapshot.valid_schema());
+            assert!(
+                snapshot
+                    .entries
+                    .iter()
+                    .all(|entry| entry.payload.external_identifiers.is_some())
+            );
+        }
     }
 }

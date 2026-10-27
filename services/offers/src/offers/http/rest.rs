@@ -12,6 +12,11 @@ mod model {
 
     #[derive(Object)]
     pub struct ImportOfferRequest {
+        pub gtin: Option<String>,
+        pub sku: Option<String>,
+        pub external_identifiers: poem_openapi::types::MaybeUndefined<
+            poem_openapi::types::Any<retailer_sauce::identifier::ExternalIdentifiers>,
+        >,
         pub localization: poem_openapi::types::MaybeUndefined<
             poem_openapi::types::Any<retailer_sauce::localization::Localization>,
         >,
@@ -34,6 +39,10 @@ mod conversion {
 
     use super::{IMPORT_SOURCE, ImportOfferRequest, inbox};
     use crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND;
+
+    fn err_null_identifiers() -> String {
+        "external_identifiers must be an object".into()
+    }
 
     fn err_null_localization() -> String {
         "localization must be an object".into()
@@ -73,6 +82,27 @@ mod conversion {
                 poem_openapi::types::MaybeUndefined::Value(value) => {
                     payload["localization"] = json!(value.0);
                 }
+            }
+            let external_identifiers = match request.external_identifiers {
+                poem_openapi::types::MaybeUndefined::Undefined => Default::default(),
+                poem_openapi::types::MaybeUndefined::Null => return Err(err_null_identifiers()),
+                poem_openapi::types::MaybeUndefined::Value(value) => value.0,
+            };
+            let identifiers = retailer_sauce::identifier::ProductIdentifiers {
+                gtin: request
+                    .gtin
+                    .map(|value| retailer_sauce::identifier::Gtin { value }),
+                sku: request
+                    .sku
+                    .map(|value| retailer_sauce::identifier::Sku { value }),
+                external_identifiers,
+            };
+            identifiers.guard()?;
+            // Keep legacy form payloads unchanged unless identifiers were provided.
+            if identifiers != Default::default() {
+                payload["gtin"] = json!(identifiers.gtin);
+                payload["sku"] = json!(identifiers.sku);
+                payload["external_identifiers"] = json!(identifiers.external_identifiers);
             }
             let submission = Self {
                 payload: Some(payload),
@@ -128,6 +158,9 @@ mod tests {
     fn request_converts_directly_to_a_command_compatible_inbox_message() {
         for amount in [0, 1999, i64::MAX] {
             let request = ImportOfferRequest {
+                gtin: None,
+                sku: None,
+                external_identifiers: Default::default(),
                 localization: Default::default(),
                 scraped_at: None,
                 images: Vec::new(),

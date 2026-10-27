@@ -14,6 +14,11 @@ pub struct RetailerOfferRepositoryError(String);
 
 /// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
 pub trait RetailerOfferRepository: Send + Sync {
+    fn update_identifiers(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+    ) -> Result<(), RetailerOfferRepositoryError>;
     fn update_localization(
         &self,
         id: &crate::offers::retailer_offer_id::RetailerOfferId,
@@ -58,6 +63,7 @@ fn err_insert(error: impl std::fmt::Display) -> RetailerOfferRepositoryError {
 }
 
 fn validate(entity: &RetailerOffer) -> Result<uuid::Uuid, RetailerOfferRepositoryError> {
+    entity.identifiers.guard().map_err(err_insert)?;
     entity.localization.guard().map_err(err_insert)?;
     crate::offers::event::guard_images(&entity.images).map_err(err_insert)?;
     let id = uuid::Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
@@ -79,6 +85,7 @@ pub(crate) mod tests {
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferRepository) {
         let entity = RetailerOffer {
+            identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
             images: vec![

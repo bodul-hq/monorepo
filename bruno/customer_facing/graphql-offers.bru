@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "query": "query BrowseOffers($limit: Int!, $offset: Int!) { offers(limit: $limit, offset: $offset) { items { id retailerCode title price { amount currency } url images createdAt scrapedAt localization { targetMarket { kind code label } language } } limit offset hasMore } }",
+    "query": "query BrowseOffers($limit: Int!, $offset: Int!) { offers(limit: $limit, offset: $offset) { items { id retailerCode title price { amount currency } url images createdAt scrapedAt localization { targetMarket { kind code label } language } gtin sku externalIdentifiers { shopifyProductGid shopifyProductVariationGid shopifyHandle } } limit offset hasMore } }",
     "variables": { "limit": 30, "offset": 0 }
   }
 }

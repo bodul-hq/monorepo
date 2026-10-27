@@ -9,6 +9,12 @@ pub enum ProductOfferCommand {
 
 #[derive(Serialize, Deserialize)]
 pub struct ImportOfferDetailsCommand {
+    #[serde(default)]
+    pub gtin: Option<retailer_sauce::identifier::Gtin>,
+    #[serde(default)]
+    pub sku: Option<retailer_sauce::identifier::Sku>,
+    #[serde(default)]
+    pub external_identifiers: retailer_sauce::identifier::ExternalIdentifiers,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
@@ -95,11 +101,13 @@ mod export_contract_tests {
 
 #[derive(Default)]
 pub struct OfferObservation {
+    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub localization: Option<retailer_sauce::localization::Localization>,
 }
 impl OfferObservation {
     pub fn guard(&self) -> Result<(), String> {
+        self.identifiers.guard()?;
         if let Some(localization) = &self.localization {
             localization.guard()?;
         }
@@ -111,7 +119,7 @@ impl OfferObservation {
 mod extended_contract_tests {
     use super::*;
     #[test]
-    fn shared_v3_to_v4_fixtures_preserve_fields_and_validate_before_mutation() {
+    fn shared_v3_to_v5_fixtures_preserve_fields_and_validate_before_mutation() {
         for fixture in [
             include_str!(
                 "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v3.json"
@@ -119,11 +127,18 @@ mod extended_contract_tests {
             include_str!(
                 "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v4.json"
             ),
+            include_str!(
+                "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v5.json"
+            ),
         ] {
             let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
             assert!(command.scraped_at.is_some());
             if let Some(localization) = command.localization {
                 assert_eq!(localization.language.as_deref(), Some("en-AU"));
+            }
+            if let Some(gtin) = command.gtin {
+                assert_eq!(gtin.value, "0012345678905");
+                assert_eq!(command.sku.unwrap().value, "A1-BLACK");
             }
         }
     }

@@ -26,6 +26,9 @@ pub struct OfferPrice {
 #[derive(Clone, Object, SimpleObject, serde::Serialize)]
 #[graphql(complex)]
 pub struct Offer {
+    pub gtin: Option<String>,
+    pub sku: Option<String>,
+    pub external_identifiers: ExternalIdentifiers,
     pub localization: OfferLocalization,
     /// Latest known successful download, in UTC RFC3339 format.
     pub scraped_at: Option<String>,
@@ -63,6 +66,17 @@ struct PostgresRepository(DbPool);
 
 #[derive(diesel::QueryableByName)]
 struct Record {
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    gtin: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    sku: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    shopify_product_gid: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    shopify_product_variation_gid: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    shopify_handle: Option<String>,
+
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
     target_market: Option<serde_json::Value>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
@@ -92,7 +106,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -104,6 +118,13 @@ impl Repository for PostgresRepository {
             .into_iter()
             .map(|record| {
                 Ok(Offer {
+                    gtin: record.gtin,
+                    sku: record.sku,
+                    external_identifiers: ExternalIdentifiers {
+                        shopify_product_gid: record.shopify_product_gid,
+                        shopify_product_variation_gid: record.shopify_product_variation_gid,
+                        shopify_handle: record.shopify_handle,
+                    },
                     localization: OfferLocalization::from_record(
                         record.target_market,
                         record.language,
@@ -280,4 +301,11 @@ impl OfferLocalization {
             language: localization.language,
         })
     }
+}
+
+#[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
+pub struct ExternalIdentifiers {
+    pub shopify_product_gid: Option<String>,
+    pub shopify_product_variation_gid: Option<String>,
+    pub shopify_handle: Option<String>,
 }
