@@ -66,7 +66,10 @@ health only at `/api/health`. See its
 `retailer_sourcing` also runs the sitemap discovery pipeline: it crawls each
 retailer's sitemaps and sorts the page URLs into products, catalogs and other
 content. Offer discovery then records every product URL as an offer and
-downloads its page. The code is organised as feature slices
+downloads its page, extracts, normalizes and structuralizes it, then prepares
+an immutable export of priced variations. Export snapshots are the handoff for
+future outbox delivery; preparing them does not contact offers. See
+[ADR 19](docs/adr/0019-immutable-offer-export-preparation.md). The code is organised as feature slices
 ([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
 pipeline runs only when `DATABASE_URL` is set (see below).
 

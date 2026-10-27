@@ -14,7 +14,7 @@ diesel_migrations.workspace = true
 eventing_api.workspace = true
 inbox_api.workspace = true
 kernel.workspace = true
-money = { path = "../../lib/money" }
+money.workspace = true
 mulac_poem.workspace = true
 outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
 outbox_api.workspace = true

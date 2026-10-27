@@ -22,3 +22,24 @@ impl ApplicationCommand for ImportOfferDetailsCommand {
         CREATE_FROM_OFFER_DETAILS_COMMAND
     }
 }
+
+#[cfg(test)]
+mod export_contract_tests {
+    use super::*;
+
+    #[test]
+    fn accepts_the_sourcing_export_contract_fixture() {
+        let fixture = include_str!(
+            "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload.json"
+        );
+        let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+        assert_eq!(command.command_type(), "ImportOfferDetails");
+        assert_eq!(command.retailer_code, RetailerCode::AnkerAu);
+        assert_eq!(command.title, " USB charger ž ");
+        assert_eq!(command.price, Money::new(1999, money::Currency::AUD));
+        assert_eq!(
+            command.url,
+            "https://shop.example/Charger?q=red&variant=1#details"
+        );
+    }
+}

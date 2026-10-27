@@ -20,6 +20,7 @@ eventing_api = { path = "../../mulac/libs/eventing_api" }
 http-body-util = "0.1.5"
 inbox_api = { path = "../../mulac/libs/inbox_api" }
 kernel = { path = "../../mulac/kernel", package = "mulac-kernel" }
+money = { path = "../lib/money" }
 mulac_poem = { path = "../../mulac/libs/mulac_poem", features = ["commanding", "eventing", "outbox"] }
 outbox_api = { path = "../../mulac/libs/outbox_api" }
 poem = "3.1.12"

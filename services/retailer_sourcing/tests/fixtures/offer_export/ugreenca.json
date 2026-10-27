@@ -1,0 +1,22 @@
+{
+  "variations": [
+    {
+      "title":"USB hub",
+      "identifiers":{"sku":"HUB-1"},
+      "price":{"amount":2500,"currency":"CAD"},
+      "compare_at_price":{"amount":3500,"currency":"CAD"},
+      "available":false,
+      "url":"https://ca.example/products/hub?variant=1",
+      "images":[]
+    },
+    {
+      "title":"USB hub",
+      "identifiers":{"sku":"HUB-2"},
+      "price":null,
+      "compare_at_price":null,
+      "available":true,
+      "url":"https://ca.example/products/hub?variant=2",
+      "images":[]
+    }
+  ]
+}

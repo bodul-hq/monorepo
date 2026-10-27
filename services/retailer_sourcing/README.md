@@ -3,7 +3,8 @@
 Finds what retailers sell. It crawls each retailer's sitemaps, sorts the page
 URLs into products, catalogs and other content, records every product URL as an
 offer, downloads the offer pages, and reads the offer data out of them: it
-extracts each page into JSON, normalizes it and structuralizes it.
+extracts each page into JSON, normalizes and structuralizes it, then prepares an
+immutable export of its priced variations.
 
 The code is organised as feature slices
 ([ADR 4](../../docs/adr/0004-feature-slices-for-retailer-sourcing.md)). Each
@@ -35,7 +36,8 @@ POST /api/sitemap-retrievals
 | 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. A failed download is logged, and the command still completes.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
 | 6    | `ExtractOfferPage`   | Extracts the offer's page from `offer_details_raw` into JSON with the retailer's architecture and stores it in `offer_details_extracted`.                                                                                                  | `OfferPageWasExtracted`                                  | `normalize_offer`: queue `NormalizeOffer`                             |
 | 7    | `NormalizeOffer`     | Normalizes the extracted JSON with the retailer's normalizer and stores it in `offer_details_normalized`. When the retailer produces no document for the page, stores nothing.                                                             | `OfferWasNormalized`; none when there is no document     | `structuralize_offer`: queue `StructuralizeOffer`                     |
-| 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | none yet                                                              |
+| 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | `processing_for_export`: queue `ProcessOfferForExport`                                                              |
+| 9 | `ProcessOfferForExport` | Prepares a pinned immutable export of priced variations, recording missing-price exclusions. | `OfferExportWasPrepared` | none yet |
 
 Steps 6 to 8 fail the command when the input row is missing, when the retailer
 has no such step, or when the step fails, including a retailer whose step is
@@ -72,6 +74,7 @@ src/
     extract_offer_page/      step 6
     normalize_offer/         step 7
     structuralize_offer/     step 8
+    processing_for_export/   step 9
 migrations/                  Mulac's tables, then each context's tables
 ```
 
@@ -101,8 +104,8 @@ When `DATABASE_URL` is configured, `OBJECT_STORAGE_URL` and
 `OBJECT_STORAGE_TOKEN` are required. Configuration is checked before connecting
 to PostgreSQL or applying migrations. The client uses REST, a 30-second request
 timeout, and no automatic retries or redirects. Start an object storage service
-that allows all seven pipeline buckets. Without `DATABASE_URL`, the HTTP-only
-mode needs no object storage configuration.
+that allows the seven existing pipeline buckets and `offer_export`. Without
+`DATABASE_URL`, the HTTP-only mode needs no object storage configuration.
 
 ```sh
 make .env          # once: database and object storage configuration
@@ -147,6 +150,8 @@ One retailer from start to finish takes alternating runs:
 5. `events/run`, then `commands/run`: discovers the offers.
 6. `events/run`, then `commands/run` until it reports `"processed": 0`: downloads the offer pages.
 7. `events/run`, then `commands/run`, three more times: extracts, normalizes and structuralizes the offers.
+8. `events/run`, then `commands/run`: prepares immutable `offer_export` snapshots.
+9. `events/run`: dispatches `OfferExportWasPrepared`; no outbox listener is registered yet.
 
 Run responses look like `{"processed": 3, "errors": []}`. When something fails,
 `processed` is `null` and `errors` lists the failures; failed commands are
@@ -554,3 +559,44 @@ status labels are `received` (0), `reserved` (2), `failed` (4), `completed` (5),
 with `status_text: "unknown"`. Counts scan the queues and may cost more than the
 estimated database table report. Responses use `Cache-Control: no-store`; the
 dashboard refreshes them on each page load.
+
+## Processing for export
+
+`processing_for_export` consumes the immutable reference included in new
+`OfferWasStructuralized` events. It never resolves a delayed event through the
+latest `offer_details_structuralized` row. Older events still deserialize, but
+the resulting export command fails with `run fresh structuralization before
+exporting`; start a fresh retrieval to emit new pinned source references.
+No latest-snapshot fallback is performed.
+
+Each priced variation becomes an `ImportOfferDetails`-compatible payload with
+retailer code, title, exact variant URL and integer minor-unit price/currency.
+Missing prices are recorded under `exclusions` with the variation index, URL
+and `missing_price` reason. Unavailable stock is included when priced. Blank
+titles, malformed money, negative prices, invalid HTTP(S) URLs and repeated
+exact variation URLs fail preparation rather than producing ambiguous exports.
+Empty or wholly excluded documents produce a completed export with no entries.
+
+Migration `2026-10-24-000013_offer_export` adds only the export table. Its unique
+key is `(offer_id, source_object_id, schema_version)`. A preparation persists
+stable snapshot and entry UUIDs, typed source/stats metadata, and the exact
+pending body before upload. `status = 'prepared'` rows retain `prepared_body`
+when upload or completion fails. The next command attempt resumes those same
+bytes and IDs. On completion, `status = 'completed'` records the storage
+reference and completion time and clears `prepared_body`. Completed documents
+are immutable artifacts in the `offer_export` bucket, using the snapshot UUID
+as their idempotency key. Deploy the object-storage allowlist first.
+
+`OfferExportWasPrepared` references the completed snapshot and its source.
+`offer_discovery::prelude::ExportStore::load` reads a completed domain snapshot
+and validates its object reference. Repeated events may reference the same
+export; downstream delivery must use the stable per-entry UUIDs to deduplicate.
+No outbox rows or HTTP requests to offers are produced by this stage. Rollback
+removes local export metadata and leaves already uploaded objects.
+
+`make ci` covers fixture conversion and guards. `make test-postgres` covers
+source replacement, concurrent preparation, crash recovery, additive migration
+behavior and separate HTTP queue batches. `make test-object-storage` also
+checks the new bucket against a running object-storage service. Offers' unit
+tests deserialize the same checked-in import fixture through its real command.
+See [ADR 19](../../docs/adr/0019-immutable-offer-export-preparation.md).

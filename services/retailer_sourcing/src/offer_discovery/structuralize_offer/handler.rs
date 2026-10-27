@@ -1,4 +1,4 @@
-use crate::platform::object_storage::Stored;
+use crate::platform::object_storage::OfferStorageMetadata;
 use bodul_shared::retailer::RetailerCode;
 use serde_json::Value;
 use uuid::Uuid;
@@ -19,7 +19,7 @@ pub trait Store: Send + Sync + 'static {
     fn store_structuralized_offer(
         &self,
         entity: &StructuralizedOffer,
-    ) -> Result<Stored<StructuralizedOffer>, StoreError>;
+    ) -> Result<OfferStorageMetadata, StoreError>;
 }
 
 /// The retailer step this slice runs.
@@ -129,6 +129,7 @@ impl<S: Store, R: Structuralize> Handle for Handler<S, R> {
             consolidated_sitemap_id: command.consolidated_sitemap_id,
             retailer_code: command.retailer_code,
             url: command.url,
+            storage: Some(stored),
         }])
     }
 }
@@ -169,7 +170,7 @@ mod tests {
         fn store_structuralized_offer(
             &self,
             entity: &StructuralizedOffer,
-        ) -> Result<Stored<StructuralizedOffer>, StoreError> {
+        ) -> Result<OfferStorageMetadata, StoreError> {
             if self.fail {
                 return Err(StoreError::ObjectStorage(
                     crate::platform::object_storage::Error::InvalidRecord,
@@ -180,9 +181,10 @@ mod tests {
                 .lock()
                 .unwrap()
                 .push((entity.offer_id, entity.document.clone()));
-            Ok(Stored {
-                entity: entity.clone(),
-                object_storage_id: uuid::Uuid::now_v7(),
+            Ok(OfferStorageMetadata {
+                object_storage_id: Uuid::from_u128(1),
+                external_id: Uuid::from_u128(2),
+                content_size: entity.document.to_string().len() as u64,
             })
         }
     }
@@ -224,6 +226,11 @@ mod tests {
                 consolidated_sitemap_id: command.consolidated_sitemap_id,
                 retailer_code: RetailerCode::AnkerAu,
                 url: URL.to_string(),
+                storage: Some(OfferStorageMetadata {
+                    object_storage_id: Uuid::from_u128(1),
+                    external_id: Uuid::from_u128(2),
+                    content_size: 17,
+                }),
             }]
         );
         assert_eq!(

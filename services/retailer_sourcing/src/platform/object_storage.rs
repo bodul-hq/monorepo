@@ -11,6 +11,7 @@ pub const RAW_OFFERS_BUCKET: &str = "offer_details_raw";
 pub const EXTRACTED_OFFERS_BUCKET: &str = "offer_details_extracted";
 pub const NORMALIZED_OFFERS_BUCKET: &str = "offer_details_normalized";
 pub const STRUCTURALIZED_OFFERS_BUCKET: &str = "offer_details_structuralized";
+pub const OFFER_EXPORT_BUCKET: &str = "offer_export";
 
 /// An entity whose object upload and local write have both succeeded.
 #[derive(Debug, Clone)]

@@ -50,9 +50,9 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     ] {
         entity.document = value;
         let stored = store.store_structuralized_offer(&entity).unwrap();
-        assert_eq!(stored.entity, entity);
         let row = json_query(&mut conn, ROW);
         let storage: OfferStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+        assert_eq!(stored, storage);
         assert_eq!(stored.object_storage_id, storage.object_storage_id);
         assert_eq!(row["offer_id"], offer_id.to_string());
         assert_eq!(

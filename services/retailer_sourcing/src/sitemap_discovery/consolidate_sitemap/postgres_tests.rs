@@ -190,7 +190,7 @@ fn seed_legacy_consolidated(conn: &mut PgConnection, processed: Uuid, retrieval:
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_migration_preserves_populated_rows_through_up_down_up() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     // Test the stats migration independently of the later references/storage migration.
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
@@ -264,7 +264,7 @@ fn postgres_migration_preserves_populated_rows_through_up_down_up() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_downgrade_rejects_invalid_stats_atomically() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     let (id, retrieval, _) = seed_processed(&mut conn);
@@ -306,7 +306,7 @@ fn postgres_downgrade_rejects_invalid_stats_atomically() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_references_storage_migration_preserves_rows_and_restores_constraints() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo raw object storage.
@@ -379,7 +379,7 @@ fn postgres_references_storage_migration_preserves_rows_and_restores_constraints
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_legacy_reference_downgrade_rejects_dangling_parent() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     let (id, retrieval, _) = seed_processed(&mut conn);
@@ -420,7 +420,7 @@ fn postgres_legacy_reference_downgrade_rejects_dangling_parent() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_references_storage_downgrade_rejects_missing_or_invalid_values() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     let (id, retrieval, _) = seed_processed(&mut conn);

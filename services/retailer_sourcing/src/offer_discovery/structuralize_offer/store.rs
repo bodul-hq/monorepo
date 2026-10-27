@@ -6,7 +6,8 @@ use super::entity::{NormalizedOffer, StructuralizedOffer};
 use super::handler::Store;
 use crate::platform::db::{self, DbPool};
 use crate::platform::object_storage::{
-    self, NORMALIZED_OFFERS_BUCKET, ObjectStorage, STRUCTURALIZED_OFFERS_BUCKET, Stored,
+    self, NORMALIZED_OFFERS_BUCKET, ObjectStorage, OfferStorageMetadata,
+    STRUCTURALIZED_OFFERS_BUCKET,
 };
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
@@ -59,7 +60,7 @@ impl Store for PgStore {
     fn store_structuralized_offer(
         &self,
         entity: &StructuralizedOffer,
-    ) -> Result<Stored<StructuralizedOffer>, StoreError> {
+    ) -> Result<OfferStorageMetadata, StoreError> {
         let body = serde_json::to_string(&entity.document)?;
         let storage = self
             .objects
@@ -74,9 +75,6 @@ impl Store for PgStore {
                 offer_details_structuralized::storage.eq(&record.storage),
             ))
             .execute(&mut self.pool.get()?)?;
-        Ok(Stored {
-            entity: entity.clone(),
-            object_storage_id: storage.object_storage_id,
-        })
+        Ok(storage)
     }
 }

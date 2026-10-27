@@ -16,6 +16,7 @@ diesel_migrations.workspace = true
 eventing_api.workspace = true
 flate2 = "1"
 kernel.workspace = true
+money.workspace = true
 mulac_axum = { path = "../../../mulac/libs/mulac_axum", features = ["commanding", "eventing", "utoipa"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
 percent-encoding = "2.3.2"
@@ -32,6 +33,7 @@ tower-http.workspace = true
 tracing.workspace = true
 tracing-appender.workspace = true
 tracing-subscriber.workspace = true
+url.workspace = true
 utoipa = "6.0.0"
 utoipa-axum = "0.3.0"
 utoipa-swagger-ui.workspace = true

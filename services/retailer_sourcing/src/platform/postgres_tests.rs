@@ -117,7 +117,7 @@ fn seed_legacy(conn: &mut PgConnection) {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_storage_preserves_rows_and_payloads_through_up_down_up() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo raw object storage.
@@ -170,7 +170,7 @@ fn postgres_storage_upgrade_rejects_missing_payloads_atomically() {
         "normalized_offers_data",
         "structuralized_offers_data",
     ] {
-        let db = Database::new();
+        let db = Database::at("20261016000012");
         let mut conn = db.pool.get().unwrap();
         conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
         conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo raw object storage.
@@ -191,7 +191,7 @@ fn postgres_storage_upgrade_rejects_missing_payloads_atomically() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_storage_downgrade_rejects_invalid_sizes_atomically() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo raw object storage.
@@ -243,7 +243,7 @@ fn postgres_typed_storage_round_trips_unsigned_sizes() {
         #[diesel(sql_type = Jsonb)]
         value: Json<Storage>,
     }
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     for content_size in [0, 7, u64::MAX] {
         let input = Json(Storage { content_size });
@@ -262,7 +262,7 @@ fn postgres_typed_storage_round_trips_unsigned_sizes() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_raw_object_cutover_removes_only_raw_sitemaps_and_guards_rollback() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Remaining object storage.
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Object storage.
@@ -326,7 +326,7 @@ fn postgres_raw_object_cutover_removes_only_raw_sitemaps_and_guards_rollback() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_remaining_objects_cutover_preserves_raw_sitemaps_and_bus_history() {
-    let db = Database::new();
+    let db = Database::at("20261016000012");
     let mut conn = db.pool.get().unwrap();
     for _ in 0..3 {
         conn.revert_last_migration(MIGRATIONS).unwrap();
