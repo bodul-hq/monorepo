@@ -199,6 +199,11 @@ four `offer_details_*` buckets. Sitemaps use their local row IDs as idempotency
 keys; offer replacements use fresh external IDs while retaining stable local row
 IDs. The legacy singular sitemap buckets remain available.
 
+The `offer_export` bucket stores completed immutable export snapshots. Sourcing
+uses its durably prepared export UUID as the idempotency key, reusing the exact
+body on upload retries. Deploy this allowlist before enabling sourcing's export
+stage; see [ADR 19](../../docs/adr/0019-immutable-offer-export-preparation.md).
+
 ## Database reporting
 
 `GET /api/reporting/database-tables` requires the existing service bearer token.
