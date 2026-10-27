@@ -2,9 +2,13 @@ name: local
 variables:
   - name: objectStorageBaseUrl
     value: http://172.28.100.43:3000
+    description: ""
   - name: retailerSourcingBaseUrl
     value: http://172.28.100.40:3000
+    description: ""
   - name: offersBaseUrl
     value: http://172.28.100.41:3000
+    description: ""
   - name: customerFacingBaseUrl
     value: http://172.28.100.42:3000
+    description: ""
