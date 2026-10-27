@@ -37,6 +37,7 @@ impl Island {
                 LdJson::Product(product) => Some(Island::from_product(product)),
                 LdJson::Graph(_)
                 | LdJson::Organization(_)
+                | LdJson::BreadcrumbList(_)
                 | LdJson::FeedProduct(_)
                 | LdJson::ReviewedProduct(_) => None,
             })

@@ -27,9 +27,6 @@ pub enum NormalizeError {
     #[error("offer currency `{currency}` has no hundredths, the unit Liquid renders amounts in")]
     CurrencyWithoutHundredths { currency: String },
 
-    #[error("the island names the product `{island}`, the record `{record}`")]
-    ProductNameMismatch { island: String, record: String },
-
     #[error("the island's URL `{url}` is not the product's `/products/{handle}`")]
     ProductUrlMismatch { url: String, handle: String },
 
@@ -98,7 +95,10 @@ fn product_island(items: Vec<raw::ldjsonitem::LdJsonItem>) -> Result<Island, Nor
         .into_iter()
         .filter_map(|item| match item.data {
             LdJson::Product(product) => Some(product),
-            LdJson::Organization(_) | LdJson::BreadcrumbList(_) | LdJson::WebSite(_) => None,
+            LdJson::Organization(_)
+            | LdJson::BreadcrumbList(_)
+            | LdJson::WebSite(_)
+            | LdJson::WebPage(_) => None,
         })
         .collect();
 
@@ -139,6 +139,33 @@ mod tests {
         let raw: MinisforumUsRawDocument =
             serde_json::from_value(document).expect("the raw fixture deserializes");
         MinisforumUsNormalizedDocument::from_raw(raw)
+    }
+
+    #[test]
+    fn current_metadata_does_not_change_variant_facts() {
+        let mut input = document();
+        let metadata: Vec<Value> =
+            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        input["ld-json"].as_array_mut().unwrap().extend(metadata);
+        assert_eq!(normalized(input), normalized(document()));
+    }
+
+    #[test]
+    fn current_metadata_still_rejects_unknown_islands_and_fields() {
+        let metadata: Vec<Value> =
+            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        for mut island in metadata {
+            island["data"]["unexpected"] = json!(true);
+            let mut input = document();
+            input["ld-json"].as_array_mut().unwrap().push(island);
+            assert!(super::super::normalize(&input.to_string()).is_err());
+        }
+        let mut input = document();
+        input["ld-json"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"type":"application/ld+json","data":{"@type":"UnknownMetadata"}}));
+        assert!(super::super::normalize(&input.to_string()).is_err());
     }
 
     fn normalized(document: Value) -> Value {
@@ -254,11 +281,9 @@ mod tests {
     #[test]
     fn the_island_and_the_record_must_describe_the_same_product() {
         let mut name = document();
-        island_mut(&mut name)["name"] = json!("MINISFORUM MS-01");
-        assert!(matches!(
-            normalize(name),
-            Err(NormalizeError::ProductNameMismatch { .. })
-        ));
+        island_mut(&mut name)["name"] =
+            json!("MINISFORUM computer | SEO keywords &amp; specifications");
+        assert_eq!(normalized(name), normalized(document()));
 
         let mut url = document();
         island_mut(&mut url)["url"] = json!("https://store.minisforum.com/en-ca/products/other");

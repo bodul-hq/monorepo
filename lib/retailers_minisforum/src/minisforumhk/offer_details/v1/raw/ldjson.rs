@@ -13,6 +13,8 @@ pub struct LdJsonScript {
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
+    #[serde(rename = "FAQPage")]
+    FaqPage(FaqPage),
     Product(Box<Product>),
     BreadcrumbList(BreadcrumbList),
     Organization(Organization),
@@ -140,6 +142,34 @@ pub struct Organization {
     pub url: String,
 }
 
+/// The FAQ block of 11 saved pages.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FaqPage {
+    #[serde(rename = "@context")]
+    pub context: String,
+    #[serde(rename = "mainEntity")]
+    pub main_entity: Vec<Question>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Question {
+    #[serde(rename = "@type")]
+    pub question_type: String,
+    pub name: String,
+    #[serde(rename = "acceptedAnswer")]
+    pub accepted_answer: Answer,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Answer {
+    #[serde(rename = "@type")]
+    pub answer_type: String,
+    pub text: String,
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     use super::LdJson;
@@ -249,7 +279,7 @@ pub(crate) mod tests {
 
     #[test]
     fn an_unseen_island_type_fails() {
-        for island_type in ["ProductGroup", "FAQPage"] {
+        for island_type in ["ProductGroup", "WebPage"] {
             let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(

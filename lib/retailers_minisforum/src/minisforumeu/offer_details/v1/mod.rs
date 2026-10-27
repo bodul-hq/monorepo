@@ -18,6 +18,10 @@
 //! - 18 pages have a feed-app price such as `4.159.00`, which no number parser reads; that
 //!   island is why the record, not an island, is the source of the price.
 //! - 8 pages carry a video in the record's `media`, which is never read.
+//!
+//! The 2026-10-25 product page also carries expanded company metadata (including an address)
+//! and a standalone breadcrumb list. `raw::metadata` accepts these alongside the older theme
+//! Organization; neither contributes offer facts. Their saved JSON is in `fixtures/`.
 
 use crate::minisforumeu::offer_details::v1::normalized::{
     MinisforumEuNormalizedDocument, NormalizeError,
@@ -99,6 +103,36 @@ mod tests {
     use html_extractor::Backend;
 
     use super::{architecture, normalize, structuralize};
+
+    /// Metadata from https://minisforumpc.eu/products/minisforum-u700-refurbished,
+    /// retrieved on 2026-10-25. Both blocks accompany the older theme Organization.
+    #[test]
+    fn expanded_organization_and_breadcrumbs_preserve_the_offer() {
+        let mut document = super::raw::tests::document();
+        let baseline = normalize(&document.to_string())
+            .unwrap()
+            .document_json
+            .unwrap();
+        for fixture in [
+            include_str!("fixtures/organization.json"),
+            include_str!("fixtures/breadcrumbs.json"),
+        ] {
+            let data: serde_json::Value = serde_json::from_str(fixture).unwrap();
+            document["ld-json"].as_array_mut().unwrap().insert(
+                0,
+                serde_json::json!({"type": "application/ld+json", "data": data}),
+            );
+        }
+        let actual = normalize(&document.to_string())
+            .unwrap()
+            .document_json
+            .unwrap();
+        assert_eq!(actual, baseline);
+        assert_eq!(
+            structuralize(&actual).unwrap().document_json,
+            structuralize(&baseline).unwrap().document_json,
+        );
+    }
 
     /// Saved product pages, kept outside the repository next to the monorepo checkout.
     const DATA_DIR: &str = concat!(

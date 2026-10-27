@@ -16,6 +16,7 @@ pub enum LdJson {
     Organization(Organization),
     BreadcrumbList(BreadcrumbList),
     WebSite(WebSite),
+    WebPage(WebPage),
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Deserialize)]
@@ -162,6 +163,17 @@ pub struct EntryPoint {
     pub kind: String,
     #[serde(rename = "urlTemplate")]
     pub url_template: String,
+}
+
+/// Page-level SEO text does not select product facts.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WebPage {
+    #[serde(rename = "@context")]
+    pub context: String,
+    pub name: String,
+    pub description: String,
+    pub url: String,
 }
 
 #[cfg(test)]

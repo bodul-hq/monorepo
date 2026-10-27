@@ -35,7 +35,11 @@ impl Island {
             .filter_map(|script| match script.data {
                 LdJson::ProductGroup(group) => Some(Island::from_group(group)),
                 LdJson::Product(Product::Native(product)) => Some(Island::from_product(*product)),
-                LdJson::Product(Product::Reviewed(_)) | LdJson::Organization(_) => None,
+                LdJson::Product(Product::Reviewed(_))
+                | LdJson::Organization(_)
+                | LdJson::BreadcrumbList(_)
+                | LdJson::Service(_)
+                | LdJson::Graph(_) => None,
             })
             .collect::<Result<_, _>>()?;
 

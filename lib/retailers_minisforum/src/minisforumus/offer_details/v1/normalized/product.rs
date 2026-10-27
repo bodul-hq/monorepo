@@ -69,12 +69,8 @@ impl Product {
     pub(crate) fn from_raw(record: ProductJson, island: Island) -> Result<Product, NormalizeError> {
         let currency = offer_currency(&island.offers.price_currency)?;
 
-        if island.name != record.title {
-            return Err(NormalizeError::ProductNameMismatch {
-                island: island.name,
-                record: record.title,
-            });
-        }
+        // SEO names now include search keywords and can differ from Liquid's title.
+        // Check product identity by the handle in both URLs below; keep Liquid's title.
 
         let path = format!("/products/{}", record.handle);
         for url in [&island.url, &island.offers.url] {

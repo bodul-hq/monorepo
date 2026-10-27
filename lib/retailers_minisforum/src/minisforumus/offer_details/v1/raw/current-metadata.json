@@ -1,0 +1,12 @@
+[
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "description": "Example metadata",
+      "name": "MINISFORUM Christmas Keyboard &amp; Mouse Set | Holiday Gift Set",
+      "url": "https://store.minisforum.com/en-ca/products/christmas-gift-set"
+    },
+    "type": "application/ld+json"
+  }
+]

@@ -13,6 +13,7 @@
 //! in the storefront's two locales.
 
 pub mod ldjson;
+mod metadata;
 pub mod paypal;
 pub mod productjson;
 

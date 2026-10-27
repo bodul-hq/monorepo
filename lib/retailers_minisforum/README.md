@@ -7,8 +7,8 @@ Shopify link rule.
 
 `minisforumau`, `minisforumca`, `minisforumeu`, `minisforumfr`, `minisforumhk`,
 `minisforumjp`, `minisforumkr`, `minisforumru`, `minisforumuk` and
-`minisforumus` also have an offer details pipeline in `offer_details/v1`. The
-other storefronts' offer details are still stubs.
+`minisforumus` implement extraction, normalization and structuralization in
+`offer_details/v1`. All ten storefronts have all three stages registered.
 
 - `architecture()` extracts the page's data islands. The storefronts run
   different Shopify themes, so each reads its own set:
@@ -30,15 +30,16 @@ other storefronts' offer details are still stubs.
 - `normalize()` reads them into a strict raw schema, which rejects unknown
   fields, and then into one normalized product. It fails when two islands
   disagree on the product or its variants.
-- `structuralize()`, so far in `minisforumau`, `minisforumeu`, `minisforumfr`,
-  `minisforumhk` and `minisforumjp`, turns the normalized
-  product into one variation per variant, with its identifiers, title, price,
-  URL and images. `registry::structuralize_for` returns `None` for the other
-  storefronts. `minisforumca` stops at `normalize()`.
+- `structuralize()` turns the normalized product into one variation per variant,
+  with its identifiers, title, price, URL and images. `registry::structuralize_for`
+  dispatches to the implementation for each of the ten storefronts above and
+  returns `None` for codes outside this crate.
 
-Those five also have data-backed tests in `offer_details/v1/mod.rs` that run
-every saved page through the whole pipeline; they skip when the data folder is
-missing.
+The AU, EU, FR, HK and JP pipelines also have data-backed tests in
+`offer_details/v1/mod.rs` that run every saved page through the whole pipeline;
+they skip when the data folder is missing. The facade's `structuralization_report`
+integration test checks registration for CA, KR, RU, UK and US even without the
+data checkout, and structuralizes their saved normalized documents when present.
 
 Each pipeline's `offer_details/v1/stage_files_tests.rs` runs it over saved
 product pages in `../data/<storefront>`, next to the monorepo checkout, and
@@ -47,3 +48,12 @@ to regenerate those files.
 
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
+
+The October 2026 FR/JP organization metadata, French service/SEO graph and
+breadcrumbs, HK FAQs, Japanese website/SEO product, and US webpage islands are
+explicitly modelled. Supplemental marketing islands do not replace the checked
+Liquid variant data. US SEO names may differ from the product title; identity
+checks still require the product handle in both product and offer URLs.
+Compact metadata fixtures in each affected storefront's `raw/current-metadata.json`
+retain the saved wire shapes with shortened descriptive text. They run in normal
+CI without the external data checkout.

@@ -1,0 +1,197 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Minisforum",
+  "legalName": "MINISFORUM Technology Co., Ltd.",
+  "url": "https://minisforumpc.eu",
+  "logo": "https://minisforumpc.eu/cdn/shop/files/minisforum-logo.png",
+  "description": "MINISFORUM is a technology brand dedicated to high-performance compact computing solutions. We specialize in Mini PCs, AI workstations, NAS systems, and gaming PCs.",
+  "foundingDate": "2018",
+  "founders": [
+    {
+      "@type": "Organization",
+      "name": "MINISFORUM Team"
+    }
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Shenzhen",
+    "addressRegion": "Guangdong",
+    "addressCountry": "CN"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "support@minisforum.com",
+      "availableLanguage": [
+        "English",
+        "German",
+        "French",
+        "Chinese"
+      ]
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "technical support",
+      "email": "support@minisforum.com",
+      "availableLanguage": [
+        "English",
+        "German",
+        "Chinese"
+      ]
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/minisforum.official",
+    "https://www.instagram.com/minisforumofficial",
+    "https://x.com/minisforum",
+    "https://www.youtube.com/@minisforum",
+    "https://www.tiktok.com/@minisforumofficial"
+  ],
+  "areaServed": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {
+      "@type": "GeoCoordinates",
+      "latitude": 51.1657,
+      "longitude": 10.4515
+    },
+    "geoRadius": "2000 km",
+    "description": "European Union and surrounding countries"
+  },
+  "knowsAbout": [
+    "Mini PCs",
+    "Small Form Factor Computers",
+    "AI Computing",
+    "Edge Computing",
+    "NAS Systems",
+    "Gaming PCs",
+    "Computer Hardware"
+  ],
+  "brand": [
+    {
+      "@type": "Brand",
+      "name": "Minisforum",
+      "description": "High-performance compact computing solutions"
+    },
+    {
+      "@type": "Brand",
+      "name": "AtomMan",
+      "description": "Gaming and enthusiast Mini PCs"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Minisforum Product Catalog",
+    "itemListElement": [
+      {
+        "@type": "OfferCatalog",
+        "name": "AI Mini PCs",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "AI X1 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "MS-01"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "MS-03"
+            }
+          }
+        ]
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Gaming Mini PCs",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "G1 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "G7 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "MS S1 MAX"
+            }
+          }
+        ]
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Office Mini PCs",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "UM790 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "UM890 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "NAB6 LITE"
+            }
+          }
+        ]
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "AI NAS",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "N5 PRO"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "N5 MAX"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.7",
+    "reviewCount": "15000",
+    "bestRating": "5",
+    "worstRating": "1"
+  }
+}

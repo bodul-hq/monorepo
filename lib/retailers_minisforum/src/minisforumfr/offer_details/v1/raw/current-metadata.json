@@ -1,0 +1,127 @@
+[
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@id": "https://minisforumpc.fr/#organization",
+      "@type": "Organization",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CN",
+        "addressLocality": "Shenzhen"
+      },
+      "alternateName": [
+        "MINISFORUM",
+        "Minisforum"
+      ],
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "France"
+        },
+        {
+          "@type": "Country",
+          "name": "Belgium"
+        }
+      ],
+      "brand": {
+        "@type": "Brand",
+        "name": "Minisforum",
+        "slogan": "Private AI"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "areaServed": [
+            "FR",
+            "BE"
+          ],
+          "availableLanguage": [
+            "French",
+            "English"
+          ],
+          "contactType": "customer support",
+          "email": "support@minisforum.com"
+        },
+        {
+          "@type": "ContactPoint",
+          "areaServed": [
+            "FR",
+            "BE"
+          ],
+          "availableLanguage": [
+            "French",
+            "English"
+          ],
+          "contactType": "sales"
+        }
+      ],
+      "description": "Example metadata",
+      "foundingDate": "2018",
+      "knowsAbout": [
+        "Mini PC",
+        "AI Mini PC"
+      ],
+      "logo": "https://minisforumpc.fr/cdn/shop/files/logo_32af71c2-72b8-4a01-ab77-54351a4f312b.png?v=1792389959&width=500",
+      "name": "Minisforum",
+      "sameAs": [
+        "https://www.facebook.com/minisforumofficial",
+        "https://www.instagram.com/minisforumofficial/"
+      ],
+      "slogan": "High Performance & Miniaturization. Private AI.",
+      "url": "https://minisforumpc.fr/"
+    },
+    "type": "application/ld+json"
+  },
+  {
+    "data": {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "France"
+        },
+        {
+          "@type": "Country",
+          "name": "Belgium"
+        }
+      ],
+      "availableLanguage": [
+        "fr-FR",
+        "en"
+      ],
+      "description": "Example metadata",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "AI Mini PCs"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "AI Mini Workstations"
+            }
+          }
+        ],
+        "name": "MINISFORUM Product Lines"
+      },
+      "name": "MINISFORUM France — Mini PC haute performance & solutions IA privée",
+      "provider": {
+        "@id": "https://minisforumpc.fr/#organization",
+        "@type": "Organization",
+        "name": "Minisforum",
+        "url": "https://minisforumpc.fr/"
+      },
+      "serviceType": "Computer Hardware Retail & Local AI Solutions",
+      "termsOfService": "https://minisforumpc.fr/policies/terms-of-service",
+      "url": "https://minisforumpc.fr/"
+    },
+    "type": "application/ld+json"
+  }
+]

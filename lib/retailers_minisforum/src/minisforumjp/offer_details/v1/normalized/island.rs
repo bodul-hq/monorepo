@@ -42,7 +42,10 @@ impl Island {
                     Some(Island::from_product(*product))
                 }
                 LdJson::Product(ldjson::Product::Reviews(_))
+                | LdJson::Product(ldjson::Product::Seo(_))
                 | LdJson::Organization(_)
+                | LdJson::BreadcrumbList(_)
+                | LdJson::WebSite(_)
                 | LdJson::FaqPage(_) => None,
             })
             .collect::<Result<_, _>>()?;

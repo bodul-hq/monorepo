@@ -38,7 +38,7 @@ impl Island {
             .into_iter()
             .filter_map(|script| match script.data {
                 LdJson::Product(product) => Some(*product),
-                LdJson::BreadcrumbList(_) | LdJson::Organization(_) => None,
+                LdJson::BreadcrumbList(_) | LdJson::Organization(_) | LdJson::FaqPage(_) => None,
             })
             .collect();
 
