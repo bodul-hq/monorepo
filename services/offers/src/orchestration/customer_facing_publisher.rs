@@ -74,6 +74,46 @@ impl CustomerFacingPublisher {
             return Err(err_payload());
         }
         let parsed = match event_type {
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferContentChangedEvent,
+            >(payload.clone())
+            .and_then(|event| {
+                event
+                    .content
+                    .guard()
+                    .map_err(<serde_json::Error as serde::de::Error>::custom)
+            }),
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT => {
+                serde_json::from_value::<crate::offers::event::OfferItemConditionChangedEvent>(
+                    payload.clone(),
+                )
+                .and_then(|event| {
+                    event
+                        .item_condition
+                        .as_ref()
+                        .map_or(Ok(()), |value| value.guard())
+                        .map_err(<serde_json::Error as serde::de::Error>::custom)
+                })
+            }
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferAvailabilityChangedEvent,
+            >(payload.clone())
+            .and_then(|event| {
+                event
+                    .availability
+                    .as_ref()
+                    .map_or(Ok(()), |value| value.guard())
+                    .map_err(<serde_json::Error as serde::de::Error>::custom)
+            }),
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferPricingChangedEvent,
+            >(payload.clone())
+            .and_then(|event| {
+                event
+                    .pricing
+                    .guard()
+                    .map_err(<serde_json::Error as serde::de::Error>::custom)
+            }),
             crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT => serde_json::from_value::<
                 crate::offers::event::OfferIdentifiersChangedEvent,
             >(payload.clone())
@@ -99,7 +139,10 @@ impl CustomerFacingPublisher {
             }
             OFFER_CREATED_EVENT => serde_json::from_value::<OfferCreatedEvent>(payload.clone())
                 .and_then(|event| {
-                    crate::offers::event::guard_images(&event.images)
+                    event
+                        .facts
+                        .guard()
+                        .and_then(|_| crate::offers::event::guard_images(&event.images))
                         .map_err(<serde_json::Error as serde::de::Error>::custom)
                 }),
             OFFER_TITLE_CHANGED_EVENT => {
@@ -142,9 +185,7 @@ fn err_destination() -> OutboxError {
 }
 
 fn err_event_type() -> OutboxError {
-    OutboxError::Routing(format!(
-        "outbox message event type must be {OFFER_CREATED_EVENT}, {OFFER_TITLE_CHANGED_EVENT}, {OFFER_PRICE_CHANGED_EVENT} or {OFFER_IMAGE_ADDED_EVENT}"
-    ))
+    OutboxError::Routing("outbox message event type must be a supported offer event".into())
 }
 
 /// Never names the payload's content.

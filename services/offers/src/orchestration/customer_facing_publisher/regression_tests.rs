@@ -186,3 +186,60 @@ fn rejects_unknown_types_and_malformed_event_fields() {
         assert!(CustomerFacingPublisher::submission(message).is_err());
     }
 }
+
+#[test]
+fn fact_event_submissions_preserve_nulls_and_raw_text_and_reject_partial_updates() {
+    use crate::offers::event::{
+        OFFER_AVAILABILITY_CHANGED_EVENT, OFFER_CONTENT_CHANGED_EVENT,
+        OFFER_ITEM_CONDITION_CHANGED_EVENT, OFFER_PRICING_CHANGED_EVENT,
+    };
+    let id = Uuid::now_v7();
+    for (event_type, payload) in [
+        (
+            OFFER_PRICING_CHANGED_EVENT,
+            json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"AUD"}}}),
+        ),
+        (
+            OFFER_PRICING_CHANGED_EVENT,
+            json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":null}}),
+        ),
+        (
+            OFFER_AVAILABILITY_CHANGED_EVENT,
+            json!({"id":id,"availability":{"other":" https://schema.org/PreOrder "}}),
+        ),
+        (
+            OFFER_AVAILABILITY_CHANGED_EVENT,
+            json!({"id":id,"availability":null}),
+        ),
+        (
+            OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            json!({"id":id,"item_condition":"new"}),
+        ),
+        (
+            OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            json!({"id":id,"item_condition":null}),
+        ),
+        (
+            OFFER_CONTENT_CHANGED_EVENT,
+            json!({"id":id,"content":{"description":" <p>Exact &amp; source ž</p>\n"}}),
+        ),
+        (
+            OFFER_CONTENT_CHANGED_EVENT,
+            json!({"id":id,"content":{"description":null}}),
+        ),
+    ] {
+        let message = super::testing::envelope(event_type, &payload);
+        let submission = CustomerFacingPublisher::submission(message).unwrap();
+        assert_eq!(submission.routing_key, event_type);
+        assert_eq!(submission.payload, Some(payload));
+        let missing = super::testing::envelope(event_type, &json!({"id":id}));
+        assert!(CustomerFacingPublisher::submission(missing).is_err());
+    }
+    for invalid in [
+        json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"}}}),
+        json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"USD"}}}),
+    ] {
+        let message = super::testing::envelope(OFFER_PRICING_CHANGED_EVENT, &invalid);
+        assert!(CustomerFacingPublisher::submission(message).is_err());
+    }
+}

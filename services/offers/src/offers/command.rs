@@ -1,6 +1,7 @@
 use bodul_shared::retailer::RetailerCode;
 use kernel::ApplicationCommand;
 use money::Money;
+use retailer_sauce::observation::Observation;
 use serde::{Deserialize, Serialize};
 
 pub enum ProductOfferCommand {
@@ -9,6 +10,23 @@ pub enum ProductOfferCommand {
 
 #[derive(Serialize, Deserialize)]
 pub struct ImportOfferDetailsCommand {
+    #[serde(
+        default,
+        skip_serializing_if = "Observation::is_missing",
+        deserialize_with = "retailer_sauce::observation::object_observation"
+    )]
+    pub was_price: Observation<Money>,
+    #[serde(default, skip_serializing_if = "Observation::is_missing")]
+    pub availability: Observation<retailer_sauce::availability::Availability>,
+    #[serde(default, skip_serializing_if = "Observation::is_missing")]
+    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "retailer_sauce::structuralized::content::observation"
+    )]
+    pub content: Option<retailer_sauce::structuralized::content::Content>,
+
     #[serde(default)]
     pub gtin: Option<retailer_sauce::identifier::Gtin>,
     #[serde(default)]
@@ -101,12 +119,25 @@ mod export_contract_tests {
 
 #[derive(Default)]
 pub struct OfferObservation {
+    pub was_price: Observation<Money>,
+    pub availability: Observation<retailer_sauce::availability::Availability>,
+    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    pub content: Option<retailer_sauce::structuralized::content::Content>,
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub localization: Option<retailer_sauce::localization::Localization>,
 }
 impl OfferObservation {
     pub fn guard(&self) -> Result<(), String> {
+        if let Some(value) = self.availability.value() {
+            value.guard()?;
+        }
+        if let Some(value) = self.item_condition.value() {
+            value.guard()?;
+        }
+        if let Some(value) = &self.content {
+            value.guard()?;
+        }
         self.identifiers.guard()?;
         if let Some(localization) = &self.localization {
             localization.guard()?;
@@ -140,6 +171,39 @@ mod extended_contract_tests {
                 assert_eq!(gtin.value, "0012345678905");
                 assert_eq!(command.sku.unwrap().value, "A1-BLACK");
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod facts_contract_tests {
+    use super::*;
+    #[test]
+    fn accepts_new_sourcing_versions_without_losing_observation_semantics() {
+        for (version, fixture) in [
+            (
+                6,
+                include_str!(
+                    "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v6.json"
+                ),
+            ),
+            (
+                7,
+                include_str!(
+                    "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v7.json"
+                ),
+            ),
+            (
+                8,
+                include_str!(
+                    "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v8.json"
+                ),
+            ),
+        ] {
+            let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+            assert_eq!(command.was_price.value().unwrap().amount(), 2999);
+            assert_eq!(!command.availability.is_missing(), version >= 7);
+            assert_eq!(command.content.is_some(), version >= 8);
         }
     }
 }

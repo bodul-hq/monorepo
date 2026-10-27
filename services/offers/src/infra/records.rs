@@ -10,14 +10,25 @@ use crate::offers::event::{
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
 pub enum OfferEventRecord {
+    #[serde(rename = "OfferContentChanged.v1")]
+    ContentChanged(crate::offers::event::OfferContentChangedEvent),
+    #[serde(rename = "OfferItemConditionChanged.v1")]
+    ItemConditionChanged(crate::offers::event::OfferItemConditionChangedEvent),
+    #[serde(rename = "OfferAvailabilityChanged.v1")]
+    AvailabilityChanged(crate::offers::event::OfferAvailabilityChangedEvent),
+    #[serde(rename = "OfferPricingChanged.v1")]
+    PricingChanged(crate::offers::event::OfferPricingChangedEvent),
     #[serde(
-        rename = "OfferCreated.v5",
+        rename = "OfferCreated.v8",
+        alias = "OfferCreated.v7",
+        alias = "OfferCreated.v6",
+        alias = "OfferCreated.v5",
         alias = "OfferCreated.v4",
         alias = "OfferCreated.v3",
         alias = "OfferCreated.v1",
         alias = "OfferCreated.v2"
     )]
-    Created(OfferCreatedEvent),
+    Created(Box<OfferCreatedEvent>),
     #[serde(rename = "OfferIdentifiersChanged.v1")]
     IdentifiersChanged(OfferIdentifiersChangedEvent),
     #[serde(rename = "OfferLocalizationChanged.v1")]
@@ -45,6 +56,14 @@ impl From<&RetailerOfferEvent> for OfferEventRecord {
                 Self::ScrapedAtUpdated(event.clone())
             }
             RetailerOfferEvent::OfferImageAdded(event) => Self::ImageAdded(event.clone()),
+            RetailerOfferEvent::OfferPricingChanged(event) => Self::PricingChanged(event.clone()),
+            RetailerOfferEvent::OfferAvailabilityChanged(event) => {
+                Self::AvailabilityChanged(event.clone())
+            }
+            RetailerOfferEvent::OfferItemConditionChanged(event) => {
+                Self::ItemConditionChanged(event.clone())
+            }
+            RetailerOfferEvent::OfferContentChanged(event) => Self::ContentChanged(event.clone()),
             RetailerOfferEvent::OfferCreated(event) => Self::Created(event.clone()),
             RetailerOfferEvent::OfferTitleChanged(event) => Self::TitleChanged(event.clone()),
             RetailerOfferEvent::OfferPriceChanged(event) => Self::PriceChanged(event.clone()),
@@ -59,6 +78,10 @@ impl From<OfferEventRecord> for RetailerOfferEvent {
             OfferEventRecord::LocalizationChanged(event) => Self::OfferLocalizationChanged(event),
             OfferEventRecord::ScrapedAtUpdated(event) => Self::OfferScrapedAtUpdated(event),
             OfferEventRecord::ImageAdded(event) => Self::OfferImageAdded(event),
+            OfferEventRecord::PricingChanged(event) => Self::OfferPricingChanged(event),
+            OfferEventRecord::AvailabilityChanged(event) => Self::OfferAvailabilityChanged(event),
+            OfferEventRecord::ItemConditionChanged(event) => Self::OfferItemConditionChanged(event),
+            OfferEventRecord::ContentChanged(event) => Self::OfferContentChanged(event),
             OfferEventRecord::Created(event) => Self::OfferCreated(event),
             OfferEventRecord::TitleChanged(event) => Self::OfferTitleChanged(event),
             OfferEventRecord::PriceChanged(event) => Self::OfferPriceChanged(event),
@@ -73,6 +96,10 @@ impl HasAggregateId for OfferEventRecord {
             Self::LocalizationChanged(event) => event.id.to_string(),
             Self::ScrapedAtUpdated(event) => event.id.to_string(),
             Self::ImageAdded(event) => event.id.to_string(),
+            Self::PricingChanged(event) => event.id.to_string(),
+            Self::AvailabilityChanged(event) => event.id.to_string(),
+            Self::ItemConditionChanged(event) => event.id.to_string(),
+            Self::ContentChanged(event) => event.id.to_string(),
             Self::Created(event) => event.id.to_string(),
             Self::TitleChanged(event) => event.id.to_string(),
             Self::PriceChanged(event) => event.id.to_string(),

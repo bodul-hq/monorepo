@@ -17,6 +17,59 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn update_content(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &retailer_sauce::structuralized::content::Content,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        content.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.content = content.clone();
+        Ok(())
+    }
+    fn update_item_condition(
+        &self,
+        id: &super::RetailerOfferId,
+        item_condition: &Option<retailer_sauce::item_condition::ItemCondition>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = item_condition {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.item_condition = item_condition.clone();
+        Ok(())
+    }
+    fn update_availability(
+        &self,
+        id: &super::RetailerOfferId,
+        availability: &Option<retailer_sauce::availability::Availability>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = availability {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.availability = availability.clone();
+        Ok(())
+    }
+    fn update_pricing(
+        &self,
+        id: &super::RetailerOfferId,
+        pricing: &crate::offers::event::Pricing,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        pricing.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.price = pricing.price.clone();
+        entity.facts.was_price = pricing.was_price.clone();
+        Ok(())
+    }
     fn update_identifiers(
         &self,
         id: &crate::offers::retailer_offer_id::RetailerOfferId,
@@ -151,6 +204,7 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
+            facts: Default::default(),
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,

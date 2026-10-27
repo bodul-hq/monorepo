@@ -564,3 +564,34 @@ source-order guarantees. See the [verification walkthrough](../../docs/offer-fac
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and
 [29](../../docs/adr/0029-offer-product-identifiers.md).
+
+### Comparison price, status, content and identity facts
+
+Imports accept optional `was_price`, `availability`, `item_condition` and
+`content`. Omitted keys from old imports leave facts unchanged; explicit null
+clears pricing/status. Content must be an object with a `description` key;
+`{"description":null}` clears it, while null content or an absent description
+key is invalid. Source descriptions preserve their exact text and markup.
+The temporary import form accepts these same four objects alongside its
+existing flat `price_amount` and `currency` fields.
+
+Comparison prices must exceed the current price in the same currency. A legacy
+import retains a valid comparison price and clears it if the new payable price
+makes it incompatible. New price changes emit `OfferPricingChanged` with
+`pricing: {price, was_price}`; both keys are required. Historical
+`OfferPriceChangedEvent` remains price-only. Other changes emit
+`OfferAvailabilityChanged`, `OfferItemConditionChanged` and `OfferContentChanged`,
+with the corresponding required field. These events project to `read_offers`
+and publish to customer-facing with the same message identity and sequence.
+
+New creation records are `OfferCreated.v8`; readers retain v1–v7. The nullable
+comparison pair, JSONB statuses and TEXT description are additive migrations.
+The identity projection also gains five nullable identifier columns, preserving
+lookup by retailer/URL. It backfills only matching ID/retailer/URL rows from
+`read_offers`, aborts on contradictory identities, and reports unmatched rows.
+It applies complete identifier changes atomically.
+
+Stop event runners during identity migration, apply migrations, then restart.
+Deploy customer-facing and offers readers before sourcing's v8 writer. No old
+snapshots or event history are rewritten. See [ADRs 34–37](../../docs/adr/README.md)
+and [verification](../../docs/plans/24-27-offer-facts-verification.md).

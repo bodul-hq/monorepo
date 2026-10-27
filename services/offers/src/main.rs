@@ -95,6 +95,51 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
     let kernel = kernel::boot(KernelConfig::default())
         .command_handler(CREATE_FROM_OFFER_DETAILS_COMMAND, handler)
         .event_subscriber(
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            "read_offers_identifiers",
+            identifiers_projector.clone(),
+        )
+        .event_subscriber(
             crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),

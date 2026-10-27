@@ -45,6 +45,10 @@ where
         command: ImportOfferDetailsCommand,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let observation = super::command::OfferObservation {
+            was_price: command.was_price,
+            availability: command.availability,
+            item_condition: command.item_condition,
+            content: command.content,
             identifiers: retailer_sauce::identifier::ProductIdentifiers {
                 gtin: command.gtin,
                 sku: command.sku,

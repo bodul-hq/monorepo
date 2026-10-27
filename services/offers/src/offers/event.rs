@@ -9,7 +9,11 @@ use super::retailer_offer_id::RetailerOfferId;
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
 pub enum RetailerOfferEvent {
-    OfferCreated(OfferCreatedEvent),
+    OfferCreated(Box<OfferCreatedEvent>),
+    OfferPricingChanged(OfferPricingChangedEvent),
+    OfferAvailabilityChanged(OfferAvailabilityChangedEvent),
+    OfferItemConditionChanged(OfferItemConditionChangedEvent),
+    OfferContentChanged(OfferContentChangedEvent),
     OfferIdentifiersChanged(OfferIdentifiersChangedEvent),
     OfferLocalizationChanged(OfferLocalizationChangedEvent),
     OfferImageAdded(OfferImageAddedEvent),
@@ -21,6 +25,10 @@ pub enum RetailerOfferEvent {
 impl ApplicationEvent for RetailerOfferEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            Self::OfferPricingChanged(event) => event.event_type(),
+            Self::OfferAvailabilityChanged(event) => event.event_type(),
+            Self::OfferItemConditionChanged(event) => event.event_type(),
+            Self::OfferContentChanged(event) => event.event_type(),
             Self::OfferCreated(event) => event.event_type(),
             Self::OfferIdentifiersChanged(event) => event.event_type(),
             Self::OfferLocalizationChanged(event) => event.event_type(),
@@ -34,6 +42,8 @@ impl ApplicationEvent for RetailerOfferEvent {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OfferCreatedEvent {
+    #[serde(flatten)]
+    pub facts: OfferFacts,
     #[serde(flatten)]
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default)]
@@ -65,6 +75,10 @@ pub struct OfferPriceChangedEvent {
 impl HasAggregateId for RetailerOfferEvent {
     fn aggregate_id(&self) -> String {
         match self {
+            Self::OfferPricingChanged(event) => event.id.to_string(),
+            Self::OfferAvailabilityChanged(event) => event.id.to_string(),
+            Self::OfferItemConditionChanged(event) => event.id.to_string(),
+            Self::OfferContentChanged(event) => event.id.to_string(),
             Self::OfferCreated(event) => event.id.to_string(),
             Self::OfferIdentifiersChanged(event) => event.id.to_string(),
             Self::OfferLocalizationChanged(event) => event.id.to_string(),
@@ -218,5 +232,107 @@ mod tests {
             )
             .is_err()
         );
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferFacts {
+    #[serde(
+        default,
+        deserialize_with = "retailer_sauce::observation::nullable_object"
+    )]
+    pub was_price: Option<Money>,
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    #[serde(default)]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+    #[serde(default)]
+    pub content: retailer_sauce::structuralized::content::Content,
+}
+impl OfferFacts {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Some(value) = &self.availability {
+            value.guard()?;
+        }
+        if let Some(value) = &self.item_condition {
+            value.guard()?;
+        }
+        self.content.guard()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Pricing {
+    #[serde(deserialize_with = "retailer_sauce::observation::object")]
+    pub price: Money,
+    #[serde(deserialize_with = "retailer_sauce::observation::nullable_object")]
+    pub was_price: Option<Money>,
+}
+impl Pricing {
+    pub fn guard(&self) -> Result<(), String> {
+        guard_was_price(&self.price, self.was_price.as_ref())
+    }
+}
+
+pub fn guard_was_price(price: &Money, was_price: Option<&Money>) -> Result<(), String> {
+    if was_price
+        .is_some_and(|was| was.currency() != price.currency() || was.amount() <= price.amount())
+    {
+        return Err(err_invalid_was_price());
+    }
+    Ok(())
+}
+fn err_invalid_was_price() -> String {
+    "was_price must use the current currency and be greater than price".into()
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferPricingChangedEvent {
+    pub id: RetailerOfferId,
+    #[serde(deserialize_with = "retailer_sauce::observation::object")]
+    pub pricing: Pricing,
+}
+pub const OFFER_PRICING_CHANGED_EVENT: &str = "OfferPricingChanged";
+impl ApplicationEvent for OfferPricingChangedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_PRICING_CHANGED_EVENT
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferAvailabilityChangedEvent {
+    pub id: RetailerOfferId,
+    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+}
+pub const OFFER_AVAILABILITY_CHANGED_EVENT: &str = "OfferAvailabilityChanged";
+impl ApplicationEvent for OfferAvailabilityChangedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_AVAILABILITY_CHANGED_EVENT
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferItemConditionChangedEvent {
+    pub id: RetailerOfferId,
+    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+}
+pub const OFFER_ITEM_CONDITION_CHANGED_EVENT: &str = "OfferItemConditionChanged";
+impl ApplicationEvent for OfferItemConditionChangedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_ITEM_CONDITION_CHANGED_EVENT
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferContentChangedEvent {
+    pub id: RetailerOfferId,
+    pub content: retailer_sauce::structuralized::content::Content,
+}
+pub const OFFER_CONTENT_CHANGED_EVENT: &str = "OfferContentChanged";
+impl ApplicationEvent for OfferContentChangedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_CONTENT_CHANGED_EVENT
     }
 }

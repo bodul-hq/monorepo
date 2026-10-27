@@ -18,6 +18,79 @@ impl PostgresRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for PostgresRetailerOfferRepository {
+    fn update_content(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &retailer_sauce::structuralized::content::Content,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        content.guard().map_err(super::err_update)?;
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query("UPDATE read_offers SET description=$2 WHERE id=$1")
+            .bind::<SqlUuid, _>(id)
+            .bind::<diesel::sql_types::Nullable<Text>, _>(&content.description)
+            .execute(&mut self.pool.get().map_err(super::err_update)?)
+            .map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
+    fn update_item_condition(
+        &self,
+        id: &super::RetailerOfferId,
+        item_condition: &Option<retailer_sauce::item_condition::ItemCondition>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = item_condition {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query("UPDATE read_offers SET item_condition=$2 WHERE id=$1")
+            .bind::<SqlUuid, _>(id)
+            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(
+                item_condition
+                    .as_ref()
+                    .map(serde_json::to_value)
+                    .transpose()
+                    .map_err(super::err_update)?,
+            )
+            .execute(&mut self.pool.get().map_err(super::err_update)?)
+            .map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
+    fn update_availability(
+        &self,
+        id: &super::RetailerOfferId,
+        availability: &Option<retailer_sauce::availability::Availability>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if let Some(value) = availability {
+            value.guard().map_err(super::err_update)?;
+        }
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query("UPDATE read_offers SET availability=$2 WHERE id=$1")
+            .bind::<SqlUuid, _>(id)
+            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(
+                availability
+                    .as_ref()
+                    .map(serde_json::to_value)
+                    .transpose()
+                    .map_err(super::err_update)?,
+            )
+            .execute(&mut self.pool.get().map_err(super::err_update)?)
+            .map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
+    fn update_pricing(
+        &self,
+        id: &super::RetailerOfferId,
+        pricing: &crate::offers::event::Pricing,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        pricing.guard().map_err(super::err_update)?;
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query("UPDATE read_offers SET price_amount=$2,currency=$3,was_price_amount=$4,was_price_currency=$5 WHERE id=$1").bind::<SqlUuid,_>(id)
+        .bind::<diesel::sql_types::BigInt,_>(pricing.price.amount())
+        .bind::<Text,_>(pricing.price.currency().as_str())
+        .bind::<diesel::sql_types::Nullable<diesel::sql_types::BigInt>,_>(pricing.was_price.as_ref().map(|v|v.amount()))
+        .bind::<diesel::sql_types::Nullable<Text>,_>(pricing.was_price.as_ref().map(|v|v.currency().as_str()))
+        .execute(&mut self.pool.get().map_err(super::err_update)?).map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
     fn update_identifiers(
         &self,
         id: &crate::offers::retailer_offer_id::RetailerOfferId,
@@ -123,12 +196,26 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
             .map(serde_json::to_value)
             .transpose()
             .map_err(err_insert)?;
+        let availability = entity
+            .facts
+            .availability
+            .as_ref()
+            .map(serde_json::to_value)
+            .transpose()
+            .map_err(err_insert)?;
+        let item_condition = entity
+            .facts
+            .item_condition
+            .as_ref()
+            .map(serde_json::to_value)
+            .transpose()
+            .map_err(err_insert)?;
         let mut connection = self.pool.get().map_err(err_insert)?;
         connection
             .transaction::<_, diesel::result::Error, _>(|connection| {
                 diesel::sql_query(
-                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle, was_price_amount, was_price_currency, availability, item_condition, description)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)",
                 )
                 .bind::<SqlUuid, _>(id)
                 .bind::<Text, _>(entity.retailer_code.as_str())
@@ -145,6 +232,11 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
                 .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(entity.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value))
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::BigInt>,_>(entity.facts.was_price.as_ref().map(|v|v.amount()))
+                .bind::<diesel::sql_types::Nullable<Text>,_>(entity.facts.was_price.as_ref().map(|v|v.currency().as_str()))
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>,_>(&availability)
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>,_>(&item_condition)
+                .bind::<diesel::sql_types::Nullable<Text>,_>(&entity.facts.content.description)
                 .execute(connection)?;
                 for (position, image_url) in entity.images.iter().enumerate() {
                     diesel::sql_query(

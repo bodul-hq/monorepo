@@ -6,6 +6,7 @@ use super::retailer_offer_id::RetailerOfferId;
 
 #[derive(Debug, PartialEq)]
 pub struct RetailerOfferState {
+    pub(super) facts: super::event::OfferFacts,
     pub(super) identifiers: retailer_sauce::identifier::ProductIdentifiers,
     pub(super) localization: retailer_sauce::localization::Localization,
     id: RetailerOfferId,
@@ -36,6 +37,7 @@ impl RetailerOfferState {
         created_at: DateTime<Utc>,
     ) -> Self {
         Self {
+            facts: Default::default(),
             identifiers: Default::default(),
             localization: Default::default(),
             id,

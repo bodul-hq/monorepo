@@ -28,6 +28,10 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | OFFER_SCRAPED_AT_UPDATED_EVENT
                 | crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT
                 | crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT
+                | crate::offers::event::OFFER_PRICING_CHANGED_EVENT
+                | crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT
+                | crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT
+                | crate::offers::event::OFFER_CONTENT_CHANGED_EVENT
         ) {
             return Ok(());
         }
@@ -81,6 +85,10 @@ mod tests {
     fn requires_metadata_for_offer_events_and_ignores_unrelated_events() {
         let subscriber = CustomerFacingSubscriber::new(crate::test_pool());
         for event_type in [
+            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
             OFFER_IMAGE_ADDED_EVENT,
             OFFER_CREATED_EVENT,
             OFFER_TITLE_CHANGED_EVENT,

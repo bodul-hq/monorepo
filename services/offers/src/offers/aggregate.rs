@@ -7,10 +7,7 @@ use testimony::prelude::{Aggregate, EventEnvelope};
 use super::retailer_offer_id::RetailerOfferId;
 
 use super::{
-    event::{
-        OfferCreatedEvent, OfferImageAddedEvent, OfferPriceChangedEvent, OfferTitleChangedEvent,
-        RetailerOfferEvent,
-    },
+    event::{OfferCreatedEvent, OfferImageAddedEvent, OfferTitleChangedEvent, RetailerOfferEvent},
     state::RetailerOfferState,
 };
 
@@ -84,6 +81,8 @@ impl RetailerOfferAggregate {
         observation
             .guard()
             .map_err(RetailerOfferError::InvalidObservation)?;
+        super::event::guard_was_price(&price, observation.was_price.value())
+            .map_err(RetailerOfferError::InvalidObservation)?;
         let scraped_at = observation.scraped_at;
         let (images, skipped) = shared::images::filter(images);
         if skipped > 0 {
@@ -91,6 +90,12 @@ impl RetailerOfferAggregate {
         }
         Self::guard_capacity(0, 0, images.len() as u64, 1)?;
         let event = OfferCreatedEvent {
+            facts: super::event::OfferFacts {
+                was_price: observation.was_price.into_value(),
+                availability: observation.availability.into_value(),
+                item_condition: observation.item_condition.into_value(),
+                content: observation.content.unwrap_or_default(),
+            },
             identifiers: observation.identifiers,
             localization: observation.localization.unwrap_or_default(),
             scraped_at,
@@ -113,6 +118,7 @@ impl RetailerOfferAggregate {
         for image in &event.images {
             state.add_image(image.clone());
         }
+        state.facts = event.facts.clone();
         state.identifiers = event.identifiers.clone();
         state.localization = event.localization.clone();
         state.observe_scrape(event.scraped_at);
@@ -122,7 +128,7 @@ impl RetailerOfferAggregate {
             state,
             sequence,
             uncommitted_events: vec![EventEnvelope::new(
-                RetailerOfferEvent::OfferCreated(event),
+                RetailerOfferEvent::OfferCreated(Box::new(event)),
                 sequence,
             )],
         })
@@ -184,6 +190,8 @@ impl RetailerOfferAggregate {
         observation
             .guard()
             .map_err(RetailerOfferError::InvalidObservation)?;
+        super::event::guard_was_price(&price, observation.was_price.value())
+            .map_err(RetailerOfferError::InvalidObservation)?;
         let scraped_at = observation.scraped_at;
         let identifiers = self.state.identifiers.enriched(&observation.identifiers);
         let identifiers_changed = identifiers != self.state.identifiers;
@@ -201,7 +209,26 @@ impl RetailerOfferAggregate {
             .collect();
         let scrape_changed = scraped_at.is_some() && scraped_at > self.state.scraped_at();
         let title_changed = title != self.state.title();
-        let price_changed = &price != self.state.price();
+        let facts = super::event::OfferFacts {
+            was_price: observation
+                .was_price
+                .resolve(self.state.facts.was_price.clone())
+                .filter(|was| super::event::guard_was_price(&price, Some(was)).is_ok()),
+            availability: observation
+                .availability
+                .resolve(self.state.facts.availability.clone()),
+            item_condition: observation
+                .item_condition
+                .resolve(self.state.facts.item_condition.clone()),
+            content: observation
+                .content
+                .unwrap_or_else(|| self.state.facts.content.clone()),
+        };
+        let price_changed =
+            &price != self.state.price() || facts.was_price != self.state.facts.was_price;
+        let availability_changed = facts.availability != self.state.facts.availability;
+        let condition_changed = facts.item_condition != self.state.facts.item_condition;
+        let content_changed = facts.content != self.state.facts.content;
         // Reserve sequence capacity for all new events before changing state,
         // so an overflow rejects the whole update without partial changes.
         Self::guard_capacity(
@@ -212,7 +239,10 @@ impl RetailerOfferAggregate {
                 + u64::from(price_changed)
                 + u64::from(scrape_changed)
                 + u64::from(localization_changed)
-                + u64::from(identifiers_changed),
+                + u64::from(identifiers_changed)
+                + u64::from(availability_changed)
+                + u64::from(condition_changed)
+                + u64::from(content_changed),
         )?;
 
         if title_changed {
@@ -228,14 +258,18 @@ impl RetailerOfferAggregate {
             ));
         }
         if price_changed {
-            let event = OfferPriceChangedEvent {
+            let event = super::event::OfferPricingChangedEvent {
                 id: self.state.id().clone(),
-                price,
+                pricing: super::event::Pricing {
+                    price,
+                    was_price: facts.was_price.clone(),
+                },
             };
-            self.state.change_price(event.price.clone());
+            self.state.change_price(event.pricing.price.clone());
+            self.state.facts.was_price = event.pricing.was_price.clone();
             self.sequence += 1;
             self.uncommitted_events.push(EventEnvelope::new(
-                RetailerOfferEvent::OfferPriceChanged(event),
+                RetailerOfferEvent::OfferPricingChanged(event),
                 self.sequence,
             ));
         }
@@ -285,6 +319,42 @@ impl RetailerOfferAggregate {
             self.sequence += 1;
             self.uncommitted_events.push(EventEnvelope::new(
                 RetailerOfferEvent::OfferIdentifiersChanged(event),
+                self.sequence,
+            ));
+        }
+        if availability_changed {
+            let event = super::event::OfferAvailabilityChangedEvent {
+                id: self.state.id().clone(),
+                availability: facts.availability,
+            };
+            self.state.facts.availability = event.availability.clone();
+            self.sequence += 1;
+            self.uncommitted_events.push(EventEnvelope::new(
+                RetailerOfferEvent::OfferAvailabilityChanged(event),
+                self.sequence,
+            ));
+        }
+        if condition_changed {
+            let event = super::event::OfferItemConditionChangedEvent {
+                id: self.state.id().clone(),
+                item_condition: facts.item_condition,
+            };
+            self.state.facts.item_condition = event.item_condition.clone();
+            self.sequence += 1;
+            self.uncommitted_events.push(EventEnvelope::new(
+                RetailerOfferEvent::OfferItemConditionChanged(event),
+                self.sequence,
+            ));
+        }
+        if content_changed {
+            let event = super::event::OfferContentChangedEvent {
+                id: self.state.id().clone(),
+                content: facts.content,
+            };
+            self.state.facts.content = event.content.clone();
+            self.sequence += 1;
+            self.uncommitted_events.push(EventEnvelope::new(
+                RetailerOfferEvent::OfferContentChanged(event),
                 self.sequence,
             ));
         }
@@ -338,6 +408,11 @@ impl Aggregate for RetailerOfferAggregate {
             .identifiers
             .guard()
             .expect("invalid identifier history");
+        created
+            .facts
+            .guard()
+            .expect("invalid offer facts in history");
+        aggregate.state.facts = created.facts;
         aggregate.state.identifiers = created.identifiers;
         aggregate.state.localization = created.localization;
         aggregate.state.observe_scrape(created.scraped_at);
@@ -356,6 +431,32 @@ impl Aggregate for RetailerOfferAggregate {
                 "offer history sequence must be contiguous"
             );
             match envelope.into_event() {
+                RetailerOfferEvent::OfferPricingChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    event.pricing.guard().expect("invalid pricing history");
+                    aggregate.state.change_price(event.pricing.price);
+                    aggregate.state.facts.was_price = event.pricing.was_price;
+                }
+                RetailerOfferEvent::OfferAvailabilityChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    if let Some(value) = &event.availability {
+                        value.guard().expect("invalid source status history");
+                    }
+                    aggregate.state.facts.availability = event.availability;
+                }
+                RetailerOfferEvent::OfferItemConditionChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    if let Some(value) = &event.item_condition {
+                        value.guard().expect("invalid source status history");
+                    }
+                    aggregate.state.facts.item_condition = event.item_condition;
+                }
+                RetailerOfferEvent::OfferContentChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    event.content.guard().expect("invalid content history");
+                    aggregate.state.facts.content = event.content;
+                }
+
                 RetailerOfferEvent::OfferIdentifiersChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event
@@ -424,11 +525,12 @@ impl Aggregate for RetailerOfferAggregate {
 mod tests {
     use super::*;
     use crate::offers::command::ImportOfferDetailsCommand;
+    use crate::offers::event::OfferPriceChangedEvent;
     use crate::offers::retailer_offer_id::RetailerOfferId;
     use bodul_shared::retailer::RetailerCode;
     use money::{Currency, Money};
 
-    fn aggregate() -> RetailerOfferAggregate {
+    pub(super) fn aggregate() -> RetailerOfferAggregate {
         RetailerOfferAggregate::create(
             RetailerOfferId::new("offer-1"),
             RetailerCode::AnkerCom,
@@ -442,6 +544,10 @@ mod tests {
 
     fn update_command() -> ImportOfferDetailsCommand {
         ImportOfferDetailsCommand {
+            was_price: Default::default(),
+            availability: Default::default(),
+            item_condition: Default::default(),
+            content: None,
             gtin: None,
             sku: None,
             external_identifiers: Default::default(),
@@ -620,11 +726,11 @@ mod tests {
                         assert_eq!(event.id.value(), "offer-1");
                         assert_eq!(event.title, expected_title);
                     }
-                    RetailerOfferEvent::OfferPriceChanged(event) => {
+                    RetailerOfferEvent::OfferPricingChanged(event) => {
                         assert!(price_changed);
                         assert_eq!(index, 1 + usize::from(title_changed));
                         assert_eq!(event.id.value(), "offer-1");
-                        assert_eq!(event.price, expected_price);
+                        assert_eq!(event.pricing.price, expected_price);
                     }
                     _ => panic!("unexpected creation event"),
                 }
@@ -664,6 +770,7 @@ mod tests {
             panic!("expected an OfferCreated event");
         };
         let expected_event = OfferCreatedEvent {
+            facts: Default::default(),
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
@@ -675,7 +782,7 @@ mod tests {
             url: "https://example.com/charger".into(),
             created_at: *expected_state.created_at(),
         };
-        assert_eq!(event, &expected_event);
+        assert_eq!(event.as_ref(), &expected_event);
     }
 
     #[test]
@@ -719,7 +826,7 @@ mod tests {
                 "OfferImageAdded",
                 "OfferImageAdded",
                 "OfferTitleChanged",
-                "OfferPriceChangedEvent",
+                "OfferPricingChanged",
                 "OfferImageAdded"
             ]
         );
@@ -853,7 +960,7 @@ mod tests {
             offer.uncommitted_events[0].event(),
         ))
         .unwrap();
-        assert_eq!(serialized["type"], "OfferCreated.v5");
+        assert_eq!(serialized["type"], "OfferCreated.v8");
         assert_eq!(serialized["data"]["images"], serde_json::json!([a, b]));
         let replay =
             RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
@@ -1177,3 +1284,6 @@ mod identifiers_tests {
         assert!(json["data"]["external_identifiers"].is_object());
     }
 }
+
+#[cfg(test)]
+mod facts_tests;
