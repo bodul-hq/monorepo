@@ -11,13 +11,10 @@ post {
 }
 
 body:json {
-  { "limit": 2 }
+  { "limit": 1000 }
 }
 
 docs {
-  Delivers one batch to customer-facing's /api/inbox when offers runs with
-  CUSTOMER_FACING_URL; without it, returns 503 and rows remain untouched.
+  Returns 503 because no outbox publisher is configured. Rows remain untouched.
   The limit must be an integer from 1 through 1000; invalid requests return 400.
-  A 202 from customer-facing means stored only: run its inbox, commands and
-  events afterwards.
 }

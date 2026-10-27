@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{offersBaseUrl}}/api/offers/import
+  url: {{offersBaseUrl}}/api/tmp-import
   body: json
   auth: none
 }
@@ -22,5 +22,6 @@ body:json {
 }
 
 docs {
-  Returns 202 with command_id. Run commands, then run events, before looking up the offer.
+  Returns 202 with message_id. Run inbox, commands, events and outbox,
+  then customer-facing inbox and commands before browsing offers.
 }

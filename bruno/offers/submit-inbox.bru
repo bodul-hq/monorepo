@@ -27,9 +27,9 @@ docs {
   Stores one message and returns 202 with its message_id. No queue is processed.
   Send Run inbox, Run commands, then Run events to populate the read models.
   The command payload uses enum name AnkerAu, unlike the direct import slug ankerau.
-  payload is required and may be any JSON value, including null.
-  routing_key must contain non-whitespace text. Unknown command types are accepted.
-  Optional message_id and correlation_id must be UUID strings; source is optional.
+  payload is required and must be nonempty; null, blank strings, [] and {} are rejected.
+  routing_key and source must contain non-whitespace text. Unknown command types are accepted.
+  Optional message_id and correlation_id must be UUID strings.
   Omit message_id for a new UUID. Reusing it succeeds and preserves the original row.
   Invalid envelopes return 400; storage or blocking-task failures return 500.
 }
