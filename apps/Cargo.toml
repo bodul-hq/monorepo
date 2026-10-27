@@ -7,4 +7,7 @@ members = [
 
 [workspace.dependencies]
 poem = "3.1.12"
+reqwest = { version = "0.13.5", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }

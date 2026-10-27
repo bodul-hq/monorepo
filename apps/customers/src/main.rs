@@ -1,14 +1,11 @@
-use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
+mod offers;
+mod page;
 
-#[handler]
-fn index() -> Html<&'static str> {
-    Html(
-        "<!DOCTYPE html><html lang=\"en\"><head><title>Customers</title></head><body><h1>Customers</h1></body></html>",
-    )
-}
+use poem::{EndpointExt, Route, Server, get, listener::TcpListener};
+use std::sync::Arc;
 
-fn app() -> Route {
-    Route::new().at("/", get(index))
+fn app(client: Arc<offers::OffersClient>) -> Route {
+    Route::new().at("/", get(page::index).data(client))
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
@@ -29,8 +26,9 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
+    let client = Arc::new(offers::OffersClient::from_env()?);
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run_with_graceful_shutdown(app(), shutdown_signal()?, None)
+        .run_with_graceful_shutdown(app(client), shutdown_signal()?, None)
         .await
 }
 
@@ -56,17 +54,7 @@ fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'stati
 mod tests {
     use std::{env::VarError, io::ErrorKind};
 
-    use poem::test::TestClient;
-
-    use super::{app, parse_port};
-
-    #[tokio::test]
-    async fn index_renders_page() {
-        let response = TestClient::new(app()).get("/").send().await;
-        response.assert_status_is_ok();
-        let body = response.0.into_body().into_string().await.unwrap();
-        assert!(body.contains("<h1>Customers</h1>"));
-    }
+    use super::parse_port;
 
     #[test]
     fn port_defaults_when_unset() {

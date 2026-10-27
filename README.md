@@ -84,13 +84,17 @@ and [ADR 15](docs/adr/0015-offers-testimony-and-mulac.md).
 command, event, and outbox batch runners using local Mulac. It requires its own
 PostgreSQL database and projects incoming offer events into its own `offers`
 table during command processing, with transactional protection against replay.
-Outbox delivery remains unconfigured. See its [setup and queue contracts](services/customer_facing/README.md)
+It also exposes paginated offers through REST and GraphQL for the customers
+app. Outbox delivery remains unconfigured. See its [setup and queue contracts](services/customer_facing/README.md)
 and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 
 ### apps
 
 `customers` and `development` are poem servers that render HTML on the server.
-Each serves an index page at `/`. The
+Each serves an index page at `/`. The [customers app](apps/customers/README.md)
+shows 30 offers per page with responsive HTML/CSS cards and Previous/Next links,
+using customer-facing's REST API. Set `CUSTOMER_FACING_URL` to that service's
+base URL (default `http://localhost:3003`). The
 [development app](apps/development/README.md) also provides `/dashboard`,
 combining authenticated database table reports from retailer sourcing and object
 storage through private server-side clients.

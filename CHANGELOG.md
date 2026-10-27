@@ -6,6 +6,11 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 
 ### Added
 
+- Customer-facing REST and GraphQL offer browsing with bounded offset pagination,
+  deterministic newest-first ordering and exact decimal-string minor-unit prices.
+- Customers homepage with 30 offers per page, responsive HTML/CSS cards,
+  Previous/Next links, and empty/error states without JavaScript.
+
 - `lib` Cargo workspace with `shared`, `money` and `retailer_sauce`, plus `retailer_data_extractor` and one crate per retailer: `retailers_anker`, `retailers_mi`, `retailers_minisforum`, `retailers_ugreen` and `retailers_wip`. Every library has a README, and crates without code have a placeholder test.
 - `shared::health()`, the liveness response every service returns.
 - Service routes in `customer_facing`, `offers` and `retailer_sourcing`: `/api/health`, `/api/openapi.json`, `/api/docs` (Swagger UI), `/graphql` over `GET` and `POST`, and `/graphql/ide` (GraphiQL) in debug builds only.

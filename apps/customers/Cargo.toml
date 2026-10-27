@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+money = { path = "../../lib/money" }
 poem.workspace = true
+reqwest.workspace = true
+serde.workspace = true
 tokio.workspace = true
 
 [dev-dependencies]
 poem = { workspace = true, features = ["test"] }
+serde_json.workspace = true

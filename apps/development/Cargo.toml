@@ -9,10 +9,10 @@ bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
 object_storage_client = { path = "../../lib/object_storage_client" }
 percent-encoding = "2.3.2"
 poem.workspace = true
-reqwest = { version = "0.13.5", features = ["blocking", "json"] }
+reqwest = { workspace = true, features = ["blocking"] }
 retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde.workspace = true
+serde_json.workspace = true
 sitemap = { path = "../../lib/sitemap" }
 tokio.workspace = true
 
