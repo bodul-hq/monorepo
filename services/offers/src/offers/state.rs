@@ -6,6 +6,7 @@ use super::retailer_offer_id::RetailerOfferId;
 
 #[derive(Debug, PartialEq)]
 pub struct RetailerOfferState {
+    pub(super) localization: retailer_sauce::localization::Localization,
     id: RetailerOfferId,
     retailer_code: RetailerCode,
     title: String,
@@ -34,6 +35,7 @@ impl RetailerOfferState {
         created_at: DateTime<Utc>,
     ) -> Self {
         Self {
+            localization: Default::default(),
             id,
             retailer_code,
             title: title.into(),

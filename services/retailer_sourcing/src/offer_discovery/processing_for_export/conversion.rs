@@ -15,6 +15,8 @@ struct StructuralizedDocument {
 
 #[derive(Deserialize)]
 struct Variation {
+    #[serde(default)]
+    localization: retailer_sauce::localization::Localization,
     title: String,
     url: String,
     price: Option<Money>,
@@ -35,7 +37,7 @@ pub(super) fn convert(
     body: &str,
     schema_version: u32,
 ) -> Result<OfferExport, ConversionError> {
-    if !matches!(schema_version, 1..=3) {
+    if !matches!(schema_version, 1..=4) {
         return Err(ConversionError("unsupported schema version".into()));
     }
     if schema_version < 3 && source.storage.scraped_at.is_some() {
@@ -77,6 +79,7 @@ pub(super) fn convert(
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                localization: (schema_version >= 4).then_some(variation.localization),
                 scraped_at: if schema_version >= 3 {
                     source.storage.scraped_at
                 } else {

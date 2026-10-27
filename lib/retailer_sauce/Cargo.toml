@@ -6,7 +6,9 @@ publish = ["null-labs-hq"]
 
 [dependencies]
 bodul_shared.workspace = true
+everyday.workspace = true
 html-extractor.workspace = true
+icu_locale_core = { version = "2.3.0", features = ["alloc"] }
 serde.workspace = true
 thiserror.workspace = true
 

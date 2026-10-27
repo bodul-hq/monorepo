@@ -59,7 +59,7 @@ impl<S: Store> Listen for Listener<S> {
 
     fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error> {
         let export_id = event.export_id;
-        if !matches!(event.schema_version, 1..=3) {
+        if !matches!(event.schema_version, 1..=4) {
             return Err(ListenerError::UnsupportedSchema {
                 export_id,
                 version: event.schema_version,
@@ -151,6 +151,7 @@ mod tests {
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                localization: None,
                 scraped_at: None,
                 images: None,
                 retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
@@ -291,7 +292,7 @@ mod tests {
         let mut other_source = event(&export);
         other_source.source.offer_id = Uuid::now_v7();
         let mut other_snapshot = export.clone();
-        other_snapshot.schema_version = 2;
+        other_snapshot.schema_version = 3;
 
         let listener = listener(export.clone());
         assert!(matches!(

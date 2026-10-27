@@ -22,6 +22,15 @@ pub(crate) fn offers(items: Vec<Offer>) -> Offers {
 
 fn fixture(index: u128) -> Offer {
     Offer {
+        localization: if index == 0 {
+            OfferLocalization::from_record(
+                Some(json!({"kind":"country","code":"CA"})),
+                Some("fr".into()),
+            )
+            .unwrap()
+        } else {
+            Default::default()
+        },
         scraped_at: None,
         images: Vec::new(),
         id: Uuid::from_u128(index).to_string(),
@@ -61,7 +70,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} url images createdAt scrapedAt }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
         );
         for get in [false, true] {
             let response = if get {
@@ -81,6 +90,12 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
             obj.insert("hasMore".into(), more);
             for item in obj["items"].as_array_mut().unwrap() {
                 let item = item.as_object_mut().unwrap();
+                let localization = item["localization"].as_object_mut().unwrap();
+                let mut market = localization.remove("target_market").unwrap();
+                if let Some(kind) = market.get_mut("kind") {
+                    *kind = json!(kind.as_str().unwrap().to_uppercase());
+                }
+                localization.insert("targetMarket".into(), market);
                 for (from, to) in [
                     ("retailer_code", "retailerCode"),
                     ("created_at", "createdAt"),

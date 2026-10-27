@@ -24,6 +24,8 @@ use uuid::Uuid;
 #[derive(Deserialize)]
 struct Created {
     #[serde(default)]
+    localization: retailer_sauce::localization::Localization,
+    #[serde(default)]
     scraped_at: Option<DateTime<Utc>>,
     #[serde(default)]
     images: Vec<String>,
@@ -60,7 +62,14 @@ struct ScrapedAtUpdated {
     scraped_at: DateTime<Utc>,
 }
 
+#[derive(Deserialize)]
+struct LocalizationChanged {
+    id: Uuid,
+    localization: retailer_sauce::localization::Localization,
+}
+
 enum Change {
+    Localization(LocalizationChanged),
     ScrapedAt(ScrapedAtUpdated),
     Image(ImageAdded),
     Created(Created),
@@ -80,6 +89,9 @@ impl Change {
             return Err(invalid("price must be a JSON object"));
         }
         let change = match kind {
+            "OfferLocalizationChanged" => {
+                Self::Localization(serde_json::from_value(payload).map_err(invalid)?)
+            }
             "OfferScrapedAtUpdated" => {
                 Self::ScrapedAt(serde_json::from_value(payload).map_err(invalid)?)
             }
@@ -108,7 +120,7 @@ impl Change {
                 Some(&offer.title)
             }
             Self::Title(change) => Some(&change.title),
-            Self::Price(_) | Self::ScrapedAt(_) => None,
+            Self::Price(_) | Self::ScrapedAt(_) | Self::Localization(_) => None,
             Self::Image(change) => {
                 if !shared::images::is_valid(&change.image_url) {
                     return Err(invalid("invalid image URL"));
@@ -124,6 +136,17 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
+            Self::Localization(change) => {
+                diesel::sql_query("UPDATE offers SET target_market=$2, language=$3 WHERE id=$1")
+                    .bind::<SqlUuid, _>(change.id)
+                    .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(
+                        change.localization.target_market.as_ref().map(|market| {
+                            serde_json::to_value(market).expect("serializable market")
+                        }),
+                    )
+                    .bind::<diesel::sql_types::Nullable<Text>, _>(&change.localization.language)
+                    .execute(connection)?
+            }
             Self::ScrapedAt(change) => diesel::sql_query(
                 "UPDATE offers SET scraped_at = GREATEST(scraped_at, $2) WHERE id = $1",
             )
@@ -141,8 +164,8 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
@@ -152,6 +175,8 @@ impl Change {
                 .bind::<Text, _>(&offer.url)
                 .bind::<Timestamptz, _>(offer.created_at)
                 .bind::<diesel::sql_types::Nullable<Timestamptz>, _>(offer.scraped_at)
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(offer.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(&offer.localization.language)
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(

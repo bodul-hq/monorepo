@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};
 
-pub const SCHEMA_VERSION: u32 = 3;
+pub const SCHEMA_VERSION: u32 = 4;
 
 pub fn legacy_schema_version() -> u32 {
     1
@@ -26,6 +26,12 @@ pub struct ExportSource {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OfferImport {
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "retailer_sauce::localization::observation"
+    )]
+    pub localization: Option<retailer_sauce::localization::Localization>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(
@@ -81,9 +87,20 @@ pub struct OfferExport {
 
 impl OfferExport {
     pub fn valid_schema(&self) -> bool {
-        matches!(self.schema_version, 1..=3)
+        matches!(self.schema_version, 1..=4)
             && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
+                if entry
+                    .payload
+                    .localization
+                    .as_ref()
+                    .is_some_and(|value| value.guard().is_err())
+                {
+                    return false;
+                }
+                if entry.payload.localization.is_some() != (self.schema_version >= 4) {
+                    return false;
+                }
                 if entry.payload.scraped_at
                     != (if self.schema_version >= 3 {
                         self.source.storage.scraped_at

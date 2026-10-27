@@ -1,3 +1,4 @@
+mod localization;
 mod pretty;
 
 use std::time::Duration;
@@ -39,17 +40,31 @@ pub fn extract_for(retailer_code: RetailerCode, html: &str) -> Result<String, St
         .extract(html, &architecture)
         .map_err(|e| e.to_string())?;
 
-    Ok(extracted.json.to_string())
+    let mut value = extracted.json;
+    value[localization::KEY] =
+        serde_json::to_value(localization::extract(html)).map_err(|error| error.to_string())?;
+    Ok(value.to_string())
 }
 
 pub fn normalize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<NormalizedData, String>> {
+    let (json, evidence) = match localization::split(json) {
+        Ok(value) => value,
+        Err(error) => return Some(Err(error)),
+    };
+    let json = json.as_str();
     retailers_anker::prelude::normalize_for(retailer_code, json)
         .or_else(|| retailers_mi::prelude::normalize_for(retailer_code, json))
         .or_else(|| retailers_minisforum::prelude::normalize_for(retailer_code, json))
         .or_else(|| retailers_ugreen::prelude::normalize_for(retailer_code, json))
+        .map(|result| {
+            result.and_then(|mut data| {
+                localization::attach(&mut data.document_json, evidence, false)?;
+                Ok(data)
+            })
+        })
 }
 
 /// Returns `None` when the retailer has no structuralizer registered by its family crate.
@@ -57,9 +72,20 @@ pub fn structuralize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<StructuralizedData, String>> {
+    let (json, evidence) = match localization::split(json) {
+        Ok(value) => value,
+        Err(error) => return Some(Err(error)),
+    };
+    let json = json.as_str();
     retailers_anker::prelude::structuralize_for(retailer_code, json)
         .or_else(|| retailers_minisforum::prelude::structuralize_for(retailer_code, json))
         .or_else(|| retailers_ugreen::prelude::structuralize_for(retailer_code, json))
+        .map(|result| {
+            result.and_then(|mut data| {
+                localization::attach(&mut data.document_json, evidence, true)?;
+                Ok(data)
+            })
+        })
 }
 
 pub fn sitemap_config_for(retailer_code: &RetailerCode) -> Option<SitemapConfig> {
@@ -129,6 +155,7 @@ mod tests {
 
         let json = extract_for(RetailerCode::AnkerAu, html).unwrap();
 
+        let (json, _) = localization::split(&json).unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&json).unwrap(),
             serde_json::from_str::<serde_json::Value>(r#"{"ld-json":[{"data":{"@type":"Product"},"type":"application/ld+json"}],"next_data":{"data":{"page":"/p"},"id":"__NEXT_DATA__","type":"application/json"}}"#).unwrap()

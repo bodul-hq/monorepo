@@ -94,6 +94,16 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
     let customer_facing = Arc::new(CustomerFacingSubscriber::new(pool.clone()));
     let kernel = kernel::boot(KernelConfig::default())
         .command_handler(CREATE_FROM_OFFER_DETAILS_COMMAND, handler)
+        .event_subscriber(
+            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
         .event_subscriber(OFFER_CREATED_EVENT, "read_offer", offer_projector.clone())
         .event_subscriber(
             OFFER_TITLE_CHANGED_EVENT,

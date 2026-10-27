@@ -74,6 +74,10 @@ impl CustomerFacingPublisher {
             return Err(err_payload());
         }
         let parsed = match event_type {
+            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferLocalizationChangedEvent,
+            >(payload.clone())
+            .map(|_| ()),
             crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT => serde_json::from_value::<
                 crate::offers::event::OfferScrapedAtUpdatedEvent,
             >(payload.clone())

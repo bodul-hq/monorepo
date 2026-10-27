@@ -19,6 +19,7 @@ money.workspace = true
 mulac_poem.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
+retailer_sauce.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true

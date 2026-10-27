@@ -16,3 +16,6 @@ Retailer integrations.
 
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
+
+`localization` defines validated target-market and full language-tag facts.
+Unknown facts remain optional; extraction diagnostics are kept outside this contract.

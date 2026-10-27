@@ -17,6 +17,18 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn update_localization(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        localization: &retailer_sauce::localization::Localization,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        localization.guard().map_err(super::err_update)?;
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.localization = localization.clone();
+        Ok(())
+    }
     fn update_scraped_at(
         &self,
         id: &super::RetailerOfferId,
@@ -127,6 +139,7 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
+            localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::new_v4().to_string()),

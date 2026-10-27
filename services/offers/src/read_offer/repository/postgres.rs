@@ -18,6 +18,28 @@ impl PostgresRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for PostgresRetailerOfferRepository {
+    fn update_localization(
+        &self,
+        id: &crate::offers::retailer_offer_id::RetailerOfferId,
+        localization: &retailer_sauce::localization::Localization,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        localization.guard().map_err(super::err_update)?;
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let market = localization
+            .target_market
+            .as_ref()
+            .map(serde_json::to_value)
+            .transpose()
+            .map_err(super::err_update)?;
+        let count =
+            diesel::sql_query("UPDATE read_offers SET target_market=$2, language=$3 WHERE id=$1")
+                .bind::<SqlUuid, _>(id)
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(market)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(&localization.language)
+                .execute(&mut self.pool.get().map_err(super::err_update)?)
+                .map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
     fn update_scraped_at(
         &self,
         id: &super::RetailerOfferId,
@@ -78,12 +100,19 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
 
     fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError> {
         let id = validate(entity)?;
+        let market = entity
+            .localization
+            .target_market
+            .as_ref()
+            .map(serde_json::to_value)
+            .transpose()
+            .map_err(err_insert)?;
         let mut connection = self.pool.get().map_err(err_insert)?;
         connection
             .transaction::<_, diesel::result::Error, _>(|connection| {
                 diesel::sql_query(
-                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
                 )
                 .bind::<SqlUuid, _>(id)
                 .bind::<Text, _>(entity.retailer_code.as_str())
@@ -93,6 +122,8 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
                 .bind::<Text, _>(entity.price.currency().as_str())
                 .bind::<diesel::sql_types::Timestamptz, _>(entity.created_at)
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Timestamptz>, _>(entity.scraped_at)
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(&market)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(&entity.localization.language)
                 .execute(connection)?;
                 for (position, image_url) in entity.images.iter().enumerate() {
                     diesel::sql_query(

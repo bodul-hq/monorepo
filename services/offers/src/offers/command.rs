@@ -9,6 +9,12 @@ pub enum ProductOfferCommand {
 
 #[derive(Serialize, Deserialize)]
 pub struct ImportOfferDetailsCommand {
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "retailer_sauce::localization::observation"
+    )]
+    pub localization: Option<retailer_sauce::localization::Localization>,
     #[serde(default)]
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default)]
@@ -84,5 +90,41 @@ mod export_contract_tests {
         ))
         .unwrap();
         assert_eq!(command.images, ["https://example.com/a.png"]);
+    }
+}
+
+#[derive(Default)]
+pub struct OfferObservation {
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub localization: Option<retailer_sauce::localization::Localization>,
+}
+impl OfferObservation {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Some(localization) = &self.localization {
+            localization.guard()?;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod extended_contract_tests {
+    use super::*;
+    #[test]
+    fn shared_v3_to_v4_fixtures_preserve_fields_and_validate_before_mutation() {
+        for fixture in [
+            include_str!(
+                "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v3.json"
+            ),
+            include_str!(
+                "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v4.json"
+            ),
+        ] {
+            let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+            assert!(command.scraped_at.is_some());
+            if let Some(localization) = command.localization {
+                assert_eq!(localization.language.as_deref(), Some("en-AU"));
+            }
+        }
     }
 }

@@ -41,3 +41,8 @@ This crate is part of the `lib` workspace. See the
 checkout, skipping absent storefront folders. Tests enable serde_json's
 `arbitrary_precision` feature to match the app and service dependency graph;
 this covers decimal prices, ratings and media aspect ratios inside enum schemas.
+
+The facade captures localization evidence after retailer islands are extracted,
+then carries its sidecar through normalization and structuralization without
+changing strict retailer raw schemas. See the [source survey](../../docs/localization-source-coverage.md)
+for accepted declarations, exclusions, portable fixtures and corpus verification.

@@ -155,3 +155,22 @@ fn configuration_defaults_and_invalid_urls() {
         assert!(configuration(Err(VarError::NotUnicode(OsString::from_vec(vec![255])))).is_err());
     }
 }
+
+#[test]
+fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
+    let mut value = page(1, 0, false)["items"][0].clone();
+    let legacy: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(legacy.localization, Default::default());
+    value["localization"] =
+        json!({"target_market":{"kind":"country","code":"CA","label":null},"language":"fr"});
+    let offer: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(offer.localization.language.as_deref(), Some("fr"));
+    for (field, invalid) in [
+        ("localization", json!(null)),
+        ("localization", json!({"language":"bad_tag"})),
+    ] {
+        let mut bad = value.clone();
+        bad[field] = invalid;
+        assert!(serde_json::from_value::<Offer>(bad).is_err());
+    }
+}

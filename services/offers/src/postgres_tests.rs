@@ -760,6 +760,7 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        localization: None,
         scraped_at: None,
         images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
@@ -840,6 +841,7 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     };
     for number in 0..3 {
         let command = crate::offers::command::ImportOfferDetailsCommand {
+            localization: None,
             scraped_at: None,
             images: Vec::new(),
             retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
@@ -1125,6 +1127,7 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        localization: None,
         scraped_at: None,
         images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
@@ -1250,6 +1253,7 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
     ];
     for repository in repositories {
         let entity = crate::read_offer::entity::RetailerOffer {
+            localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::now_v7().to_string()),
@@ -1392,6 +1396,7 @@ fn creation_projection_rolls_back_parent_and_images_together() {
     use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
     let (_schema, pool) = inbox_test_database();
     let entity = crate::read_offer::entity::RetailerOffer {
+        localization: Default::default(),
         scraped_at: None,
         id: RetailerOfferId::new(Uuid::now_v7().to_string()),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,

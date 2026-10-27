@@ -1,3 +1,4 @@
+use crate::offers::event::OfferLocalizationChangedEvent;
 use serde::{Deserialize, Serialize};
 use testimony::prelude::HasAggregateId;
 
@@ -10,11 +11,14 @@ use crate::offers::event::{
 #[serde(tag = "type", content = "data")]
 pub enum OfferEventRecord {
     #[serde(
-        rename = "OfferCreated.v3",
+        rename = "OfferCreated.v4",
+        alias = "OfferCreated.v3",
         alias = "OfferCreated.v1",
         alias = "OfferCreated.v2"
     )]
     Created(OfferCreatedEvent),
+    #[serde(rename = "OfferLocalizationChanged.v1")]
+    LocalizationChanged(OfferLocalizationChangedEvent),
     #[serde(rename = "OfferImageAdded.v1")]
     ImageAdded(OfferImageAddedEvent),
     #[serde(rename = "OfferTitleChanged.v1")]
@@ -28,6 +32,9 @@ pub enum OfferEventRecord {
 impl From<&RetailerOfferEvent> for OfferEventRecord {
     fn from(event: &RetailerOfferEvent) -> Self {
         match event {
+            RetailerOfferEvent::OfferLocalizationChanged(event) => {
+                Self::LocalizationChanged(event.clone())
+            }
             RetailerOfferEvent::OfferScrapedAtUpdated(event) => {
                 Self::ScrapedAtUpdated(event.clone())
             }
@@ -42,6 +49,7 @@ impl From<&RetailerOfferEvent> for OfferEventRecord {
 impl From<OfferEventRecord> for RetailerOfferEvent {
     fn from(record: OfferEventRecord) -> Self {
         match record {
+            OfferEventRecord::LocalizationChanged(event) => Self::OfferLocalizationChanged(event),
             OfferEventRecord::ScrapedAtUpdated(event) => Self::OfferScrapedAtUpdated(event),
             OfferEventRecord::ImageAdded(event) => Self::OfferImageAdded(event),
             OfferEventRecord::Created(event) => Self::OfferCreated(event),
@@ -54,6 +62,7 @@ impl From<OfferEventRecord> for RetailerOfferEvent {
 impl HasAggregateId for OfferEventRecord {
     fn aggregate_id(&self) -> String {
         match self {
+            Self::LocalizationChanged(event) => event.id.to_string(),
             Self::ScrapedAtUpdated(event) => event.id.to_string(),
             Self::ImageAdded(event) => event.id.to_string(),
             Self::Created(event) => event.id.to_string(),

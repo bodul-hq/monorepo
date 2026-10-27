@@ -21,6 +21,7 @@ outbox.workspace = true
 outbox_api.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
+retailer_sauce.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true

@@ -26,6 +26,7 @@ pub struct OfferPrice {
 #[derive(Clone, Object, SimpleObject, serde::Serialize)]
 #[graphql(complex)]
 pub struct Offer {
+    pub localization: OfferLocalization,
     /// Latest known successful download, in UTC RFC3339 format.
     pub scraped_at: Option<String>,
     #[graphql(skip)]
@@ -62,6 +63,10 @@ struct PostgresRepository(DbPool);
 
 #[derive(diesel::QueryableByName)]
 struct Record {
+    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
+    target_market: Option<serde_json::Value>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    language: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Timestamptz>)]
     scraped_at: Option<DateTime<Utc>>,
     #[diesel(sql_type = SqlUuid)]
@@ -87,7 +92,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -95,26 +100,32 @@ impl Repository for PostgresRepository {
         .bind::<BigInt, _>(offset)
         .load::<Record>(&mut connection)
         .map_err(|_| ())?;
-        Ok(records
+        records
             .into_iter()
-            .map(|record| Offer {
-                scraped_at: record
-                    .scraped_at
-                    .map(|time| time.to_rfc3339_opts(SecondsFormat::AutoSi, true)),
-                id: record.id.to_string(),
-                retailer_code: record.retailer_code,
-                title: record.title,
-                price: OfferPrice {
-                    amount: record.price_amount.to_string(),
-                    currency: record.currency,
-                },
-                url: record.url,
-                images: record.images,
-                created_at: record
-                    .created_at
-                    .to_rfc3339_opts(SecondsFormat::AutoSi, true),
+            .map(|record| {
+                Ok(Offer {
+                    localization: OfferLocalization::from_record(
+                        record.target_market,
+                        record.language,
+                    )?,
+                    scraped_at: record
+                        .scraped_at
+                        .map(|time| time.to_rfc3339_opts(SecondsFormat::AutoSi, true)),
+                    id: record.id.to_string(),
+                    retailer_code: record.retailer_code,
+                    title: record.title,
+                    price: OfferPrice {
+                        amount: record.price_amount.to_string(),
+                        currency: record.currency,
+                    },
+                    url: record.url,
+                    images: record.images,
+                    created_at: record
+                        .created_at
+                        .to_rfc3339_opts(SecondsFormat::AutoSi, true),
+                })
             })
-            .collect())
+            .collect::<Result<Vec<_>, ()>>()
     }
 }
 
@@ -216,3 +227,57 @@ fn default_limit() -> i32 {
 
 #[cfg(test)]
 pub(crate) mod tests;
+
+#[derive(Clone, Copy, poem_openapi::Enum, async_graphql::Enum, serde::Serialize, PartialEq, Eq)]
+pub enum MarketKind {
+    #[oai(rename = "country")]
+    #[serde(rename = "country")]
+    Country,
+    #[oai(rename = "region")]
+    #[serde(rename = "region")]
+    Region,
+}
+#[derive(Clone, Object, SimpleObject, serde::Serialize)]
+pub struct OfferMarket {
+    pub kind: MarketKind,
+    pub code: Option<String>,
+    pub label: Option<String>,
+}
+#[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
+pub struct OfferLocalization {
+    pub target_market: Option<OfferMarket>,
+    pub language: Option<String>,
+}
+impl OfferLocalization {
+    fn from_record(
+        market: Option<serde_json::Value>,
+        language: Option<String>,
+    ) -> Result<Self, ()> {
+        use retailer_sauce::localization::{Localization, TargetMarket};
+        let target_market = market
+            .map(serde_json::from_value)
+            .transpose()
+            .map_err(|_| ())?;
+        let localization = Localization {
+            target_market,
+            language,
+        };
+        localization.guard().map_err(|_| ())?;
+        let target_market = localization.target_market.map(|market| match market {
+            TargetMarket::Country { code } => OfferMarket {
+                kind: MarketKind::Country,
+                code: Some(code.as_str().into()),
+                label: None,
+            },
+            TargetMarket::Region { label } => OfferMarket {
+                kind: MarketKind::Region,
+                code: None,
+                label: Some(label),
+            },
+        });
+        Ok(Self {
+            target_market,
+            language: localization.language,
+        })
+    }
+}

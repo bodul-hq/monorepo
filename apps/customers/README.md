@@ -116,3 +116,6 @@ See [ADR 23](../../docs/adr/0023-offer-browsing-and-customers-homepage.md).
 
 Image behavior and rollout: [ADR 24](../../docs/adr/0024-append-only-offer-images.md),
 [combined walkthrough](../../docs/offer-images-walkthrough.md).
+
+The offers response model carries validated localization facts with unknown defaults
+for older APIs. Cards do not display these facts or change their language.

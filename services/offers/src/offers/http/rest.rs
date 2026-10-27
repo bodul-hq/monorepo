@@ -12,6 +12,9 @@ mod model {
 
     #[derive(Object)]
     pub struct ImportOfferRequest {
+        pub localization: poem_openapi::types::MaybeUndefined<
+            poem_openapi::types::Any<retailer_sauce::localization::Localization>,
+        >,
         pub scraped_at: Option<String>,
         #[oai(default)]
         pub images: Vec<String>,
@@ -31,6 +34,10 @@ mod conversion {
 
     use super::{IMPORT_SOURCE, ImportOfferRequest, inbox};
     use crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND;
+
+    fn err_null_localization() -> String {
+        "localization must be an object".into()
+    }
 
     fn err_invalid_scraped_at(error: chrono::ParseError) -> String {
         format!("invalid scraped_at: {error}")
@@ -59,6 +66,13 @@ mod conversion {
 
             if let Some(scraped_at) = scraped_at {
                 payload["scraped_at"] = json!(scraped_at);
+            }
+            match request.localization {
+                poem_openapi::types::MaybeUndefined::Undefined => {}
+                poem_openapi::types::MaybeUndefined::Null => return Err(err_null_localization()),
+                poem_openapi::types::MaybeUndefined::Value(value) => {
+                    payload["localization"] = json!(value.0);
+                }
             }
             let submission = Self {
                 payload: Some(payload),
@@ -114,6 +128,7 @@ mod tests {
     fn request_converts_directly_to_a_command_compatible_inbox_message() {
         for amount in [0, 1999, i64::MAX] {
             let request = ImportOfferRequest {
+                localization: Default::default(),
                 scraped_at: None,
                 images: Vec::new(),
                 retailer_code: "ankerau".into(),

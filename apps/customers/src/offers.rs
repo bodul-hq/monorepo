@@ -17,6 +17,8 @@ pub struct Page {
 
 #[derive(Debug, Deserialize)]
 pub struct Offer {
+    #[serde(default, deserialize_with = "read_localization")]
+    pub localization: retailer_sauce::localization::Localization,
     #[serde(default)]
     pub images: Vec<String>,
     pub id: String,
@@ -87,7 +89,8 @@ impl OffersClient {
             || page.items.len() > PAGE_SIZE as usize
             || (page.has_more && page.items.len() != PAGE_SIZE as usize)
             || page.items.iter().any(|offer| {
-                offer.id.is_empty()
+                offer.localization.guard().is_err()
+                    || offer.id.is_empty()
                     || offer.retailer_code.is_empty()
                     || offer.created_at.is_empty()
                     || !offer
@@ -120,3 +123,21 @@ fn invalid_configuration() -> io::Error {
 
 #[cfg(test)]
 pub(crate) mod tests;
+
+fn read_localization<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<retailer_sauce::localization::Localization, D::Error> {
+    let mut value = serde_json::Value::deserialize(deserializer)?;
+    if let Some(market) = value
+        .get_mut("target_market")
+        .and_then(serde_json::Value::as_object_mut)
+    {
+        if market.get("code").is_some_and(serde_json::Value::is_null) {
+            market.remove("code");
+        }
+        if market.get("label").is_some_and(serde_json::Value::is_null) {
+            market.remove("label");
+        }
+    }
+    serde_json::from_value(value).map_err(serde::de::Error::custom)
+}

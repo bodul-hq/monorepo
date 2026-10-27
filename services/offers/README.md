@@ -241,7 +241,7 @@ queues the command and `/api/commands/run` executes it through
 input returns `400`; inbox storage failures return `500` with `inbox message
 could not be stored`. The generated offer UUID is new for every import:
 identity deduplication, update commands, and receipts are not wired yet.
-Stored records use `OfferCreated.v3` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
+Stored records use `OfferCreated.v4` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
 and `OfferPriceChanged.v1`. Existing records in earlier formats are not migrated.
 
 Other active routes are `/api/health`, `/api/openapi.json`, `/api/docs/`, and
@@ -514,7 +514,7 @@ Updates retain title-then-price ordering and append only unseen images. Importin
 remove images. The raw image event is
 `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`;
 the update event's Testimony tag is `OfferImageAdded.v1`. New creation records
-use `OfferCreated.v3`; readers also accept `OfferCreated.v1` without images.
+use `OfferCreated.v4`; readers also accept `OfferCreated.v1` without images.
 Missing images in old creation payloads mean `[]`. History replay initializes
 images from creation before applying any subsequent additions.
 
@@ -555,3 +555,11 @@ content is unchanged; absent, equal and older times never erase or regress it.
 Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
 independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
 for provenance, compatibility and deployment order.
+
+## Source-backed localization
+
+Export v4 carries an explicit localization observation. Omitted legacy observations
+preserve known facts; explicit unknowns replace them. Source evidence stays with
+artifacts, while APIs return the selected target market and full language tag.
+Customers receives these facts without rendering them on cards. New creation
+history uses v4 and retains earlier readers. See [ADR 28](../../docs/adr/0028-source-backed-offer-localization.md).

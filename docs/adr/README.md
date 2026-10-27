@@ -31,5 +31,7 @@
 | [26](0026-offer-scrape-provenance.md) | Immutable scrape provenance and monotonic scrape time | Accepted |
 | [27](0027-offer-revision-metadata.md) | Preserve Testimony revisions through Mulac | Accepted |
 
+| [28](0028-source-backed-offer-localization.md) | Source-backed target market and language | Accepted |
+
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

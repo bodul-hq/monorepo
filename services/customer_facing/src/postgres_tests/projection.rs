@@ -86,7 +86,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let mut expected = json!({
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
-        "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
+        "target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
     let title_message = apply(

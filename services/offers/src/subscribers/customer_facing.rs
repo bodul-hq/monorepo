@@ -26,6 +26,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | OFFER_PRICE_CHANGED_EVENT
                 | OFFER_IMAGE_ADDED_EVENT
                 | OFFER_SCRAPED_AT_UPDATED_EVENT
+                | crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT
         ) {
             return Ok(());
         }

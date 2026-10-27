@@ -67,6 +67,7 @@ mod tests {
     fn maps_supported_events_and_rejects_malformed_payloads() {
         let projector = RetailerOfferIdentifiersProjector::new(RecordingRepository::default());
         let event = OfferCreatedEvent {
+            localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),

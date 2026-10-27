@@ -10,6 +10,7 @@ use super::retailer_offer_id::RetailerOfferId;
 #[serde(untagged)]
 pub enum RetailerOfferEvent {
     OfferCreated(OfferCreatedEvent),
+    OfferLocalizationChanged(OfferLocalizationChangedEvent),
     OfferImageAdded(OfferImageAddedEvent),
     OfferTitleChanged(OfferTitleChangedEvent),
     OfferPriceChanged(OfferPriceChangedEvent),
@@ -20,6 +21,7 @@ impl ApplicationEvent for RetailerOfferEvent {
     fn event_type(&self) -> &'static str {
         match self {
             Self::OfferCreated(event) => event.event_type(),
+            Self::OfferLocalizationChanged(event) => event.event_type(),
             Self::OfferImageAdded(event) => event.event_type(),
             Self::OfferTitleChanged(event) => event.event_type(),
             Self::OfferPriceChanged(event) => event.event_type(),
@@ -30,6 +32,8 @@ impl ApplicationEvent for RetailerOfferEvent {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OfferCreatedEvent {
+    #[serde(default)]
+    pub localization: retailer_sauce::localization::Localization,
     #[serde(default)]
     pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default)]
@@ -58,6 +62,7 @@ impl HasAggregateId for RetailerOfferEvent {
     fn aggregate_id(&self) -> String {
         match self {
             Self::OfferCreated(event) => event.id.to_string(),
+            Self::OfferLocalizationChanged(event) => event.id.to_string(),
             Self::OfferImageAdded(event) => event.id.to_string(),
             Self::OfferTitleChanged(event) => event.id.to_string(),
             Self::OfferPriceChanged(event) => event.id.to_string(),
@@ -141,5 +146,17 @@ pub const OFFER_SCRAPED_AT_UPDATED_EVENT: &str = "OfferScrapedAtUpdated";
 impl ApplicationEvent for OfferScrapedAtUpdatedEvent {
     fn event_type(&self) -> &'static str {
         OFFER_SCRAPED_AT_UPDATED_EVENT
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferLocalizationChangedEvent {
+    pub id: RetailerOfferId,
+    pub localization: retailer_sauce::localization::Localization,
+}
+pub const OFFER_LOCALIZATION_CHANGED_EVENT: &str = "OfferLocalizationChanged";
+impl ApplicationEvent for OfferLocalizationChangedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_LOCALIZATION_CHANGED_EVENT
     }
 }

@@ -44,6 +44,11 @@ where
         &self,
         command: ImportOfferDetailsCommand,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
+        let observation = super::command::OfferObservation {
+            scraped_at: command.scraped_at,
+            localization: command.localization,
+        };
+        observation.guard().map_err(err_update)?;
         let exists = self
             .identifiers_repository
             .find(command.retailer_code, &command.url)
@@ -57,7 +62,7 @@ where
                 command.title,
                 command.price,
                 command.images,
-                command.scraped_at,
+                observation,
             )
         } else {
             self.create_offer_event(
@@ -66,7 +71,7 @@ where
                 command.price,
                 command.url,
                 command.images,
-                command.scraped_at,
+                observation,
             )
         }
     }
@@ -78,18 +83,18 @@ where
         price: Money,
         url: String,
         images: Vec<String>,
-        scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+        observation: super::command::OfferObservation,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
-        let mut aggregate = RetailerOfferAggregate::create_with_scrape(
+        let mut aggregate = RetailerOfferAggregate::create_with_observation(
             id,
             retailer_code,
             title,
             price,
             url,
             images,
-            scraped_at,
+            observation,
         )
         .map_err(err_update)?;
         let events = aggregate
@@ -112,14 +117,14 @@ where
         title: String,
         price: Money,
         images: Vec<String>,
-        scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+        observation: super::command::OfferObservation,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
             .load(id.clone())?
             .ok_or_else(|| err_update(format!("offer {id} not found")))?;
         aggregate
-            .update_with_scrape(title, price, images, scraped_at)
+            .update_with_observation(title, price, images, observation)
             .map_err(err_update)?;
         let events = aggregate
             .uncommitted_events
