@@ -20,6 +20,13 @@ impl<R: RetailerOfferRepository> RetailerOfferProjector<R> {
 impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<R> {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         match envelope.event_type.as_str() {
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT => {
+                let event: crate::offers::event::OfferContentsChangedEvent =
+                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                self.repository
+                    .update_contents(&event.id, &event.content, &event.language)
+                    .map_err(err_projection_failed)
+            }
             crate::offers::event::OFFER_CONTENT_CHANGED_EVENT => {
                 let event: crate::offers::event::OfferContentChangedEvent =
                     serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
@@ -135,6 +142,23 @@ mod tests {
     struct RecordingRepository(Mutex<Option<RetailerOffer>>);
 
     impl RetailerOfferRepository for RecordingRepository {
+        fn update_contents(
+            &self,
+            id: &RetailerOfferId,
+            content: &[retailer_sauce::offer_content::Content],
+            language: &Option<String>,
+        ) -> Result<(), RetailerOfferRepositoryError> {
+            let mut state = self.0.lock().unwrap();
+            let entity = state.as_mut().unwrap();
+            assert_eq!(&entity.id, id);
+            entity.title = retailer_sauce::offer_content::selected(content, language)
+                .unwrap()
+                .title
+                .clone();
+            entity.facts.content = content.to_vec();
+            entity.localization.language = language.clone();
+            Ok(())
+        }
         fn update_content(
             &self,
             id: &RetailerOfferId,
@@ -143,7 +167,12 @@ mod tests {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
             assert_eq!(&entity.id, id);
-            entity.facts.content = content.clone();
+            entity.facts.content = retailer_sauce::offer_content::legacy_description(
+                &entity.facts.content,
+                &entity.localization.language,
+                content.description.clone(),
+            )
+            .unwrap();
             Ok(())
         }
         fn update_item_condition(

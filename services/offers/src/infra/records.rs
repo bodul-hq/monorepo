@@ -10,6 +10,8 @@ use crate::offers::event::{
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
 pub enum OfferEventRecord {
+    #[serde(rename = "OfferContentsChanged.v1")]
+    ContentsChanged(crate::offers::event::OfferContentsChangedEvent),
     #[serde(rename = "OfferContentChanged.v1")]
     ContentChanged(crate::offers::event::OfferContentChangedEvent),
     #[serde(rename = "OfferItemConditionChanged.v1")]
@@ -28,7 +30,12 @@ pub enum OfferEventRecord {
         alias = "OfferCreated.v1",
         alias = "OfferCreated.v2"
     )]
-    Created(Box<OfferCreatedEvent>),
+    LegacyCreated(Box<crate::offers::event::LegacyOfferCreatedEvent>),
+    #[serde(rename = "OfferCreated.v9")]
+    Created(
+        #[serde(deserialize_with = "crate::offers::event::current_creation")]
+        Box<OfferCreatedEvent>,
+    ),
     #[serde(rename = "OfferIdentifiersChanged.v1")]
     IdentifiersChanged(OfferIdentifiersChangedEvent),
     #[serde(rename = "OfferLocalizationChanged.v1")]
@@ -64,6 +71,7 @@ impl From<&RetailerOfferEvent> for OfferEventRecord {
                 Self::ItemConditionChanged(event.clone())
             }
             RetailerOfferEvent::OfferContentChanged(event) => Self::ContentChanged(event.clone()),
+            RetailerOfferEvent::OfferContentsChanged(event) => Self::ContentsChanged(event.clone()),
             RetailerOfferEvent::OfferCreated(event) => Self::Created(event.clone()),
             RetailerOfferEvent::OfferTitleChanged(event) => Self::TitleChanged(event.clone()),
             RetailerOfferEvent::OfferPriceChanged(event) => Self::PriceChanged(event.clone()),
@@ -83,6 +91,8 @@ impl From<OfferEventRecord> for RetailerOfferEvent {
             OfferEventRecord::ItemConditionChanged(event) => Self::OfferItemConditionChanged(event),
             OfferEventRecord::ContentChanged(event) => Self::OfferContentChanged(event),
             OfferEventRecord::Created(event) => Self::OfferCreated(event),
+            OfferEventRecord::LegacyCreated(event) => Self::OfferCreated(Box::new((*event).into())),
+            OfferEventRecord::ContentsChanged(event) => Self::OfferContentsChanged(event),
             OfferEventRecord::TitleChanged(event) => Self::OfferTitleChanged(event),
             OfferEventRecord::PriceChanged(event) => Self::OfferPriceChanged(event),
         }
@@ -101,6 +111,8 @@ impl HasAggregateId for OfferEventRecord {
             Self::ItemConditionChanged(event) => event.id.to_string(),
             Self::ContentChanged(event) => event.id.to_string(),
             Self::Created(event) => event.id.to_string(),
+            Self::LegacyCreated(event) => event.id.to_string(),
+            Self::ContentsChanged(event) => event.id.to_string(),
             Self::TitleChanged(event) => event.id.to_string(),
             Self::PriceChanged(event) => event.id.to_string(),
         }

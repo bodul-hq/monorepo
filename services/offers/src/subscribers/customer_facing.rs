@@ -32,6 +32,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT
                 | crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT
                 | crate::offers::event::OFFER_CONTENT_CHANGED_EVENT
+                | crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT
         ) {
             return Ok(());
         }
@@ -89,6 +90,7 @@ mod tests {
             crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
             crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
             crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
             OFFER_IMAGE_ADDED_EVENT,
             OFFER_CREATED_EVENT,
             OFFER_TITLE_CHANGED_EVENT,

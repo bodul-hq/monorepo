@@ -5,7 +5,7 @@ use diesel::sql_types::{Jsonb, Nullable, Text, Uuid as SqlUuid};
 fn offers_snapshot(pool: &DbPool) -> Value {
     snapshot(
         pool,
-        "SELECT jsonb_agg(to_jsonb(o) - ARRAY['was_price_amount','was_price_currency','availability','item_condition','description'] ORDER BY id) AS data FROM offers o",
+        "SELECT jsonb_agg(to_jsonb(o) - ARRAY['was_price_amount','was_price_currency','availability','item_condition','description','content'] ORDER BY id) AS data FROM offers o",
     )
 }
 
@@ -137,7 +137,7 @@ struct Typed {
 fn typed_jsonb_and_database_shape_reject_invalid_values() {
     let (_schema, pool) = database(true);
     let mut connection = pool.get().unwrap();
-    connection.batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now())").unwrap();
+    connection.batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,content) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now(),jsonb_build_array(jsonb_build_object('language',NULL,'title','Charger','description',NULL)))").unwrap();
     let empty = json!({"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null});
     assert_eq!(offers_snapshot(&pool)[0]["external_identifiers"], empty);
     let full = json!({"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":" Ž\\\" "});
@@ -250,7 +250,7 @@ fn migration_failure_retains_old_columns_and_values() {
 async fn invalid_stored_identifier_errors_are_sanitized_in_browse_and_search() {
     let (_schema, pool) = database(true);
     // The SQL constraint checks shape, while Rust also validates string values.
-    pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,external_identifiers) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now(),'{\"shopify_product_gid\":null,\"shopify_product_variation_gid\":null,\"shopify_handle\":\"\"}')").unwrap();
+    pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,content,external_identifiers) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now(),jsonb_build_array(jsonb_build_object('language',NULL,'title','Charger','description',NULL)),'{\"shopify_product_gid\":null,\"shopify_product_variation_gid\":null,\"shopify_handle\":\"\"}')").unwrap();
     let (kernel, state) = start_mulac(pool).unwrap();
     let client = TestClient::new(crate::app(state));
     for route in ["/api/offers", "/api/offers/search?q=charger"] {

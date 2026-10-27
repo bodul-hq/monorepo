@@ -32,6 +32,11 @@ fn fact_migrations_preserve_legacy_rows_and_pending_work_through_round_trip() {
         .run_pending_migrations(MIGRATIONS)
         .unwrap();
     let mut upgraded = snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    let content = json!([{"language":null,"title":"Legacy charger","description":null}]);
+    assert_eq!(
+        upgraded.as_object_mut().unwrap().remove("content"),
+        Some(content.clone())
+    );
     for column in [
         "was_price_amount",
         "was_price_currency",
@@ -60,6 +65,7 @@ fn fact_migrations_preserve_legacy_rows_and_pending_work_through_round_trip() {
         .run_pending_migrations(MIGRATIONS)
         .unwrap();
     let mut restored = legacy;
+    restored["content"] = content;
     for column in [
         "was_price_amount",
         "was_price_currency",
@@ -119,7 +125,14 @@ async fn created_facts_survive_legacy_imports_then_clear_and_publish_once() {
         "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferCreated'",
     );
     for (field, expected) in observed.as_object().unwrap() {
-        assert_eq!(&creation[field], expected);
+        if field == "content" {
+            assert_eq!(
+                creation[field],
+                json!([{"language":null,"title":"Charger","description":expected["description"]}])
+            );
+        } else {
+            assert_eq!(&creation[field], expected);
+        }
     }
     import(&client, &legacy, 0).await;
     assert_eq!(fact_projection(&pool), populated);
@@ -149,8 +162,8 @@ async fn created_facts_survive_legacy_imports_then_clear_and_publish_once() {
         Some(&Value::Null)
     );
     assert_eq!(
-        messages["OfferContentChanged"]["content"],
-        json!({"description":null})
+        messages["OfferContentsChanged"]["content"],
+        json!([{"language":null,"title":"Charger","description":null}])
     );
     assert_eq!(
         snapshot(
@@ -227,16 +240,16 @@ async fn independent_fact_imports_preserve_neighbors_and_replay_exact_outbox_mes
             json!({"item_condition":{"other":" Refurbished ž "}}),
         ),
         (
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"content":{"description":""}}),
-            json!({"description":""}),
-            json!({"content":{"description":""}}),
+            json!({"description":"","content":[{"language":"en","title":"Charger","description":""}]}),
+            json!({"content":[{"language":"en","title":"Charger","description":""}],"language":"en"}),
         ),
         (
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"content":{"description":" \t\n"}}),
-            json!({"description":" \t\n"}),
-            json!({"content":{"description":" \t\n"}}),
+            json!({"description":" \t\n","content":[{"language":"en","title":"Charger","description":" \t\n"}]}),
+            json!({"content":[{"language":"en","title":"Charger","description":" \t\n"}],"language":"en"}),
         ),
         (
             "OfferPricingChanged",

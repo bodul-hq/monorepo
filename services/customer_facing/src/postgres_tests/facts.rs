@@ -27,7 +27,7 @@ async fn assert_reads(client: &TestClient<poem::Route>, expected: &Value) {
     }
     for field in ["offers", "searchOffers(q:\"charger\")"] {
         let query = format!(
-            "{{ result: {field} {{ items {{ price {{amount currency}} was_price: wasPrice {{amount currency}} availability {{kind raw}} item_condition: itemCondition {{kind raw}} content {{description}} }} }} }}"
+            "{{ result: {field} {{ items {{ price {{amount currency}} was_price: wasPrice {{amount currency}} availability {{kind raw}} item_condition: itemCondition {{kind raw}} content {{language title description}} }} }} }}"
         );
         let response = client
             .post("/graphql")
@@ -135,7 +135,8 @@ async fn independent_status_and_content_updates_preserve_neighbors_and_historica
         )
         .await;
         stored["description"] = json!(description);
-        expected["content"] = content;
+        stored["content"][0]["description"] = json!(description);
+        expected["content"] = stored["content"].clone();
         assert_eq!(offer(&pool), stored);
         assert_reads(&client, &expected).await;
     }
@@ -226,14 +227,17 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
         item["item_condition"],
         json!({"kind":"other","raw":" Refurbished ž "})
     );
-    assert_eq!(item["content"], payload["content"]);
+    assert_eq!(
+        item["content"],
+        json!([{ "language": null, "title": payload["title"], "description": payload["content"]["description"] }])
+    );
     let response = client.get("/api/offers/search?q=charger").send().await;
     response.assert_status_is_ok();
     let search: Value = response.json().await.value().deserialize();
     assert_eq!(search["items"][0], item);
     for field in ["offers", "searchOffers(q:\"charger\")"] {
         let query = format!(
-            "{{ {field} {{ items {{ price {{amount currency}} wasPrice {{amount currency}} availability {{kind raw}} itemCondition {{kind raw}} content {{description}} }} }} }}"
+            "{{ {field} {{ items {{ price {{amount currency}} wasPrice {{amount currency}} availability {{kind raw}} itemCondition {{kind raw}} content {{language title description}} }} }} }}"
         );
         let response = client
             .post("/graphql")
@@ -253,7 +257,7 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
                 "price":item["price"],"wasPrice":item["was_price"],
                 "availability":{"kind":"AVAILABLE","raw":null},
                 "itemCondition":{"kind":"OTHER","raw":" Refurbished ž "},
-                "content":payload["content"]
+                "content":item["content"]
             }),
             "{result}"
         );
@@ -337,7 +341,10 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
     for field in ["was_price", "availability", "item_condition"] {
         assert!(cleared[field].is_null());
     }
-    assert_eq!(cleared["content"], json!({"description":null}));
+    assert_eq!(
+        cleared["content"],
+        json!([{"language":null,"title":"USB charger","description":null}])
+    );
     assert_eq!(cleared["title"], "USB charger");
     kernel.shutdown();
 }

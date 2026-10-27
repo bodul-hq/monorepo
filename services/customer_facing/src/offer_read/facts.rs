@@ -69,6 +69,8 @@ impl OfferItemCondition {
 
 #[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
 pub struct OfferContent {
+    pub language: Option<String>,
+    pub title: String,
     pub description: Option<String>,
 }
 
@@ -90,10 +92,51 @@ pub(super) fn was_price(
     }
 }
 
+/// Refuse inconsistent projection state instead of exposing mismatched display fields.
+pub(super) fn content(
+    value: serde_json::Value,
+    language: &Option<String>,
+    title: &str,
+    description: &Option<String>,
+) -> Result<Vec<OfferContent>, ()> {
+    use retailer_sauce::offer_content;
+    let mut content: Vec<offer_content::Content> = serde_json::from_value(value).map_err(|_| ())?;
+    offer_content::guard(&content, language).map_err(|_| ())?;
+    let selected = offer_content::selected(&content, language).map_err(|_| ())?;
+    if selected.title != title || &selected.description != description {
+        return Err(());
+    }
+    offer_content::sort(&mut content);
+    Ok(content
+        .into_iter()
+        .map(|value| OfferContent {
+            language: value.language,
+            title: value.title,
+            description: value.description,
+        })
+        .collect())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn content_requires_consistent_selected_scalars_and_canonicalizes_output() {
+        let entries = json!([
+            {"language":"fr","title":"Sélection","description":" <p>ž &amp;</p>\n"},
+            {"language":null,"title":"Unknown","description":null}
+        ]);
+        let language = Some("fr".into());
+        let description = Some(" <p>ž &amp;</p>\n".into());
+        let result = content(entries.clone(), &language, "Sélection", &description).unwrap();
+        assert_eq!(result[0].language, None);
+        assert_eq!(result[1].description, description);
+        assert!(content(entries.clone(), &language, "Mismatched", &description).is_err());
+        assert!(content(entries.clone(), &language, "Sélection", &None).is_err());
+        assert!(content(entries, &Some("de".into()), "Sélection", &description).is_err());
+    }
 
     #[test]
     fn enums_preserve_unknown_values_and_prices_only_show_comparable_discounts() {

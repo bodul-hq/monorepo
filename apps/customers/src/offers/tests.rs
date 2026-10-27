@@ -165,7 +165,10 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     assert!(legacy.was_price.is_none());
     assert!(legacy.availability.is_none());
     assert!(legacy.item_condition.is_none());
-    assert_eq!(legacy.content, Default::default());
+    assert_eq!(legacy.content.len(), 1);
+    assert_eq!(legacy.content[0].title, legacy.title);
+    assert_eq!(legacy.content[0].language, legacy.localization.language);
+    assert_eq!(legacy.content[0].description, None);
     value["gtin"] = json!("0012345678905");
     value["sku"] = json!("A1-BLACK");
     value["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"});
@@ -208,7 +211,7 @@ fn pricing_and_typed_facts_preserve_values_without_guessing() {
         Some(retailer_sauce::item_condition::ItemCondition::New)
     );
     assert_eq!(
-        offer.content.description.as_deref(),
+        offer.content[0].description.as_deref(),
         Some("<p>Raw &amp; description</p>")
     );
     for (amount, currency) in [("1999", "AUD"), ("1998", "AUD"), ("2999", "EUR")] {
@@ -297,6 +300,50 @@ fn new_and_historical_localization_observations_are_not_reinterpreted() {
         assert_eq!(
             serde_json::to_value(offer.localization).unwrap(),
             localization
+        );
+    }
+}
+
+#[test]
+fn localized_content_accepts_complete_lists_and_rejects_invalid_selections() {
+    let mut value = page(1, 0, false)["items"][0].clone();
+    value["title"] = json!(" Selected ž ");
+    value["localization"] = json!({"language":"EN-au"});
+    value["content"] = json!([
+        {"language":"fr","title":"French","description":""},
+        {"language":"EN-au","title":" Selected ž ","description":" <p>Raw &amp;</p>\n"},
+        {"language":null,"title":"Unknown","description":null}
+    ]);
+    let parsed: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(
+        parsed
+            .content
+            .iter()
+            .map(|item| item.language.as_deref())
+            .collect::<Vec<_>>(),
+        [None, Some("EN-au"), Some("fr")]
+    );
+    assert_eq!(
+        parsed.content[1].description.as_deref(),
+        Some(" <p>Raw &amp;</p>\n")
+    );
+    for invalid in [
+        json!([]),
+        json!(null),
+        json!([null]),
+        json!([{"language":"EN-au","title":" Selected ž "}]),
+        json!([{"title":" Selected ž ","description":null}]),
+        json!([{"language":"EN-au","title":" ","description":null}]),
+        json!([{"language":"EN-au","title":" Selected ž ","description":"\0"}]),
+        json!([{"language":"fr","title":"French","description":null}]),
+        json!([{"language":"EN-au","title":"Mismatch","description":null}]),
+        json!([{"language":"EN-au","title":" Selected ž ","description":null},{"language":"EN-au","title":"Duplicate","description":null}]),
+    ] {
+        let mut bad = value.clone();
+        bad["content"] = invalid;
+        assert!(
+            serde_json::from_value::<Offer>(bad.clone()).is_err(),
+            "{bad}"
         );
     }
 }

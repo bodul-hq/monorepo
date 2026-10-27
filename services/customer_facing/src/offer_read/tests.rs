@@ -36,9 +36,11 @@ fn fixture(index: u128) -> Offer {
             OfferItemCondition::from_record(json!({"other":"http://schema.org/NewCondition"}))
                 .unwrap()
         }),
-        content: OfferContent {
+        content: vec![OfferContent {
+            language: (index == 0).then(|| "fr".into()),
+            title: " \tČaj 🔌\n".into(),
             description: (index == 0).then(|| "<p>raw &amp; source</p>".into()),
-        },
+        }],
         gtin: (index == 0).then(|| "0012345678905".into()),
         sku: (index == 0).then(|| "A1-BLACK".into()),
         external_identifiers: Default::default(),
@@ -90,7 +92,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ description }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ language title description }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
         );
         for get in [false, true] {
             let response = if get {
@@ -256,6 +258,14 @@ async fn schema_exposes_bounds_and_string_money() {
     assert_eq!(op["parameters"][1]["schema"]["default"], 0);
     assert_eq!(
         spec["components"]["schemas"]["OfferPrice"]["properties"]["amount"]["type"],
+        "string"
+    );
+    assert_eq!(
+        spec["components"]["schemas"]["Offer"]["properties"]["content"]["type"],
+        "array"
+    );
+    assert_eq!(
+        spec["components"]["schemas"]["OfferContent"]["properties"]["title"]["type"],
         "string"
     );
     for status in ["200", "400", "500"] {

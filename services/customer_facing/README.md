@@ -90,7 +90,8 @@ Use the same envelope with a new message UUID for each distinct update:
 | `OfferPricingChanged` | `{"id":"<offer UUID>","pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"AUD"}}}` |
 | `OfferAvailabilityChanged` | `{"id":"<offer UUID>","availability":"in_stock"}` |
 | `OfferItemConditionChanged` | `{"id":"<offer UUID>","item_condition":"new"}` |
-| `OfferContentChanged` | `{"id":"<offer UUID>","content":{"description":"<p>Source description</p>"}}` |
+| `OfferContentsChanged` | `{"id":"<offer UUID>","content":[{"language":"en","title":"USB charger","description":null}],"language":"en"}` |
+| `OfferContentChanged` (legacy) | `{"id":"<offer UUID>","content":{"description":"<p>Source description</p>"}}` |
 | `OfferImageAdded` | `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}` |
 
 Payloads must be JSON objects without an event wrapper or JSON string encoding.
@@ -379,7 +380,8 @@ observation, and v5 adds GTIN, SKU and the three Shopify identifiers. Prepared
 v1–v4 snapshots keep their original payload shapes and IDs. Missing localization
 means no observation; an explicit object replaces both facts, including unknowns.
 Missing/null identifiers retain known values; supplied fields enrich or correct
-them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
+them. Historical `OfferCreated.v5` and earlier records remain readable; current
+creation history uses `OfferCreated.v9` with localized content.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
@@ -393,8 +395,9 @@ and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 ## Pricing, availability, condition and description
 
 Creation also accepts nullable `was_price`, `availability`, `item_condition`,
-and `content: {"description": null}`. Legacy creation messages may omit them;
-the projection stores unknown values. Each changed event above replaces its
+and the localized content list described below. Legacy creation messages may
+omit those facts or supply `content: {"description": null}`; content is adapted
+to a singleton using the original title and language. Each changed event above replaces its
 complete decided field atomically with the inbox receipt. `pricing.was_price`,
 `availability`, `item_condition`, and `content.description` must be present in
 their change events; explicit null clears that fact. A legacy
@@ -417,7 +420,8 @@ greater; incomparable values remain stored. Both transports expose nullable
 typed availability/condition objects (`kind`, `raw`), where `raw` is populated
 only for `other`. REST kind values use the event spellings; GraphQL enum values
 are uppercase. REST `item_condition` becomes GraphQL `itemCondition`.
-`content` is always an object containing nullable `description`.
+`content` is a nonempty list of entries with nullable `language`, required
+`title`, and nullable `description`; see the localized-content rollout below.
 
 Migrations `2026-10-27-000006` through `000008` add paired nullable was-price
 columns, validated nullable status JSONB, and nullable description TEXT. They
@@ -538,3 +542,41 @@ This is a maintenance migration, not an online mixed-version deployment. The
 isolated PostgreSQL suite includes populated up/down/up preservation, updates
 before rollback, pending legacy/new messages, strict JSONB/default checks,
 receipt rollback/retry and API compatibility. See [ADR 32](../../docs/adr/0032-customer-facing-shopify-identifiers-json.md).
+
+## Localized offer content
+
+Browse, search and GraphQL return a nonempty `content` list:
+
+```json
+[{"language":null,"title":"Charger","description":null},{"language":"en","title":"USB charger","description":"<p>Source HTML</p>"}]
+```
+
+Keys retain their exact historical spelling, with the unknown (`null`) bucket
+first and other keys sorted lexically. `localization.language` selects the entry
+whose title and description are also stored in the scalar columns; the flat API
+`title` and existing title search continue to use that selection. Descriptions
+preserve source text verbatim and are data only. A complete snapshot arrives as
+`OfferContentsChanged {id, content, language}`; nullable `language` is required.
+The projection validates the entire list and updates all selected fields in one
+statement within the original-message receipt transaction. Historical creation
+messages may omit content or contain the old description object. Legacy title
+and description events update the selected bucket. Legacy language changes move
+that bucket, replace a destination collision, and retain the other buckets.
+Those read/modify/write operations lock the offer row within the receipt
+transaction to avoid losing concurrent updates.
+
+Migration `2026-10-27-000009_localized_offer_content` transactionally backfills
+`offers.content` from the exact `(language, title, description)` scalar tuple,
+then requires a nonempty JSONB array. It retains scalar columns, indexes, queues,
+images and receipts. Deploy the customers compatibility reader first, stop all
+customer-facing projection writers and apply this migration/readers, then deploy
+the offers writer. Resume processing original queued message identities after
+checking browse/search and selected fields. For rollback, stop writers and
+retain a backup or replay source before reverting this migration: its down
+migration drops only the list, keeping the selected scalar fields, but loses all
+unselected languages. Do not use `make migrate-redo` against operational data.
+
+`make test-postgres` covers populated up/down/up preservation with pending work,
+mixed legacy/snapshot replay, receipt rollback, row locking, and REST/GraphQL
+browse/search parity. It requires a separate `DATABASE_URL_TEST` with `pg_trgm`
+provisioned as described above.

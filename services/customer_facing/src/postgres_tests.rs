@@ -1,6 +1,7 @@
 //! Opt-in tests use a fresh schema per case and never reset a database.
 
 mod browsing;
+mod content;
 mod facts;
 mod identifiers;
 mod projection;

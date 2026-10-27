@@ -33,7 +33,7 @@ pub struct Offer {
     pub was_price: Option<OfferPrice>,
     pub availability: Option<OfferAvailability>,
     pub item_condition: Option<OfferItemCondition>,
-    pub content: OfferContent,
+    pub content: Vec<OfferContent>,
     pub gtin: Option<String>,
     pub sku: Option<String>,
     pub external_identifiers: ExternalIdentifiers,
@@ -85,6 +85,8 @@ struct Record {
     item_condition: Option<serde_json::Value>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     description: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Jsonb)]
+    content: serde_json::Value,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     gtin: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
@@ -121,7 +123,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description, content
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -159,6 +161,12 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
     records
         .into_iter()
         .map(|record| {
+            let content = facts::content(
+                record.content,
+                &record.language,
+                &record.title,
+                &record.description,
+            )?;
             Ok(Offer {
                 was_price: facts::was_price(
                     record.was_price_amount,
@@ -174,9 +182,7 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
                     .item_condition
                     .map(OfferItemCondition::from_record)
                     .transpose()?,
-                content: OfferContent {
-                    description: record.description,
-                },
+                content,
                 gtin: record.gtin,
                 sku: record.sku,
                 external_identifiers: ExternalIdentifiers {

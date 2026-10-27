@@ -14,6 +14,12 @@ pub struct RetailerOfferRepositoryError(String);
 
 /// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
 pub trait RetailerOfferRepository: Send + Sync {
+    fn update_contents(
+        &self,
+        id: &RetailerOfferId,
+        content: &[retailer_sauce::offer_content::Content],
+        language: &Option<String>,
+    ) -> Result<(), RetailerOfferRepositoryError>;
     fn update_content(
         &self,
         id: &RetailerOfferId,
@@ -84,6 +90,16 @@ fn err_insert(error: impl std::fmt::Display) -> RetailerOfferRepositoryError {
 
 fn validate(entity: &RetailerOffer) -> Result<uuid::Uuid, RetailerOfferRepositoryError> {
     entity.facts.guard().map_err(err_insert)?;
+    retailer_sauce::offer_content::guard(&entity.facts.content, &entity.localization.language)
+        .map_err(err_insert)?;
+    let selected = retailer_sauce::offer_content::selected(
+        &entity.facts.content,
+        &entity.localization.language,
+    )
+    .map_err(err_insert)?;
+    if selected.title != entity.title {
+        return Err(err_insert("title must match selected content"));
+    }
     entity.identifiers.guard().map_err(err_insert)?;
     entity.localization.guard().map_err(err_insert)?;
     crate::offers::event::guard_images(&entity.images).map_err(err_insert)?;
@@ -106,7 +122,10 @@ pub(crate) mod tests {
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferRepository) {
         let entity = RetailerOffer {
-            facts: Default::default(),
+            facts: crate::offers::event::OfferFacts {
+                content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,

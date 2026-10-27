@@ -17,16 +17,32 @@ pub struct Page {
     pub has_more: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Offer {
+    pub was_price: Option<Price>,
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+    pub content: Vec<retailer_sauce::offer_content::Content>,
+    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
+    pub localization: retailer_sauce::localization::Localization,
+    pub images: Vec<String>,
+    pub id: String,
+    pub retailer_code: String,
+    pub title: String,
+    pub price: Price,
+    pub url: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct OfferWire {
     #[serde(default)]
     pub was_price: Option<Price>,
     #[serde(default, deserialize_with = "facts::read_availability")]
     pub availability: Option<retailer_sauce::availability::Availability>,
     #[serde(default, deserialize_with = "facts::read_condition")]
     pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
-    #[serde(default, deserialize_with = "facts::read_content")]
-    pub content: retailer_sauce::structuralized::content::Content,
+    pub content: Vec<retailer_sauce::offer_content::Content>,
     #[serde(flatten)]
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default, deserialize_with = "read_localization")]
@@ -39,6 +55,39 @@ pub struct Offer {
     pub price: Price,
     pub url: String,
     pub created_at: String,
+}
+
+impl<'de> Deserialize<'de> for Offer {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use serde::de::Error;
+        let mut value = serde_json::Value::deserialize(deserializer)?;
+        facts::normalize_content(&mut value).map_err(D::Error::custom)?;
+        let wire: OfferWire = serde_json::from_value(value).map_err(D::Error::custom)?;
+        retailer_sauce::offer_content::guard(&wire.content, &wire.localization.language)
+            .map_err(D::Error::custom)?;
+        if retailer_sauce::offer_content::selected(&wire.content, &wire.localization.language)
+            .map_err(D::Error::custom)?
+            .title
+            != wire.title
+        {
+            return Err(D::Error::custom("selected content title must match title"));
+        }
+        Ok(Self {
+            was_price: wire.was_price,
+            availability: wire.availability,
+            item_condition: wire.item_condition,
+            content: wire.content,
+            identifiers: wire.identifiers,
+            localization: wire.localization,
+            images: wire.images,
+            id: wire.id,
+            retailer_code: wire.retailer_code,
+            title: wire.title,
+            price: wire.price,
+            url: wire.url,
+            created_at: wire.created_at,
+        })
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,7 +185,11 @@ impl OffersClient {
             || page.items.iter().any(|offer| {
                 offer.identifiers.guard().is_err()
                     || offer.localization.guard().is_err()
-                    || offer.content.guard().is_err()
+                    || retailer_sauce::offer_content::guard(
+                        &offer.content,
+                        &offer.localization.language,
+                    )
+                    .is_err()
                     || offer
                         .availability
                         .as_ref()

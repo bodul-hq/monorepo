@@ -112,7 +112,7 @@ fn historical_other_and_exact_content_remain_data_only() {
             serde_json::to_value(&data.items[0].item_condition).unwrap(),
             serde_json::json!({"other":"http://schema.org/NewCondition"})
         );
-        assert_eq!(data.items[0].content.description.as_deref(), description);
+        assert_eq!(data.items[0].content[0].description.as_deref(), description);
         assert_eq!(render(&data), render(&baseline));
         assert_eq!(
             render_page(&data, Some("charger")),
@@ -513,4 +513,21 @@ async fn search_route_normalizes_and_preserves_retry_context() {
         }
         task.join().unwrap();
     }
+}
+
+#[test]
+fn localized_descriptions_and_unselected_titles_do_not_change_cards() {
+    let legacy = page(1, 0, false);
+    let baseline: Page = serde_json::from_value(legacy.clone()).unwrap();
+    let mut value = legacy;
+    value["items"][0]["content"] = serde_json::json!([
+        {"language":"fr","title":"never_render_localized_title","description":"<script>never_render_fr_description()</script>"},
+        {"language":null,"title":value["items"][0]["title"],"description":"<script>never_render_selected_description()</script>"}
+    ]);
+    let data: Page = serde_json::from_value(value).unwrap();
+    assert_eq!(render(&data), render(&baseline));
+    assert_eq!(
+        render_page(&data, Some("charger")),
+        render_page(&baseline, Some("charger"))
+    );
 }

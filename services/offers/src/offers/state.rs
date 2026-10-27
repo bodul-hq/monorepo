@@ -36,13 +36,18 @@ impl RetailerOfferState {
         url: impl Into<String>,
         created_at: DateTime<Utc>,
     ) -> Self {
+        let title = title.into();
+        let facts = super::event::OfferFacts {
+            content: retailer_sauce::offer_content::singleton(title.clone(), None, None),
+            ..Default::default()
+        };
         Self {
-            facts: Default::default(),
+            facts,
             identifiers: Default::default(),
             localization: Default::default(),
             id,
             retailer_code,
-            title: title.into(),
+            title,
             price,
             url: url.into(),
             images: Vec::new(),

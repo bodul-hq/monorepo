@@ -243,3 +243,42 @@ fn fact_event_submissions_preserve_nulls_and_raw_text_and_reject_partial_updates
         assert!(CustomerFacingPublisher::submission(message).is_err());
     }
 }
+
+#[test]
+fn old_and_current_creation_and_contents_keep_raw_json_and_delivery_metadata() {
+    use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT;
+    let old_message = envelope();
+    let old: Value = serde_json::from_slice(&old_message.payload).unwrap();
+    let mut new = old.clone();
+    new["content"] =
+        json!([{"language":null,"title":old["title"],"description":" <p>Exact ž</p>\n"}]);
+    let contents = json!({"id":old["id"],"content":[{"language":null,"title":" Unknown ","description":""},{"language":"en-US","title":" English ","description":null}],"language":"en-US"});
+    for (kind, payload) in [
+        (OFFER_CREATED_EVENT, old),
+        (OFFER_CREATED_EVENT, new),
+        (OFFER_CONTENTS_CHANGED_EVENT, contents.clone()),
+    ] {
+        let mut message = old_message.clone();
+        message.metadata.event_type = kind.into();
+        message.metadata.sequence = Some(17);
+        message.payload = serde_json::to_vec(&payload).unwrap();
+        let request = CustomerFacingPublisher::submission(message.clone()).unwrap();
+        assert_eq!(request.payload, Some(payload));
+        assert_eq!(request.routing_key, kind);
+        let request = serde_json::to_value(request).unwrap();
+        assert_eq!(request["message_id"], json!(message.metadata.message_id));
+        assert_eq!(
+            request["correlation_id"],
+            json!(message.metadata.correlation_id)
+        );
+        assert_eq!(request["source"], json!(message.metadata.source));
+    }
+    for (content, language) in [
+        (json!([]), json!(null)),
+        (contents["content"].clone(), json!("fr")),
+    ] {
+        let invalid = json!({"id":contents["id"],"content":content,"language":language});
+        let message = super::testing::envelope(OFFER_CONTENTS_CHANGED_EVENT, &invalid);
+        assert!(CustomerFacingPublisher::submission(message).is_err());
+    }
+}

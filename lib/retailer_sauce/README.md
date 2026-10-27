@@ -31,3 +31,13 @@ interpretation is opt-in at extraction time. See [ADR 31](../../docs/adr/0031-so
 `identifier` also provides `ExternalIdentifiers` and a validated complete identifier
 set for exact-string propagation and enrichment. Existing identifier constructors
 retain their semantics; new propagation boundaries additionally reject embedded NUL.
+
+`offer_content::Content` is the localized offers/read-model contract, separate
+from source `structuralized::content::Content`. Each entry requires nullable
+`language`, `title`, and nullable `description` fields. Shared guards require
+nonempty lists with unique exact language keys and an existing selected key.
+The module sorts unknown language first, then exact tags lexically; it never
+normalizes historical text or language tags. Import upserts preserve a missing
+description only in the destination bucket. Legacy title/description updates
+change the selected bucket; legacy language corrections move it, replacing any
+destination collision without copying a translation.

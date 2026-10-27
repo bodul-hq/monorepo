@@ -3,7 +3,7 @@ use crate::offer_read::Offers;
 use diesel::sql_types::{Text, Uuid as SqlUuid};
 
 fn insert(pool: &DbPool, id: u128, title: &str) {
-    diesel::sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at) VALUES ($1,'ankerau',$2,1999,'AUD',$3,'2026-10-26T12:00:00Z')")
+    diesel::sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,content) VALUES ($1,'ankerau',$2,1999,'AUD',$3,'2026-10-26T12:00:00Z',jsonb_build_array(jsonb_build_object('language',NULL,'title',$2::text,'description',NULL)))")
         .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Text,_>(title)
         .bind::<Text,_>(format!("https://example.com/{id}"))
         .execute(&mut pool.get().unwrap()).unwrap();

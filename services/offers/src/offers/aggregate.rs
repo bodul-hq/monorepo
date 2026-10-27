@@ -2,12 +2,13 @@ use super::command::OfferObservation;
 use bodul_shared::prelude::RetailerCode;
 use chrono::Utc;
 use money::Money;
+use retailer_sauce::offer_content;
 use testimony::prelude::{Aggregate, EventEnvelope};
 
 use super::retailer_offer_id::RetailerOfferId;
 
 use super::{
-    event::{OfferCreatedEvent, OfferImageAddedEvent, OfferTitleChangedEvent, RetailerOfferEvent},
+    event::{OfferCreatedEvent, OfferImageAddedEvent, RetailerOfferEvent},
     state::RetailerOfferState,
 };
 
@@ -89,15 +90,23 @@ impl RetailerOfferAggregate {
             eprintln!("skipped invalid offer images: {skipped}");
         }
         Self::guard_capacity(0, 0, images.len() as u64, 1)?;
+        let localization = observation.localization.unwrap_or_default();
+        let content = offer_content::singleton(
+            title.clone(),
+            localization.language.clone(),
+            observation.content.and_then(|content| content.description),
+        );
+        offer_content::guard(&content, &localization.language)
+            .map_err(RetailerOfferError::InvalidObservation)?;
         let event = OfferCreatedEvent {
             facts: super::event::OfferFacts {
                 was_price: observation.was_price.into_value(),
                 availability: observation.availability.into_value(),
                 item_condition: observation.item_condition.into_value(),
-                content: observation.content.unwrap_or_default(),
+                content,
             },
             identifiers: observation.identifiers,
-            localization: observation.localization.unwrap_or_default(),
+            localization,
             scraped_at,
             images,
             id,
@@ -195,10 +204,21 @@ impl RetailerOfferAggregate {
         let scraped_at = observation.scraped_at;
         let identifiers = self.state.identifiers.enriched(&observation.identifiers);
         let identifiers_changed = identifiers != self.state.identifiers;
-        let localization_changed = observation
+        let localization = observation
             .localization
-            .as_ref()
-            .is_some_and(|value| value != &self.state.localization);
+            .clone()
+            .unwrap_or_else(|| self.state.localization.clone());
+        let localization_changed =
+            localization.target_market != self.state.localization.target_market;
+        let content = offer_content::upsert(
+            &self.state.facts.content,
+            localization.language.clone(),
+            title.clone(),
+            observation.content.map(|content| content.description),
+        )
+        .map_err(RetailerOfferError::InvalidObservation)?;
+        let content_changed = content != self.state.facts.content
+            || localization.language != self.state.localization.language;
         let (images, skipped) = shared::images::filter(images);
         if skipped > 0 {
             eprintln!("skipped invalid offer images: {skipped}");
@@ -208,7 +228,6 @@ impl RetailerOfferAggregate {
             .filter(|image| !self.state.images().contains(image))
             .collect();
         let scrape_changed = scraped_at.is_some() && scraped_at > self.state.scraped_at();
-        let title_changed = title != self.state.title();
         let facts = super::event::OfferFacts {
             was_price: observation
                 .was_price
@@ -220,23 +239,19 @@ impl RetailerOfferAggregate {
             item_condition: observation
                 .item_condition
                 .resolve(self.state.facts.item_condition.clone()),
-            content: observation
-                .content
-                .unwrap_or_else(|| self.state.facts.content.clone()),
+            content,
         };
         let price_changed =
             &price != self.state.price() || facts.was_price != self.state.facts.was_price;
         let availability_changed = facts.availability != self.state.facts.availability;
         let condition_changed = facts.item_condition != self.state.facts.item_condition;
-        let content_changed = facts.content != self.state.facts.content;
         // Reserve sequence capacity for all new events before changing state,
         // so an overflow rejects the whole update without partial changes.
         Self::guard_capacity(
             self.sequence,
             self.state.images().len() as u64,
             images.len() as u64,
-            u64::from(title_changed)
-                + u64::from(price_changed)
+            u64::from(price_changed)
                 + u64::from(scrape_changed)
                 + u64::from(localization_changed)
                 + u64::from(identifiers_changed)
@@ -245,15 +260,18 @@ impl RetailerOfferAggregate {
                 + u64::from(content_changed),
         )?;
 
-        if title_changed {
-            let event = OfferTitleChangedEvent {
+        if content_changed {
+            let event = super::event::OfferContentsChangedEvent {
                 id: self.state.id().clone(),
-                title,
+                content: facts.content.clone(),
+                language: localization.language.clone(),
             };
-            self.state.change_title(event.title.clone());
+            self.state.change_title(title);
+            self.state.facts.content = event.content.clone();
+            self.state.localization.language = event.language.clone();
             self.sequence += 1;
             self.uncommitted_events.push(EventEnvelope::new(
-                RetailerOfferEvent::OfferTitleChanged(event),
+                RetailerOfferEvent::OfferContentsChanged(event),
                 self.sequence,
             ));
         }
@@ -298,7 +316,7 @@ impl RetailerOfferAggregate {
                 self.sequence,
             ));
         }
-        if let Some(localization) = observation.localization.filter(|_| localization_changed) {
+        if localization_changed {
             let event = super::event::OfferLocalizationChangedEvent {
                 id: self.state.id().clone(),
                 localization,
@@ -346,18 +364,6 @@ impl RetailerOfferAggregate {
                 self.sequence,
             ));
         }
-        if content_changed {
-            let event = super::event::OfferContentChangedEvent {
-                id: self.state.id().clone(),
-                content: facts.content,
-            };
-            self.state.facts.content = event.content.clone();
-            self.sequence += 1;
-            self.uncommitted_events.push(EventEnvelope::new(
-                RetailerOfferEvent::OfferContentChanged(event),
-                self.sequence,
-            ));
-        }
         Ok(())
     }
 }
@@ -387,6 +393,15 @@ impl Aggregate for RetailerOfferAggregate {
         );
 
         super::event::guard_images(&created.images).expect("invalid creation images in history");
+        offer_content::guard(&created.facts.content, &created.localization.language)
+            .expect("invalid content history");
+        assert_eq!(
+            offer_content::selected(&created.facts.content, &created.localization.language)
+                .unwrap()
+                .title,
+            created.title,
+            "creation title must match selected content"
+        );
         let mut aggregate = Self {
             state: RetailerOfferState::new(
                 created.id,
@@ -454,9 +469,27 @@ impl Aggregate for RetailerOfferAggregate {
                 RetailerOfferEvent::OfferContentChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event.content.guard().expect("invalid content history");
-                    aggregate.state.facts.content = event.content;
+                    aggregate.state.facts.content = offer_content::legacy_description(
+                        &aggregate.state.facts.content,
+                        &aggregate.state.localization.language,
+                        event.content.description,
+                    )
+                    .expect("invalid legacy content history");
                 }
 
+                RetailerOfferEvent::OfferContentsChanged(event) => {
+                    assert_eq!(event.id, id, "offer history ID must match");
+                    event.guard().expect("invalid content history");
+                    let mut content = event.content;
+                    offer_content::sort(&mut content);
+                    let title = offer_content::selected(&content, &event.language)
+                        .unwrap()
+                        .title
+                        .clone();
+                    aggregate.state.change_title(title);
+                    aggregate.state.facts.content = content;
+                    aggregate.state.localization.language = event.language;
+                }
                 RetailerOfferEvent::OfferIdentifiersChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event
@@ -471,6 +504,12 @@ impl Aggregate for RetailerOfferAggregate {
                         .localization
                         .guard()
                         .expect("invalid localization history");
+                    aggregate.state.facts.content = offer_content::legacy_language(
+                        &aggregate.state.facts.content,
+                        &aggregate.state.localization.language,
+                        event.localization.language.clone(),
+                    )
+                    .expect("invalid legacy localization history");
                     aggregate.state.localization = event.localization;
                 }
                 RetailerOfferEvent::OfferCreated(_) => {
@@ -495,6 +534,12 @@ impl Aggregate for RetailerOfferAggregate {
                 }
                 RetailerOfferEvent::OfferTitleChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match the requested ID");
+                    aggregate.state.facts.content = offer_content::legacy_title(
+                        &aggregate.state.facts.content,
+                        &aggregate.state.localization.language,
+                        event.title.clone(),
+                    )
+                    .expect("invalid legacy title history");
                     aggregate.state.change_title(event.title);
                 }
                 RetailerOfferEvent::OfferScrapedAtUpdated(event) => {
@@ -525,7 +570,7 @@ impl Aggregate for RetailerOfferAggregate {
 mod tests {
     use super::*;
     use crate::offers::command::ImportOfferDetailsCommand;
-    use crate::offers::event::OfferPriceChangedEvent;
+    use crate::offers::event::{OfferPriceChangedEvent, OfferTitleChangedEvent};
     use crate::offers::retailer_offer_id::RetailerOfferId;
     use bodul_shared::retailer::RetailerCode;
     use money::{Currency, Money};
@@ -720,11 +765,11 @@ mod tests {
             for (index, envelope) in aggregate.uncommitted_events.iter().enumerate().skip(1) {
                 assert_eq!(envelope.sequence(), index as u64 + 1);
                 match envelope.event() {
-                    RetailerOfferEvent::OfferTitleChanged(event) => {
+                    RetailerOfferEvent::OfferContentsChanged(event) => {
                         assert!(title_changed);
                         assert_eq!(index, 1);
                         assert_eq!(event.id.value(), "offer-1");
-                        assert_eq!(event.title, expected_title);
+                        assert_eq!(event.content[0].title, expected_title);
                     }
                     RetailerOfferEvent::OfferPricingChanged(event) => {
                         assert!(price_changed);
@@ -770,7 +815,10 @@ mod tests {
             panic!("expected an OfferCreated event");
         };
         let expected_event = OfferCreatedEvent {
-            facts: Default::default(),
+            facts: super::super::event::OfferFacts {
+                content: offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
@@ -825,7 +873,7 @@ mod tests {
                 "OfferCreated",
                 "OfferImageAdded",
                 "OfferImageAdded",
-                "OfferTitleChanged",
+                "OfferContentsChanged",
                 "OfferPricingChanged",
                 "OfferImageAdded"
             ]
@@ -960,7 +1008,7 @@ mod tests {
             offer.uncommitted_events[0].event(),
         ))
         .unwrap();
-        assert_eq!(serialized["type"], "OfferCreated.v8");
+        assert_eq!(serialized["type"], "OfferCreated.v9");
         assert_eq!(serialized["data"]["images"], serde_json::json!([a, b]));
         let replay =
             RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
@@ -1002,6 +1050,7 @@ mod tests {
         .unwrap();
         record["type"] = serde_json::json!("OfferCreated.v1");
         record["data"].as_object_mut().unwrap().remove("images");
+        record["data"].as_object_mut().unwrap().remove("content");
         let decoded: crate::infra::records::OfferEventRecord =
             serde_json::from_value(record.clone()).unwrap();
         let id = original.state.id().clone();
@@ -1186,7 +1235,7 @@ mod localization_tests {
                     observation,
                 )
                 .unwrap();
-            assert_eq!(offer.sequence, 2);
+            assert_eq!(offer.sequence, 3);
             assert_eq!(offer.state.localization, selected);
             let replay =
                 RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
@@ -1204,7 +1253,7 @@ mod localization_tests {
                 unknown,
             )
             .unwrap();
-        assert_eq!(offer.sequence, 3);
+        assert_eq!(offer.sequence, 5);
         assert_eq!(offer.state.localization, Default::default());
         let replay = RetailerOfferAggregate::from_history(id, offer.uncommitted_events.clone());
         assert_eq!(replay.state, offer.state);
@@ -1287,3 +1336,6 @@ mod identifiers_tests {
 
 #[cfg(test)]
 mod facts_tests;
+
+#[cfg(test)]
+mod localized_content_tests;

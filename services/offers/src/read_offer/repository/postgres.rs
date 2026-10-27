@@ -5,6 +5,7 @@ use diesel::{
     Connection, RunQueryDsl,
     sql_types::{Text, Uuid as SqlUuid},
 };
+use retailer_sauce::offer_content;
 use testimony_infra::prelude::DbPool;
 
 pub struct PostgresRetailerOfferRepository {
@@ -18,20 +19,32 @@ impl PostgresRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for PostgresRetailerOfferRepository {
+    fn update_contents(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &[offer_content::Content],
+        language: &Option<String>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        offer_content::guard(content, language).map_err(super::err_update)?;
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut connection = self.pool.get().map_err(super::err_update)?;
+        write_contents(&mut connection, id, content, language)
+    }
     fn update_content(
         &self,
         id: &super::RetailerOfferId,
         content: &retailer_sauce::structuralized::content::Content,
     ) -> Result<(), RetailerOfferRepositoryError> {
         content.guard().map_err(super::err_update)?;
-        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
-        let count = diesel::sql_query("UPDATE read_offers SET description=$2 WHERE id=$1")
-            .bind::<SqlUuid, _>(id)
-            .bind::<diesel::sql_types::Nullable<Text>, _>(&content.description)
-            .execute(&mut self.pool.get().map_err(super::err_update)?)
-            .map_err(super::err_update)?;
-        require_updated_offer(count)
+        self.mutate_contents(
+            id,
+            |list, active| {
+                offer_content::legacy_description(list, active, content.description.clone())
+            },
+            None,
+        )
     }
+
     fn update_item_condition(
         &self,
         id: &super::RetailerOfferId,
@@ -113,22 +126,15 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
         localization: &retailer_sauce::localization::Localization,
     ) -> Result<(), RetailerOfferRepositoryError> {
         localization.guard().map_err(super::err_update)?;
-        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
-        let market = localization
-            .target_market
-            .as_ref()
-            .map(serde_json::to_value)
-            .transpose()
-            .map_err(super::err_update)?;
-        let count =
-            diesel::sql_query("UPDATE read_offers SET target_market=$2, language=$3 WHERE id=$1")
-                .bind::<SqlUuid, _>(id)
-                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(market)
-                .bind::<diesel::sql_types::Nullable<Text>, _>(&localization.language)
-                .execute(&mut self.pool.get().map_err(super::err_update)?)
-                .map_err(super::err_update)?;
-        require_updated_offer(count)
+        self.mutate_contents(
+            id,
+            |list, active| {
+                offer_content::legacy_language(list, active, localization.language.clone())
+            },
+            Some(localization),
+        )
     }
+
     fn update_scraped_at(
         &self,
         id: &super::RetailerOfferId,
@@ -210,12 +216,18 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
             .map(serde_json::to_value)
             .transpose()
             .map_err(err_insert)?;
+        let mut content = entity.facts.content.clone();
+        offer_content::sort(&mut content);
+        let description = &offer_content::selected(&content, &entity.localization.language)
+            .map_err(err_insert)?
+            .description;
+        let content_json = serde_json::to_value(&content).map_err(err_insert)?;
         let mut connection = self.pool.get().map_err(err_insert)?;
         connection
             .transaction::<_, diesel::result::Error, _>(|connection| {
                 diesel::sql_query(
-                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle, was_price_amount, was_price_currency, availability, item_condition, description)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)",
+                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle, was_price_amount, was_price_currency, availability, item_condition, description, content)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)",
                 )
                 .bind::<SqlUuid, _>(id)
                 .bind::<Text, _>(entity.retailer_code.as_str())
@@ -236,7 +248,8 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
                 .bind::<diesel::sql_types::Nullable<Text>,_>(entity.facts.was_price.as_ref().map(|v|v.currency().as_str()))
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>,_>(&availability)
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>,_>(&item_condition)
-                .bind::<diesel::sql_types::Nullable<Text>,_>(&entity.facts.content.description)
+                .bind::<diesel::sql_types::Nullable<Text>,_>(description)
+                .bind::<diesel::sql_types::Jsonb,_>(&content_json)
                 .execute(connection)?;
                 for (position, image_url) in entity.images.iter().enumerate() {
                     diesel::sql_query(
@@ -257,14 +270,11 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
         id: &super::RetailerOfferId,
         title: &str,
     ) -> Result<(), RetailerOfferRepositoryError> {
-        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
-        let mut connection = self.pool.get().map_err(super::err_update)?;
-        let count = diesel::sql_query("UPDATE read_offers SET title = $2 WHERE id = $1")
-            .bind::<SqlUuid, _>(id)
-            .bind::<Text, _>(title)
-            .execute(&mut connection)
-            .map_err(super::err_update)?;
-        require_updated_offer(count)
+        self.mutate_contents(
+            id,
+            |list, active| offer_content::legacy_title(list, active, title.to_owned()),
+            None,
+        )
     }
 
     fn update_price(
@@ -292,4 +302,85 @@ fn require_updated_offer(count: usize) -> Result<(), RetailerOfferRepositoryErro
     } else {
         Ok(())
     }
+}
+
+#[derive(diesel::QueryableByName)]
+struct ContentRow {
+    #[diesel(sql_type = diesel::sql_types::Jsonb)]
+    content: serde_json::Value,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    language: Option<String>,
+}
+
+impl PostgresRetailerOfferRepository {
+    /// Legacy scalar events must reconcile the list while holding the row lock.
+    fn mutate_contents(
+        &self,
+        id: &super::RetailerOfferId,
+        update: impl FnOnce(
+            &[offer_content::Content],
+            &Option<String>,
+        ) -> Result<Vec<offer_content::Content>, String>,
+        localization: Option<&retailer_sauce::localization::Localization>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut connection = self.pool.get().map_err(super::err_update)?;
+        connection.transaction::<_, RetailerOfferRepositoryError, _>(|connection| {
+            let row = diesel::sql_query(
+                "SELECT content, language FROM read_offers WHERE id=$1 FOR UPDATE",
+            )
+            .bind::<SqlUuid, _>(id)
+            .get_result::<ContentRow>(connection)
+            .map_err(super::err_update)?;
+            let content: Vec<offer_content::Content> =
+                serde_json::from_value(row.content).map_err(super::err_update)?;
+            let content = update(&content, &row.language).map_err(super::err_update)?;
+            let language = localization
+                .map(|value| &value.language)
+                .unwrap_or(&row.language);
+            write_contents(connection, id, &content, language)?;
+            if let Some(localization) = localization {
+                let market = localization
+                    .target_market
+                    .as_ref()
+                    .map(serde_json::to_value)
+                    .transpose()
+                    .map_err(super::err_update)?;
+                diesel::sql_query("UPDATE read_offers SET target_market=$2 WHERE id=$1")
+                    .bind::<SqlUuid, _>(id)
+                    .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(market)
+                    .execute(connection)
+                    .map_err(super::err_update)?;
+            }
+            Ok(())
+        })
+    }
+}
+impl From<diesel::result::Error> for RetailerOfferRepositoryError {
+    fn from(error: diesel::result::Error) -> Self {
+        super::err_update(error)
+    }
+}
+fn write_contents(
+    connection: &mut diesel::PgConnection,
+    id: uuid::Uuid,
+    content: &[offer_content::Content],
+    language: &Option<String>,
+) -> Result<(), RetailerOfferRepositoryError> {
+    offer_content::guard(content, language).map_err(super::err_update)?;
+    let mut content = content.to_vec();
+    offer_content::sort(&mut content);
+    let selected = offer_content::selected(&content, language).map_err(super::err_update)?;
+    let json = serde_json::to_value(&content).map_err(super::err_update)?;
+    let count = diesel::sql_query(
+        "UPDATE read_offers SET content=$2, language=$3, title=$4, description=$5 WHERE id=$1",
+    )
+    .bind::<SqlUuid, _>(id)
+    .bind::<diesel::sql_types::Jsonb, _>(json)
+    .bind::<diesel::sql_types::Nullable<Text>, _>(language)
+    .bind::<Text, _>(&selected.title)
+    .bind::<diesel::sql_types::Nullable<Text>, _>(&selected.description)
+    .execute(connection)
+    .map_err(super::err_update)?;
+    require_updated_offer(count)
 }

@@ -129,9 +129,16 @@ are validated but not displayed; card HTML, page language and currency formattin
 are unchanged. See the [offer facts walkthrough](../../docs/offer-facts-walkthrough.md).
 
 Availability and item condition accept nullable typed `{kind, raw}` API values;
-only `other` has raw source text. Nested `content.description` preserves raw
-source HTML or text as data. These fields default to unknown in old responses
-and are not displayed or inserted into page HTML. The same model and sale-price
+only `other` has raw source text. `content` accepts a nonempty list of `{language, title, description}` entries.
+The selected `localization.language` must exist; duplicate language keys and
+malformed entries are rejected. Nullable language and description fields are
+required in each list entry. Lists retain exact language spelling and sort the
+unknown bucket first, then other keys lexically. Old responses with missing
+content or the singular `{description}` object are adapted to one entry using
+the flat title and localization language. Descriptions preserve raw HTML or
+text as data and are never inserted into page HTML. Cards continue using the
+flat title; unselected localized titles are also data only. Deploy this
+compatibility reader before customer-facing starts returning content arrays. The same model and sale-price
 presentation apply to browse and search results.
 
 ## Search

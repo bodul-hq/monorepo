@@ -6,6 +6,7 @@ use testimony::prelude::EventStore;
 use testimony_infra::prelude::DbPool;
 use uuid::Uuid;
 
+mod content;
 mod facts;
 
 use crate::{
@@ -529,6 +530,7 @@ async fn registered_projectors_create_and_update_read_models() {
     }
     let mut expected = before;
     expected["title"] = json!("Updated charger");
+    expected["content"][0]["title"] = json!("Updated charger");
     expected["price_amount"] = json!(1299);
     expected["currency"] = json!("EUR");
     assert_eq!(read(), expected);
@@ -1276,7 +1278,10 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
     ];
     for repository in repositories {
         let entity = crate::read_offer::entity::RetailerOffer {
-            facts: Default::default(),
+            facts: crate::offers::event::OfferFacts {
+                content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
@@ -1395,7 +1400,7 @@ fn image_migration_preserves_preexisting_offer_rows() {
             "../migrations/2026-10-25-000001_offer_images/down.sql"
         ))
         .unwrap();
-    connection.batch_execute("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at) VALUES (gen_random_uuid(),'ankerau','https://shop.example/old','Old offer',123,'AUD',now())").unwrap();
+    connection.batch_execute("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at,content) VALUES (gen_random_uuid(),'ankerau','https://shop.example/old','Old offer',123,'AUD',now(),'[{\"language\":null,\"title\":\"Old offer\",\"description\":null}]')").unwrap();
     let before = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
     connection
         .batch_execute(include_str!(
@@ -1421,7 +1426,10 @@ fn creation_projection_rolls_back_parent_and_images_together() {
     use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
     let (_schema, pool) = inbox_test_database();
     let entity = crate::read_offer::entity::RetailerOffer {
-        facts: Default::default(),
+        facts: crate::offers::event::OfferFacts {
+            content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+            ..Default::default()
+        },
         identifiers: Default::default(),
         localization: Default::default(),
         scraped_at: None,
@@ -1600,12 +1608,19 @@ async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrich
             .assert_status(StatusCode::ACCEPTED);
         run_queue(&client, "inbox", 100, 1).await;
         run_queue(&client, "commands", 100, 1).await;
-        run_queue(&client, "events", 100, [1, 2, 0, 2][step]).await;
+        run_queue(&client, "events", 100, [1, 3, 0, 3][step]).await;
     }
     let row = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
     assert_eq!(row["gtin"], "0012345678905");
     assert_eq!(row["sku"], "A2");
     assert!(row["language"].is_null());
+    assert_eq!(
+        row["content"],
+        json!([
+            {"language":null,"title":"Charger","description":null},
+            {"language":"en-AU","title":"Charger","description":null}
+        ])
+    );
     assert_eq!(
         inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM read_offers"),
         1
@@ -1615,6 +1630,6 @@ async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrich
             &pool,
             "SELECT jsonb_agg((meta->>'sequence')::bigint ORDER BY (meta->>'sequence')::bigint) AS data FROM outbox_entries"
         ),
-        json!([1, 2, 3, 4, 5])
+        json!([1, 2, 3, 4, 5, 6, 7])
     );
 }

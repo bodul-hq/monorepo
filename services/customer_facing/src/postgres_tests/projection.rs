@@ -92,6 +92,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
         "was_price_amount":null,"was_price_currency":null,"availability":null,"item_condition":null,"description":null,
+        "content":[{"language":null,"title":payload["title"],"description":null}],
         "gtin":null,"sku":null,"external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null},"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
@@ -102,6 +103,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     )
     .await;
     expected["title"] = json!(" New čaj ☕ \t");
+    expected["content"][0]["title"] = expected["title"].clone();
     assert_eq!(offer(&pool), expected);
     let price_message = apply(
         &client,
@@ -125,6 +127,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     )
     .await;
     expected["title"] = json!("final title");
+    expected["content"][0]["title"] = expected["title"].clone();
     expected["price_amount"] = json!(i64::MIN);
     expected["currency"] = json!("USD");
     assert_eq!(offer(&pool), expected);
@@ -158,6 +161,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     )
     .await;
     expected["title"] = json!("older source value");
+    expected["content"][0]["title"] = expected["title"].clone();
     assert_eq!(offer(&pool), expected);
     kernel.shutdown();
 }
@@ -302,6 +306,9 @@ async fn failed_business_write_rolls_back_receipt_and_can_retry() {
             .as_object_mut()
             .unwrap()
             .extend(columns.as_object().unwrap().clone());
+        if kind == "OfferContentChanged" {
+            expected["content"][0]["description"] = expected["description"].clone();
+        }
         assert_eq!(offer(&pool), expected);
         assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
         replay_inbox(&pool, message);
@@ -388,7 +395,7 @@ async fn malformed_and_unsupported_messages_fail_without_partial_changes() {
     kernel.shutdown();
 }
 
-fn envelope(message: Uuid, kind: &str, payload: &Value) -> NewCommandEnvelope {
+pub(super) fn envelope(message: Uuid, kind: &str, payload: &Value) -> NewCommandEnvelope {
     NewCommandEnvelope {
         command: NewCommand {
             command_type: kind.into(),

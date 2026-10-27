@@ -78,8 +78,12 @@ pipeline runs only when `DATABASE_URL` is set (see below).
 history and projects offer events, with initial images in `OfferCreated` and
 ordered image additions on updates. Offer facts now include optional scrape time,
 source-backed localization, typed product identifiers, comparison pricing,
-availability, item condition and description content. Identity lookup keeps
-retailer/URL matching while retaining all five product identifiers. See
+availability, item condition and localized title/description content. Content
+observations merge by language, while the selected flat title continues to drive
+cards and title search. Source exports stay v8; offers writes creation v9 and
+retains legacy readers. See [ADR 38](docs/adr/0038-localized-offer-content.md).
+Identity lookup keeps retailer/URL matching while retaining all five product
+identifiers. See
 [ADRs 34–37](docs/adr/README.md) for the compatible event/export contracts. Testimony revisions
 are retained in Mulac event/outbox metadata using its optional-sequence API. See
 the [verification walkthrough](docs/offer-facts-walkthrough.md). Its current

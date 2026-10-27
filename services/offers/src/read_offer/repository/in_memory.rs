@@ -1,6 +1,7 @@
 use super::{
     RetailerOffer, RetailerOfferRepository, RetailerOfferRepositoryError, err_insert, validate,
 };
+use retailer_sauce::offer_content;
 use std::{collections::HashMap, sync::Mutex};
 use uuid::Uuid;
 
@@ -17,6 +18,27 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn update_contents(
+        &self,
+        id: &super::RetailerOfferId,
+        content: &[offer_content::Content],
+        language: &Option<String>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        offer_content::guard(content, language).map_err(super::err_update)?;
+        let mut content = content.to_vec();
+        offer_content::sort(&mut content);
+        let title = offer_content::selected(&content, language)
+            .map_err(super::err_update)?
+            .title
+            .clone();
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.facts.content = content;
+        entity.localization.language = language.clone();
+        entity.title = title;
+        Ok(())
+    }
     fn update_content(
         &self,
         id: &super::RetailerOfferId,
@@ -26,7 +48,12 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
         let mut entries = self.entries.lock().map_err(super::err_update)?;
         let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
-        entity.facts.content = content.clone();
+        entity.facts.content = offer_content::legacy_description(
+            &entity.facts.content,
+            &entity.localization.language,
+            content.description.clone(),
+        )
+        .map_err(super::err_update)?;
         Ok(())
     }
     fn update_item_condition(
@@ -91,6 +118,13 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
         let mut entries = self.entries.lock().map_err(super::err_update)?;
         let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let content = offer_content::legacy_language(
+            &entity.facts.content,
+            &entity.localization.language,
+            localization.language.clone(),
+        )
+        .map_err(super::err_update)?;
+        entity.facts.content = content;
         entity.localization = localization.clone();
         Ok(())
     }
@@ -162,7 +196,9 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
             .enumerate()
             .map(|(position, image)| (position as u32, image))
             .collect();
-        entries.insert(id, entity.clone());
+        let mut entity = entity.clone();
+        offer_content::sort(&mut entity.facts.content);
+        entries.insert(id, entity);
         all_images.insert(id, images);
         Ok(())
     }
@@ -177,6 +213,13 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
         let mut entries = self.entries.lock().map_err(super::err_update)?;
         let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let content = offer_content::legacy_title(
+            &entity.facts.content,
+            &entity.localization.language,
+            title.to_owned(),
+        )
+        .map_err(super::err_update)?;
+        entity.facts.content = content;
         entity.title = title.to_owned();
         Ok(())
     }
@@ -204,7 +247,10 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
-            facts: Default::default(),
+            facts: crate::offers::event::OfferFacts {
+                content: offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            },
             identifiers: Default::default(),
             localization: Default::default(),
             scraped_at: None,
@@ -225,6 +271,7 @@ mod tests {
         repository.insert(&expected).unwrap();
         repository.update_title(&expected.id, "New title").unwrap();
         expected.title = "New title".to_owned();
+        expected.facts.content[0].title = expected.title.clone();
         let id = Uuid::parse_str(expected.id.value()).unwrap();
         assert_eq!(repository.entries.lock().unwrap().get(&id), Some(&expected));
         expected.price = Money::new(1200, Currency::EUR);
@@ -233,5 +280,91 @@ mod tests {
             .unwrap();
         assert!(repository.update_title(&expected.id, "bad\0title").is_err());
         assert_eq!(repository.entries.lock().unwrap().get(&id), Some(&expected));
+    }
+}
+
+#[cfg(test)]
+mod localized_content_tests {
+    use super::*;
+    use crate::offers::event::OfferCreatedEvent;
+    use serde_json::json;
+
+    #[test]
+    fn full_snapshots_are_atomic_and_legacy_changes_reconcile_selected_bucket() {
+        let repository = InMemoryRetailerOfferRepository::new();
+        let id = Uuid::now_v7();
+        let created: OfferCreatedEvent = serde_json::from_value(json!({
+            "id":id,"retailer_code":"AnkerCom","title":" English ","price":{"amount":1999,"currency":"USD"},"url":"https://example.com/localized","created_at":"2020-01-02T03:04:05Z",
+            "localization":{"target_market":null,"language":"en-US"},
+            "content":{"description":" Exact legacy "}
+        })).unwrap();
+        let entity = RetailerOffer {
+            facts: created.facts,
+            identifiers: created.identifiers,
+            localization: created.localization,
+            scraped_at: created.scraped_at,
+            id: created.id,
+            retailer_code: created.retailer_code,
+            title: created.title,
+            price: created.price,
+            url: created.url,
+            images: created.images,
+            created_at: created.created_at,
+        };
+        repository.insert(&entity).unwrap();
+        let content = offer_content::upsert(
+            &entity.facts.content,
+            Some("fr".into()),
+            "Français".into(),
+            Some(Some("".into())),
+        )
+        .unwrap();
+        repository
+            .update_contents(&entity.id, &content, &Some("fr".into()))
+            .unwrap();
+        let snapshot = || repository.entries.lock().unwrap().get(&id).unwrap().clone();
+        assert_eq!(snapshot().title, "Français");
+        let before = snapshot();
+        for (content, language) in [
+            (vec![], None),
+            (content.clone(), None),
+            (
+                vec![content[0].clone(), content[0].clone()],
+                Some("en-US".into()),
+            ),
+        ] {
+            assert!(
+                repository
+                    .update_contents(&entity.id, &content, &language)
+                    .is_err()
+            );
+            assert_eq!(snapshot(), before);
+        }
+        repository
+            .update_title(&entity.id, " Legacy title ")
+            .unwrap();
+        let description = retailer_sauce::structuralized::content::Content {
+            description: Some(" Legacy description ".into()),
+        };
+        repository.update_content(&entity.id, &description).unwrap();
+        let localization = retailer_sauce::localization::Localization {
+            target_market: None,
+            language: Some("en-US".into()),
+        };
+        repository
+            .update_localization(&entity.id, &localization)
+            .unwrap();
+        let after = snapshot();
+        assert_eq!(after.title, " Legacy title ");
+        assert_eq!(
+            after.facts.content,
+            offer_content::singleton(
+                " Legacy title ".into(),
+                Some("en-US".into()),
+                Some(" Legacy description ".into())
+            )
+        );
+        assert_eq!(after.price, entity.price);
+        assert_eq!(after.url, entity.url);
     }
 }

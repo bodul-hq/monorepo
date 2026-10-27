@@ -43,10 +43,10 @@ fn facts_change_independently_and_replay_without_reinterpreting_source() {
             .collect::<Vec<_>>(),
         [
             "OfferCreated",
+            "OfferContentsChanged",
             "OfferPricingChanged",
             "OfferAvailabilityChanged",
-            "OfferItemConditionChanged",
-            "OfferContentChanged"
+            "OfferItemConditionChanged"
         ]
     );
     let facts = offer.state.facts.clone();
@@ -71,7 +71,10 @@ fn facts_change_independently_and_replay_without_reinterpreting_source() {
     assert_eq!(offer.sequence, 9);
     assert_eq!(
         offer.state.facts,
-        super::super::event::OfferFacts::default()
+        super::super::event::OfferFacts {
+            content: offer_content::singleton("Charger".into(), None, None),
+            ..Default::default()
+        }
     );
 }
 
@@ -154,7 +157,13 @@ fn event_records_keep_all_versions_and_do_not_confuse_nullable_events() {
         let RetailerOfferEvent::OfferCreated(parsed) = RetailerOfferEvent::from(parsed) else {
             panic!("expected creation")
         };
-        assert_eq!(parsed.facts, super::super::event::OfferFacts::default());
+        assert_eq!(
+            parsed.facts,
+            super::super::event::OfferFacts {
+                content: offer_content::singleton("Charger".into(), None, None),
+                ..Default::default()
+            }
+        );
     }
     for (event_type, field) in [
         ("OfferPricingChanged.v1", "pricing"),
@@ -295,31 +304,35 @@ fn independent_transitions_preserve_neighbors_and_exact_historical_values() {
         ("item_condition", "OfferItemConditionChanged", json!("new")),
         ("item_condition", "OfferItemConditionChanged", json!(null)),
         ("item_condition", "OfferItemConditionChanged", json!("new")),
-        ("content", "OfferContentChanged", json!({"description":""})),
+        ("content", "OfferContentsChanged", json!({"description":""})),
         (
             "content",
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"description":" \t\n "}),
         ),
         (
             "content",
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"description":" <p>ž &amp; source</p>\n"}),
         ),
         (
             "content",
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"description":null}),
         ),
         (
             "content",
-            "OfferContentChanged",
+            "OfferContentsChanged",
             json!({"description":"<script>source text</script>"}),
         ),
     ];
     for (field, event_type, value) in cases {
         let mut expected = state_snapshot(&offer.state);
-        expected["facts"][field] = value.clone();
+        if field == "content" {
+            expected["facts"]["content"][0]["description"] = value["description"].clone();
+        } else {
+            expected["facts"][field] = value.clone();
+        }
         let before = offer.sequence;
         let observation = field_observation(field, value.clone());
         update(&mut offer, 1999, observation).unwrap();
@@ -329,7 +342,11 @@ fn independent_transitions_preserve_neighbors_and_exact_historical_values() {
         assert_eq!(event.event_type(), event_type);
         assert_eq!(
             serde_json::to_value(event).unwrap(),
-            json!({"id":"offer-1",field:value})
+            if field == "content" {
+                json!({"id":"offer-1","content":expected["facts"]["content"],"language":"en"})
+            } else {
+                json!({"id":"offer-1",field:value})
+            }
         );
         let same_observation = field_observation(field, value);
         update(&mut offer, 1999, same_observation).unwrap();

@@ -125,6 +125,16 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
             customer_facing.clone(),
         )
         .event_subscriber(
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
+        .event_subscriber(
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
             crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),

@@ -74,6 +74,14 @@ impl CustomerFacingPublisher {
             return Err(err_payload());
         }
         let parsed = match event_type {
+            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferContentsChangedEvent,
+            >(payload.clone())
+            .and_then(|event| {
+                event
+                    .guard()
+                    .map_err(<serde_json::Error as serde::de::Error>::custom)
+            }),
             crate::offers::event::OFFER_CONTENT_CHANGED_EVENT => serde_json::from_value::<
                 crate::offers::event::OfferContentChangedEvent,
             >(payload.clone())
@@ -140,9 +148,7 @@ impl CustomerFacingPublisher {
             OFFER_CREATED_EVENT => serde_json::from_value::<OfferCreatedEvent>(payload.clone())
                 .and_then(|event| {
                     event
-                        .facts
                         .guard()
-                        .and_then(|_| crate::offers::event::guard_images(&event.images))
                         .map_err(<serde_json::Error as serde::de::Error>::custom)
                 }),
             OFFER_TITLE_CHANGED_EVENT => {
