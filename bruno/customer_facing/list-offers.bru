@@ -1,0 +1,23 @@
+meta {
+  name: List offers
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{customerFacingBaseUrl}}/api/offers?limit=30&offset=0
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 30
+  offset: 0
+}
+
+docs {
+  Returns items, limit, offset and has_more. Newest first by created_at then id.
+  Limit is 1–100; offset is 0–2147483647. Defaults are 30 and 0.
+  Price amount is a decimal string of signed i64 minor units.
+  Reads never run queues. Process inbox and commands before expecting new offers.
+}

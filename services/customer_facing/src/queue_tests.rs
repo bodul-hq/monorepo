@@ -9,6 +9,7 @@ use crate::orchestration::AppState;
 
 pub fn state() -> AppState {
     AppState {
+        offers: crate::offer_read::tests::offers(Vec::new()),
         inbox: InboxAdapter::new(inbox::recording_service().0),
         commands: CommandingAdapter::new(commanding::empty_service()),
         events: EventingAdapter::new(eventing::empty_service()),

@@ -13,6 +13,7 @@ use poem_openapi::{OpenApi, payload::Json};
 
 #[derive(Clone)]
 pub struct AppState {
+    pub offers: crate::offer_read::Offers,
     pub inbox: InboxAdapter,
     pub commands: CommandingAdapter,
     pub events: EventingAdapter,
@@ -22,6 +23,7 @@ pub struct AppState {
 impl AppState {
     pub fn from_kernel(pool: DbPool, kernel: &PersistentKernelHandle) -> Self {
         Self {
+            offers: crate::offer_read::Offers::postgres(pool.clone()),
             inbox: InboxAdapter::new(InboxService::from_postgres(pool)),
             commands: CommandingAdapter::new(CommandingService::new(kernel.command_consumer())),
             events: EventingAdapter::new(EventingService::new(kernel.event_consumer())),

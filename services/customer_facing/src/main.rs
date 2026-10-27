@@ -1,5 +1,6 @@
 mod bootstrap;
 mod offer_projection;
+mod offer_read;
 mod orchestration;
 #[cfg(test)]
 mod postgres_tests;
@@ -22,12 +23,23 @@ impl Api {
     }
 }
 
-struct Query;
+struct Query(offer_read::Offers);
 
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
         shared::health()
+    }
+
+    async fn offers(
+        &self,
+        #[graphql(default = 30)] limit: i32,
+        #[graphql(default = 0)] offset: i32,
+    ) -> async_graphql::Result<offer_read::OfferPage> {
+        self.0
+            .list(limit, offset)
+            .await
+            .map_err(|error| async_graphql::Error::new(error.message()))
     }
 }
 
@@ -41,13 +53,14 @@ async fn graphiql() -> Html<String> {
 }
 
 fn app(state: AppState) -> Route {
+    let offers = state.offers.clone();
     let api = OpenApiService::new(
-        (Api, QueueApi(state)),
+        (Api, QueueApi(state), offer_read::OffersApi(offers.clone())),
         "Customer Facing",
         env!("CARGO_PKG_VERSION"),
     )
     .server("/api");
-    let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
+    let schema = Schema::new(Query(offers), EmptyMutation, EmptySubscription);
 
     let mut route = Route::new()
         .nest("/api/docs", api.swagger_ui())

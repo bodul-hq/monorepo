@@ -12,14 +12,22 @@ post {
 
 body:json {
   {
-    "routing_key": "DevelopmentProbe",
+    "routing_key": "OfferCreated",
     "source": "bruno",
-    "payload": { "value": "example" }
+    "payload": {
+      "id": "0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7e",
+      "retailer_code": "AnkerAu",
+      "title": "USB charger",
+      "price": { "amount": 1999, "currency": "AUD" },
+      "url": "https://shop.example/Charger?variant=123#details",
+      "created_at": "2026-10-24T12:00:00Z"
+    }
   }
 }
 
 docs {
   Stores a message and returns 202 with its message_id without processing it.
-  This development command is intentionally unregistered: Run commands reports a missing handler.
-  This bootstrap does not import or project offers.
+  Run inbox, then Run commands, then List offers or GraphQL offers to see it.
+  Use a fresh offer ID and URL for another creation. To retry exactly the same
+  delivery, supply its returned message_id in this envelope.
 }

@@ -2,8 +2,9 @@
 
 Poem service with durable Mulac inbox acceptance and explicit queue batch APIs.
 REST and GraphQL health report liveness. Incoming offers events maintain the
-service-owned `offers` table during command processing. Offer read APIs are
-separate work; no projection events or outgoing messages are generated.
+service-owned `offers` table during command processing. Paginated REST and
+GraphQL queries read this projection; no projection events or outgoing
+messages are generated.
 
 ## Setup and startup
 
@@ -41,6 +42,7 @@ reset. No other service's tables or database are needed.
 | Method and path | Behavior |
 | --- | --- |
 | `GET /api/health` | `200`, text `ok`; does not probe PostgreSQL |
+| `GET /api/offers` | Paginated offers, with `limit` and `offset` query parameters |
 | `POST /api/inbox` | Store a message and return `202`, `{"message_id":"<uuid>"}` |
 | `POST /api/inbox/run` | Convert one batch of due inbox messages into queued commands |
 | `POST /api/commands/run` | Execute one batch of due commands |
@@ -48,7 +50,7 @@ reset. No other service's tables or database are needed.
 | `POST /api/outbox/run` | `503`, `outbox publisher is not configured`; rows remain untouched |
 | `GET /api/openapi.json` | OpenAPI description |
 | `GET /api/docs/` | Swagger UI |
-| `GET /graphql`, `POST /graphql` | GraphQL `{ health }` |
+| `GET /graphql`, `POST /graphql` | GraphQL `health` and paginated `offers` queries |
 | `GET /graphql/ide` | GraphiQL in debug builds, `404` in release |
 
 Submit the agreed Mulac envelope directly; no upstream service is required:
@@ -137,6 +139,57 @@ in-flight HTTP requests and then shuts down the kernel.
 The [Bruno collection](../../bruno/customer_facing/README.md) provides the same
 manual requests.
 
+## Browsing offers
+
+```sh
+curl 'http://localhost:3003/api/offers?limit=30&offset=0'
+curl http://localhost:3003/graphql -H 'content-type: application/json' \
+  -d '{"query":"{ offers(limit: 30, offset: 0) { items { id retailerCode title price { amount currency } url createdAt } limit offset hasMore } }"}'
+```
+
+REST returns this page shape (GraphQL uses `retailerCode`, `createdAt`, and
+`hasMore`; `id` is GraphQL `ID`):
+
+```json
+{
+  "items": [{
+    "id": "0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7e",
+    "retailer_code": "ankerau",
+    "title": "USB charger",
+    "price": {"amount": "1999", "currency": "AUD"},
+    "url": "https://shop.example/Charger?variant=123#details",
+    "created_at": "2026-10-24T12:00:00Z"
+  }],
+  "limit": 30,
+  "offset": 0,
+  "has_more": false
+}
+```
+
+Both APIs default to limit 30 and offset 0. Limit must be an integer from 1
+through 100; offset must be an integer from 0 through 2147483647. GraphQL
+arguments are non-null with defaults. Invalid inputs return REST 400 or
+GraphQL errors. Database or blocking-task failures return sanitized REST 500
+or GraphQL errors; they never masquerade as an empty result.
+
+Offers sort by `created_at DESC, id DESC`. A query fetches one additional row
+to determine `has_more`; it returns at most the requested limit and no total
+count. Empty and past-the-end pages return empty `items` with `has_more: false`.
+New offers can shift pages between requests; this is not snapshot pagination.
+
+Read API amounts are **decimal strings of signed i64 minor units**, preserving
+the full range through REST and GraphQL clients. Inbox event amounts remain
+JSON integers. Currency codes are uppercase, retailer codes are lowercase,
+and original timestamps are represented in UTC RFC3339 at stored precision.
+Titles and URLs retain their original values. Reading does not process queues:
+the submission and inbox steps alone do not make an offer visible. Run
+`/api/commands/run` after `/api/inbox/run` to apply it. Later processed title
+and price changes appear on the next read.
+
+The [customers app](../../apps/customers/README.md) renders these offers with
+30 per page. See [ADR 23](../../docs/adr/0023-offer-browsing-and-customers-homepage.md)
+for the service boundary and representation choices.
+
 ## Failure inspection and recovery
 
 Malformed payloads, unsupported routing keys, conflicting creation, missing
@@ -218,6 +271,10 @@ projection tests cover value fidelity, independent updates, concurrent replay,
 restart, business-write rollback, conflicting identities, malformed messages,
 and additive migration with existing queued work. Tests submit directly to the
 real inbox routes; no offers publisher or cross-service database is needed.
+Browse tests cover REST/GraphQL pagination, deterministic tie ordering, exact
+string amounts and timestamps, projection visibility and updates, and an index
+migration round trip that preserves existing offers. Database-independent HTTP
+tests verify defaults, bounds, documentation and sanitized failures.
 
 Run `cargo test --release graphiql_is_served_only_in_debug_builds` to check the
 release GraphiQL route. After serving, check health, GraphQL health, OpenAPI and

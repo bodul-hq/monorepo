@@ -1,0 +1,28 @@
+meta {
+  name: GraphQL offers
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/graphql
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "query": "query BrowseOffers($limit: Int!, $offset: Int!) { offers(limit: $limit, offset: $offset) { items { id retailerCode title price { amount currency } url createdAt } limit offset hasMore } }",
+    "variables": { "limit": 30, "offset": 0 }
+  }
+}
+
+docs {
+  The same projection, pagination and ordering as the REST browse endpoint.
+  Price amount is a decimal string; retailerCode is lowercase.
+  GraphQL GET also supports the same query via the query parameter.
+}
