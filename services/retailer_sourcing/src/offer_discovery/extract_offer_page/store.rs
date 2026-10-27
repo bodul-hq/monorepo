@@ -6,7 +6,7 @@ use super::entity::{ExtractedOffer, RawOffer};
 use super::handler::Store;
 use crate::platform::db::{self, DbPool};
 use crate::platform::object_storage::{
-    self, EXTRACTED_OFFERS_BUCKET, ObjectStorage, RAW_OFFERS_BUCKET, Stored,
+    self, EXTRACTED_OFFERS_BUCKET, ObjectStorage, RAW_OFFERS_BUCKET,
 };
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
@@ -35,7 +35,19 @@ impl PgStore {
 }
 
 impl Store for PgStore {
-    fn raw_offer(&self, offer_id: Uuid) -> Result<Option<RawOffer>, StoreError> {
+    fn raw_offer(
+        &self,
+        offer_id: Uuid,
+        storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+    ) -> Result<Option<RawOffer>, StoreError> {
+        if let Some(storage) = storage {
+            let body = self.objects.get_offer(RAW_OFFERS_BUCKET, &storage)?;
+            return Ok(Some(RawOffer {
+                object_storage_id: storage.object_storage_id,
+                offer_id,
+                body,
+            }));
+        }
         let mut connection = self.pool.get()?;
         let record = offer_details_raw::table
             .filter(offer_details_raw::offer_id.eq(offer_id))
@@ -56,9 +68,10 @@ impl Store for PgStore {
     fn store_extracted_offer(
         &self,
         entity: &ExtractedOffer,
-    ) -> Result<Stored<ExtractedOffer>, StoreError> {
+    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
         let body = serde_json::to_string(&entity.document)?;
-        let storage = self.objects.create_offer(EXTRACTED_OFFERS_BUCKET, &body)?;
+        let mut storage = self.objects.create_offer(EXTRACTED_OFFERS_BUCKET, &body)?;
+        storage.scraped_at = entity.scraped_at;
         let record = ExtractedOfferPgRecord::new(entity, storage);
         diesel::insert_into(offer_details_extracted::table)
             .values(&record)
@@ -69,9 +82,6 @@ impl Store for PgStore {
                 offer_details_extracted::storage.eq(&record.storage),
             ))
             .execute(&mut self.pool.get()?)?;
-        Ok(Stored {
-            entity: entity.clone(),
-            object_storage_id: storage.object_storage_id,
-        })
+        Ok(storage)
     }
 }

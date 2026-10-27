@@ -17,6 +17,18 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn update_scraped_at(
+        &self,
+        id: &super::RetailerOfferId,
+        scraped_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        entity.scraped_at = entity.scraped_at.max(Some(scraped_at));
+        Ok(())
+    }
+
     fn images(
         &self,
         id: &super::RetailerOfferId,
@@ -115,6 +127,7 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
+            scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),

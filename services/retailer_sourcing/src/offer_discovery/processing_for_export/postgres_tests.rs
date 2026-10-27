@@ -280,6 +280,7 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
         object_storage: server.client(),
     };
     let event = OfferWasStructuralized {
+        scraped_at: None,
         offer_id: source.offer_id,
         consolidated_sitemap_id: source.consolidated_sitemap_id,
         retailer_code: source.retailer_code,
@@ -363,7 +364,7 @@ fn versions_coexist_without_rewriting_pending_or_completed_v1() {
             .is_none()
     );
     assert_eq!(store.load(new.id).unwrap(), Some(new));
-    assert!(store.prepare(source, 3).is_err());
+    assert!(store.prepare(source, 99).is_err());
     diesel::sql_query("UPDATE offer_export SET schema_version = 3 WHERE id = $1")
         .bind::<SqlUuid, _>(old_snapshot.id)
         .execute(&mut db.pool.get().unwrap())

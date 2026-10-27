@@ -52,7 +52,13 @@ where
         if let Some(read_row) = exists {
             let id = read_row.id;
 
-            self.update_offer(id, command.title, command.price, command.images)
+            self.update_offer(
+                id,
+                command.title,
+                command.price,
+                command.images,
+                command.scraped_at,
+            )
         } else {
             self.create_offer_event(
                 command.retailer_code,
@@ -60,6 +66,7 @@ where
                 command.price,
                 command.url,
                 command.images,
+                command.scraped_at,
             )
         }
     }
@@ -71,12 +78,20 @@ where
         price: Money,
         url: String,
         images: Vec<String>,
+        scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
-        let mut aggregate =
-            RetailerOfferAggregate::create(id, retailer_code, title, price, url, images)
-                .map_err(err_update)?;
+        let mut aggregate = RetailerOfferAggregate::create_with_scrape(
+            id,
+            retailer_code,
+            title,
+            price,
+            url,
+            images,
+            scraped_at,
+        )
+        .map_err(err_update)?;
         let events = aggregate
             .uncommitted_events
             .iter()
@@ -97,13 +112,14 @@ where
         title: String,
         price: Money,
         images: Vec<String>,
+        scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
             .load(id.clone())?
             .ok_or_else(|| err_update(format!("offer {id} not found")))?;
         aggregate
-            .update_with_images(title, price, images)
+            .update_with_scrape(title, price, images, scraped_at)
             .map_err(err_update)?;
         let events = aggregate
             .uncommitted_events

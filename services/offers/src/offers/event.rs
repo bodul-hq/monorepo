@@ -13,6 +13,7 @@ pub enum RetailerOfferEvent {
     OfferImageAdded(OfferImageAddedEvent),
     OfferTitleChanged(OfferTitleChangedEvent),
     OfferPriceChanged(OfferPriceChangedEvent),
+    OfferScrapedAtUpdated(OfferScrapedAtUpdatedEvent),
 }
 
 impl ApplicationEvent for RetailerOfferEvent {
@@ -22,12 +23,15 @@ impl ApplicationEvent for RetailerOfferEvent {
             Self::OfferImageAdded(event) => event.event_type(),
             Self::OfferTitleChanged(event) => event.event_type(),
             Self::OfferPriceChanged(event) => event.event_type(),
+            Self::OfferScrapedAtUpdated(event) => event.event_type(),
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OfferCreatedEvent {
+    #[serde(default)]
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default)]
     pub images: Vec<String>,
     pub id: RetailerOfferId,
@@ -57,6 +61,7 @@ impl HasAggregateId for RetailerOfferEvent {
             Self::OfferImageAdded(event) => event.id.to_string(),
             Self::OfferTitleChanged(event) => event.id.to_string(),
             Self::OfferPriceChanged(event) => event.id.to_string(),
+            Self::OfferScrapedAtUpdated(event) => event.id.to_string(),
         }
     }
 }
@@ -124,5 +129,17 @@ impl ApplicationEvent for SequencedOfferEvent {
     }
     fn sequence(&self) -> Option<u64> {
         Some(self.sequence)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferScrapedAtUpdatedEvent {
+    pub id: RetailerOfferId,
+    pub scraped_at: DateTime<Utc>,
+}
+pub const OFFER_SCRAPED_AT_UPDATED_EVENT: &str = "OfferScrapedAtUpdated";
+impl ApplicationEvent for OfferScrapedAtUpdatedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_SCRAPED_AT_UPDATED_EVENT
     }
 }

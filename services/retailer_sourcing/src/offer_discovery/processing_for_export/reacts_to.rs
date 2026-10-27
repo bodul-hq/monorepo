@@ -3,6 +3,7 @@ use crate::offer_discovery::structuralize_offer::prelude::OfferWasStructuralized
 
 pub fn on(event: &OfferWasStructuralized) -> Option<ProcessOfferForExport> {
     Some(ProcessOfferForExport {
+        scraped_at: event.scraped_at,
         schema_version: super::entity::SCHEMA_VERSION,
         offer_id: event.offer_id,
         consolidated_sitemap_id: event.consolidated_sitemap_id,

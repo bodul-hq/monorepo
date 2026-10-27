@@ -26,6 +26,8 @@ pub struct OfferPrice {
 #[derive(Clone, Object, SimpleObject, serde::Serialize)]
 #[graphql(complex)]
 pub struct Offer {
+    /// Latest known successful download, in UTC RFC3339 format.
+    pub scraped_at: Option<String>,
     #[graphql(skip)]
     pub id: String,
     pub retailer_code: String,
@@ -60,6 +62,8 @@ struct PostgresRepository(DbPool);
 
 #[derive(diesel::QueryableByName)]
 struct Record {
+    #[diesel(sql_type = diesel::sql_types::Nullable<Timestamptz>)]
+    scraped_at: Option<DateTime<Utc>>,
     #[diesel(sql_type = SqlUuid)]
     id: Uuid,
     #[diesel(sql_type = Text)]
@@ -83,7 +87,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -94,6 +98,9 @@ impl Repository for PostgresRepository {
         Ok(records
             .into_iter()
             .map(|record| Offer {
+                scraped_at: record
+                    .scraped_at
+                    .map(|time| time.to_rfc3339_opts(SecondsFormat::AutoSi, true)),
                 id: record.id.to_string(),
                 retailer_code: record.retailer_code,
                 title: record.title,

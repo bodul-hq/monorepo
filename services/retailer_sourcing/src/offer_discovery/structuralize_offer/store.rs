@@ -36,7 +36,19 @@ impl PgStore {
 }
 
 impl Store for PgStore {
-    fn normalized_offer(&self, offer_id: Uuid) -> Result<Option<NormalizedOffer>, StoreError> {
+    fn normalized_offer(
+        &self,
+        offer_id: Uuid,
+        storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+    ) -> Result<Option<NormalizedOffer>, StoreError> {
+        if let Some(storage) = storage {
+            let body = self.objects.get_offer(NORMALIZED_OFFERS_BUCKET, &storage)?;
+            return Ok(Some(NormalizedOffer {
+                object_storage_id: storage.object_storage_id,
+                offer_id,
+                document: serde_json::from_str(&body)?,
+            }));
+        }
         let mut connection = self.pool.get()?;
         let record = offer_details_normalized::table
             .filter(offer_details_normalized::offer_id.eq(offer_id))
@@ -62,9 +74,10 @@ impl Store for PgStore {
         entity: &StructuralizedOffer,
     ) -> Result<OfferStorageMetadata, StoreError> {
         let body = serde_json::to_string(&entity.document)?;
-        let storage = self
+        let mut storage = self
             .objects
             .create_offer(STRUCTURALIZED_OFFERS_BUCKET, &body)?;
+        storage.scraped_at = entity.scraped_at;
         let record = StructuralizedOfferPgRecord::new(entity, storage);
         diesel::insert_into(offer_details_structuralized::table)
             .values(&record)

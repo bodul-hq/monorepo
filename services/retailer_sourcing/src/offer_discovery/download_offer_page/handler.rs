@@ -4,12 +4,14 @@ use super::event::OfferPageWasDownloaded;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
 use crate::platform::http::{self, FetchError};
-use crate::platform::object_storage::Stored;
 
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
     /// Stores the page, replacing any page stored for the offer before.
-    fn store_raw_offer(&self, entity: &RawOffer) -> Result<Stored<RawOffer>, StoreError>;
+    fn store_raw_offer(
+        &self,
+        entity: &RawOffer,
+    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError>;
 }
 
 /// Fetches the body of one offer page.
@@ -63,7 +65,10 @@ impl<S: Store, F: FetchOfferPage> Handle for Handler<S, F> {
                     error,
                 })?;
 
+        let scraped_at =
+            chrono::DateTime::from_timestamp_micros(chrono::Utc::now().timestamp_micros());
         let entity = RawOffer {
+            scraped_at,
             offer_id: command.offer_id,
             retailer_code: command.retailer_code,
             url: command.url.clone(),
@@ -79,6 +84,8 @@ impl<S: Store, F: FetchOfferPage> Handle for Handler<S, F> {
         );
 
         Ok(vec![OfferPageWasDownloaded {
+            storage: Some(stored),
+            scraped_at,
             offer_id: command.offer_id,
             consolidated_sitemap_id: command.consolidated_sitemap_id,
             retailer_code: command.retailer_code,
@@ -111,7 +118,10 @@ mod tests {
     }
 
     impl Store for FakeStore {
-        fn store_raw_offer(&self, entity: &RawOffer) -> Result<Stored<RawOffer>, StoreError> {
+        fn store_raw_offer(
+            &self,
+            entity: &RawOffer,
+        ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
             if self.fail {
                 return Err(StoreError::ObjectStorage(
                     crate::platform::object_storage::Error::InvalidRecord,
@@ -122,9 +132,11 @@ mod tests {
                 "stored {:?} {}: {}",
                 entity.retailer_code, entity.url, entity.body
             ))?;
-            Ok(Stored {
-                entity: entity.clone(),
-                object_storage_id: uuid::Uuid::now_v7(),
+            Ok(crate::platform::object_storage::OfferStorageMetadata {
+                scraped_at: entity.scraped_at,
+                content_size: 0,
+                external_id: Uuid::nil(),
+                object_storage_id: Uuid::nil(),
             })
         }
     }
@@ -177,11 +189,19 @@ mod tests {
         let handler = Handler::new(FakeStore::default(), Page(Some("<html>offer</html>")));
         let command = command();
 
+        let before = chrono::Utc::now();
         let events = handler.handle(command.clone()).unwrap();
+        let time = events[0].scraped_at.unwrap();
+        assert!(time.timestamp_micros() >= before.timestamp_micros());
+        assert!(time <= chrono::Utc::now());
+        assert_eq!(time.timestamp_subsec_nanos() % 1000, 0);
+        assert_eq!(events[0].storage.unwrap().scraped_at, Some(time));
 
         assert_eq!(
             events,
             vec![OfferPageWasDownloaded {
+                storage: events[0].storage,
+                scraped_at: events[0].scraped_at,
                 offer_id: command.offer_id,
                 consolidated_sitemap_id: command.consolidated_sitemap_id,
                 retailer_code: RetailerCode::UgreenCa,

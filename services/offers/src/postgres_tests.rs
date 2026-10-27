@@ -760,6 +760,7 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        scraped_at: None,
         images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "USB charger".into(),
@@ -839,6 +840,7 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     };
     for number in 0..3 {
         let command = crate::offers::command::ImportOfferDetailsCommand {
+            scraped_at: None,
             images: Vec::new(),
             retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
             title: "Charger".into(),
@@ -1123,6 +1125,7 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        scraped_at: None,
         images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
@@ -1247,6 +1250,7 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
     ];
     for repository in repositories {
         let entity = crate::read_offer::entity::RetailerOffer {
+            scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::now_v7().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
@@ -1357,10 +1361,18 @@ async fn image_imports_emit_append_only_events_through_existing_handler() {
 fn image_migration_preserves_preexisting_offer_rows() {
     let (_schema, pool) = inbox_test_database();
     let mut connection = pool.get().unwrap();
-    connection.revert_last_migration(MIGRATIONS).unwrap();
+    connection
+        .batch_execute(include_str!(
+            "../migrations/2026-10-25-000001_offer_images/down.sql"
+        ))
+        .unwrap();
     connection.batch_execute("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at) VALUES (gen_random_uuid(),'ankerau','https://shop.example/old','Old offer',123,'AUD',now())").unwrap();
     let before = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
-    connection.run_pending_migrations(MIGRATIONS).unwrap();
+    connection
+        .batch_execute(include_str!(
+            "../migrations/2026-10-25-000001_offer_images/up.sql"
+        ))
+        .unwrap();
     assert_eq!(
         inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o"),
         before
@@ -1380,6 +1392,7 @@ fn creation_projection_rolls_back_parent_and_images_together() {
     use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
     let (_schema, pool) = inbox_test_database();
     let entity = crate::read_offer::entity::RetailerOffer {
+        scraped_at: None,
         id: RetailerOfferId::new(Uuid::now_v7().to_string()),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
@@ -1412,6 +1425,40 @@ fn creation_projection_rolls_back_parent_and_images_together() {
         .unwrap();
     repository.insert(&entity).unwrap();
     assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn scrape_only_import_persists_history_projection_and_outbox() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/scrape", "scraped_at":"2026-10-26T14:00:00.123456+02:00"});
+    for (time, events) in [
+        ("2026-10-26T14:00:00.123456+02:00", 1),
+        ("2026-10-26T12:00:01.123456Z", 1),
+        ("2026-10-26T12:00:00.123456Z", 0),
+    ] {
+        input["scraped_at"] = json!(time);
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, events).await;
+    }
+    let row = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    assert_eq!(row["scraped_at"], "2026-10-26T12:00:01.123456+00:00");
+    let count = inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM event_store");
+    assert_eq!(count, 2);
+    let event = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferScrapedAtUpdated'",
+    );
+    assert_eq!(event["scraped_at"], "2026-10-26T12:00:01.123456Z");
 }
 
 #[tokio::test]

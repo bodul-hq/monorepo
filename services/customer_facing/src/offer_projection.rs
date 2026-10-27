@@ -24,6 +24,8 @@ use uuid::Uuid;
 #[derive(Deserialize)]
 struct Created {
     #[serde(default)]
+    scraped_at: Option<DateTime<Utc>>,
+    #[serde(default)]
     images: Vec<String>,
     id: Uuid,
     retailer_code: RetailerCode,
@@ -52,7 +54,14 @@ struct ImageAdded {
     position: u32,
 }
 
+#[derive(Deserialize)]
+struct ScrapedAtUpdated {
+    id: Uuid,
+    scraped_at: DateTime<Utc>,
+}
+
 enum Change {
+    ScrapedAt(ScrapedAtUpdated),
     Image(ImageAdded),
     Created(Created),
     Title(TitleChanged),
@@ -71,6 +80,9 @@ impl Change {
             return Err(invalid("price must be a JSON object"));
         }
         let change = match kind {
+            "OfferScrapedAtUpdated" => {
+                Self::ScrapedAt(serde_json::from_value(payload).map_err(invalid)?)
+            }
             "OfferImageAdded" => Self::Image(serde_json::from_value(payload).map_err(invalid)?),
             "OfferCreated" => Self::Created(serde_json::from_value(payload).map_err(invalid)?),
             "OfferTitleChanged" => Self::Title(serde_json::from_value(payload).map_err(invalid)?),
@@ -96,7 +108,7 @@ impl Change {
                 Some(&offer.title)
             }
             Self::Title(change) => Some(&change.title),
-            Self::Price(_) => None,
+            Self::Price(_) | Self::ScrapedAt(_) => None,
             Self::Image(change) => {
                 if !shared::images::is_valid(&change.image_url) {
                     return Err(invalid("invalid image URL"));
@@ -112,6 +124,12 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
+            Self::ScrapedAt(change) => diesel::sql_query(
+                "UPDATE offers SET scraped_at = GREATEST(scraped_at, $2) WHERE id = $1",
+            )
+            .bind::<SqlUuid, _>(change.id)
+            .bind::<Timestamptz, _>(change.scraped_at)
+            .execute(connection)?,
             Self::Image(change) => diesel::sql_query(
                 "INSERT INTO offer_images (offer_id, image_url, position) VALUES ($1,$2,$3)
                  ON CONFLICT (offer_id, position) DO UPDATE SET image_url = EXCLUDED.image_url
@@ -123,8 +141,8 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
@@ -133,6 +151,7 @@ impl Change {
                 .bind::<Text, _>(offer.price.currency().as_str())
                 .bind::<Text, _>(&offer.url)
                 .bind::<Timestamptz, _>(offer.created_at)
+                .bind::<diesel::sql_types::Nullable<Timestamptz>, _>(offer.scraped_at)
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(

@@ -10,6 +10,8 @@ pub enum ProductOfferCommand {
 #[derive(Serialize, Deserialize)]
 pub struct ImportOfferDetailsCommand {
     #[serde(default)]
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default)]
     pub images: Vec<String>,
     pub retailer_code: RetailerCode,
     pub title: String,

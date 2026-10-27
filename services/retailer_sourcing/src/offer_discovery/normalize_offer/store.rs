@@ -6,7 +6,7 @@ use super::entity::{ExtractedOffer, NormalizedOffer};
 use super::handler::Store;
 use crate::platform::db::{self, DbPool};
 use crate::platform::object_storage::{
-    self, EXTRACTED_OFFERS_BUCKET, NORMALIZED_OFFERS_BUCKET, ObjectStorage, Stored,
+    self, EXTRACTED_OFFERS_BUCKET, NORMALIZED_OFFERS_BUCKET, ObjectStorage,
 };
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
@@ -35,7 +35,19 @@ impl PgStore {
 }
 
 impl Store for PgStore {
-    fn extracted_offer(&self, offer_id: Uuid) -> Result<Option<ExtractedOffer>, StoreError> {
+    fn extracted_offer(
+        &self,
+        offer_id: Uuid,
+        storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+    ) -> Result<Option<ExtractedOffer>, StoreError> {
+        if let Some(storage) = storage {
+            let body = self.objects.get_offer(EXTRACTED_OFFERS_BUCKET, &storage)?;
+            return Ok(Some(ExtractedOffer {
+                object_storage_id: storage.object_storage_id,
+                offer_id,
+                document: serde_json::from_str(&body)?,
+            }));
+        }
         let mut connection = self.pool.get()?;
         let record = offer_details_extracted::table
             .filter(offer_details_extracted::offer_id.eq(offer_id))
@@ -59,9 +71,10 @@ impl Store for PgStore {
     fn store_normalized_offer(
         &self,
         entity: &NormalizedOffer,
-    ) -> Result<Stored<NormalizedOffer>, StoreError> {
+    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
         let body = serde_json::to_string(&entity.document)?;
-        let storage = self.objects.create_offer(NORMALIZED_OFFERS_BUCKET, &body)?;
+        let mut storage = self.objects.create_offer(NORMALIZED_OFFERS_BUCKET, &body)?;
+        storage.scraped_at = entity.scraped_at;
         let record = NormalizedOfferPgRecord::new(entity, storage);
         diesel::insert_into(offer_details_normalized::table)
             .values(&record)
@@ -72,9 +85,6 @@ impl Store for PgStore {
                 offer_details_normalized::storage.eq(&record.storage),
             ))
             .execute(&mut self.pool.get()?)?;
-        Ok(Stored {
-            entity: entity.clone(),
-            object_storage_id: storage.object_storage_id,
-        })
+        Ok(storage)
     }
 }

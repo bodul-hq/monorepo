@@ -14,6 +14,11 @@ pub struct RetailerOfferRepositoryError(String);
 
 /// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
 pub trait RetailerOfferRepository: Send + Sync {
+    fn update_scraped_at(
+        &self,
+        id: &RetailerOfferId,
+        scraped_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<(), RetailerOfferRepositoryError>;
     fn add_image(
         &self,
         event: &crate::offers::event::OfferImageAddedEvent,
@@ -68,6 +73,7 @@ pub(crate) mod tests {
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferRepository) {
         let entity = RetailerOffer {
+            scraped_at: None,
             images: vec![
                 "https://shop.example/A".into(),
                 "https://shop.example/B".into(),

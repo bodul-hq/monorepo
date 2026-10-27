@@ -357,3 +357,13 @@ invalid or duplicate event images are rejected. Separate `OfferImageAdded` event
 are emitted only by updates, while already queued legacy additions remain
 supported. Deploy this consumer before the new offers producer; see
 [ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md).
+
+## Scrape time
+
+The successful download instant travels with immutable artifact references through
+v3 and newer exports to `OfferCreated` and `OfferScrapedAtUpdated`. Old imports/events retain
+unknown time. Newer times advance the aggregate and both projections even when
+content is unchanged; absent, equal and older times never erase or regress it.
+Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
+independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
+for provenance, compatibility and deployment order.

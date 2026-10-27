@@ -4,7 +4,7 @@ use testimony_infra::prelude::DbPool;
 
 use crate::offers::event::{
     OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
-    OFFER_TITLE_CHANGED_EVENT,
+    OFFER_SCRAPED_AT_UPDATED_EVENT, OFFER_TITLE_CHANGED_EVENT,
 };
 
 pub struct CustomerFacingSubscriber {
@@ -25,6 +25,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | OFFER_TITLE_CHANGED_EVENT
                 | OFFER_PRICE_CHANGED_EVENT
                 | OFFER_IMAGE_ADDED_EVENT
+                | OFFER_SCRAPED_AT_UPDATED_EVENT
         ) {
             return Ok(());
         }
@@ -81,6 +82,7 @@ mod tests {
             OFFER_IMAGE_ADDED_EVENT,
             OFFER_CREATED_EVENT,
             OFFER_TITLE_CHANGED_EVENT,
+            OFFER_SCRAPED_AT_UPDATED_EVENT,
             OFFER_PRICE_CHANGED_EVENT,
         ] {
             let envelope = NewEventEnvelope {

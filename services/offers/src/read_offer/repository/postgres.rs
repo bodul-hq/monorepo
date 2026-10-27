@@ -18,6 +18,22 @@ impl PostgresRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for PostgresRetailerOfferRepository {
+    fn update_scraped_at(
+        &self,
+        id: &super::RetailerOfferId,
+        scraped_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        let id = uuid::Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        let count = diesel::sql_query(
+            "UPDATE read_offers SET scraped_at = GREATEST(scraped_at, $2) WHERE id = $1",
+        )
+        .bind::<SqlUuid, _>(id)
+        .bind::<diesel::sql_types::Timestamptz, _>(scraped_at)
+        .execute(&mut self.pool.get().map_err(super::err_update)?)
+        .map_err(super::err_update)?;
+        require_updated_offer(count)
+    }
+
     fn images(
         &self,
         id: &super::RetailerOfferId,
@@ -66,8 +82,8 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
         connection
             .transaction::<_, diesel::result::Error, _>(|connection| {
                 diesel::sql_query(
-                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                    "INSERT INTO read_offers (id, retailer_code, url, title, price_amount, currency, created_at, scraped_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
                 )
                 .bind::<SqlUuid, _>(id)
                 .bind::<Text, _>(entity.retailer_code.as_str())
@@ -76,6 +92,7 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
                 .bind::<diesel::sql_types::BigInt, _>(entity.price.amount())
                 .bind::<Text, _>(entity.price.currency().as_str())
                 .bind::<diesel::sql_types::Timestamptz, _>(entity.created_at)
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Timestamptz>, _>(entity.scraped_at)
                 .execute(connection)?;
                 for (position, image_url) in entity.images.iter().enumerate() {
                     diesel::sql_query(

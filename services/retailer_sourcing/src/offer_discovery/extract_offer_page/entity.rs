@@ -11,6 +11,7 @@ pub(super) struct RawOffer {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct ExtractedOffer {
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub offer_id: Uuid,
     pub document: Value,
 }

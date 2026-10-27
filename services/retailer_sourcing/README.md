@@ -770,3 +770,13 @@ Updating the service lets pending normalization commands read their existing
 extractions with the corrected retailer parsers; no re-extraction is required
 for these metadata/gallery fixes. Exhausted commands still require the existing
 queue retry procedure. This change does not reset queue statuses.
+
+## Scrape time
+
+The successful download instant travels with immutable artifact references through
+v3 and newer exports to `OfferCreated` and `OfferScrapedAtUpdated`. Old imports/events retain
+unknown time. Newer times advance the aggregate and both projections even when
+content is unchanged; absent, equal and older times never erase or regress it.
+Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
+independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
+for provenance, compatibility and deployment order.

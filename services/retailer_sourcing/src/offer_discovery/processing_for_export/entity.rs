@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};
 
-pub const SCHEMA_VERSION: u32 = 2;
+pub const SCHEMA_VERSION: u32 = 3;
 
 pub fn legacy_schema_version() -> u32 {
     1
@@ -26,6 +26,8 @@ pub struct ExportSource {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OfferImport {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
@@ -79,8 +81,18 @@ pub struct OfferExport {
 
 impl OfferExport {
     pub fn valid_schema(&self) -> bool {
-        matches!(self.schema_version, 1 | 2)
+        matches!(self.schema_version, 1..=3)
+            && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
+                if entry.payload.scraped_at
+                    != (if self.schema_version >= 3 {
+                        self.source.storage.scraped_at
+                    } else {
+                        None
+                    })
+                {
+                    return false;
+                }
                 if self.schema_version == 1 {
                     entry.payload.images.is_none()
                 } else {

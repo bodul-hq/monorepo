@@ -35,8 +35,13 @@ pub(super) fn convert(
     body: &str,
     schema_version: u32,
 ) -> Result<OfferExport, ConversionError> {
-    if !matches!(schema_version, 1 | 2) {
+    if !matches!(schema_version, 1..=3) {
         return Err(ConversionError("unsupported schema version".into()));
+    }
+    if schema_version < 3 && source.storage.scraped_at.is_some() {
+        return Err(ConversionError(
+            "legacy export source cannot carry scrape time".into(),
+        ));
     }
     let input: StructuralizedDocument =
         serde_json::from_str(body).map_err(|error| ConversionError(error.to_string()))?;
@@ -50,7 +55,7 @@ pub(super) fn convert(
                 "variation {variation_index} repeats a retailer/URL identity"
             )));
         }
-        let images = if schema_version == 2 {
+        let images = if schema_version >= 2 {
             let (images, skipped) = shared::images::filter(
                 serde_json::from_value(variation.images)
                     .map_err(|error| ConversionError(error.to_string()))?,
@@ -72,6 +77,11 @@ pub(super) fn convert(
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                scraped_at: if schema_version >= 3 {
+                    source.storage.scraped_at
+                } else {
+                    None
+                },
                 images,
                 retailer_code: source.retailer_code,
                 title: variation.title,
@@ -134,6 +144,7 @@ pub(super) mod tests {
             retailer_code: RetailerCode::AnkerAu,
             url: "https://shop.example/Charger".into(),
             storage: OfferStorageMetadata {
+                scraped_at: None,
                 object_storage_id: Uuid::now_v7(),
                 external_id: Uuid::now_v7(),
                 content_size: ANKER.len() as u64,
@@ -306,7 +317,7 @@ pub(super) mod tests {
                 .images,
             Some(vec![])
         );
-        assert!(convert(source(), ANKER, 3).is_err());
+        assert!(convert(source(), ANKER, 99).is_err());
     }
 
     #[test]
@@ -320,5 +331,34 @@ pub(super) mod tests {
             serde_json::to_value(&output.entries[0].payload).unwrap(),
             fixture
         );
+    }
+}
+
+#[cfg(test)]
+mod scrape_tests {
+    use super::*;
+    #[test]
+    fn v3_preserves_time_while_legacy_versions_preserve_their_shape() {
+        let mut source = tests::source();
+        for version in [1, 2] {
+            let snapshot = convert(source.clone(), tests::ANKER, version).unwrap();
+            let json = serde_json::to_value(&snapshot).unwrap();
+            assert!(json["source"]["storage"].get("scraped_at").is_none());
+            for entry in json["entries"].as_array().unwrap() {
+                assert!(entry["payload"].get("scraped_at").is_none());
+            }
+            assert!(snapshot.valid_schema());
+        }
+        source.storage.scraped_at =
+            Some(chrono::DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap());
+        let snapshot = convert(source.clone(), tests::ANKER, 3).unwrap();
+        assert!(snapshot.valid_schema());
+        for entry in &snapshot.entries {
+            assert_eq!(entry.payload.scraped_at, source.storage.scraped_at);
+        }
+        assert!(convert(source, tests::ANKER, 2).is_err());
+        let mut invalid = snapshot.clone();
+        invalid.entries[0].payload.scraped_at = None;
+        assert!(!invalid.valid_schema());
     }
 }

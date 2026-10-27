@@ -8,7 +8,7 @@ use super::super::schema::offer_details_raw;
 use super::entity::RawOffer;
 use super::handler::Store;
 use crate::platform::db::{self, DbPool};
-use crate::platform::object_storage::{self, ObjectStorage, RAW_OFFERS_BUCKET, Stored};
+use crate::platform::object_storage::{self, ObjectStorage, RAW_OFFERS_BUCKET};
 
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {
@@ -37,9 +37,13 @@ impl PgStore {
 }
 
 impl Store for PgStore {
-    fn store_raw_offer(&self, entity: &RawOffer) -> Result<Stored<RawOffer>, StoreError> {
+    fn store_raw_offer(
+        &self,
+        entity: &RawOffer,
+    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
         record::validate(entity)?;
-        let storage = self.objects.create_offer(RAW_OFFERS_BUCKET, &entity.body)?;
+        let mut storage = self.objects.create_offer(RAW_OFFERS_BUCKET, &entity.body)?;
+        storage.scraped_at = entity.scraped_at;
         let record = RawOfferPgRecord::new(entity, storage);
         diesel::insert_into(offer_details_raw::table)
             .values(&record)
@@ -51,9 +55,6 @@ impl Store for PgStore {
                 offer_details_raw::fetched_at.eq(diesel::dsl::now),
             ))
             .execute(&mut self.pool.get()?)?;
-        Ok(Stored {
-            entity: entity.clone(),
-            object_storage_id: storage.object_storage_id,
-        })
+        Ok(storage)
     }
 }

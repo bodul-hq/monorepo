@@ -12,6 +12,7 @@ mod model {
 
     #[derive(Object)]
     pub struct ImportOfferRequest {
+        pub scraped_at: Option<String>,
         #[oai(default)]
         pub images: Vec<String>,
         pub retailer_code: String,
@@ -31,14 +32,24 @@ mod conversion {
     use super::{IMPORT_SOURCE, ImportOfferRequest, inbox};
     use crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND;
 
+    fn err_invalid_scraped_at(error: chrono::ParseError) -> String {
+        format!("invalid scraped_at: {error}")
+    }
+
     impl TryFrom<ImportOfferRequest> for inbox::SubmitInboxRequest {
         type Error = String;
 
         fn try_from(request: ImportOfferRequest) -> Result<Self, Self::Error> {
+            let scraped_at = request
+                .scraped_at
+                .as_deref()
+                .map(str::parse::<chrono::DateTime<chrono::Utc>>)
+                .transpose()
+                .map_err(err_invalid_scraped_at)?;
             let retailer_code = RetailerCode::from_str(&request.retailer_code)?;
             let currency: Currency = request.currency.parse()?;
 
-            let payload = json!({
+            let mut payload = json!({
                 "retailer_code": retailer_code,
                 "title": request.title,
                 "price": { "amount": request.price_amount, "currency": currency },
@@ -46,6 +57,9 @@ mod conversion {
                 "images": request.images,
             });
 
+            if let Some(scraped_at) = scraped_at {
+                payload["scraped_at"] = json!(scraped_at);
+            }
             let submission = Self {
                 payload: Some(payload),
                 routing_key: CREATE_FROM_OFFER_DETAILS_COMMAND.to_owned(),
@@ -100,6 +114,7 @@ mod tests {
     fn request_converts_directly_to_a_command_compatible_inbox_message() {
         for amount in [0, 1999, i64::MAX] {
             let request = ImportOfferRequest {
+                scraped_at: None,
                 images: Vec::new(),
                 retailer_code: "ankerau".into(),
                 title: " USB charger ".into(),

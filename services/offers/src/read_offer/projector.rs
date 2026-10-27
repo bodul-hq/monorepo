@@ -20,6 +20,13 @@ impl<R: RetailerOfferRepository> RetailerOfferProjector<R> {
 impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<R> {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         match envelope.event_type.as_str() {
+            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT => {
+                let event: crate::offers::event::OfferScrapedAtUpdatedEvent =
+                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                self.repository
+                    .update_scraped_at(&event.id, event.scraped_at)
+                    .map_err(err_projection_failed)
+            }
             crate::offers::event::OFFER_IMAGE_ADDED_EVENT => {
                 let event = serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
@@ -31,6 +38,7 @@ impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<
                     serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
 
                 let entity = RetailerOffer {
+                    scraped_at: event.scraped_at,
                     images: event.images,
                     id: event.id,
                     retailer_code: event.retailer_code,
@@ -82,6 +90,18 @@ mod tests {
     struct RecordingRepository(Mutex<Option<RetailerOffer>>);
 
     impl RetailerOfferRepository for RecordingRepository {
+        fn update_scraped_at(
+            &self,
+            id: &RetailerOfferId,
+            scraped_at: chrono::DateTime<chrono::Utc>,
+        ) -> Result<(), RetailerOfferRepositoryError> {
+            let mut state = self.0.lock().unwrap();
+            let entity = state.as_mut().unwrap();
+            assert_eq!(&entity.id, id);
+            entity.scraped_at = entity.scraped_at.max(Some(scraped_at));
+            Ok(())
+        }
+
         fn images(&self, _: &RetailerOfferId) -> Result<Vec<String>, RetailerOfferRepositoryError> {
             Ok(Vec::new())
         }
@@ -124,6 +144,7 @@ mod tests {
     fn maps_supported_events_and_rejects_malformed_payloads() {
         let projector = RetailerOfferProjector::new(RecordingRepository::default());
         let event = OfferCreatedEvent {
+            scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
@@ -147,6 +168,7 @@ mod tests {
         ));
         projector.handle(&envelope).unwrap();
         let mut expected = RetailerOffer {
+            scraped_at: None,
             images: Vec::new(),
             id: event.id.clone(),
             retailer_code: event.retailer_code,

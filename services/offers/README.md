@@ -241,7 +241,7 @@ queues the command and `/api/commands/run` executes it through
 input returns `400`; inbox storage failures return `500` with `inbox message
 could not be stored`. The generated offer UUID is new for every import:
 identity deduplication, update commands, and receipts are not wired yet.
-Stored records use `OfferCreated.v2` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
+Stored records use `OfferCreated.v3` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
 and `OfferPriceChanged.v1`. Existing records in earlier formats are not migrated.
 
 Other active routes are `/api/health`, `/api/openapi.json`, `/api/docs/`, and
@@ -514,7 +514,7 @@ Updates retain title-then-price ordering and append only unseen images. Importin
 remove images. The raw image event is
 `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`;
 the update event's Testimony tag is `OfferImageAdded.v1`. New creation records
-use `OfferCreated.v2`; readers also accept `OfferCreated.v1` without images.
+use `OfferCreated.v3`; readers also accept `OfferCreated.v1` without images.
 Missing images in old creation payloads mean `[]`. History replay initializes
 images from creation before applying any subsequent additions.
 
@@ -545,3 +545,13 @@ No-op imports consume no revisions. Legacy metadata may omit sequence; present
 values are positive integers bounded by PostgreSQL BIGINT. The optional-sequence
 Mulac prerequisite `dc60f443e4a2ed4a3e763855fe473426732baef1` is required. HTTP forwarding does not carry this metadata or
 provide source-order guarantees. See [ADR 27](../../docs/adr/0027-offer-revision-metadata.md).
+
+## Scrape time
+
+The successful download instant travels with immutable artifact references through
+v3 and newer exports to `OfferCreated` and `OfferScrapedAtUpdated`. Old imports/events retain
+unknown time. Newer times advance the aggregate and both projections even when
+content is unchanged; absent, equal and older times never erase or regress it.
+Customer-facing returns nullable `scraped_at` (REST) and `scrapedAt` (GraphQL),
+independent of creation time. See [ADR 26](../../docs/adr/0026-offer-scrape-provenance.md)
+for provenance, compatibility and deployment order.

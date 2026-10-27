@@ -74,6 +74,10 @@ impl CustomerFacingPublisher {
             return Err(err_payload());
         }
         let parsed = match event_type {
+            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT => serde_json::from_value::<
+                crate::offers::event::OfferScrapedAtUpdatedEvent,
+            >(payload.clone())
+            .map(|_| ()),
             OFFER_IMAGE_ADDED_EVENT => {
                 serde_json::from_value::<OfferImageAddedEvent>(payload.clone()).and_then(|event| {
                     if shared::images::is_valid(&event.image_url) {

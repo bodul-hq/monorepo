@@ -24,6 +24,9 @@ pub struct Stored<T> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct OfferStorageMetadata {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
     pub content_size: u64,
     #[schema(value_type = String, format = "uuid")]
     pub object_storage_id: Uuid,
@@ -92,6 +95,7 @@ impl ObjectStorage {
         let external_id = Uuid::now_v7();
         let object_storage_id = self.create(bucket, external_id, body)?;
         Ok(OfferStorageMetadata {
+            scraped_at: None,
             content_size: body.len() as u64,
             object_storage_id,
             external_id,

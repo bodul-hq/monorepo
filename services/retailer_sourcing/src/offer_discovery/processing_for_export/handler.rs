@@ -15,6 +15,8 @@ pub(super) trait Store: Send + Sync + 'static {
 
 #[derive(Debug, thiserror::Error)]
 pub enum HandlerError {
+    #[error("scrape time disagrees with the pinned structuralized artifact")]
+    ConflictingScrapeTime,
     #[error(
         "offer {0} has no pinned structuralized source; run fresh structuralization before exporting"
     )]
@@ -42,6 +44,9 @@ impl<S: Store> Handle for Handler<S> {
         let storage = command
             .storage
             .ok_or(HandlerError::UnpinnedSource(command.offer_id))?;
+        if command.scraped_at != storage.scraped_at {
+            return Err(HandlerError::ConflictingScrapeTime);
+        }
         let source = ExportSource {
             offer_id: command.offer_id,
             consolidated_sitemap_id: command.consolidated_sitemap_id,
@@ -107,6 +112,7 @@ mod tests {
     fn command() -> ProcessOfferForExport {
         let source = source();
         ProcessOfferForExport {
+            scraped_at: None,
             schema_version: 2,
             offer_id: source.offer_id,
             consolidated_sitemap_id: source.consolidated_sitemap_id,
@@ -137,6 +143,20 @@ mod tests {
     }
 
     #[test]
+    fn export_rejects_a_timestamp_from_another_source_before_preparing() {
+        let handler = Handler::new(FakeStore {
+            fail_prepare: true,
+            fail_complete: true,
+        });
+        let mut command = command();
+        command.scraped_at = Some("2026-10-26T12:00:00Z".parse().unwrap());
+        assert!(matches!(
+            handler.handle(command),
+            Err(HandlerError::ConflictingScrapeTime)
+        ));
+    }
+
+    #[test]
     fn legacy_event_decodes_but_requires_fresh_structuralization() {
         let mut json = serde_json::to_value(command()).unwrap();
         json.as_object_mut().unwrap().remove("storage");
@@ -153,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v2() {
+    fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v3() {
         let mut value = serde_json::to_value(command()).unwrap();
         value.as_object_mut().unwrap().remove("schema_version");
         let legacy: ProcessOfferForExport = serde_json::from_value(value.clone()).unwrap();
@@ -161,7 +181,7 @@ mod tests {
         let source: OfferWasStructuralized = serde_json::from_value(value).unwrap();
         assert_eq!(
             super::super::reacts_to::on(&source).unwrap().schema_version,
-            2
+            3
         );
     }
 }

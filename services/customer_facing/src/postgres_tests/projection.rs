@@ -86,7 +86,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let mut expected = json!({
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
-        "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
+        "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
     let title_message = apply(
@@ -541,14 +541,21 @@ fn image_migration_preserves_existing_projection_and_receipts() {
     let (_schema, pool) = database(true);
     pool.get()
         .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-25-000001_offer_images/down.sql"
+        ))
         .unwrap();
     let projection = crate::offer_projection::Projection(pool.clone());
     let id = Uuid::now_v7();
     let command = envelope(Uuid::now_v7(), "OfferCreated", &created(id));
     projection.execute(&command).unwrap();
     let before = offer(&pool);
-    bootstrap::migrate(&pool).unwrap();
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-25-000001_offer_images/up.sql"
+        ))
+        .unwrap();
     assert_eq!(offer(&pool), before);
     assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
     projection.execute(&command).unwrap();
@@ -634,4 +641,58 @@ async fn creation_images_commit_with_parent_and_receipt_then_updates_append() {
         assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
     }
     kernel.shutdown();
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn scrape_time_is_monotonic_with_atomic_receipts_and_public_api_parity() {
+    let (_schema, pool) = database(true);
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let mut initial = created(id);
+    initial["scraped_at"] = json!("2026-10-26T14:00:00.123456+02:00");
+    apply(&client, "OfferCreated", &initial).await;
+    for time in [
+        "2026-10-26T12:00:01.123456Z",
+        "2026-10-26T12:00:00.123456Z",
+        "2026-10-26T12:00:01.123456Z",
+    ] {
+        let change = json!({"id":id,"scraped_at":time});
+        let message = apply(&client, "OfferScrapedAtUpdated", &change).await;
+        replay_inbox(&pool, message);
+        advance(&client, "inbox", 1).await;
+        advance(&client, "commands", 1).await;
+        assert_eq!(
+            offer(&pool)["scraped_at"],
+            "2026-10-26T12:00:01.123456+00:00"
+        );
+    }
+    let response = client.get("/api/offers").send().await;
+    let page: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        page["items"][0]["scraped_at"],
+        "2026-10-26T12:00:01.123456Z"
+    );
+    let response = client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ offers { items { scrapedAt } } }"}))
+        .send()
+        .await;
+    let graph: Value = response.json().await.value().deserialize();
+    assert_eq!(
+        graph["data"]["offers"]["items"][0]["scrapedAt"],
+        page["items"][0]["scraped_at"]
+    );
+    let before = projection_counts(&pool);
+    let missing = json!({"id":Uuid::now_v7(),"scraped_at":"2026-10-26T12:00:01Z"});
+    submit(&client, "OfferScrapedAtUpdated", &missing, Uuid::now_v7()).await;
+    advance(&client, "inbox", 1).await;
+    assert!(
+        !run(&client, "commands", 100).await["errors"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(projection_counts(&pool), before);
 }
