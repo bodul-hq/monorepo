@@ -41,12 +41,50 @@ a styled 503 with a retry link and no upstream diagnostics. All pages use
 
 Prices retain their currency and use integer arithmetic with the existing
 `money::Currency::exponent()`, including zero-decimal currencies and the full
-signed i64 range. Dynamic values are HTML-escaped; only absolute HTTP(S) URLs
-without credentials become store links. Offers with other URLs remain visible.
+signed i64 range. Symbols, placement and separators follow a fixed convention
+per currency, independent of retailer country and browser language. The visible
+price uses a symbol; assistive technology receives a single ungrouped amount
+with its ISO currency code. No currency conversion occurs.
+
+| Currency | Example display |
+| --- | --- |
+| USD | `$1,234.56` |
+| EUR | `1.234,56 €` |
+| CAD | `CA$1,234.56` |
+| AUD | `A$1,234.56` |
+| GBP | `£1,234.56` |
+| JPY | `¥1,234` |
+| KRW | `₩1,234` |
+| HKD | `HK$1,234.56` |
+| PLN | `1 234,56 zł` |
+| SEK | `1 234,56 kr` |
+| VND | `1.234 ₫` |
+| NZD | `NZ$1,234.56` |
+| INR | `₹1,23,456.78` |
+
+Suffix spacing and PLN/SEK group separators use U+00A0 nonbreaking spaces.
+Fractional digits are retained even for whole amounts; JPY, KRW and VND have
+none. A negative amount has a leading `−`, such as `−$0.01`.
+
+Titles are parsed as HTML fragments for display: tags, comments and
+script/style/template content are removed, character references are decoded
+once, and whitespace and block boundaries become single spaces. Encoded
+literal tags remain plain text. The resulting title is shared by the heading,
+image alt text and link description, with “Untitled offer” used if it is empty.
+The original API title is not changed.
+
+Dynamic values, including the cleaned title, are HTML-escaped; only absolute
+HTTP(S) URLs without credentials become store links. Offers with other URLs
+remain visible.
 Each card renders only the first image, after URL validation and HTML escaping,
 with offer-title alt text, lazy loading, a 4:3 aspect ratio and object containment.
 The browser requests retailer images directly. Missing or unsafe images use an
 empty area; a failed load leaves title, price and purchase navigation usable.
+The retailer code overlays the top-left of the image area with a semi-transparent grey
+background, including when no image is available. Price and the offer action
+share a footer row, wrapping on narrow cards when needed. “View offer” opens a
+new tab with opener isolation and an accessible announcement; pagination stays
+in the current tab.
 Older APIs may omit `images`. Desktop/mobile layouts support light and dark
 preferences. Search, filters, conversion and background fetching are not included.
 
@@ -61,10 +99,12 @@ make -C .. audit
 
 Rust tests use local HTTP fixtures and Poem's test client to cover outbound
 requests, prefixes, 30/1/empty pages, pagination, timeouts, redirects, malformed
-data, error pages, escaping, unsafe URLs and exact price formatting. Rendering
-tests check the absence of scripts. CSS is embedded with `include_str!`; review
-the served page at desktop and mobile widths after layout changes. There is no
-separate CSS test runner.
+data, error pages, escaping, unsafe URLs, all currency conventions and exact
+integer limits. Title tests cover malformed markup, excluded content, entity
+decoding, Unicode and consistent heading/alt/link text. Rendering tests check
+the absence of scripts and the accessible price description. CSS is embedded
+with `include_str!`; review the served page at desktop and mobile widths after
+layout changes. There is no separate CSS test runner.
 
 For a combined check, process 31 unique `OfferCreated` inbox messages through
 customer-facing's inbox and command queues in an isolated test schema. Verify

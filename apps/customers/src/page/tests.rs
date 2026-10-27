@@ -1,7 +1,7 @@
 use super::*;
 use crate::offers::tests::{fixture, page};
-use money::Currency;
 use poem::test::TestClient;
+use scraper::{Html as ParsedHtml, Selector};
 use std::time::Duration;
 
 #[tokio::test]
@@ -32,7 +32,23 @@ async fn homepage_fetches_and_renders_thirty_then_one_without_scripts() {
         assert_eq!(html.contains("rel=\"next\""), more);
         assert_eq!(html.contains("rel=\"prev\""), offset > 0);
         if count > 0 {
+            assert!(html.contains("<span aria-hidden=\"true\">A$19.99</span>"));
             assert!(html.contains("19.99 AUD"));
+        }
+        for anchor in html.split("<a ").skip(1) {
+            let attributes = anchor.split('>').next().unwrap();
+            let outbound = attributes.contains("class=\"offer-link\"");
+            assert_eq!(attributes.contains("target=\"_blank\""), outbound);
+            assert_eq!(attributes.contains("rel=\"noopener\""), outbound);
+            if outbound {
+                assert!(
+                    anchor
+                        .split("</a>")
+                        .next()
+                        .unwrap()
+                        .contains("opens in a new tab")
+                );
+            }
         }
         if offset == 0 {
             assert!(html.contains("href=\"/?offset=30\""));
@@ -100,7 +116,9 @@ fn escapes_values_and_only_links_safe_absolute_urls() {
     let html = render(&data);
     assert!(!html.contains("<script"));
     assert!(!html.contains("<img"));
-    assert!(html.contains("&lt;script&gt;alert(&quot;x&quot;)"));
+    assert!(html.contains("<h3>&amp; &#39;quoted&#39;</h3>"));
+    assert!(html.contains("&lt;img src=x onerror=alert(1)&gt;"));
+    assert!(!html.contains("alert(&quot;x&quot;)"));
     assert!(html.contains("&amp;variant=2#details"));
     for url in [
         "javascript:alert(1)",
@@ -118,30 +136,6 @@ fn escapes_values_and_only_links_safe_absolute_urls() {
     }
     assert!(safe_link("http://example.com"));
     assert!(safe_link("https://example.com/a?b=2#details"));
-}
-
-#[test]
-fn price_formatting_preserves_all_minor_units() {
-    for (amount, currency, expected) in [
-        (1999, Currency::AUD, "19.99 AUD"),
-        (0, Currency::EUR, "0.00 EUR"),
-        (-1, Currency::USD, "−0.01 USD"),
-        (123, Currency::JPY, "123 JPY"),
-        (123, Currency::KRW, "123 KRW"),
-        (123, Currency::VND, "123 VND"),
-        (199999, Currency::INR, "1999.99 INR"),
-        (i64::MIN, Currency::EUR, "−92233720368547758.08 EUR"),
-        (i64::MAX, Currency::USD, "92233720368547758.07 USD"),
-        (i64::MIN, Currency::JPY, "−9223372036854775808 JPY"),
-    ] {
-        assert_eq!(
-            format_price(&Price {
-                amount: amount.to_string(),
-                currency
-            }),
-            expected
-        );
-    }
 }
 
 #[test]
@@ -166,7 +160,7 @@ fn first_image_only_with_escaping_and_safe_empty_states() {
     ];
     let html = render(&data);
     assert!(html.contains("src=\"https://shop.example/front?a=1&amp;b=2\""));
-    assert!(html.contains("alt=\"A &lt;charger&gt; &amp; &quot;test&quot;\""));
+    assert!(html.contains("alt=\"A &amp; &quot;test&quot;\""));
     assert!(html.contains("loading=\"lazy\""));
     assert!(!html.contains("shop.example/back"));
     for url in [
@@ -182,5 +176,116 @@ fn first_image_only_with_escaping_and_safe_empty_states() {
         assert!(!html.contains("<img "));
         assert!(html.contains("empty-image"));
         assert!(html.contains("View offer"));
+    }
+}
+
+#[test]
+fn retailer_overlay_is_escaped_and_accessible_with_or_without_an_image() {
+    let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+    data.items[0].retailer_code = "shop<&\"example".into();
+    for images in [
+        vec!["https://shop.example/front.jpg".into()],
+        Vec::new(),
+        vec!["javascript:alert(1)".into()],
+    ] {
+        data.items[0].images = images;
+        let html = render(&data);
+        let image_area = html
+            .split("class=\"offer-image")
+            .nth(1)
+            .unwrap()
+            .split("</div>")
+            .next()
+            .unwrap();
+        assert!(
+            image_area.contains(
+                "<span class=\"retailer\"><span>shop&lt;&amp;&quot;example</span></span>"
+            )
+        );
+        assert!(!image_area.contains("aria-hidden=\"true\""));
+        assert_eq!(html.matches("class=\"retailer\"").count(), 1);
+        assert!(!html.contains("shop<&"));
+    }
+}
+
+#[test]
+fn cleaned_title_is_shared_by_heading_image_and_link_without_mutating_data() {
+    for (raw, expected) in [
+        (
+            "<b>USB</b><br>charger &amp; \"cable\"",
+            "USB charger & \"cable\"",
+        ),
+        (
+            "<style>hidden</style><script>bad</script><template>hidden</template>",
+            "Untitled offer",
+        ),
+        (
+            "&lt;img src=x onerror=alert(1)&gt; &quot;",
+            "<img src=x onerror=alert(1)> \"",
+        ),
+    ] {
+        for has_image in [false, true] {
+            for safe_url in [false, true] {
+                let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+                data.items[0].title = raw.into();
+                if has_image {
+                    data.items[0].images = vec!["https://shop.example/front.jpg".into()];
+                }
+                if !safe_url {
+                    data.items[0].url = "javascript:bad".into();
+                }
+                let html = render(&data);
+                let document = ParsedHtml::parse_document(&html);
+                let heading = document
+                    .select(&Selector::parse(".offer-card h3").unwrap())
+                    .next()
+                    .unwrap();
+                assert_eq!(heading.text().collect::<String>(), expected);
+                assert_eq!(heading.child_elements().count(), 0);
+                let image_selector = Selector::parse(".offer-card img").unwrap();
+                let images: Vec<_> = document.select(&image_selector).collect();
+                assert_eq!(images.len(), usize::from(has_image));
+                if has_image {
+                    assert_eq!(images[0].attr("alt"), Some(expected));
+                    assert_eq!(images[0].attr("onerror"), None);
+                }
+                let link_selector = Selector::parse(".offer-link .sr-only").unwrap();
+                let links: Vec<_> = document.select(&link_selector).collect();
+                assert_eq!(links.len(), usize::from(safe_url));
+                if safe_url {
+                    assert_eq!(
+                        links[0].text().collect::<String>(),
+                        format!(" for {expected} (opens in a new tab)")
+                    );
+                }
+                assert_eq!(document.select(&Selector::parse(".offer-card script, .offer-card style, .offer-card template, [onerror]").unwrap()).count(), 0);
+                assert_eq!(data.items[0].title, raw);
+            }
+        }
+    }
+}
+
+#[test]
+fn mixed_currency_prices_expose_one_accessible_amount_with_iso_currency() {
+    let mut data: Page = serde_json::from_value(page(3, 0, false)).unwrap();
+    let cases = [
+        (money::Currency::USD, "$1,234.56", "1234.56 USD"),
+        (money::Currency::EUR, "1.234,56\u{a0}€", "1234.56 EUR"),
+        (money::Currency::JPY, "¥123,456", "123456 JPY"),
+    ];
+    for (offer, (currency, _, _)) in data.items.iter_mut().zip(cases) {
+        offer.price.currency = currency;
+        offer.price.amount = "123456".into();
+    }
+    let document = ParsedHtml::parse_document(&render(&data));
+    let prices = Selector::parse(".price").unwrap();
+    for (price, (_, visible, accessible)) in document.select(&prices).zip(cases) {
+        let children: Vec<_> = price.child_elements().collect();
+        assert_eq!(children.len(), 2);
+        assert_eq!(children[0].attr("aria-hidden"), Some("true"));
+        assert_eq!(children[0].text().collect::<String>(), visible);
+        assert_eq!(children[1].attr("class"), Some("sr-only"));
+        assert_eq!(children[1].attr("aria-hidden"), None);
+        assert_eq!(children[1].text().collect::<String>(), accessible);
     }
 }

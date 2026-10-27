@@ -1,12 +1,18 @@
 use std::{fmt::Write, sync::Arc};
 
-use crate::offers::{OffersClient, PAGE_SIZE, Page, Price};
+use crate::offers::{OffersClient, PAGE_SIZE, Page};
 use poem::{
     IntoResponse, Response, handler,
     http::StatusCode,
     web::{Data, Html, Query},
 };
 use serde::Deserialize;
+
+mod price;
+mod title;
+
+use price::format_price;
+use title::display_title;
 
 #[derive(Deserialize)]
 struct Parameters {
@@ -81,24 +87,22 @@ pub fn render(page: &Page) -> String {
     } else {
         html.push_str(r#"<ul class="offers-grid">"#);
         for offer in &page.items {
+            let title = display_title(&offer.title);
+            let price = format_price(&offer.price);
             let _ = write!(
                 html,
-                r#"<li class="offer-card"><article>{}<span class="retailer">{}</span><h3>{}</h3><div class="card-bottom"><p class="price">{}</p>"#,
-                image_html(offer),
-                escape(&offer.retailer_code),
-                escape(if offer.title.trim().is_empty() {
-                    "Untitled offer"
-                } else {
-                    &offer.title
-                }),
-                escape(&format_price(&offer.price))
+                r#"<li class="offer-card"><article>{}<h3>{}</h3><div class="card-bottom"><p class="price"><span aria-hidden="true">{}</span><span class="sr-only">{}</span></p>"#,
+                image_html(offer, &title),
+                escape(&title),
+                escape(&price.visible),
+                escape(&price.accessible)
             );
             if safe_link(&offer.url) {
                 let _ = write!(
                     html,
-                    r#"<a class="offer-link" href="{}">View offer <span aria-hidden="true">↗</span><span class="sr-only"> for {}</span></a>"#,
+                    r#"<a class="offer-link" href="{}" target="_blank" rel="noopener">View offer <span aria-hidden="true">↗</span><span class="sr-only"> for {} (opens in a new tab)</span></a>"#,
                     escape(&offer.url),
-                    escape(&offer.title)
+                    escape(&title)
                 );
             } else {
                 html.push_str(r#"<span class="link-unavailable">Store link unavailable</span>"#);
@@ -153,18 +157,22 @@ fn page_url(offset: i32) -> String {
     }
 }
 
-fn image_html(offer: &crate::offers::Offer) -> String {
+fn image_html(offer: &crate::offers::Offer, title: &str) -> String {
+    let retailer = format!(
+        r#"<span class="retailer"><span>{}</span></span>"#,
+        escape(&offer.retailer_code)
+    );
     match offer
         .images
         .first()
         .filter(|url| url.len() <= 2048 && safe_link(url))
     {
         Some(url) => format!(
-            r#"<div class="offer-image"><img src="{}" alt="{}" loading="lazy" width="480" height="360"></div>"#,
+            r#"<div class="offer-image"><img src="{}" alt="{}" loading="lazy" width="480" height="360">{retailer}</div>"#,
             escape(url),
-            escape(&offer.title)
+            escape(title)
         ),
-        None => String::from(r#"<div class="offer-image empty-image" aria-hidden="true"></div>"#),
+        None => format!(r#"<div class="offer-image empty-image">{retailer}</div>"#),
     }
 }
 
@@ -198,26 +206,6 @@ fn escape(value: &str) -> String {
         }
     }
     escaped
-}
-
-fn format_price(price: &Price) -> String {
-    // The HTTP client has validated the canonical i64 representation.
-    let amount = price.amount.parse::<i64>().expect("validated price amount");
-    let magnitude = amount.unsigned_abs();
-    let exponent = price.currency.exponent();
-    let scale = 10_u64.pow(u32::from(exponent));
-    let sign = if amount < 0 { "−" } else { "" };
-    if exponent == 0 {
-        format!("{sign}{magnitude} {}", price.currency.as_str())
-    } else {
-        format!(
-            "{sign}{}.{:0width$} {}",
-            magnitude / scale,
-            magnitude % scale,
-            price.currency.as_str(),
-            width = usize::from(exponent)
-        )
-    }
 }
 
 #[cfg(test)]
