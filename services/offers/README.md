@@ -54,8 +54,11 @@ subscriber so normal event retry handling applies. Projection and outbox writes
 are not one transaction. `AppState` owns the inbox, commanding, eventing and
 outbox adapters.
 
-Mulac owns `/api/commands/run` behavior. `src/orchestration/commanding_api.rs`
-only declares the route and delegates to `mulac_poem::io::CommandingAdapter`
+The command, event and outbox runner APIs are grouped in
+`src/orchestration/bus_api.rs`, with their route tests in `bus_api/`.
+
+Mulac owns `/api/commands/run` behavior. `CommandingApi` only declares the route
+and delegates to `mulac_poem::io::CommandingAdapter`
 (feature `commanding`). The shared `commanding_api` crate validates the limit
 and runs one batch through the kernel's command consumer, so commands executed
 over HTTP still record their events without dispatching them. A failed command
@@ -63,8 +66,8 @@ is reported as its `CommandError` text, for example
 `no handler registered for command type '…'`, and is retried with backoff
 until it becomes dead after six attempts. See Mulac's ADR-010.
 
-Mulac also owns `/api/events/run` behavior. `src/orchestration/eventing_api.rs`
-only declares the route and delegates to `mulac_poem::io::EventingAdapter`
+Mulac also owns `/api/events/run` behavior. `EventingApi` only declares the route
+and delegates to `mulac_poem::io::EventingAdapter`
 (feature `eventing`). The shared `eventing_api` crate validates the limit and
 dispatches one batch through the kernel's event consumer. The projectors and
 the `customer_facing` subscriber stay registered with the kernel in
@@ -74,8 +77,8 @@ there. A subscriber failure is reported as its `EventError` text, for example
 and the event is retried with backoff until it becomes dead after six
 attempts. Events of a type without subscribers complete and are counted.
 
-Mulac also owns `/api/outbox/run` behavior. `src/orchestration/outbox_api.rs`
-only declares the route and delegates to `mulac_poem::io::OutboxAdapter`
+Mulac also owns `/api/outbox/run` behavior. `OutboxApi` only declares the route
+and delegates to `mulac_poem::io::OutboxAdapter`
 (feature `outbox`). The shared `outbox_api` crate validates the limit and
 publishes one batch through an outbox consumer that
 `OutboxService::from_postgres` builds from the pool and
