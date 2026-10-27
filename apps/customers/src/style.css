@@ -24,6 +24,7 @@ h2{font-size:22px;letter-spacing:-.6px;margin:0}
 .offer-card h3{font-size:18px;line-height:1.5;letter-spacing:-.3px;font-weight:600;margin:20px 0 27px;overflow-wrap:anywhere;white-space:pre-wrap}
 .card-bottom{margin-top:auto;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
 .price{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin:0;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.was-price{display:block;color:var(--muted);font-size:14px;font-weight:400;letter-spacing:normal}
 .offer-link{display:inline-flex;align-items:baseline;gap:8px;margin-left:auto;white-space:nowrap;padding:10px 0;font-size:13px;font-weight:650;text-decoration:none;color:var(--teal)}
 .offer-link:hover{text-decoration:underline}
 .offer-link>span[aria-hidden]{font-size:19px}

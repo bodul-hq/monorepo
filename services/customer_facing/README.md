@@ -87,6 +87,10 @@ Use the same envelope with a new message UUID for each distinct update:
 | `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at`, ordered `images` (missing in legacy messages means `[]`) |
 | `OfferTitleChanged` | `{"id":"<offer UUID>","title":"New title"}` |
 | `OfferPriceChangedEvent` | `{"id":"<offer UUID>","price":{"amount":0,"currency":"EUR"}}` |
+| `OfferPricingChanged` | `{"id":"<offer UUID>","pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"AUD"}}}` |
+| `OfferAvailabilityChanged` | `{"id":"<offer UUID>","availability":"in_stock"}` |
+| `OfferItemConditionChanged` | `{"id":"<offer UUID>","item_condition":"new"}` |
+| `OfferContentChanged` | `{"id":"<offer UUID>","content":{"description":"<p>Source description</p>"}}` |
 | `OfferImageAdded` | `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}` |
 
 Payloads must be JSON objects without an event wrapper or JSON string encoding.
@@ -385,6 +389,44 @@ source-order guarantees. See the [verification walkthrough](../../docs/offer-fac
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and
 [29](../../docs/adr/0029-offer-product-identifiers.md).
+
+## Pricing, availability, condition and description
+
+Creation also accepts nullable `was_price`, `availability`, `item_condition`,
+and `content: {"description": null}`. Legacy creation messages may omit them;
+the projection stores unknown values. Each changed event above replaces its
+complete decided field atomically with the inbox receipt. `pricing.was_price`,
+`availability`, `item_condition`, and `content.description` must be present in
+their change events; explicit null clears that fact. A legacy
+`OfferPriceChangedEvent` still changes only the current price.
+New `OfferPricingChanged` events require a greater was-price in the same
+currency. Historical creation values are retained as recorded and filtered
+only when read.
+
+Availability event values are `available`, `unavailable`, `in_stock`,
+`out_of_stock`, `sold_out`, or `{"other":"original source text"}`. Item
+condition is `new` or the same `other` object shape. Unknown source text is
+preserved exactly; blank/NUL statuses are rejected. Description keeps the
+normalized source HTML or text unchanged, rejects NUL, and is never rendered
+by the customers app. Title and images remain separate fields.
+
+REST browse and search return nullable `was_price` using the existing price
+object and decimal-string minor units. GraphQL calls this `wasPrice`. It is
+visible only when its currency matches the current price and its amount is
+greater; incomparable values remain stored. Both transports expose nullable
+typed availability/condition objects (`kind`, `raw`), where `raw` is populated
+only for `other`. REST kind values use the event spellings; GraphQL enum values
+are uppercase. REST `item_condition` becomes GraphQL `itemCondition`.
+`content` is always an object containing nullable `description`.
+
+Migrations `2026-10-27-000006` through `000008` add paired nullable was-price
+columns, validated nullable status JSONB, and nullable description TEXT. They
+preserve existing rows, images, receipts and queues. Deploy this consumer and
+its migrations before offers publishes the new events. Reverting these three
+migrations drops the new facts; it retains the prior projection columns and
+receipts. Retain a backup or replay source before such a rollback. The isolated
+PostgreSQL suite covers populated migration round trips, atomic changes,
+explicit clearing, receipt replay, retry after creation, and transport parity.
 
 ## Title search
 

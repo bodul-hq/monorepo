@@ -46,6 +46,12 @@ per currency, independent of retailer country and browser language. The visible
 price uses a symbol; assistive technology receives a single ungrouped amount
 with its ISO currency code. No currency conversion occurs.
 
+A comparable `was_price` appears above the current price in a semantic `<del>`
+using the same currency formatter. Its currency must match and its amount must
+exceed the current price; other comparisons are hidden. Assistive technology
+receives one “Was …; now …” description including both ISO currency codes.
+Legacy responses may omit `was_price` and retain the original price display.
+
 | Currency | Example display |
 | --- | --- |
 | USD | `$1,234.56` |
@@ -121,6 +127,12 @@ The response model also accepts source-backed localization, GTIN, SKU and option
 Shopify identifiers. Older API responses default to unknown values. These fields
 are validated but not displayed; card HTML, page language and currency formatting
 are unchanged. See the [offer facts walkthrough](../../docs/offer-facts-walkthrough.md).
+
+Availability and item condition accept nullable typed `{kind, raw}` API values;
+only `other` has raw source text. Nested `content.description` preserves raw
+source HTML or text as data. These fields default to unknown in old responses
+and are not displayed or inserted into page HTML. The same model and sale-price
+presentation apply to browse and search results.
 
 ## Search
 

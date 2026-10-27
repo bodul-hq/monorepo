@@ -5,6 +5,8 @@ use reqwest::{Client, Url};
 use serde::Deserialize;
 use std::{env::VarError, io, time::Duration};
 
+mod facts;
+
 pub const PAGE_SIZE: i32 = 30;
 
 #[derive(Debug, Deserialize)]
@@ -17,6 +19,14 @@ pub struct Page {
 
 #[derive(Debug, Deserialize)]
 pub struct Offer {
+    #[serde(default)]
+    pub was_price: Option<Price>,
+    #[serde(default, deserialize_with = "facts::read_availability")]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    #[serde(default, deserialize_with = "facts::read_condition")]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+    #[serde(default, deserialize_with = "facts::read_content")]
+    pub content: retailer_sauce::structuralized::content::Content,
     #[serde(flatten)]
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default, deserialize_with = "read_localization")]
@@ -35,6 +45,27 @@ pub struct Offer {
 pub struct Price {
     pub amount: String,
     pub currency: Currency,
+}
+
+impl Price {
+    fn amount(&self) -> Option<i64> {
+        self.amount
+            .parse::<i64>()
+            .ok()
+            .filter(|amount| amount.to_string() == self.amount)
+    }
+}
+
+impl Offer {
+    pub fn comparable_was_price(&self) -> Option<&Price> {
+        self.was_price.as_ref().filter(|was| {
+            was.currency == self.price.currency
+                && was
+                    .amount()
+                    .zip(self.price.amount())
+                    .is_some_and(|(was, current)| was > current)
+        })
+    }
 }
 
 pub struct OffersClient {
@@ -105,14 +136,23 @@ impl OffersClient {
             || page.items.iter().any(|offer| {
                 offer.identifiers.guard().is_err()
                     || offer.localization.guard().is_err()
+                    || offer.content.guard().is_err()
+                    || offer
+                        .availability
+                        .as_ref()
+                        .is_some_and(|value| value.guard().is_err())
+                    || offer
+                        .item_condition
+                        .as_ref()
+                        .is_some_and(|value| value.guard().is_err())
+                    || offer
+                        .was_price
+                        .as_ref()
+                        .is_some_and(|value| value.amount().is_none())
                     || offer.id.is_empty()
                     || offer.retailer_code.is_empty()
                     || offer.created_at.is_empty()
-                    || !offer
-                        .price
-                        .amount
-                        .parse::<i64>()
-                        .is_ok_and(|amount| amount.to_string() == offer.price.amount)
+                    || offer.price.amount().is_none()
             })
         {
             return Err(());

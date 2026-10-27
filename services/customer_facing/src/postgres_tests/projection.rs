@@ -1,7 +1,7 @@
 use super::*;
 use commanding::io::{ErasedCommandHandler, NewCommand, NewCommandEnvelope, NewCommandMetadata};
 
-fn created(id: Uuid) -> Value {
+pub(super) fn created(id: Uuid) -> Value {
     json!({
         "id":id, "retailer_code":"AnkerAu", "title":"  Punjač 🔌\n USB  ",
         "price":{"amount":9_007_199_254_740_993_i64,"currency":"AUD"},
@@ -10,7 +10,12 @@ fn created(id: Uuid) -> Value {
     })
 }
 
-async fn submit(client: &TestClient<poem::Route>, kind: &str, payload: &Value, message: Uuid) {
+pub(super) async fn submit(
+    client: &TestClient<poem::Route>,
+    kind: &str,
+    payload: &Value,
+    message: Uuid,
+) {
     client
         .post("/api/inbox")
         .body_json(&json!({
@@ -22,14 +27,14 @@ async fn submit(client: &TestClient<poem::Route>, kind: &str, payload: &Value, m
         .assert_status(StatusCode::ACCEPTED);
 }
 
-async fn advance(client: &TestClient<poem::Route>, queue: &str, count: usize) {
+pub(super) async fn advance(client: &TestClient<poem::Route>, queue: &str, count: usize) {
     assert_eq!(
         run(client, queue, 100).await,
         json!({"processed":count,"errors":[]})
     );
 }
 
-async fn apply(client: &TestClient<poem::Route>, kind: &str, payload: &Value) -> Uuid {
+pub(super) async fn apply(client: &TestClient<poem::Route>, kind: &str, payload: &Value) -> Uuid {
     let message = Uuid::now_v7();
     submit(client, kind, payload, message).await;
     advance(client, "inbox", 1).await;
@@ -38,11 +43,11 @@ async fn apply(client: &TestClient<poem::Route>, kind: &str, payload: &Value) ->
     message
 }
 
-fn offer(pool: &DbPool) -> Value {
+pub(super) fn offer(pool: &DbPool) -> Value {
     snapshot(pool, "SELECT to_jsonb(o) AS data FROM offers o")
 }
 
-fn projection_counts(pool: &DbPool) -> Value {
+pub(super) fn projection_counts(pool: &DbPool) -> Value {
     snapshot(
         pool,
         "SELECT jsonb_build_object(
@@ -53,7 +58,7 @@ fn projection_counts(pool: &DbPool) -> Value {
 
 // Simulate the inbox-completion crash window. Mulac generates a fresh command
 // UUID when the still-pending original inbox message is processed again.
-fn replay_inbox(pool: &DbPool, message: Uuid) {
+pub(super) fn replay_inbox(pool: &DbPool, message: Uuid) {
     diesel::sql_query(
         "UPDATE inbox_entries SET status = 0, attempts = 0,
         scheduled_at = now(), processed_at = NULL WHERE id = $1",
@@ -86,6 +91,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let mut expected = json!({
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
+        "was_price_amount":null,"was_price_currency":null,"availability":null,"item_condition":null,"description":null,
         "gtin":null,"sku":null,"external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null},"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
@@ -243,41 +249,68 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
 #[tokio::test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn failed_business_write_rolls_back_receipt_and_can_retry() {
-    let (_schema, pool) = database(true);
-    let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
-    let id = Uuid::now_v7();
-    apply(&client, "OfferCreated", &created(id)).await;
-    let before = offer(&pool);
-    pool.get()
-        .unwrap()
-        .batch_execute(
-            "ALTER TABLE offers ADD CONSTRAINT simulated_failure CHECK (currency = 'AUD')",
-        )
-        .unwrap();
-    submit(
-        &client,
-        "OfferPriceChangedEvent",
-        &json!({"id":id,"price":{"amount":42,"currency":"EUR"}}),
-        Uuid::now_v7(),
-    )
-    .await;
-    advance(&client, "inbox", 1).await;
-    assert!(run(&client, "commands", 1).await["processed"].is_null());
-    assert_eq!(offer(&pool), before);
-    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
-    pool.get()
-        .unwrap()
-        .batch_execute(
-            "ALTER TABLE offers DROP CONSTRAINT simulated_failure;
-        UPDATE command_entries SET scheduled_at = now() WHERE status = 4",
-        )
-        .unwrap();
-    advance(&client, "commands", 1).await;
-    assert_eq!(offer(&pool)["price_amount"], 42);
-    assert_eq!(offer(&pool)["currency"], "EUR");
-    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
-    kernel.shutdown();
+    for (kind, fields, columns, predicate) in [
+        (
+            "OfferPriceChangedEvent",
+            json!({"price":{"amount":42,"currency":"EUR"}}),
+            json!({"price_amount":42,"currency":"EUR"}),
+            "currency = 'AUD'",
+        ),
+        (
+            "OfferPricingChanged",
+            json!({"pricing":{"price":{"amount":42,"currency":"EUR"},"was_price":{"amount":84,"currency":"EUR"}}}),
+            json!({"price_amount":42,"currency":"EUR","was_price_amount":84,"was_price_currency":"EUR"}),
+            "was_price_amount IS NULL",
+        ),
+        (
+            "OfferContentChanged",
+            json!({"content":{"description":" <p>Retry ž &amp; source</p>\n"}}),
+            json!({"description":" <p>Retry ž &amp; source</p>\n"}),
+            "description IS NULL",
+        ),
+    ] {
+        let (_schema, pool) = database(true);
+        let (kernel, state) = start_mulac(pool.clone()).unwrap();
+        let client = TestClient::new(crate::app(state));
+        let id = Uuid::now_v7();
+        apply(&client, "OfferCreated", &created(id)).await;
+        let before = offer(&pool);
+        pool.get()
+            .unwrap()
+            .batch_execute(&format!(
+                "ALTER TABLE offers ADD CONSTRAINT simulated_failure CHECK ({predicate})"
+            ))
+            .unwrap();
+        let mut payload = fields;
+        payload["id"] = json!(id);
+        let message = Uuid::now_v7();
+        submit(&client, kind, &payload, message).await;
+        advance(&client, "inbox", 1).await;
+        assert!(run(&client, "commands", 1).await["processed"].is_null());
+        assert_eq!(offer(&pool), before);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+        pool.get()
+            .unwrap()
+            .batch_execute(
+                "ALTER TABLE offers DROP CONSTRAINT simulated_failure;
+             UPDATE command_entries SET scheduled_at = now() WHERE status = 4",
+            )
+            .unwrap();
+        advance(&client, "commands", 1).await;
+        let mut expected = before;
+        expected
+            .as_object_mut()
+            .unwrap()
+            .extend(columns.as_object().unwrap().clone());
+        assert_eq!(offer(&pool), expected);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+        replay_inbox(&pool, message);
+        advance(&client, "inbox", 1).await;
+        advance(&client, "commands", 1).await;
+        assert_eq!(offer(&pool), expected);
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+        kernel.shutdown();
+    }
 }
 
 #[tokio::test]

@@ -4,6 +4,123 @@ use poem::test::TestClient;
 use scraper::{Html as ParsedHtml, Selector};
 use std::time::Duration;
 
+#[test]
+fn sale_prices_are_accessible_and_uncomparable_prices_and_content_are_hidden() {
+    let mut data = page(4, 0, false);
+    for (position, (amount, currency)) in [
+        ("2999", "AUD"),
+        ("1999", "AUD"),
+        ("1998", "AUD"),
+        ("2999", "EUR"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        data["items"][position]["was_price"] =
+            serde_json::json!({"amount":amount,"currency":currency});
+        data["items"][position]["content"] =
+            serde_json::json!({"description":"<script>unrendered_description()</script>"});
+    }
+    let data: Page = serde_json::from_value(data).unwrap();
+    for html in [render(&data), render_page(&data, Some("charger"))] {
+        let document = ParsedHtml::parse_document(&html);
+        let deleted: Vec<_> = document
+            .select(&Selector::parse("del.was-price").unwrap())
+            .collect();
+        assert_eq!(deleted.len(), 1);
+        assert_eq!(deleted[0].text().collect::<String>(), "A$29.99");
+        assert_eq!(deleted[0].value().attr("aria-hidden"), Some("true"));
+        let prices: Vec<_> = document
+            .select(&Selector::parse(".price .sr-only").unwrap())
+            .map(|value| value.text().collect::<String>())
+            .collect();
+        assert_eq!(
+            prices,
+            [
+                "Was 29.99 AUD; now 19.99 AUD",
+                "19.99 AUD",
+                "19.99 AUD",
+                "19.99 AUD"
+            ]
+        );
+        assert!(!html.contains("unrendered_description"));
+    }
+}
+
+#[test]
+fn sale_cards_keep_exact_large_and_zero_decimal_amounts() {
+    let cases = [
+        (
+            "USD",
+            "9007199254740993",
+            "9223372036854775807",
+            "$92,233,720,368,547,758.07",
+            "Was 92233720368547758.07 USD; now 90071992547409.93 USD",
+        ),
+        (
+            "JPY",
+            "9007199254740993",
+            "9223372036854775807",
+            "¥9,223,372,036,854,775,807",
+            "Was 9223372036854775807 JPY; now 9007199254740993 JPY",
+        ),
+        ("VND", "0", "1", "1\u{a0}₫", "Was 1 VND; now 0 VND"),
+    ];
+    for (currency, current, previous, visible, accessible) in cases {
+        let mut data = page(1, 0, false);
+        data["items"][0]["price"] = serde_json::json!({"amount":current,"currency":currency});
+        data["items"][0]["was_price"] = serde_json::json!({"amount":previous,"currency":currency});
+        let data: Page = serde_json::from_value(data).unwrap();
+        for html in [render(&data), render_page(&data, Some("charger"))] {
+            let document = ParsedHtml::parse_document(&html);
+            let deleted_selector = Selector::parse("del.was-price").unwrap();
+            let deleted: Vec<_> = document.select(&deleted_selector).collect();
+            assert_eq!(deleted.len(), 1);
+            assert_eq!(deleted[0].text().collect::<String>(), visible);
+            assert_eq!(deleted[0].attr("aria-hidden"), Some("true"));
+            let accessible_prices: Vec<_> = document
+                .select(&Selector::parse(".price .sr-only").unwrap())
+                .map(|price| price.text().collect::<String>())
+                .collect();
+            assert_eq!(accessible_prices, [accessible]);
+        }
+    }
+}
+
+#[test]
+fn historical_other_and_exact_content_remain_data_only() {
+    let legacy = page(1, 0, false);
+    let baseline: Page = serde_json::from_value(legacy.clone()).unwrap();
+    for description in [
+        None,
+        Some(""),
+        Some(" \t\r\n"),
+        Some(" <script>description_only_ž()</script> &amp;\n"),
+    ] {
+        let mut data = legacy.clone();
+        data["items"][0]["availability"] =
+            serde_json::json!({"kind":"other","raw":"http://schema.org/OutOfStock"});
+        data["items"][0]["item_condition"] =
+            serde_json::json!({"kind":"other","raw":"http://schema.org/NewCondition"});
+        data["items"][0]["content"] = serde_json::json!({"description":description});
+        let data: Page = serde_json::from_value(data).unwrap();
+        assert_eq!(
+            serde_json::to_value(&data.items[0].availability).unwrap(),
+            serde_json::json!({"other":"http://schema.org/OutOfStock"})
+        );
+        assert_eq!(
+            serde_json::to_value(&data.items[0].item_condition).unwrap(),
+            serde_json::json!({"other":"http://schema.org/NewCondition"})
+        );
+        assert_eq!(data.items[0].content.description.as_deref(), description);
+        assert_eq!(render(&data), render(&baseline));
+        assert_eq!(
+            render_page(&data, Some("charger")),
+            render_page(&baseline, Some("charger"))
+        );
+    }
+}
+
 #[tokio::test]
 async fn homepage_fetches_and_renders_thirty_then_one_without_scripts() {
     for (offset, count, more) in [(0, 30, true), (30, 1, false), (60, 0, false)] {

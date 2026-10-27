@@ -77,7 +77,10 @@ pipeline runs only when `DATABASE_URL` is set (see below).
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
 history and projects offer events, with initial images in `OfferCreated` and
 ordered image additions on updates. Offer facts now include optional scrape time,
-source-backed localization and typed product identifiers. Testimony revisions
+source-backed localization, typed product identifiers, comparison pricing,
+availability, item condition and description content. Identity lookup keeps
+retailer/URL matching while retaining all five product identifiers. See
+[ADRs 34–37](docs/adr/README.md) for the compatible event/export contracts. Testimony revisions
 are retained in Mulac event/outbox metadata using its optional-sequence API. See
 the [verification walkthrough](docs/offer-facts-walkthrough.md). Its current
 typed handler relies on the identity projection and does not have durable import
@@ -105,7 +108,8 @@ Each serves an index page at `/`. The [customers app](apps/customers/README.md)
 shows 30 offers per page with responsive HTML/CSS cards, Previous/Next links,
 and a centered title-search form with a server-rendered `/search` page,
 using customer-facing's REST API. Cards show the first ordered offer image,
-with empty-image compatibility for older responses. Set `CUSTOMER_FACING_URL` to that service's
+with empty-image compatibility for older responses, and a smaller crossed-out
+comparison price when the source supplies a valid discount. Set `CUSTOMER_FACING_URL` to that service's
 base URL (default `http://localhost:3003`). The
 [development app](apps/development/README.md) also provides `/dashboard`,
 combining authenticated database table reports from retailer sourcing, object

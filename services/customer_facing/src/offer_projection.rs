@@ -19,11 +19,22 @@ use kernel::{
     },
 };
 use money::Money;
+use retailer_sauce::{
+    availability::Availability, item_condition::ItemCondition, structuralized::content::Content,
+};
 use serde::Deserialize;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
 struct Created {
+    #[serde(default)]
+    was_price: Option<Money>,
+    #[serde(default)]
+    availability: Option<Availability>,
+    #[serde(default)]
+    item_condition: Option<ItemCondition>,
+    #[serde(default)]
+    content: Content,
     #[serde(flatten)]
     identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default)]
@@ -50,6 +61,39 @@ struct TitleChanged {
 struct PriceChanged {
     id: Uuid,
     price: Money,
+}
+
+#[derive(Deserialize)]
+struct Pricing {
+    price: Money,
+    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    was_price: Option<Money>,
+}
+
+#[derive(Deserialize)]
+struct PricingChanged {
+    id: Uuid,
+    pricing: Pricing,
+}
+
+#[derive(Deserialize)]
+struct AvailabilityChanged {
+    id: Uuid,
+    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    availability: Option<Availability>,
+}
+
+#[derive(Deserialize)]
+struct ItemConditionChanged {
+    id: Uuid,
+    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    item_condition: Option<ItemCondition>,
+}
+
+#[derive(Deserialize)]
+struct ContentChanged {
+    id: Uuid,
+    content: Content,
 }
 
 #[derive(Deserialize)]
@@ -82,11 +126,15 @@ struct IdentifiersChanged {
 }
 
 enum Change {
+    Pricing(PricingChanged),
+    Availability(AvailabilityChanged),
+    ItemCondition(ItemConditionChanged),
+    Content(ContentChanged),
     Identifiers(IdentifiersChanged),
     Localization(LocalizationChanged),
     ScrapedAt(ScrapedAtUpdated),
     Image(ImageAdded),
-    Created(Created),
+    Created(Box<Created>),
     Title(TitleChanged),
     Price(PriceChanged),
 }
@@ -102,7 +150,45 @@ impl Change {
         {
             return Err(invalid("price must be a JSON object"));
         }
+        let pricing = if kind == "OfferPricingChanged" {
+            let pricing = payload
+                .get("pricing")
+                .filter(|value| value.is_object())
+                .ok_or_else(|| invalid("pricing must be a JSON object"))?;
+            if pricing.get("price").is_none_or(|value| !value.is_object()) {
+                return Err(invalid("price must be a JSON object"));
+            }
+            pricing
+        } else {
+            &payload
+        };
+        if matches!(kind, "OfferCreated" | "OfferPricingChanged")
+            && pricing
+                .get("was_price")
+                .is_some_and(|value| !value.is_null() && !value.is_object())
+        {
+            return Err(invalid("was_price must be a JSON object or null"));
+        }
+        if matches!(kind, "OfferCreated" | "OfferContentChanged")
+            && payload
+                .get("content")
+                .is_some_and(|value| !value.is_object())
+        {
+            return Err(invalid("content must be a JSON object"));
+        }
         let change = match kind {
+            "OfferPricingChanged" => {
+                Self::Pricing(serde_json::from_value(payload).map_err(invalid)?)
+            }
+            "OfferAvailabilityChanged" => {
+                Self::Availability(serde_json::from_value(payload).map_err(invalid)?)
+            }
+            "OfferItemConditionChanged" => {
+                Self::ItemCondition(serde_json::from_value(payload).map_err(invalid)?)
+            }
+            "OfferContentChanged" => {
+                Self::Content(serde_json::from_value(payload).map_err(invalid)?)
+            }
             "OfferIdentifiersChanged" => {
                 Self::Identifiers(serde_json::from_value(payload).map_err(invalid)?)
             }
@@ -122,6 +208,7 @@ impl Change {
         };
         let title = match &change {
             Self::Created(offer) => {
+                guard_facts(&offer.availability, &offer.item_condition, &offer.content)?;
                 let (filtered, skipped) = shared::images::filter(offer.images.clone());
                 if skipped != 0
                     || filtered != offer.images
@@ -137,6 +224,29 @@ impl Change {
                 Some(&offer.title)
             }
             Self::Title(change) => Some(&change.title),
+            Self::Availability(change) => {
+                guard_facts(&change.availability, &None, &Content::default())?;
+                None
+            }
+            Self::ItemCondition(change) => {
+                guard_facts(&None, &change.item_condition, &Content::default())?;
+                None
+            }
+            Self::Content(change) => {
+                guard_facts(&None, &None, &change.content)?;
+                None
+            }
+            Self::Pricing(change) => {
+                if change.pricing.was_price.as_ref().is_some_and(|was| {
+                    was.currency() != change.pricing.price.currency()
+                        || was.amount() <= change.pricing.price.amount()
+                }) {
+                    return Err(invalid(
+                        "was_price must use the current currency and be greater than price",
+                    ));
+                }
+                None
+            }
             Self::Price(_) | Self::ScrapedAt(_) | Self::Localization(_) | Self::Identifiers(_) => {
                 None
             }
@@ -155,6 +265,27 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
+            Self::Pricing(change) => diesel::sql_query(
+                "UPDATE offers SET price_amount=$2, currency=$3, was_price_amount=$4, was_price_currency=$5 WHERE id=$1",
+            )
+            .bind::<SqlUuid, _>(change.id)
+            .bind::<BigInt, _>(change.pricing.price.amount())
+            .bind::<Text, _>(change.pricing.price.currency().as_str())
+            .bind::<diesel::sql_types::Nullable<BigInt>, _>(change.pricing.was_price.as_ref().map(Money::amount))
+            .bind::<diesel::sql_types::Nullable<Text>, _>(change.pricing.was_price.as_ref().map(|value| value.currency().as_str()))
+            .execute(connection)?,
+            Self::Availability(change) => diesel::sql_query("UPDATE offers SET availability=$2 WHERE id=$1")
+                .bind::<SqlUuid, _>(change.id)
+                .bind::<diesel::sql_types::Nullable<Jsonb>, _>(change.availability.as_ref().map(|value| serde_json::to_value(value).expect("serializable availability")))
+                .execute(connection)?,
+            Self::ItemCondition(change) => diesel::sql_query("UPDATE offers SET item_condition=$2 WHERE id=$1")
+                .bind::<SqlUuid, _>(change.id)
+                .bind::<diesel::sql_types::Nullable<Jsonb>, _>(change.item_condition.as_ref().map(|value| serde_json::to_value(value).expect("serializable condition")))
+                .execute(connection)?,
+            Self::Content(change) => diesel::sql_query("UPDATE offers SET description=$2 WHERE id=$1")
+                .bind::<SqlUuid, _>(change.id)
+                .bind::<diesel::sql_types::Nullable<Text>, _>(&change.content.description)
+                .execute(connection)?,
             Self::Identifiers(change) => diesel::sql_query(
                 "UPDATE offers SET gtin=$2, sku=$3, external_identifiers=$4 WHERE id=$1",
             )
@@ -195,8 +326,8 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
@@ -211,6 +342,11 @@ impl Change {
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.gtin.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.sku.as_ref().map(|value| &value.value))
                 .bind::<Jsonb, _>(Identifier(offer.identifiers.external_identifiers.clone()))
+                .bind::<diesel::sql_types::Nullable<BigInt>, _>(offer.was_price.as_ref().map(Money::amount))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.was_price.as_ref().map(|value| value.currency().as_str()))
+                .bind::<diesel::sql_types::Nullable<Jsonb>, _>(offer.availability.as_ref().map(|value| serde_json::to_value(value).expect("serializable availability")))
+                .bind::<diesel::sql_types::Nullable<Jsonb>, _>(offer.item_condition.as_ref().map(|value| serde_json::to_value(value).expect("serializable condition")))
+                .bind::<diesel::sql_types::Nullable<Text>, _>(&offer.content.description)
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(
@@ -240,6 +376,20 @@ impl Change {
         }
         Ok(())
     }
+}
+
+fn guard_facts(
+    availability: &Option<Availability>,
+    condition: &Option<ItemCondition>,
+    content: &Content,
+) -> Result<(), CommandError> {
+    if let Some(value) = availability {
+        value.guard().map_err(invalid)?;
+    }
+    if let Some(value) = condition {
+        value.guard().map_err(invalid)?;
+    }
+    content.guard().map_err(invalid)
 }
 
 fn invalid(error: impl std::fmt::Display) -> CommandError {
@@ -316,6 +466,113 @@ pub fn consumer(pool: DbPool) -> Arc<CommandConsumer> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn source_fixtures_and_historical_creation_keep_the_producer_contract() {
+        let fixtures = [
+            include_str!(
+                "../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v6.json"
+            ),
+            include_str!(
+                "../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v7.json"
+            ),
+            include_str!(
+                "../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v8.json"
+            ),
+        ];
+        for (version, fixture) in (6..=8).zip(fixtures) {
+            let mut payload: serde_json::Value = serde_json::from_str(fixture).unwrap();
+            payload["id"] = json!(Uuid::now_v7());
+            payload["created_at"] = json!("2026-10-27T00:00:00Z");
+            let Change::Created(offer) =
+                Change::parse("OfferCreated", &payload.to_string()).unwrap()
+            else {
+                panic!("expected creation")
+            };
+            assert_eq!(offer.was_price.unwrap().amount(), 2999);
+            assert_eq!(offer.availability.is_some(), version >= 7);
+            assert_eq!(offer.item_condition.is_some(), version >= 7);
+            assert_eq!(offer.content.description.is_some(), version >= 8);
+
+            // Replay preserves source facts, including an old comparison that
+            // no longer agrees with current-price policy. Read mapping hides it.
+            for (amount, currency) in [(1999, "AUD"), (1998, "AUD"), (2999, "EUR")] {
+                payload["was_price"] = json!({"amount":amount,"currency":currency});
+                let Change::Created(offer) =
+                    Change::parse("OfferCreated", &payload.to_string()).unwrap()
+                else {
+                    panic!("expected creation")
+                };
+                let was = offer.was_price.unwrap();
+                assert_eq!(was.amount(), amount);
+                assert_eq!(was.currency().as_str(), currency);
+                let new = json!({"id":payload["id"],"pricing":{"price":payload["price"],"was_price":payload["was_price"]}});
+                assert!(Change::parse("OfferPricingChanged", &new.to_string()).is_err());
+            }
+        }
+    }
+
+    #[test]
+    fn fact_changes_require_explicit_values_and_reject_malformed_shapes() {
+        let id = Uuid::now_v7();
+        for (kind, valid, invalid) in [
+            (
+                "OfferPricingChanged",
+                json!({"id":id,"pricing":{"price":{"amount":10,"currency":"USD"},"was_price":null}}),
+                json!({"id":id,"pricing":{"price":{"amount":10,"currency":"USD"}}}),
+            ),
+            (
+                "OfferAvailabilityChanged",
+                json!({"id":id,"availability":null}),
+                json!({"id":id}),
+            ),
+            (
+                "OfferItemConditionChanged",
+                json!({"id":id,"item_condition":null}),
+                json!({"id":id}),
+            ),
+            (
+                "OfferContentChanged",
+                json!({"id":id,"content":{"description":null}}),
+                json!({"id":id,"content":{}}),
+            ),
+        ] {
+            assert!(Change::parse(kind, &valid.to_string()).is_ok(), "{kind}");
+            assert!(Change::parse(kind, &invalid.to_string()).is_err(), "{kind}");
+        }
+        for (kind, payload) in [
+            (
+                "OfferPricingChanged",
+                json!({"id":id,"pricing":[{"amount":10,"currency":"USD"},null]}),
+            ),
+            (
+                "OfferPricingChanged",
+                json!({"id":id,"pricing":{"price":[10,"USD"],"was_price":null}}),
+            ),
+            (
+                "OfferPricingChanged",
+                json!({"id":id,"pricing":{"price":{"amount":10,"currency":"USD"},"was_price":[20,"USD"]}}),
+            ),
+            (
+                "OfferAvailabilityChanged",
+                json!({"id":id,"availability":{"other":" "}}),
+            ),
+            (
+                "OfferItemConditionChanged",
+                json!({"id":id,"item_condition":{"other":"\0"}}),
+            ),
+            ("OfferContentChanged", json!({"id":id,"content":[null]})),
+            (
+                "OfferContentChanged",
+                json!({"id":id,"content":{"description":"\0"}}),
+            ),
+        ] {
+            assert!(
+                Change::parse(kind, &payload.to_string()).is_err(),
+                "{kind}: {payload}"
+            );
+        }
+    }
 
     #[test]
     fn wire_validation_preserves_values_and_enforces_storage_boundaries() {

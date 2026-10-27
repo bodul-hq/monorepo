@@ -1,6 +1,7 @@
 //! Opt-in tests use a fresh schema per case and never reset a database.
 
 mod browsing;
+mod facts;
 mod identifiers;
 mod projection;
 mod reporting;
@@ -63,6 +64,16 @@ fn database(migrate: bool) -> (TestSchema, DbPool) {
         bootstrap::migrate(&pool).unwrap();
     }
     (schema, pool)
+}
+
+// Historical migration tests must not assume their migration remains last.
+fn revert_to(pool: &DbPool, version: &str) {
+    let mut connection = pool.get().unwrap();
+    while connection.applied_migrations().unwrap()[0].to_string() != version {
+        connection
+            .revert_last_migration(bootstrap::MIGRATIONS)
+            .unwrap();
+    }
 }
 
 #[derive(diesel::QueryableByName)]

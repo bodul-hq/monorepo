@@ -5,7 +5,7 @@ use diesel::sql_types::{Jsonb, Nullable, Text, Uuid as SqlUuid};
 fn offers_snapshot(pool: &DbPool) -> Value {
     snapshot(
         pool,
-        "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM offers o",
+        "SELECT jsonb_agg(to_jsonb(o) - ARRAY['was_price_amount','was_price_currency','availability','item_condition','description'] ORDER BY id) AS data FROM offers o",
     )
 }
 
@@ -38,10 +38,7 @@ fn as_nested(mut rows: Value) -> Value {
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn migration_preserves_existing_values_and_rolls_back_latest_json_values() {
     let (_schema, pool) = database(true);
-    pool.get()
-        .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
-        .unwrap();
+    revert_to(&pool, "20261026000004");
     for (id, product, variant, handle) in [
         (
             1,
@@ -103,10 +100,7 @@ async fn migration_preserves_existing_values_and_rolls_back_latest_json_values()
         .execute(&mut pool.get().unwrap())
         .unwrap();
     let after = offers_snapshot(&pool);
-    pool.get()
-        .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
-        .unwrap();
+    revert_to(&pool, "20261026000004");
     let rolled_back = offers_snapshot(&pool);
     assert_eq!(rolled_back[0]["shopify_product_gid"], Value::Null);
     assert_eq!(rolled_back[0]["shopify_handle"], changed["shopify_handle"]);
@@ -228,10 +222,7 @@ fn typed_jsonb_and_database_shape_reject_invalid_values() {
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 fn migration_failure_retains_old_columns_and_values() {
     let (_schema, pool) = database(true);
-    pool.get()
-        .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
-        .unwrap();
+    revert_to(&pool, "20261026000004");
     pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,shopify_handle) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now(),'')").unwrap();
     let before = offers_snapshot(&pool);
     assert!(bootstrap::migrate(&pool).is_err());

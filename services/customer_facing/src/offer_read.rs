@@ -17,6 +17,9 @@ use poem_openapi::{
 };
 use uuid::Uuid;
 
+mod facts;
+pub use facts::{OfferAvailability, OfferContent, OfferItemCondition};
+
 #[derive(Clone, Object, SimpleObject, serde::Serialize)]
 pub struct OfferPrice {
     /// Exact signed i64 minor units, encoded as a decimal string.
@@ -27,6 +30,10 @@ pub struct OfferPrice {
 #[derive(Clone, Object, SimpleObject, serde::Serialize)]
 #[graphql(complex)]
 pub struct Offer {
+    pub was_price: Option<OfferPrice>,
+    pub availability: Option<OfferAvailability>,
+    pub item_condition: Option<OfferItemCondition>,
+    pub content: OfferContent,
     pub gtin: Option<String>,
     pub sku: Option<String>,
     pub external_identifiers: ExternalIdentifiers,
@@ -68,6 +75,16 @@ struct PostgresRepository(DbPool);
 
 #[derive(diesel::QueryableByName)]
 struct Record {
+    #[diesel(sql_type = diesel::sql_types::Nullable<BigInt>)]
+    was_price_amount: Option<i64>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    was_price_currency: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
+    availability: Option<serde_json::Value>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
+    item_condition: Option<serde_json::Value>,
+    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    description: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     gtin: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
@@ -104,7 +121,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -143,6 +160,23 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
         .into_iter()
         .map(|record| {
             Ok(Offer {
+                was_price: facts::was_price(
+                    record.was_price_amount,
+                    record.was_price_currency,
+                    record.price_amount,
+                    &record.currency,
+                )?,
+                availability: record
+                    .availability
+                    .map(OfferAvailability::from_record)
+                    .transpose()?,
+                item_condition: record
+                    .item_condition
+                    .map(OfferItemCondition::from_record)
+                    .transpose()?,
+                content: OfferContent {
+                    description: record.description,
+                },
                 gtin: record.gtin,
                 sku: record.sku,
                 external_identifiers: ExternalIdentifiers {

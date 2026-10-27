@@ -25,6 +25,20 @@ pub(crate) fn offers(items: Vec<Offer>) -> Offers {
 
 fn fixture(index: u128) -> Offer {
     Offer {
+        was_price: (index == 0).then(|| OfferPrice {
+            amount: i64::MAX.to_string(),
+            currency: "AUD".into(),
+        }),
+        availability: (index == 0).then(|| {
+            OfferAvailability::from_record(json!({"other":"http://schema.org/OutOfStock"})).unwrap()
+        }),
+        item_condition: (index == 0).then(|| {
+            OfferItemCondition::from_record(json!({"other":"http://schema.org/NewCondition"}))
+                .unwrap()
+        }),
+        content: OfferContent {
+            description: (index == 0).then(|| "<p>raw &amp; source</p>".into()),
+        },
         gtin: (index == 0).then(|| "0012345678905".into()),
         sku: (index == 0).then(|| "A1-BLACK".into()),
         external_identifiers: Default::default(),
@@ -76,7 +90,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ description }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
         );
         for get in [false, true] {
             let response = if get {
@@ -110,6 +124,11 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
                     ids.insert(to.into(), value);
                 }
                 item.insert("externalIdentifiers".into(), identifiers);
+                for field in ["availability", "item_condition"] {
+                    if let Some(kind) = item[field].get_mut("kind") {
+                        *kind = json!(kind.as_str().unwrap().to_uppercase());
+                    }
+                }
                 let localization = item["localization"].as_object_mut().unwrap();
                 let mut market = localization.remove("target_market").unwrap();
                 if let Some(kind) = market.get_mut("kind") {
@@ -117,6 +136,8 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
                 }
                 localization.insert("targetMarket".into(), market);
                 for (from, to) in [
+                    ("was_price", "wasPrice"),
+                    ("item_condition", "itemCondition"),
                     ("retailer_code", "retailerCode"),
                     ("created_at", "createdAt"),
                     ("scraped_at", "scrapedAt"),

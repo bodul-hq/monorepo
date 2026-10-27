@@ -233,12 +233,29 @@ fn render_page(page: &Page, query: Option<&str>) -> String {
             let price = format_price(&offer.price);
             let _ = write!(
                 html,
-                r#"<li class="offer-card"><article>{}<h3>{}</h3><div class="card-bottom"><p class="price"><span aria-hidden="true">{}</span><span class="sr-only">{}</span></p>"#,
+                r#"<li class="offer-card"><article>{}<h3>{}</h3><div class="card-bottom"><p class="price">"#,
                 image_html(offer, &title),
-                escape(&title),
-                escape(&price.visible),
-                escape(&price.accessible)
+                escape(&title)
             );
+            if let Some(was_price) = offer.comparable_was_price() {
+                let was_price = format_price(was_price);
+                let _ = write!(
+                    html,
+                    r#"<del class="was-price" aria-hidden="true">{}</del><span aria-hidden="true">{}</span><span class="sr-only">Was {}; now {}</span>"#,
+                    escape(&was_price.visible),
+                    escape(&price.visible),
+                    escape(&was_price.accessible),
+                    escape(&price.accessible)
+                );
+            } else {
+                let _ = write!(
+                    html,
+                    r#"<span aria-hidden="true">{}</span><span class="sr-only">{}</span>"#,
+                    escape(&price.visible),
+                    escape(&price.accessible)
+                );
+            }
+            html.push_str("</p>");
             if safe_link(&offer.url) {
                 let _ = write!(
                     html,

@@ -162,6 +162,10 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     let legacy: Offer = serde_json::from_value(value.clone()).unwrap();
     assert_eq!(legacy.identifiers, Default::default());
     assert_eq!(legacy.localization, Default::default());
+    assert!(legacy.was_price.is_none());
+    assert!(legacy.availability.is_none());
+    assert!(legacy.item_condition.is_none());
+    assert_eq!(legacy.content, Default::default());
     value["gtin"] = json!("0012345678905");
     value["sku"] = json!("A1-BLACK");
     value["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"});
@@ -180,6 +184,74 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
         let mut bad = value.clone();
         bad[field] = invalid;
         assert!(serde_json::from_value::<Offer>(bad).is_err());
+    }
+}
+
+#[test]
+fn pricing_and_typed_facts_preserve_values_without_guessing() {
+    let mut value = page(1, 0, false)["items"][0].clone();
+    let raw = " https://example.com/PreOrder ž ";
+    value["was_price"] = json!({"amount":"2999","currency":"AUD"});
+    value["availability"] = json!({"kind":"other","raw":raw});
+    value["item_condition"] = json!({"kind":"new","raw":null});
+    value["content"] = json!({"description":"<p>Raw &amp; description</p>"});
+    let offer: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(offer.comparable_was_price().unwrap().amount, "2999");
+    assert_eq!(
+        offer.availability,
+        Some(retailer_sauce::availability::Availability::Other(
+            raw.into()
+        ))
+    );
+    assert_eq!(
+        offer.item_condition,
+        Some(retailer_sauce::item_condition::ItemCondition::New)
+    );
+    assert_eq!(
+        offer.content.description.as_deref(),
+        Some("<p>Raw &amp; description</p>")
+    );
+    for (amount, currency) in [("1999", "AUD"), ("1998", "AUD"), ("2999", "EUR")] {
+        let mut other = value.clone();
+        other["was_price"] = json!({"amount":amount,"currency":currency});
+        assert!(
+            serde_json::from_value::<Offer>(other)
+                .unwrap()
+                .comparable_was_price()
+                .is_none()
+        );
+    }
+    for kind in [
+        "available",
+        "unavailable",
+        "in_stock",
+        "out_of_stock",
+        "sold_out",
+    ] {
+        let mut other = value.clone();
+        other["availability"] = json!({"kind":kind,"raw":null});
+        assert!(serde_json::from_value::<Offer>(other).is_ok());
+    }
+    for (field, bad) in [
+        ("availability", json!("in_stock")),
+        ("availability", json!(["in_stock", null])),
+        ("availability", json!({"kind":"unknown","raw":null})),
+        (
+            "availability",
+            json!({"kind":"in_stock","raw":"unexpected"}),
+        ),
+        ("availability", json!({"kind":"other","raw":null})),
+        ("availability", json!({"kind":"other","raw":" \t"})),
+        ("item_condition", json!({"kind":"other","raw":"\0"})),
+        ("content", json!({})),
+        ("content", json!([null])),
+        ("content", json!(null)),
+        ("content", json!({"description":12})),
+        ("content", json!({"description":"\0"})),
+    ] {
+        let mut other = value.clone();
+        other[field] = bad;
+        assert!(serde_json::from_value::<Offer>(other).is_err(), "{field}");
     }
 }
 
