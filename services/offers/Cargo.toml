@@ -8,10 +8,10 @@ async-graphql.workspace = true
 async-graphql-poem.workspace = true
 bodul_shared.workspace = true
 chrono.workspace = true
-commanding_api = { path = "../../../mulac/libs/commanding_api" }
+commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
-eventing_api = { path = "../../../mulac/libs/eventing_api" }
+eventing_api.workspace = true
 #inbox_api = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_inbox_api", tag = "0.3.0" }
 inbox_api = { path = "../../../mulac/libs/inbox_api" }
 #outbox = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-outbox", tag = "0.3.0" }
@@ -35,8 +35,8 @@ url = "2"
 uuid.workspace = true
 
 [dev-dependencies]
-commanding_api = { path = "../../../mulac/libs/commanding_api", features = ["testing"] }
-eventing_api = { path = "../../../mulac/libs/eventing_api", features = ["testing"] }
+commanding_api = { workspace = true, features = ["testing"] }
+eventing_api = { workspace = true, features = ["testing"] }
 inbox_api = { path = "../../../mulac/libs/inbox_api", features = ["testing"] }
 lapin = "4.5.0"
 outbox_api = { path = "../../../mulac/libs/outbox_api", features = ["testing"] }
