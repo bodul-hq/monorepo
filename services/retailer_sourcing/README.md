@@ -798,3 +798,26 @@ source-order guarantees. See the [verification walkthrough](../../docs/offer-fac
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and
 [29](../../docs/adr/0029-offer-product-identifiers.md).
+
+### Comparison price, availability, condition and descriptions
+
+New export commands select schema v8. Readers and immutable preparation support
+v1–v8: v6 adds same-variant `was_price`, v7 adds `availability` and
+`item_condition`, and v8 adds `content: {description}`. Old pinned commands keep
+their requested version and serialization; retries do not regenerate completed
+snapshots or delivery identities.
+
+Each implemented structuralizer emits these fields. Facts are source-backed:
+a purchase flag is `available`/`unavailable`, and explicit inventory evidence is
+`in_stock`/`out_of_stock`/`sold_out`; unknown raw statuses remain `Other`. Condition
+is never assumed new. Only a higher comparison price in the payable currency
+is carried; current-price selection stays unchanged. Description carries the
+existing normalized primary product description, with exact text and markup.
+
+Legacy artifacts omitting fields produce omitted observations. Explicit null
+pricing/status and `{description:null}` survive conversion as clears. Reject
+malformed facts before saving a prepared export. Keep titles and images flat,
+and exclude variants lacking a payable price as before. Deploy downstream
+readers and migrations before enabling the v8 writer. See
+[ADRs 34–36](../../docs/adr/README.md) and the
+[verification record](../../docs/plans/24-27-offer-facts-verification.md).

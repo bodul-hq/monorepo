@@ -21,6 +21,9 @@ pub(crate) mod testing {
         ExclusionReason, ExportEntry, ExportExclusion, ExportSource, OfferImport,
     };
     use super::super::handler::Store;
+    pub(crate) use super::super::test_facts::{
+        assert_payloads as assert_fact_payloads, document as fact_document,
+    };
     use super::{OfferExport, OfferExportWasPrepared, PgStore};
     use crate::platform::db::DbPool;
     use crate::platform::object_storage::{ObjectStorage, STRUCTURALIZED_OFFERS_BUCKET};

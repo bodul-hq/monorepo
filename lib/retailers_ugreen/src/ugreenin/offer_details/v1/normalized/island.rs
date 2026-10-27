@@ -25,6 +25,7 @@ pub(super) struct IslandOffer {
     pub sku: String,
     pub gtin: Option<String>,
     pub in_stock: bool,
+    pub availability: retailer_sauce::availability::Availability,
 }
 
 impl Island {
@@ -85,6 +86,9 @@ impl IslandOffer {
         gtin: Option<String>,
     ) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
+            availability: retailer_sauce::availability::Availability::from_schema_org(
+                offer.availability.clone(),
+            ),
             variant_id: variant_id(&offer.url)?,
             cents: cents(&offer.price).ok_or_else(|| NormalizeError::OfferPriceNotDecimal {
                 offer: offer.id.clone(),

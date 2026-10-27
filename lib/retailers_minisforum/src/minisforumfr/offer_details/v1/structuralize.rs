@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{MinisforumFrNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -39,6 +40,16 @@ impl MinisforumFrDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: variant
+                        .availability
+                        .clone()
+                        .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                    item_condition: None,
+                    content: offer_facts::content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -54,6 +65,10 @@ impl MinisforumFrDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -146,7 +161,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let image = "https://minisforumpc.fr/cdn/shop/files/ms-03-local-ai-edge-workstation-1.png?v=1788346698";
         let product_url = "https://minisforumpc.fr/products/minisforum-ms-03-workstation";
 
@@ -154,6 +169,10 @@ mod tests {
             structuralized(normalized_document()),
             json!({"variations": [
                 {
+                    "was_price": {"amount": 99900, "currency": "EUR"},
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": "<p>d</p>"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "MS-03-33600EU",
@@ -167,6 +186,10 @@ mod tests {
                     "images": [image],
                 },
                 {
+                    "was_price": {"amount": 174900, "currency": "EUR"},
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": "<p>d</p>"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "MS-03-33631EU",

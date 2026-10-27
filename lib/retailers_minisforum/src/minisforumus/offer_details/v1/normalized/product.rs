@@ -96,11 +96,23 @@ impl Product {
         };
 
         let groups = record.selling_plan_groups;
-        let variants = record
+        let mut variants: Vec<Variant> = record
             .variants
             .into_iter()
             .map(|variant| Variant::from_raw(variant, &options, &groups, currency))
             .collect::<Result<_, _>>()?;
+
+        if let [variant] = variants.as_mut_slice() {
+            variant.availability =
+                Some(retailer_sauce::availability::Availability::from_schema_org(
+                    island.offers.availability,
+                ));
+            variant.item_condition = Some(
+                retailer_sauce::item_condition::ItemCondition::from_schema_org(
+                    island.offers.item_condition,
+                ),
+            );
+        }
 
         Ok(Product {
             id: product_gid(record.id),
@@ -137,6 +149,10 @@ fn is_default_title(record: &ProductJson) -> bool {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    #[serde(default)]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title`.
     pub title: String,
@@ -195,6 +211,8 @@ impl Variant {
             .collect::<Result<_, _>>()?;
 
         Ok(Variant {
+            availability: None,
+            item_condition: None,
             id: variant_gid(raw.id),
             title: raw.title,
             // public_title: raw.public_title,

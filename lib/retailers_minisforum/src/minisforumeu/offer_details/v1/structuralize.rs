@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{MinisforumEuNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -39,6 +40,16 @@ impl MinisforumEuDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: variant
+                        .availability
+                        .clone()
+                        .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                    item_condition: None,
+                    content: offer_facts::content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -54,6 +65,10 @@ impl MinisforumEuDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -145,7 +160,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let image = "https://minisforumpc.eu/cdn/shop/files/image13.png?v=1770796122";
         let product_url = "https://minisforumpc.eu/products/minisforum-u700-refurbished";
 
@@ -153,6 +168,10 @@ mod tests {
             structuralized(normalized_document()),
             json!({"variations": [
                 {
+                    "was_price": {"amount": 19900, "currency": "EUR"},
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": "<p>d</p>"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "U70082REU",
@@ -166,6 +185,10 @@ mod tests {
                     "images": [image],
                 },
                 {
+                    "was_price": {"amount": 19900, "currency": "EUR"},
+                    "availability": "out_of_stock",
+                    "item_condition": null,
+                    "content": {"description": "<p>d</p>"},
                     "identifiers": {
                         "gtin": null,
                         "sku": "U70000REU",

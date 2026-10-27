@@ -1,5 +1,5 @@
 //! Reduces the schema.org islands to the one that describes the product, in the shape the record
-//! is checked against. Nothing here crosses into the normalized document but `category`. The
+//! is checked against. The category and variant-scoped availability cross into the normalized document. The
 //! reviews app's `Product` island is skipped: it restates one offer of the record under a fixed
 //! `UsedCondition`, and carries reviews nothing here uses.
 
@@ -24,6 +24,7 @@ pub(super) struct IslandOffer {
     pub currency: String,
     pub sku: Option<String>,
     pub in_stock: bool,
+    pub availability: retailer_sauce::availability::Availability,
 }
 
 impl Island {
@@ -75,6 +76,9 @@ impl Island {
 impl IslandOffer {
     fn from_raw(offer: ldjson::Offer, sku: Option<String>) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
+            availability: retailer_sauce::availability::Availability::from_schema_org(
+                offer.availability.clone(),
+            ),
             variant_id: variant_id(&offer.url)?,
             cents: cents(&offer.price).ok_or_else(|| NormalizeError::OfferPriceNotDecimal {
                 offer: offer.id.clone(),

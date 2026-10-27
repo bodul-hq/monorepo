@@ -49,3 +49,6 @@ cargo test -p retailers_anker ankeritalycom --features serde_json/arbitrary_prec
 The Italian corpus test reads `../data/ankeritalycom/offer_details/extracted`,
 checks normalization and structuralization without writing files, and skips when
 that data checkout is absent.
+
+Canonical comparison prices, availability, item condition, and descriptions are
+documented in [offer facts source coverage](../../docs/offer-facts-source-coverage.md).

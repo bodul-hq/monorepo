@@ -409,4 +409,30 @@ mod tests {
             ])
         );
     }
+
+    #[test]
+    fn aggregate_offer_facts_require_a_single_variant() {
+        let mut input = document();
+        for variant in normalized(input.clone())["product"]["variants"]
+            .as_array()
+            .unwrap()
+        {
+            assert!(variant["availability"].is_null());
+            assert!(variant["item_condition"].is_null());
+        }
+        record_mut(&mut input)["variants"]
+            .as_array_mut()
+            .unwrap()
+            .truncate(1);
+        island_mut(&mut input)["offers"]["offerCount"] = json!(1);
+        island_mut(&mut input)["offers"]["availability"] = json!("http://schema.org/SoldOut");
+        island_mut(&mut input)["offers"]["itemCondition"] =
+            json!("http://schema.org/UsedCondition");
+        let output = normalized(input);
+        assert_eq!(output["product"]["variants"][0]["availability"], "sold_out");
+        assert_eq!(
+            output["product"]["variants"][0]["item_condition"],
+            json!({"other":"http://schema.org/UsedCondition"})
+        );
+    }
 }

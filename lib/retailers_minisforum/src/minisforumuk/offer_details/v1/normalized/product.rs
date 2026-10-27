@@ -53,6 +53,17 @@ impl Product {
     ) -> Result<Product, NormalizeError> {
         let url = format!("{ORIGIN}/products/{}", raw.handle);
 
+        let offer_availability: std::collections::BTreeMap<_, _> = island
+            .as_ref()
+            .map(|island| {
+                island
+                    .offers
+                    .iter()
+                    .map(|offer| (offer.variant_id, offer.availability.clone()))
+                    .collect()
+            })
+            .unwrap_or_default();
+
         let category = match island {
             Some(island) => {
                 check_island(&island, &raw, &url, currency)?;
@@ -65,7 +76,12 @@ impl Product {
         let variants = raw
             .variants
             .into_iter()
-            .map(|variant| Variant::from_raw(variant, &options, currency))
+            .map(|variant| {
+                let availability = offer_availability.get(&variant.id).cloned();
+                let mut variant = Variant::from_raw(variant, &options, currency)?;
+                variant.availability = availability;
+                Ok::<_, NormalizeError>(variant)
+            })
             .collect::<Result<_, _>>()?;
 
         Ok(Product {
@@ -177,6 +193,8 @@ fn check_island(
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title` where the product has no
     /// options to choose.
@@ -221,6 +239,7 @@ impl Variant {
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {
         Ok(Variant {
+            availability: None,
             id: variant_gid(raw.id),
             title: raw.title,
             // public_title: raw.public_title,

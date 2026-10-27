@@ -82,6 +82,13 @@ mod tests {
             }
             pages += 1;
             let input = std::fs::read_to_string(&path).unwrap();
+            let mut input: serde_json::Value = serde_json::from_str(&input).unwrap();
+            // The facade owns this envelope; family normalizers receive its source payload.
+            input
+                .as_object_mut()
+                .unwrap()
+                .remove("_localization_evidence");
+            let input = input.to_string();
             let result = normalize(&input).and_then(|normalized| {
                 let document = normalized.document_json.ok_or("no normalized document")?;
                 let output = structuralize(&document)?;

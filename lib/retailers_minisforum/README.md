@@ -57,3 +57,6 @@ checks still require the product handle in both product and offer URLs.
 Compact metadata fixtures in each affected storefront's `raw/current-metadata.json`
 retain the saved wire shapes with shortened descriptive text. They run in normal
 CI without the external data checkout.
+
+Canonical comparison prices, availability, item condition, and descriptions are
+documented in [offer facts source coverage](../../docs/offer-facts-source-coverage.md).

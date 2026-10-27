@@ -338,6 +338,7 @@ mod tests {
         assert_eq!(
             variant,
             &json!({
+                "availability": "in_stock",
                 "id": "gid://shopify/ProductVariant/43454938677347",
                 "title": "Black",
                 "name": "UGREEN LP668 Ergonomic Mouse Pad with Wrist Rest - Black",

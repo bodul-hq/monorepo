@@ -12,3 +12,6 @@ mod store;
 mod live_tests;
 #[cfg(test)]
 mod postgres_tests;
+
+#[cfg(test)]
+mod test_facts;

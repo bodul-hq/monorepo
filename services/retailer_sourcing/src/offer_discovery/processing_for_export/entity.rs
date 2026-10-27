@@ -1,11 +1,12 @@
 use bodul_shared::retailer::RetailerCode;
 use money::Money;
+use retailer_sauce::observation::Observation;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};
 
-pub const SCHEMA_VERSION: u32 = 5;
+pub const SCHEMA_VERSION: u32 = 8;
 
 pub fn legacy_schema_version() -> u32 {
     1
@@ -26,6 +27,23 @@ pub struct ExportSource {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OfferImport {
+    #[serde(
+        default,
+        skip_serializing_if = "Observation::is_missing",
+        deserialize_with = "retailer_sauce::observation::object_observation"
+    )]
+    pub was_price: Observation<Money>,
+    #[serde(default, skip_serializing_if = "Observation::is_missing")]
+    pub availability: Observation<retailer_sauce::availability::Availability>,
+    #[serde(default, skip_serializing_if = "Observation::is_missing")]
+    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "retailer_sauce::structuralized::content::observation"
+    )]
+    pub content: Option<retailer_sauce::structuralized::content::Content>,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gtin: Option<retailer_sauce::identifier::Gtin>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -97,9 +115,32 @@ pub struct OfferExport {
 
 impl OfferExport {
     pub fn valid_schema(&self) -> bool {
-        matches!(self.schema_version, 1..=5)
+        matches!(self.schema_version, 1..=8)
             && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
+                let payload = &entry.payload;
+                if (self.schema_version < 6 && !payload.was_price.is_missing())
+                    || (self.schema_version < 7
+                        && (!payload.availability.is_missing()
+                            || !payload.item_condition.is_missing()))
+                    || (self.schema_version < 8 && payload.content.is_some())
+                    || payload.was_price.value().is_some_and(|was| {
+                        was.currency() != payload.price.currency()
+                            || was.amount() <= payload.price.amount()
+                    })
+                    || payload
+                        .availability
+                        .value()
+                        .is_some_and(|v| v.guard().is_err())
+                    || payload
+                        .item_condition
+                        .value()
+                        .is_some_and(|v| v.guard().is_err())
+                    || payload.content.as_ref().is_some_and(|v| v.guard().is_err())
+                {
+                    return false;
+                }
+
                 if entry.payload.external_identifiers.is_some() != (self.schema_version >= 5)
                     || (self.schema_version < 5
                         && (entry.payload.gtin.is_some() || entry.payload.sku.is_some()))

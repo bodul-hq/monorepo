@@ -408,7 +408,7 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
     let mut other_source = event(&stored);
     other_source.source.url = "https://shop.example/Other".into();
     let mut unsupported = event(&stored);
-    unsupported.schema_version = 6;
+    unsupported.schema_version = 9;
     for payload in [missing, event(&pending), other_source, unsupported] {
         seed_event(
             &db,
@@ -576,5 +576,57 @@ fn both_export_versions_replay_with_stable_message_ids_and_payload_shapes() {
             assert_eq!(payload, serde_json::to_value(&entry.payload).unwrap());
             assert_eq!(payload.get("images").is_some(), version == 2);
         }
+    }
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+fn fact_versions_keep_exact_delivery_payloads_and_ids_across_replayed_events() {
+    use crate::offer_discovery::prelude::export_testing::{
+        assert_fact_payloads, completed_version, fact_document,
+    };
+    let db = Database::new();
+    let server = Server::new();
+    let source = stored_source(&server.client(), &fact_document().to_string());
+    let app = app(&db, &server);
+    let mut expected_count = 0;
+    for version in [1, 6, 7, 8] {
+        let export = completed_version(&db.pool, server.client(), source.clone(), version);
+        assert_fact_payloads(&export, &fact_document());
+        let previous = outbox_rows(&db);
+        let first_context = context();
+        seed_export_event(&db, &export, &first_context);
+        assert_eq!(
+            run_events(&server, &app),
+            json!({"processed":1,"errors":[]})
+        );
+        expected_count += export.entries.len();
+        let recorded = outbox_rows(&db);
+        let rows = recorded.as_array().unwrap();
+        assert_eq!(rows.len(), expected_count);
+        for old in previous.as_array().unwrap() {
+            assert_eq!(rows.iter().find(|row| row["id"] == old["id"]).unwrap(), old);
+        }
+        for entry in &export.entries {
+            let row = rows
+                .iter()
+                .find(|row| row["id"] == json!(entry.id))
+                .unwrap();
+            assert_eq!(row["meta"]["message_id"], json!(entry.id));
+            assert_eq!(row["meta"]["event_id"], json!(first_context.event_id));
+            assert_eq!(
+                row["payload"],
+                serde_json::to_string(&entry.payload).unwrap()
+            );
+            let payload: Value = serde_json::from_str(row["payload"].as_str().unwrap()).unwrap();
+            assert_eq!(payload, serde_json::to_value(&entry.payload).unwrap());
+        }
+        // A new export notification must preserve the original payload text, identity and metadata.
+        seed_export_event(&db, &export, &context());
+        assert_eq!(
+            run_events(&server, &app),
+            json!({"processed":1,"errors":[]})
+        );
+        assert_eq!(outbox_rows(&db), recorded);
     }
 }

@@ -83,7 +83,16 @@ impl Product {
             .collect();
         let variants = records
             .into_iter()
-            .map(|record| Variant::from_raw(record, &options, currency))
+            .map(|record| {
+                let availability = island
+                    .offers
+                    .iter()
+                    .find(|offer| offer.variant_id == record.id)
+                    .map(|offer| offer.availability.clone());
+                let mut variant = Variant::from_raw(record, &options, currency)?;
+                variant.availability = availability;
+                Ok::<_, NormalizeError>(variant)
+            })
             .collect::<Result<_, _>>()?;
 
         Ok(Product {
@@ -233,6 +242,8 @@ fn check_offers(
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     pub id: String,
     /// The selected values joined with ` / `. `None` where the product has no options to choose:
     /// Liquid names the only variant `Default Title` (3 of the 29 saved pages).
@@ -287,6 +298,7 @@ impl Variant {
             .and_then(|compare_at| price.map(|_| compare_at));
 
         Ok(Variant {
+            availability: None,
             id: variant_gid(raw.id),
             title: raw.public_title,
             name: raw.name,

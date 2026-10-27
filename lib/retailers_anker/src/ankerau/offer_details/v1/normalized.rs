@@ -151,6 +151,9 @@ pub mod ldjson {
             let price = super::money(raw.offers.price, &raw.offers.price_currency, "offers.price")?;
 
             let offer = offer::Offer {
+                availability: Some(retailer_sauce::availability::Availability::from_schema_org(
+                    raw.offers.availability,
+                )),
                 item_condition: super::ItemCondition::from_schema_org(raw.offers.item_condition),
                 price,
                 url: raw.offers.url,
@@ -175,6 +178,8 @@ pub mod ldjson {
 
         #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
         pub struct Offer {
+            #[serde(default)]
+            pub availability: Option<retailer_sauce::availability::Availability>,
             pub item_condition: ItemCondition,
             pub price: Money,
             pub url: String,
@@ -732,7 +737,7 @@ mod tests {
     use ldjson::offer::ItemCondition;
 
     #[test]
-    fn product_offer_omits_availability_and_preserves_condition_and_money() {
+    fn product_offer_preserves_availability_condition_and_money() {
         for (availability, condition, expected_condition, serialized) in [
             (
                 "https://schema.org/InStock",
@@ -770,7 +775,13 @@ mod tests {
             let product = ldjson::Product::from_raw(raw).expect("the island converts");
             assert_eq!(product.offer.item_condition, expected_condition);
             let output = serde_json::to_value(product).unwrap();
-            assert!(output["offer"].get("availability").is_none());
+            assert_eq!(
+                output["offer"]["availability"],
+                serde_json::to_value(retailer_sauce::availability::Availability::from_schema_org(
+                    availability
+                ))
+                .unwrap()
+            );
             assert_eq!(output["offer"]["item_condition"], serialized);
             assert_eq!(
                 output["offer"]["price"],

@@ -1,7 +1,7 @@
 //! Reduces the schema.org islands to the one that describes the product, in the shape the record
 //! is checked against: the theme's `ProductGroup` or `Product`. The merchant feed app's,
 //! the SEO app's, the reviews app's and the `Organization` islands are left out, for the reasons
-//! in the parent module. Nothing here crosses into the normalized document but `category`.
+//! in the parent module. The category and variant-scoped availability cross into the normalized document.
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript};
 use super::NormalizeError;
@@ -24,6 +24,7 @@ pub(super) struct IslandOffer {
     pub currency: String,
     pub sku: Option<String>,
     pub in_stock: bool,
+    pub availability: retailer_sauce::availability::Availability,
 }
 
 impl Island {
@@ -75,6 +76,9 @@ impl Island {
 impl IslandOffer {
     fn from_raw(offer: ldjson::Offer, sku: Option<String>) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
+            availability: retailer_sauce::availability::Availability::from_schema_org(
+                offer.availability.clone(),
+            ),
             variant_id: variant_id(&offer.url)?,
             cents: cents(&offer.price).ok_or_else(|| NormalizeError::OfferPriceNotDecimal {
                 offer: offer.id.clone(),

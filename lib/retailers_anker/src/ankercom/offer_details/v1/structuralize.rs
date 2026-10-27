@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{self, AnkerComNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -43,6 +44,28 @@ impl AnkerComDocument {
             )?;
 
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    variant.price.as_ref(),
+                    variant.compare_at_price.as_ref(),
+                ),
+                availability: Some(
+                    if offer_facts::unique_sku(
+                        &island.sku,
+                        &variant.sku,
+                        product.variants.iter().map(|v| v.sku.as_str()),
+                    ) {
+                        island.offer.availability.clone()
+                    } else {
+                        offer_facts::purchase_available(variant.available_for_sale)
+                    },
+                ),
+                item_condition: (offer_facts::unique_sku(
+                    &island.sku,
+                    &variant.sku,
+                    product.variants.iter().map(|v| v.sku.as_str()),
+                ))
+                .then(|| island.offer.item_condition.clone()),
+                content: offer_facts::content(product.description.as_deref()),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -57,6 +80,10 @@ impl AnkerComDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation. The record's, verbatim: some titles wrap the
     /// model number in `<b>` markup.
@@ -176,7 +203,7 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let mut input = normalized_document();
         input["product"]["variants"]
             .as_array_mut()
@@ -186,6 +213,10 @@ mod tests {
         assert_eq!(
             structuralized(&input),
             json!({"variations": [{
+                "was_price": null,
+                "availability": "in_stock",
+                "item_condition": "new",
+                "content": {"description": "Description"},
                 "identifiers": {
                     "gtin": "194644239299",
                     "sku": "A1637111",

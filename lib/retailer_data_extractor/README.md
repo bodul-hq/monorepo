@@ -59,3 +59,8 @@ source paths remain in evidence with selection diagnostics. Only extraction
 applies this policy: later stages carry old sidecars unchanged. Unsupported
 extlang/grandfathered tags remain unknown, as do unsupported country regions,
 numeric macroregions and regions appearing only in Unicode extensions.
+
+The opt-in, read-only `offer_facts_corpus` integration test checks canonical comparison
+prices, availability, item condition, and descriptions across the saved source
+corpus. See [source coverage](../../docs/offer-facts-source-coverage.md) for source
+semantics, nullable fields, and the survey command.

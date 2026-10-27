@@ -215,6 +215,8 @@ mod tests {
         assert_eq!(
             product["variants"],
             json!([{
+                "availability": "in_stock",
+                "item_condition": "new",
                 "id": "gid://shopify/ProductVariant/44061363634464",
                 "title": null,
                 "name": "UGREEN Nexode 100W USB C Charger - Black",
@@ -412,5 +414,16 @@ mod tests {
             normalized(document())["product"]["images"],
             json!(["https://ca.ugreen.com/cdn/shop/files/charger.png?v=1746739856"])
         );
+    }
+
+    #[test]
+    fn selling_offer_facts_do_not_leak_to_siblings() {
+        let mut input = document();
+        input["variants"]["data"][1]["sku"] = json!("40738");
+        let output = normalized(input);
+        assert_eq!(output["product"]["variants"][0]["availability"], "in_stock");
+        assert_eq!(output["product"]["variants"][0]["item_condition"], "new");
+        assert!(output["product"]["variants"][1]["availability"].is_null());
+        assert!(output["product"]["variants"][1]["item_condition"].is_null());
     }
 }

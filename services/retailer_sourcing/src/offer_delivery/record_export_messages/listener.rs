@@ -59,7 +59,7 @@ impl<S: Store> Listen for Listener<S> {
 
     fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error> {
         let export_id = event.export_id;
-        if !matches!(event.schema_version, 1..=5) {
+        if !matches!(event.schema_version, 1..=8) {
             return Err(ListenerError::UnsupportedSchema {
                 export_id,
                 version: event.schema_version,
@@ -151,6 +151,10 @@ mod tests {
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                was_price: Default::default(),
+                availability: Default::default(),
+                item_condition: Default::default(),
+                content: None,
                 gtin: None,
                 sku: None,
                 external_identifiers: None,

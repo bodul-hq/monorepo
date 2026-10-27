@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use money::Money;
+use retailer_sauce::observation::Observation;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -15,6 +16,21 @@ struct StructuralizedDocument {
 
 #[derive(Deserialize)]
 struct Variation {
+    #[serde(
+        default,
+        deserialize_with = "retailer_sauce::observation::object_observation"
+    )]
+    was_price: Observation<Money>,
+    #[serde(default)]
+    availability: Observation<retailer_sauce::availability::Availability>,
+    #[serde(default)]
+    item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    #[serde(
+        default,
+        deserialize_with = "retailer_sauce::structuralized::content::observation"
+    )]
+    content: Option<retailer_sauce::structuralized::content::Content>,
+
     #[serde(default)]
     identifiers: VariationIdentifiers,
     #[serde(default)]
@@ -56,7 +72,7 @@ pub(super) fn convert(
     body: &str,
     schema_version: u32,
 ) -> Result<OfferExport, ConversionError> {
-    if !matches!(schema_version, 1..=5) {
+    if !matches!(schema_version, 1..=8) {
         return Err(ConversionError("unsupported schema version".into()));
     }
     if schema_version < 3 && source.storage.scraped_at.is_some() {
@@ -100,6 +116,26 @@ pub(super) fn convert(
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                was_price: if schema_version >= 6 {
+                    variation.was_price
+                } else {
+                    Observation::Missing
+                },
+                availability: if schema_version >= 7 {
+                    variation.availability
+                } else {
+                    Observation::Missing
+                },
+                item_condition: if schema_version >= 7 {
+                    variation.item_condition
+                } else {
+                    Observation::Missing
+                },
+                content: if schema_version >= 8 {
+                    variation.content
+                } else {
+                    None
+                },
                 gtin: if schema_version >= 5 {
                     identifiers.gtin
                 } else {
@@ -156,6 +192,23 @@ impl Variation {
             return Err(ConversionError(format!(
                 "variation {index} requires a nonnegative price"
             )));
+        }
+        if let Some(was) = self.was_price.value()
+            && let Some(price) = &self.price
+            && (was.currency() != price.currency() || was.amount() <= price.amount())
+        {
+            return Err(ConversionError(format!(
+                "variation {index} has an invalid comparison price"
+            )));
+        }
+        if let Some(value) = self.availability.value() {
+            value.guard().map_err(ConversionError)?;
+        }
+        if let Some(value) = self.item_condition.value() {
+            value.guard().map_err(ConversionError)?;
+        }
+        if let Some(value) = &self.content {
+            value.guard().map_err(ConversionError)?;
         }
         Ok(())
     }
@@ -474,6 +527,111 @@ mod extended_contract_tests {
                     .entries
                     .iter()
                     .all(|entry| entry.payload.external_identifiers.is_some())
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod facts_tests {
+    use super::*;
+    use serde_json::{Value, json};
+
+    fn document() -> Value {
+        let payload: Value = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/offer_export/import_payload_v8.json"
+        ))
+        .unwrap();
+        let mut variation = payload.clone();
+        variation["identifiers"] = json!({"gtin":payload["gtin"],"sku":payload["sku"],"shopify_product_gid":payload["external_identifiers"]["shopify_product_gid"],"shopify_product_variation_gid":payload["external_identifiers"]["shopify_product_variation_gid"],"shopify_handle":payload["external_identifiers"]["shopify_handle"]});
+        json!({"variations":[variation]})
+    }
+
+    #[test]
+    fn new_export_contracts_preserve_values_and_versioned_shapes() {
+        let mut source = tests::source();
+        source.storage.scraped_at = Some("2026-10-26T12:00:00.123456Z".parse().unwrap());
+        for (version, fixture) in [
+            (
+                6,
+                include_str!("../../../tests/fixtures/offer_export/import_payload_v6.json"),
+            ),
+            (
+                7,
+                include_str!("../../../tests/fixtures/offer_export/import_payload_v7.json"),
+            ),
+            (
+                8,
+                include_str!("../../../tests/fixtures/offer_export/import_payload_v8.json"),
+            ),
+        ] {
+            let snapshot = convert(source.clone(), &document().to_string(), version).unwrap();
+            assert!(snapshot.valid_schema());
+            let payload = serde_json::to_value(&snapshot.entries[0].payload).unwrap();
+            assert_eq!(payload, serde_json::from_str::<Value>(fixture).unwrap());
+            let bytes = serde_json::to_vec(&snapshot).unwrap();
+            let restored: OfferExport = serde_json::from_slice(&bytes).unwrap();
+            assert_eq!(serde_json::to_vec(&restored).unwrap(), bytes);
+        }
+        for version in 1..=5 {
+            let mut source = source.clone();
+            if version < 3 {
+                source.storage.scraped_at = None;
+            }
+            let old = convert(source, &document().to_string(), version).unwrap();
+            assert!(old.valid_schema());
+            let payload = serde_json::to_value(&old.entries[0].payload).unwrap();
+            for field in ["was_price", "availability", "item_condition", "content"] {
+                assert!(payload.get(field).is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn new_exports_distinguish_legacy_omission_from_explicit_unknown() {
+        let missing = convert(tests::source(), tests::ANKER, 8).unwrap();
+        assert!(missing.valid_schema());
+        let payload = &missing.entries[0].payload;
+        assert!(payload.was_price.is_missing());
+        assert!(payload.availability.is_missing());
+        assert!(payload.item_condition.is_missing());
+        assert!(payload.content.is_none());
+        let mut body = document();
+        for key in ["was_price", "availability", "item_condition"] {
+            body["variations"][0][key] = Value::Null;
+        }
+        body["variations"][0]["content"] = json!({"description":null});
+        let snapshot = convert(tests::source(), &body.to_string(), 8).unwrap();
+        assert!(snapshot.valid_schema());
+        let payload = &snapshot.entries[0].payload;
+        assert_eq!(payload.was_price, Observation::Observed(None));
+        assert_eq!(payload.availability, Observation::Observed(None));
+        assert_eq!(payload.item_condition, Observation::Observed(None));
+        assert_eq!(payload.content.as_ref().unwrap().description, None);
+        let mut legacy = snapshot;
+        legacy.schema_version = 5;
+        assert!(!legacy.valid_schema());
+    }
+
+    #[test]
+    fn malformed_facts_fail_before_snapshot_preparation() {
+        for (field, invalid) in [
+            ("was_price", json!({"amount":1999,"currency":"AUD"})),
+            ("was_price", json!({"amount":2999,"currency":"USD"})),
+            ("availability", json!({"other":"  "})),
+            ("item_condition", json!("guessed_new")),
+            ("was_price", json!([2999, "AUD"])),
+            ("content", json!([null])),
+            ("content", json!(null)),
+            ("content", json!({})),
+            ("content", json!({"description":42})),
+            ("content", json!({"description":"bad\u{0}"})),
+        ] {
+            let mut body = document();
+            body["variations"][0][field] = invalid;
+            assert!(
+                convert(tests::source(), &body.to_string(), 8).is_err(),
+                "{body}"
             );
         }
     }

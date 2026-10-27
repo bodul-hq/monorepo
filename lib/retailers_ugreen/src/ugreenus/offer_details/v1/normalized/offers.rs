@@ -199,6 +199,9 @@ pub(super) fn enrich(product: &mut Product, items: Vec<LdJsonItem>) -> Result<()
         }
         variant.url = offer.url;
         variant.available = Some(available(&offer.availability)?);
+        variant.availability = Some(retailer_sauce::availability::Availability::from_schema_org(
+            offer.availability,
+        ));
         variant.gtin = published.gtin.filter(|s| !s.is_empty());
         variant.image = published
             .image

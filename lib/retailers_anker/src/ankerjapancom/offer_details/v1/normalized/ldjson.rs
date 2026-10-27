@@ -108,9 +108,8 @@ pub struct Offer {
     pub variant_id: String,
     // Commented out: the variant's record `price` in whole yen, on every offer.
     // pub price: Money,
-    // Commented out: the variant's record `available`, in an `http://schema.org/` spelling that
-    // `Availability::from_schema_org` does not read.
-    // pub availability: Availability,
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     // Commented out: the variant's record `sku`, absent where that is empty.
     // pub sku: Option<String>,
     // Commented out: the variant's record `compare_at_price` in whole yen, as a strikethrough
@@ -127,6 +126,9 @@ impl Offer {
         let rate = raw.shipping_details.shipping_rate;
 
         Ok(Offer {
+            availability: Some(retailer_sauce::availability::Availability::from_schema_org(
+                raw.availability,
+            )),
             variant_id: variant_gid(offered_variant_id(&raw.url)?),
             return_policy: MerchantReturnPolicy::from_raw(raw.has_merchant_return_policy),
             shipping_rate: yen(rate.value, &rate.currency, "shippingRate.value")?,

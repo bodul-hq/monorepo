@@ -2,6 +2,7 @@
 //! entry per variation, carrying its title, identifiers, images, price and URL.
 
 use super::normalized::{UgreenFrNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -39,6 +40,13 @@ impl UgreenFrDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        Some(&variant.price),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: Some(offer_facts::in_stock(variant.available)),
+                    item_condition: None,
+                    content: offer_facts::content(None),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -54,6 +62,10 @@ impl UgreenFrDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title, shared by every variation.
     pub title: String,
@@ -140,7 +152,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         let images = json!([
             "https://fr.ugreen.com/cdn/shop/files/charger.png?v=1738861172",
             "https://fr.ugreen.com/cdn/shop/files/61kMB5x0AfL.jpg?v=1738834470"
@@ -151,6 +163,10 @@ mod tests {
             structuralized(normalized_document()),
             json!({"variations": [
                 {
+                    "was_price": {"amount": 17999, "currency": "EUR"},
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": null},
                     "identifiers": {
                         "gtin": "6941876246991",
                         "sku": "45699",
@@ -164,6 +180,10 @@ mod tests {
                     "images": images,
                 },
                 {
+                    "was_price": null,
+                    "availability": "in_stock",
+                    "item_condition": null,
+                    "content": {"description": null},
                     "identifiers": {
                         "gtin": null,
                         "sku": "45699+70427P",
@@ -187,6 +207,10 @@ mod tests {
         assert_eq!(
             output,
             json!({"variations": [{
+                "was_price": {"amount": 6199, "currency": "EUR"},
+                "availability": "in_stock",
+                "item_condition": null,
+                "content": {"description": null},
                 "identifiers": {
                     "gtin": "6938638046609",
                     "sku": "15532",

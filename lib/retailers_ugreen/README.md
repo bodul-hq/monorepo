@@ -126,3 +126,6 @@ The NAS AU/CA/ES/EU/FR/IT/UK extractors also recognize current
 `ug-product-gallery` image slides, as DE already did. Video posters, discount
 badges, thumbnails and recommendation sections are excluded. This keeps new
 extractions complete while the fallback handles previously saved extractions.
+
+Canonical comparison prices, availability, item condition, and descriptions are
+documented in [offer facts source coverage](../../docs/offer-facts-source-coverage.md).

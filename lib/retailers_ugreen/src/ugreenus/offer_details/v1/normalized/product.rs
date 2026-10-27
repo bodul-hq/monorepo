@@ -168,6 +168,8 @@ fn agree(field: &str, agrees: bool) -> Result<(), NormalizeError> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     /// A custom, unversioned JSON-LD offer disagrees with the live page prices.
     pub offer_price_mismatch: bool,
     /// Price published by the selling JSON-LD offer, which can reflect an automatic discount.
@@ -192,6 +194,7 @@ pub struct Variant {
 impl Variant {
     fn from_raw(raw: raw::analytics::Variant, currency: Currency) -> Variant {
         Variant {
+            availability: None,
             offer_price_mismatch: false,
             offer_price: None,
             offer_prices: Vec::new(),

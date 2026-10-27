@@ -27,10 +27,7 @@ pub struct Product {
     pub product_type: Option<String>,
     // Commented out: the island's one image, the first of `images` at `&width=600`.
     // pub image: Vec<String>,
-    // Commented out: the island's offers restate the variants' SKUs, prices and stock, but only
-    // for the selected variant on some multi-variant pages. Only their currency is read, to check
-    // it against the shop's.
-    // pub offers: Vec<Offer>,
+    // Island offers can cover only one variant; stock and condition are retained on exact matches.
     // Commented out: false on every page.
     // pub remote: bool,
     // Commented out: the analytics `page` describes this request, not the product.
@@ -87,7 +84,7 @@ impl Product {
             });
         }
 
-        let (options, variants) = match (raw.variants, raw.options) {
+        let (options, mut variants) = match (raw.variants, raw.options) {
             (Some(variants), Some(options)) => {
                 let options = option_names(options.data)?;
 
@@ -123,6 +120,39 @@ impl Product {
             }
         };
 
+        for index in 0..variants.len() {
+            let variant = &variants[index];
+            let unique_sku = variant.sku.as_ref().is_some_and(|sku| {
+                variants
+                    .iter()
+                    .filter(|v| v.sku.as_ref() == Some(sku))
+                    .count()
+                    == 1
+            });
+            let mut matching = offers.iter().filter(|offer| {
+                let pinned = offer.url.split_once('?').and_then(|(_, query)| {
+                    query
+                        .split('&')
+                        .find_map(|pair| pair.strip_prefix("variant="))
+                });
+                match pinned {
+                    Some(id) => variant.id == format!("gid://shopify/ProductVariant/{id}"),
+                    None => unique_sku && variant.sku.as_deref() == Some(offer.sku.as_str()),
+                }
+            });
+            if let Some(offer) = matching.next().filter(|_| matching.next().is_none()) {
+                variants[index].availability =
+                    Some(retailer_sauce::availability::Availability::from_schema_org(
+                        offer.availability.clone(),
+                    ));
+                variants[index].item_condition = Some(
+                    retailer_sauce::item_condition::ItemCondition::from_schema_org(
+                        offer.item_condition.clone(),
+                    ),
+                );
+            }
+        }
+
         Ok(Product {
             id: meta.gid,
             handle: meta.handle,
@@ -145,6 +175,10 @@ impl Product {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
+    #[serde(default)]
+    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
     pub id: String,
     /// The selected values joined with ` / `; `None` on a `Default Title` variant.
     pub title: Option<String>,
@@ -188,6 +222,8 @@ impl Variant {
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {
         Ok(Variant {
+            availability: None,
+            item_condition: None,
             id: variant_gid(raw.id),
             title: Some(raw.title),
             // public_title: raw.public_title,
@@ -235,6 +271,8 @@ impl Variant {
         }
 
         Ok(Variant {
+            availability: None,
+            item_condition: None,
             id: variant_gid(variant.id),
             title: variant.public_title,
             name: variant.name,

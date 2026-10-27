@@ -3,6 +3,7 @@
 //! locale.
 
 use super::normalized::{Locale, UgreenInNormalizedDocument, product};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
@@ -44,6 +45,16 @@ impl UgreenInDocument {
                 )?;
 
                 Ok(ProductVariation {
+                    was_price: offer_facts::was_price(
+                        variant.price.as_ref(),
+                        variant.compare_at_price.as_ref(),
+                    ),
+                    availability: variant
+                        .availability
+                        .clone()
+                        .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                    item_condition: None,
+                    content: offer_facts::content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -62,6 +73,10 @@ impl UgreenInDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The product's title in the page's locale, shared by every variation.
     pub title: String,
@@ -157,6 +172,10 @@ mod tests {
 
     fn variation(id: u64, sku: &str, gtin: Option<&str>) -> Value {
         json!({
+            "was_price": {"amount": 222000, "currency": "INR"},
+            "availability": "in_stock",
+            "item_condition": null,
+            "content": {"description": "<p>d</p>"},
             "identifiers": {
                 "gtin": gtin,
                 "sku": sku,
@@ -172,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn each_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn each_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         assert_eq!(
             structuralized(normalized_document()),
             json!({

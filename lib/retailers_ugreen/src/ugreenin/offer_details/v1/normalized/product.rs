@@ -64,7 +64,16 @@ impl Product {
         let variants = raw
             .variants
             .into_iter()
-            .map(|variant| Variant::from_raw(variant, &options, currency))
+            .map(|variant| {
+                let availability = island
+                    .offers
+                    .iter()
+                    .find(|offer| offer.variant_id == variant.id)
+                    .map(|offer| offer.availability.clone());
+                let mut variant = Variant::from_raw(variant, &options, currency)?;
+                variant.availability = availability;
+                Ok::<_, NormalizeError>(variant)
+            })
             .collect::<Result<_, _>>()?;
 
         Ok(Product {
@@ -190,6 +199,8 @@ fn check_island(
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title` where the product has no
     /// options to choose.
@@ -239,6 +250,7 @@ impl Variant {
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {
         Ok(Variant {
+            availability: None,
             id: variant_gid(raw.id),
             title: raw.title,
             // public_title: raw.public_title,

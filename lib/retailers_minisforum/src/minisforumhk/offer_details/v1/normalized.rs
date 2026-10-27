@@ -495,7 +495,7 @@ mod tests {
 
     #[test]
     fn an_unseen_availability_fails() {
-        for value in ["http://schema.org/InStock", "https://schema.org/PreOrder"] {
+        for value in ["https://schema.org/SoldOut", "https://schema.org/PreOrder"] {
             let mut input = document();
             island_offer_mut(&mut input, 0)["availability"] = json!(value);
 

@@ -1,3 +1,5 @@
+mod facts;
+
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
@@ -370,4 +372,8 @@ fn versions_coexist_without_rewriting_pending_or_completed_v1() {
         .execute(&mut db.pool.get().unwrap())
         .unwrap();
     assert!(store.load(old_snapshot.id).is_err());
+}
+
+pub(super) fn verify_current_facts_round_trip(db: &Database, objects: ObjectStorage) {
+    facts::verify_current_round_trip(db, objects);
 }

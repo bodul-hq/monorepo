@@ -39,6 +39,8 @@ pub struct Product {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
+    #[serde(default)]
+    pub availability: Option<retailer_sauce::availability::Availability>,
     /// Price published by the selling JSON-LD offer, which can reflect an automatic discount.
     pub offer_price: Option<Money>,
     pub offer_prices: Vec<OfferPrice>,
@@ -163,6 +165,7 @@ impl Product {
                 "hundredths do not represent whole won",
             )?;
             variants.push(Variant {
+                availability: None,
                 offer_price: None,
                 id: variant_gid(v.id),
                 title: v.public_title,

@@ -5,6 +5,7 @@
 //! its gallery, so each variation is the record's product facts joined to one of its variants.
 
 use super::normalized::{self, AnkerNordicsComNormalizedDocument};
+use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -46,6 +47,13 @@ impl AnkerNordicsComDocument {
             )?;
 
             variations.push(ProductVariation {
+                was_price: offer_facts::was_price(
+                    Some(&variant.price),
+                    variant.compare_at_price.as_ref(),
+                ),
+                availability: Some(offer_facts::purchase_available(variant.available_for_sale)),
+                item_condition: None,
+                content: offer_facts::content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -60,6 +68,10 @@ impl AnkerNordicsComDocument {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ProductVariation {
+    pub was_price: Option<Money>,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Content,
     pub identifiers: ProductVariationIdentifier,
     /// The record's, verbatim and shared by every variation: some titles wrap the model number in
     /// `<b>` markup.
@@ -178,10 +190,14 @@ mod tests {
     }
 
     #[test]
-    fn a_variation_carries_its_title_identifiers_images_price_and_url_only() {
+    fn a_variation_carries_its_title_identifiers_images_price_url_and_offer_facts() {
         assert_eq!(
             structuralized(&single_variant_document()),
             json!({"variations": [{
+                "was_price": null,
+                "availability": "available",
+                "item_condition": null,
+                "content": {"description": "d"},
                 "identifiers": {
                     "gtin": "194644239299",
                     "sku": "A3947G11",
