@@ -39,3 +39,21 @@ using a dedicated `DATABASE_URL_TEST` (the tests create isolated schemas). Use
 `RUST_TEST_THREADS=4` if the database's connection limit is small. Run `make audit`
 when dependency manifests or lockfiles change. Database/live checks are required
 before marking all planned items complete; unit tests alone are insufficient.
+
+## Fresh locale-derived observations
+
+Under [ADR 31](adr/0031-source-locale-market-fallback.md), a new extraction from
+`<html lang="it-IT">` without explicit market evidence selects country IT and
+language it. Inspect `_localization_evidence.candidates` for the original full
+tag and `selected locale-derived country market` decision. Drive the ordinary
+new download/extraction and explicit queue flow to observe this in customer-facing
+REST/GraphQL and the customers response model. Replaying an old null/`it-IT`
+export must retain those original facts; it cannot apply the new policy. A new
+IT/it observation uses `OfferLocalizationChanged.v1`, an identical reimport emits
+none, and an explicit null/null observation still clears both fields. No source
+corpus, immutable export or event history is rewritten by this change.
+
+Under [ADR 33](adr/0033-european-union-locale-market.md), fresh Anker EU pages
+declaring `html[lang="en-EU"]` follow the same flow with market
+`{"kind":"region","label":"European Union"}` and language `en`. The `/eu-en/`
+URL alone is not evidence. Legacy null/`en-EU` observations remain unchanged.

@@ -42,6 +42,8 @@ Notable changes to this repository. The format follows [Keep a Changelog](https:
 
 ### Fixed
 
+- Source locales with region EU now provide the European Union regional market
+  when no explicit market is declared; `en-EU` retains language `en`.
 - Anker regional sitemaps no longer accept out-of-region URLs listed by a sitemap they do not recognize.
 - `minisforumau` sitemaps no longer report other hosts, the homepage, `agents.md`, `/pages/` or service products such as shipping protection as interesting.
 - `ankercom` sitemaps no longer treat German and Mexican storefront URLs as global.

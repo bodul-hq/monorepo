@@ -20,7 +20,7 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
         let Ok(files) = std::fs::read_dir(sources) else {
             continue;
         };
-        let counts = report.entry(slug).or_insert([0usize; 5]);
+        let counts = report.entry(slug.clone()).or_insert([0usize; 5]);
         for file in files
             .flatten()
             .filter(|file| file.path().extension().is_some_and(|ext| ext == "html"))
@@ -33,6 +33,36 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
             };
             let raw: serde_json::Value = serde_json::from_str(&extracted).unwrap();
             let selected = &raw["_localization_evidence"]["selected"];
+            if slug == "ankeritalycom" {
+                assert_eq!(
+                    selected,
+                    &serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"})
+                );
+                assert!(
+                    raw["_localization_evidence"]["candidates"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|candidate| candidate["path"] == "html[lang]"
+                            && candidate["raw"] == "it-IT"
+                            && candidate["decision"] == "selected locale-derived country market")
+                );
+            }
+            if slug == "ankereu" {
+                assert_eq!(
+                    selected,
+                    &serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"})
+                );
+                assert!(
+                    raw["_localization_evidence"]["candidates"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|candidate| candidate["path"] == "html[lang]"
+                            && candidate["raw"] == "en-EU"
+                            && candidate["decision"] == "selected locale-derived regional market")
+                );
+            }
             counts[1] += usize::from(!selected["target_market"].is_null());
             counts[2] += usize::from(!selected["language"].is_null());
             let Some(Ok(normalized)) = normalize_for(code, &extracted) else {

@@ -1027,7 +1027,7 @@ mod localization_tests {
     fn observations_replace_facts_but_omitted_legacy_imports_preserve_them() {
         let known = retailer_sauce::localization::Localization {
             target_market: None,
-            language: Some("en-AU".into()),
+            language: Some("it-IT".into()),
         };
         let observation = OfferObservation {
             localization: Some(known.clone()),
@@ -1062,6 +1062,29 @@ mod localization_tests {
             assert_eq!(offer.sequence, 1);
             assert_eq!(offer.state.localization, known);
         }
+        let selected: retailer_sauce::localization::Localization = serde_json::from_value(
+            serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
+        )
+        .unwrap();
+        for localization in [Some(selected.clone()), Some(selected.clone()), None] {
+            let observation = OfferObservation {
+                localization,
+                ..Default::default()
+            };
+            offer
+                .update_with_observation(
+                    "Charger".into(),
+                    Money::new(100, money::Currency::AUD),
+                    vec![],
+                    observation,
+                )
+                .unwrap();
+            assert_eq!(offer.sequence, 2);
+            assert_eq!(offer.state.localization, selected);
+            let replay =
+                RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
+            assert_eq!(replay.state, offer.state);
+        }
         let unknown = OfferObservation {
             localization: Some(Default::default()),
             ..Default::default()
@@ -1074,7 +1097,7 @@ mod localization_tests {
                 unknown,
             )
             .unwrap();
-        assert_eq!(offer.sequence, 2);
+        assert_eq!(offer.sequence, 3);
         assert_eq!(offer.state.localization, Default::default());
         let replay = RetailerOfferAggregate::from_history(id, offer.uncommitted_events.clone());
         assert_eq!(replay.state, offer.state);

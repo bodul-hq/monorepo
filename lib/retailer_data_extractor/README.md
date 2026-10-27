@@ -46,3 +46,16 @@ The facade captures localization evidence after retailer islands are extracted,
 then carries its sidecar through normalization and structuralization without
 changing strict retailer raw schemas. See the [source survey](../../docs/localization-source-coverage.md)
 for accepted declarations, exclusions, portable fixtures and corpus verification.
+
+New localization observations use the selected locale's lowercase primary
+language. If no applicable explicit market is declared, a supported country
+region supplies it (`it-IT` → IT / it). The locale region EU supplies the regional
+market `European Union` (`en-EU` → European Union / en), as recorded in
+[ADR 33](../../docs/adr/0033-european-union-locale-market.md).
+Invalid, dynamic or conflicting explicit
+markets block fallback; valid explicit markets win. Equivalent locale casing
+agrees, while full regional conflicts remain unknown. Raw tags and winning
+source paths remain in evidence with selection diagnostics. Only extraction
+applies this policy: later stages carry old sidecars unchanged. Unsupported
+extlang/grandfathered tags remain unknown, as do unsupported country regions,
+numeric macroregions and regions appearing only in Unicode extensions.

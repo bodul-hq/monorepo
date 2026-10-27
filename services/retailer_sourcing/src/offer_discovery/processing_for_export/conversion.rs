@@ -405,6 +405,32 @@ mod scrape_tests {
 mod extended_contract_tests {
     use super::*;
     #[test]
+    fn localization_policy_is_not_reapplied_to_exports() {
+        for localization in [
+            serde_json::json!({"target_market":null,"language":"it-IT"}),
+            serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
+            serde_json::json!({"target_market":null,"language":"en-EU"}),
+            serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"}),
+        ] {
+            let mut body: serde_json::Value = serde_json::from_str(tests::ANKER).unwrap();
+            for variation in body["variations"].as_array_mut().unwrap() {
+                variation["localization"] = localization.clone();
+            }
+            let export = convert(tests::source(), &body.to_string(), 5).unwrap();
+            assert!(!export.entries.is_empty());
+            for entry in &export.entries {
+                assert_eq!(
+                    serde_json::to_value(&entry.payload.localization).unwrap(),
+                    localization
+                );
+            }
+            let bytes = serde_json::to_vec(&export).unwrap();
+            let replay: OfferExport = serde_json::from_slice(&bytes).unwrap();
+            assert_eq!(serde_json::to_vec(&replay).unwrap(), bytes);
+        }
+    }
+
+    #[test]
     fn v5_keeps_exact_identifiers_and_legacy_exports_omit_new_fields() {
         let body = serde_json::json!({"variations":[{"title":" USB charger ž ","url":"https://shop.example/Charger?q=red&variant=1#details","price":{"amount":1999,"currency":"AUD"},"images":["https://example.com/a.png"],"localization":{"target_market":{"kind":"country","code":"AU"},"language":"en-AU"},"identifiers":{"gtin":"0012345678905","sku":"A1-BLACK","shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}}]});
         let mut source = tests::source();

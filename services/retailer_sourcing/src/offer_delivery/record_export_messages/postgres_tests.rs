@@ -408,7 +408,7 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
     let mut other_source = event(&stored);
     other_source.source.url = "https://shop.example/Other".into();
     let mut unsupported = event(&stored);
-    unsupported.schema_version = 3;
+    unsupported.schema_version = 6;
     for payload in [missing, event(&pending), other_source, unsupported] {
         seed_event(
             &db,

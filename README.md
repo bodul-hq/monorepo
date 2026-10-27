@@ -85,6 +85,11 @@ receipts. Queues run explicitly through the API. Set `DATABASE_URL` to
 enable persistence; see its [setup and walkthrough](services/offers/README.md)
 and [ADR 15](docs/adr/0015-offers-testimony-and-mulac.md).
 
+New source locales supply their primary language and, when no explicit market
+is declared, a supported country or the European Union regional market
+(`it-IT` → IT / it; `en-EU` → European Union / en). Existing observations are
+preserved; see [ADR 33](docs/adr/0033-european-union-locale-market.md).
+
 `customer_facing` accepts durable inbox messages and exposes explicit inbox,
 command, event, and outbox batch runners using local Mulac. It requires its own
 PostgreSQL database and projects incoming offer events into its own `offers`

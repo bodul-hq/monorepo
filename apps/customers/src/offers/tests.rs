@@ -212,3 +212,19 @@ async fn search_encodes_query_and_preserves_base_prefix() {
     assert_eq!(result.items[0].identifiers, Default::default());
     task.join().unwrap();
 }
+
+#[test]
+fn new_and_historical_localization_observations_are_not_reinterpreted() {
+    for localization in [
+        json!({"target_market":null,"language":"it-IT"}),
+        json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
+    ] {
+        let mut value = page(1, 0, false)["items"][0].clone();
+        value["localization"] = localization.clone();
+        let offer: Offer = serde_json::from_value(value).unwrap();
+        assert_eq!(
+            serde_json::to_value(offer.localization).unwrap(),
+            localization
+        );
+    }
+}

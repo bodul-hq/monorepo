@@ -34,5 +34,10 @@
 
 | [30](0030-offer-title-search.md) | PostgreSQL fuzzy title search | Accepted; extends ADR 23 |
 
+| [31](0031-source-locale-market-fallback.md) | Source locale market fallback and primary language | Accepted; partially supersedes ADR 28 |
+
+
+| [33](0033-european-union-locale-market.md) | European Union locale market | Accepted; partially supersedes ADR 31 |
+
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

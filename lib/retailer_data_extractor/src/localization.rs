@@ -1,5 +1,5 @@
 //! Evidence is captured separately after retailer islands, then carried through the facade.
-use retailer_sauce::localization::{Localization, TargetMarket, validate_language};
+use retailer_sauce::localization::{Localization, TargetMarket, source_locale};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -32,7 +32,9 @@ pub fn extract(html: &str) -> Evidence {
     rejected_candidates(&document, &mut evidence.candidates);
     for node in document.select(&Selector::parse("html[lang]").expect("static selector")) {
         let raw = node.value().attr("lang").unwrap_or_default();
-        let valid = validate_language(raw).is_ok();
+        let locale = source_locale(raw).ok();
+        let valid = locale.is_some();
+        let candidate = evidence.candidates.len();
         evidence.candidates.push(Candidate {
             path: "html[lang]".into(),
             raw: raw.into(),
@@ -43,8 +45,8 @@ pub fn extract(html: &str) -> Evidence {
             }
             .into(),
         });
-        if valid {
-            languages.push(raw.to_owned());
+        if let Some(locale) = locale {
+            languages.push((locale, candidate));
         }
     }
     for node in document.select(&Selector::parse("script").expect("static selector")) {
@@ -56,22 +58,23 @@ pub fn extract(html: &str) -> Evidence {
             continue;
         }
         for (field, raw, is_literal) in shopify_assignments(&node.inner_html()) {
+            let candidate = evidence.candidates.len();
             let valid = is_literal
                 && match field.as_str() {
                     "country" => match raw.parse() {
                         Ok(code) => {
-                            markets.push(TargetMarket::Country { code });
+                            markets.push((TargetMarket::Country { code }, candidate));
                             true
                         }
                         Err(_) => false,
                     },
-                    "locale" => {
-                        let valid = validate_language(&raw).is_ok();
-                        if valid {
-                            fallback.push(raw.clone());
+                    "locale" => match source_locale(&raw) {
+                        Ok(locale) => {
+                            fallback.push((locale, candidate));
+                            true
                         }
-                        valid
-                    }
+                        Err(_) => false,
+                    },
                     _ => false,
                 };
             if !valid {
@@ -93,24 +96,13 @@ pub fn extract(html: &str) -> Evidence {
             });
         }
     }
-    evidence.selected.target_market = if invalid_market {
-        None
+    let market = select(markets, invalid_market);
+    let locale = if languages.is_empty() {
+        select(fallback, invalid_fallback)
     } else {
-        select(markets, &mut evidence.candidates, "market")
+        select(languages, false)
     };
-    evidence.selected.language = select(
-        if languages.is_empty() {
-            if invalid_fallback {
-                Vec::new()
-            } else {
-                fallback
-            }
-        } else {
-            languages
-        },
-        &mut evidence.candidates,
-        "language",
-    );
+    apply_selection(&mut evidence, market, locale);
     evidence
 }
 
@@ -177,20 +169,132 @@ fn rejected_candidates(document: &Html, candidates: &mut Vec<Candidate>) {
     }
 }
 
-fn select<T: PartialEq>(
-    mut values: Vec<T>,
-    diagnostics: &mut Vec<Candidate>,
-    field: &str,
-) -> Option<T> {
-    if values.windows(2).any(|pair| pair[0] != pair[1]) {
-        diagnostics.push(Candidate {
-            path: field.into(),
-            raw: String::new(),
-            decision: "conflicting applicable declarations; unknown".into(),
-        });
-        None
+enum Selection<T> {
+    Absent,
+    Accepted(T, usize),
+    Invalid,
+    Conflicting,
+}
+
+fn select<T: PartialEq>(mut values: Vec<(T, usize)>, invalid: bool) -> Selection<T> {
+    if invalid {
+        Selection::Invalid
+    } else if values.windows(2).any(|pair| pair[0].0 != pair[1].0) {
+        Selection::Conflicting
+    } else if let Some((value, candidate)) = values.pop() {
+        Selection::Accepted(value, candidate)
     } else {
-        values.pop()
+        Selection::Absent
+    }
+}
+
+fn decision(evidence: &mut Evidence, candidate: Option<usize>, field: &str, reason: &str) {
+    let (path, raw) = candidate.map_or_else(
+        || (field.to_owned(), String::new()),
+        |index| {
+            (
+                evidence.candidates[index].path.clone(),
+                evidence.candidates[index].raw.clone(),
+            )
+        },
+    );
+    evidence.candidates.push(Candidate {
+        path,
+        raw,
+        decision: reason.into(),
+    });
+}
+
+fn apply_selection(
+    evidence: &mut Evidence,
+    market: Selection<TargetMarket>,
+    locale: Selection<retailer_sauce::localization::SourceLocale>,
+) {
+    let derive_market = matches!(market, Selection::Absent);
+    match market {
+        Selection::Accepted(market, index) => {
+            evidence.selected.target_market = Some(market);
+            decision(
+                evidence,
+                Some(index),
+                "market",
+                "selected direct market; locale fallback unnecessary",
+            );
+        }
+        Selection::Invalid => decision(
+            evidence,
+            None,
+            "market",
+            "locale fallback blocked: invalid explicit market",
+        ),
+        Selection::Conflicting => decision(
+            evidence,
+            None,
+            "market",
+            "locale fallback blocked: conflicting explicit markets",
+        ),
+        Selection::Absent => {}
+    }
+    match locale {
+        Selection::Accepted(locale, index) => {
+            evidence.selected.language = Some(locale.language);
+            decision(
+                evidence,
+                Some(index),
+                "language",
+                "selected primary language from complete source locale",
+            );
+            if derive_market {
+                if let Some(code) = locale.country {
+                    evidence.selected.target_market = Some(TargetMarket::Country { code });
+                    decision(
+                        evidence,
+                        Some(index),
+                        "market",
+                        "selected locale-derived country market",
+                    );
+                } else if locale.region.as_deref() == Some("EU") {
+                    evidence.selected.target_market = Some(TargetMarket::Region {
+                        label: "European Union".into(),
+                    });
+                    decision(
+                        evidence,
+                        Some(index),
+                        "market",
+                        "selected locale-derived regional market",
+                    );
+                } else {
+                    decision(
+                        evidence,
+                        Some(index),
+                        "market",
+                        if locale.region.is_some() {
+                            "locale fallback unavailable: unsupported country region"
+                        } else {
+                            "locale fallback unavailable: missing country region"
+                        },
+                    );
+                }
+            }
+        }
+        Selection::Conflicting => decision(
+            evidence,
+            None,
+            "language",
+            "conflicting applicable locales; language unknown and locale fallback blocked",
+        ),
+        Selection::Invalid => decision(
+            evidence,
+            None,
+            "language",
+            "invalid applicable locale; language unknown and locale fallback blocked",
+        ),
+        Selection::Absent => decision(
+            evidence,
+            None,
+            "language",
+            "missing applicable locale; language unknown and locale fallback unavailable",
+        ),
     }
 }
 
@@ -352,8 +456,13 @@ mod tests {
             candidate.raw == "fr_FR" && candidate.decision.contains("rejected")
         }));
         let anker = extract(include_str!("../tests/fixtures/localization/anker-au.html"));
-        assert_eq!(anker.selected.language.as_deref(), Some("en-AU"));
-        assert!(anker.selected.target_market.is_none());
+        assert_eq!(anker.selected.language.as_deref(), Some("en"));
+        assert_eq!(
+            anker.selected.target_market,
+            Some(TargetMarket::Country {
+                code: "AU".parse().unwrap()
+            })
+        );
         assert!(
             anker.candidates.iter().any(|candidate| {
                 candidate.raw == "us" && candidate.decision.contains("default")
@@ -412,5 +521,191 @@ mod tests {
             value["variations"][0]["localization"],
             value["variations"][1]["localization"]
         );
+    }
+}
+
+#[cfg(test)]
+mod locale_fallback_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn source_precedence_and_market_rejection_are_independent() {
+        for (html, country, language) in [
+            (
+                include_str!("../tests/fixtures/localization/anker-it.html"),
+                Some("IT"),
+                Some("it"),
+            ),
+            (
+                "<script>Shopify.locale='it-IT';</script>",
+                Some("IT"),
+                Some("it"),
+            ),
+            (
+                "<html lang='it-IT'><script>Shopify.locale='en-US';</script>",
+                Some("IT"),
+                Some("it"),
+            ),
+            (
+                "<html lang='en-US'><script>Shopify.country='CA';</script>",
+                Some("CA"),
+                Some("en"),
+            ),
+            (
+                "<html lang='it-IT'><script>Shopify.country='';</script>",
+                None,
+                Some("it"),
+            ),
+            (
+                "<html lang='it-IT'><script>Shopify.country='EU';</script>",
+                None,
+                Some("it"),
+            ),
+            (
+                "<html lang='it-IT'><script>Shopify.country=getCountry();</script>",
+                None,
+                Some("it"),
+            ),
+            (
+                "<html lang='it-IT'><script>Shopify.country='CA'; Shopify.country='US';</script>",
+                None,
+                Some("it"),
+            ),
+            (
+                "<script>Shopify.locale='en-US'; Shopify.locale='en-GB';</script>",
+                None,
+                None,
+            ),
+            (
+                "<script>Shopify.locale='IT-it'; Shopify.locale='it-IT';</script>",
+                Some("IT"),
+                Some("it"),
+            ),
+            (
+                "<script>Shopify.locale='it-IT'; Shopify.locale=getLocale();</script>",
+                None,
+                None,
+            ),
+            (
+                "<div data-klarna-locale='it-IT'></div><link hreflang='it-IT'>",
+                None,
+                None,
+            ),
+        ] {
+            let evidence = extract(html);
+            assert_eq!(
+                serde_json::to_value(&evidence.selected).unwrap(),
+                json!({"target_market":country.map(|code|json!({"kind":"country","code":code})),"language":language}),
+                "{html}"
+            );
+            if html.contains("Shopify.country=") && country.is_none() {
+                assert!(
+                    evidence
+                        .candidates
+                        .iter()
+                        .any(|candidate| candidate.decision.contains("fallback blocked"))
+                );
+            }
+        }
+        let evidence = extract("<html lang='IT-it'>");
+        assert!(
+            evidence
+                .candidates
+                .iter()
+                .any(|candidate| candidate.path == "html[lang]"
+                    && candidate.raw == "IT-it"
+                    && candidate.decision == "selected locale-derived country market")
+        );
+    }
+
+    #[test]
+    fn european_union_locale_supplies_a_regional_market_with_source_provenance() {
+        for html in [
+            include_str!("../tests/fixtures/localization/anker-eu.html"),
+            "<script>Shopify.locale='EN-eu';</script>",
+        ] {
+            let evidence = extract(html);
+            assert_eq!(
+                serde_json::to_value(&evidence.selected).unwrap(),
+                json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"})
+            );
+            assert!(evidence.candidates.iter().any(|candidate| {
+                matches!(candidate.raw.as_str(), "en-EU" | "EN-eu")
+                    && matches!(
+                        candidate.path.as_str(),
+                        "html[lang]" | "script: Shopify.locale"
+                    )
+                    && candidate.decision == "selected locale-derived regional market"
+            }));
+        }
+        let explicit = extract("<html lang='en-EU'><script>Shopify.country='CA';</script>");
+        assert_eq!(
+            explicit.selected.target_market,
+            Some(TargetMarket::Country {
+                code: "CA".parse().unwrap()
+            })
+        );
+        assert_eq!(explicit.selected.language.as_deref(), Some("en"));
+        for html in [
+            "<html lang='en-EU'><script>Shopify.country='';</script>",
+            "<html lang='en-EU'><script>Shopify.country='EU';</script>",
+            "<html lang='en-EU'><script>Shopify.country='CA'; Shopify.country='US';</script>",
+            "<html lang='en-EU'><script>Shopify.country=getMarket();</script>",
+            "<script>Shopify.locale='en-EU'; Shopify.locale='en-US';</script>",
+            "<html lang='en-u-rg-euzzzz'>",
+            "<html lang='en-001'>",
+            "<html lang='en-ZZ'>",
+            "<a href='/eu-en/products/charger'>Charger</a>",
+        ] {
+            assert!(extract(html).selected.target_market.is_none(), "{html}");
+        }
+    }
+
+    #[test]
+    fn explicit_region_is_preserved_and_language_still_reduced() {
+        let mut evidence = Evidence {
+            selected: Localization::default(),
+            candidates: vec![Candidate {
+                path: "fixture".into(),
+                raw: "it-IT".into(),
+                decision: String::new(),
+            }],
+        };
+        let region = TargetMarket::Region {
+            label: "Europe".into(),
+        };
+        apply_selection(
+            &mut evidence,
+            Selection::Accepted(region.clone(), 0),
+            Selection::Accepted(source_locale("it-IT").unwrap(), 0),
+        );
+        assert_eq!(evidence.selected.target_market, Some(region));
+        assert_eq!(evidence.selected.language.as_deref(), Some("it"));
+    }
+
+    #[test]
+    fn intermediate_stages_preserve_new_and_legacy_selected_facts_and_provenance() {
+        let new = extract(include_str!("../tests/fixtures/localization/anker-it.html"));
+        let european = extract(include_str!("../tests/fixtures/localization/anker-eu.html"));
+        let old: Evidence = serde_json::from_value(json!({"selected":{"target_market":null,"language":"it-IT"},"candidates":[{"path":"html[lang]","raw":"it-IT","decision":"document language"}]})).unwrap();
+        let old_european: Evidence = serde_json::from_value(json!({"selected":{"target_market":null,"language":"en-EU"},"candidates":[{"path":"html[lang]","raw":"en-EU","decision":"document language"}]})).unwrap();
+        for evidence in [new, european, old, old_european] {
+            let expected = serde_json::to_value(&evidence).unwrap();
+            let mut extracted = Some("{}".into());
+            attach(&mut extracted, Some(evidence), false).unwrap();
+            let (_, evidence) = split(extracted.as_deref().unwrap()).unwrap();
+            let mut normalized = Some("{}".into());
+            attach(&mut normalized, evidence, false).unwrap();
+            let (_, evidence) = split(normalized.as_deref().unwrap()).unwrap();
+            let mut structuralized = Some(r#"{"variations":[{},{}]}"#.into());
+            attach(&mut structuralized, evidence, true).unwrap();
+            let value: Value = serde_json::from_str(structuralized.as_deref().unwrap()).unwrap();
+            assert_eq!(value[KEY], expected);
+            for variation in value["variations"].as_array().unwrap() {
+                assert_eq!(variation["localization"], expected["selected"]);
+            }
+        }
+        assert!(split("{}").unwrap().1.is_none());
     }
 }
