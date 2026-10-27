@@ -11,12 +11,21 @@ pub enum ItemCondition {
 }
 
 impl ItemCondition {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Self::Other(raw) = self
+            && (raw.trim().is_empty() || raw.contains('\0'))
+        {
+            return Err("source status must be nonblank and contain no NUL".into());
+        }
+        Ok(())
+    }
+
     /// Builds item condition from a schema.org URL.
     /// Unrecognized values are preserved verbatim, without guessing their condition.
     pub fn from_schema_org(value: impl Into<String>) -> Self {
         let value = value.into();
         match value.as_str() {
-            "https://schema.org/NewCondition" => Self::New,
+            "https://schema.org/NewCondition" | "http://schema.org/NewCondition" => Self::New,
             _ => Self::Other(value),
         }
     }

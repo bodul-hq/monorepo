@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Availability {
+    Available,
+    Unavailable,
     InStock,
     OutOfStock,
     SoldOut,
@@ -13,18 +15,26 @@ pub enum Availability {
 }
 
 impl Availability {
+    pub fn guard(&self) -> Result<(), String> {
+        if let Self::Other(raw) = self
+            && (raw.trim().is_empty() || raw.contains('\0'))
+        {
+            return Err("source status must be nonblank and contain no NUL".into());
+        }
+        Ok(())
+    }
+
     /// Builds availability from a schema.org URL.
     /// Unrecognized values are preserved verbatim, without guessing their stock state.
     ///
-    /// Matching is `https`-only. Storefronts in the corpus also render the `http://schema.org/`
-    /// spelling, and those reach [`Availability::Other`] rather than being folded in here,
-    /// because no retailer reading this enum emits them today.
+    /// This source interpretation accepts both schema.org URL schemes. Deserializing
+    /// historical Other values preserves them without applying the source policy again.
     pub fn from_schema_org(value: impl Into<String>) -> Self {
         let value = value.into();
         match value.as_str() {
-            "https://schema.org/InStock" => Self::InStock,
-            "https://schema.org/OutOfStock" => Self::OutOfStock,
-            "https://schema.org/SoldOut" => Self::SoldOut,
+            "https://schema.org/InStock" | "http://schema.org/InStock" => Self::InStock,
+            "https://schema.org/OutOfStock" | "http://schema.org/OutOfStock" => Self::OutOfStock,
+            "https://schema.org/SoldOut" | "http://schema.org/SoldOut" => Self::SoldOut,
             _ => Self::Other(value),
         }
     }
@@ -42,10 +52,7 @@ mod tests {
             ("https://schema.org/OutOfStock", json!("out_of_stock")),
             ("https://schema.org/SoldOut", json!("sold_out")),
             ("InStock", json!({"other": "InStock"})),
-            (
-                "http://schema.org/OutOfStock",
-                json!({"other": "http://schema.org/OutOfStock"}),
-            ),
+            ("http://schema.org/OutOfStock", json!("out_of_stock")),
             (
                 "https://example.com/InStock",
                 json!({"other": "https://example.com/InStock"}),

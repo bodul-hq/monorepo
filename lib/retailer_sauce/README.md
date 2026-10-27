@@ -4,7 +4,8 @@ Retailer integrations.
 
 - `shopify`: classifies Shopify storefront URLs as product, catalog or
   content pages by their path.
-- `availability`: `Availability`, read from a schema.org stock-state URL.
+- `availability`: explicit stock states plus distinct purchase availability;
+  HTTP/HTTPS schema.org constructors preserve unrecognized source strings.
 - `identifier`: the validated identifier types a structuralizer builds
   (`Gtin`, `Sku`, `ShopifyProductGid`, `ShopifyProductVariationGid`,
   `ShopifyHandle`) and their `IdentifierError`.
@@ -12,7 +13,11 @@ Retailer integrations.
   enums, including when serde_json enables `arbitrary_precision`.
 - `item_condition`: `ItemCondition`, read from a schema.org condition URL.
 - `structuralized`: `StructuralizedData`, what a retailer's structuralizer
-  returns, and the shared `Offer` shape.
+  returns, the shared `Offer` scaffold, and `content::Content` for an exact
+  optional description. Present content requires a JSON object and a description
+  key; `{ "description": null }` explicitly clears it.
+- `observation`: distinguishes a missing legacy field from a present nullable
+  observation, with strict object decoders for pricing and content boundaries.
 
 This crate is part of the `lib` workspace. See the
 [root README](../../README.md) for requirements and Make targets.
