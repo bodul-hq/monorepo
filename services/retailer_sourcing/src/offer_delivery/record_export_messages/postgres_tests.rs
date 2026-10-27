@@ -20,6 +20,8 @@ use crate::platform::test_db::{Database, json_query};
 use crate::platform::test_objects::Server;
 use crate::platform::{Platform, http};
 
+const IMPORT_FIXTURE: &str =
+    include_str!("../../../tests/fixtures/offer_export/import_payload.json");
 /// One priced variation, one without a price and one priced but unavailable.
 const MIXED: &str = r#"{"variations":[
     {"title":"Charger","url":"https://shop.example/Charger?variant=1","price":{"amount":1999,"currency":"AUD"}},
@@ -112,6 +114,7 @@ fn app(db: &Database, server: &Server) -> axum::Router {
         bus: Some(bus),
         db: Some(db.pool.clone()),
         object_storage: Some(server.client()),
+        outbox: None,
     })
 }
 
@@ -472,5 +475,77 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
     assert_eq!(
         outbox_rows(&db).as_array().unwrap().len(),
         stored.entries.len()
+    );
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_replay() {
+    use crate::platform::outbox_http::{postgres_tests as http, tests::run};
+
+    let db = Database::new();
+    let receiver = Database::new();
+    let server = Server::new();
+    let export = export(&db, &server, ANKER);
+    let first = context();
+    let listener = listener(&db, &server);
+    listener.listen(event(&export), &first).unwrap();
+
+    // Recording is complete here; HTTP acceptance is the separate publisher's.
+    let inbox = server.runtime.block_on(http::inbox(&receiver));
+    let state = {
+        let _entered = server.runtime.enter();
+        http::state(&db, &inbox.url)
+    };
+    assert_eq!(
+        server
+            .runtime
+            .block_on(run(state.clone(), json!({"limit":10})))
+            .1,
+        json!({"processed":2,"errors":[]})
+    );
+    let delivered = outbox_rows(&db);
+    assert!(
+        delivered
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|row| row["status"] == 5)
+    );
+
+    let accepted = json_query(
+        &mut receiver.pool.get().unwrap(),
+        "SELECT jsonb_agg(to_jsonb(t) ORDER BY id) AS value FROM inbox_entries t",
+    );
+    assert_eq!(accepted.as_array().unwrap().len(), 2);
+    let fixture: Value = serde_json::from_str(IMPORT_FIXTURE).unwrap();
+    let first_entry = &export.entries[0];
+    let row = accepted
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["id"] == json!(first_entry.id))
+        .unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(row["payload"].as_str().unwrap()).unwrap(),
+        fixture
+    );
+    assert_eq!(row["meta"]["routing_key"], "ImportOfferDetails");
+    assert_eq!(row["meta"]["correlation_id"], json!(first.correlation_id));
+    assert_eq!(row["meta"]["source"], json!(first.source));
+    // Offers processing needs explicit inbox, command and event runs there.
+    assert_eq!(
+        json_query(
+            &mut receiver.pool.get().unwrap(),
+            "SELECT to_jsonb(count(*)) AS value FROM command_entries"
+        ),
+        0
+    );
+
+    listener.listen(event(&export), &context()).unwrap();
+    assert_eq!(outbox_rows(&db), delivered);
+    assert_eq!(
+        server.runtime.block_on(run(state, json!({"limit":10}))).1,
+        json!({"processed":0,"errors":[]})
     );
 }

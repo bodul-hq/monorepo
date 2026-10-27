@@ -1,6 +1,7 @@
 //! What the HTTP routes share.
 
 use axum::extract::FromRef;
+use mulac_axum::io::OutboxAdapter;
 
 use super::bus::BusHandle;
 use super::db::DbPool;
@@ -14,6 +15,8 @@ pub struct AppState {
     /// Reads what the pipeline stored.
     pub db: Option<DbPool>,
     pub object_storage: Option<ObjectStorage>,
+    /// Manual delivery to offers; absent when persistence or OFFERS_URL is unset.
+    pub outbox: Option<OutboxAdapter>,
 }
 
 impl FromRef<AppState> for Option<BusHandle> {

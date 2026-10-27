@@ -292,6 +292,7 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
     drop(entered);
     bus.dispatcher().dispatch(&Trigger, "export-test").unwrap();
     let app = crate::app(AppState {
+        outbox: None,
         bus: Some(bus),
         db: Some(db.pool.clone()),
         object_storage: Some(server.client()),

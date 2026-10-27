@@ -1,0 +1,26 @@
+meta {
+  name: Run outbox
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{retailerSourcingBaseUrl}}/api/outbox/run
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "limit": 50
+  }
+}
+
+docs {
+  Publishes at most 50 due outbox rows to OFFERS_URL/api/inbox. Both DATABASE_URL
+  and OFFERS_URL must be configured; otherwise valid requests return 503 without
+  reserving rows. An acknowledged 202 with the same message_id completes the row.
+  Delivery failures use Mulac retries and appear in the 200 batch error report.
+  Offers' inbox, commands and events still need their own explicit queue runs.
+  Export recording is a separate feature; this endpoint does not create messages.
+}

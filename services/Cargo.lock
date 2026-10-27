@@ -858,7 +858,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
 dependencies = [
  "quote",
- "syn 2.0.119",
+ "syn 3.0.8",
 ]
 
 [[package]]
@@ -2042,6 +2042,19 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "inbox_client"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "url",
  "uuid",
 ]
 
@@ -3706,11 +3719,14 @@ dependencies = [
  "eventing_api",
  "flate2",
  "http-body-util",
+ "inbox_api",
+ "inbox_client",
  "money",
  "mulac-kernel",
  "mulac-outbox",
  "mulac_axum",
  "object_storage_client",
+ "outbox_api",
  "percent-encoding",
  "reqwest",
  "retailer_data_extractor",

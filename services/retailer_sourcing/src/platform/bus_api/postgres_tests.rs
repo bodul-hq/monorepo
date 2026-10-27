@@ -74,6 +74,7 @@ fn app(db: &Database, finished: Arc<Mutex<Vec<i32>>>) -> Router {
         bus: Some(bus.start(db.pool.clone()).unwrap()),
         db: Some(db.pool.clone()),
         object_storage: None,
+        outbox: None,
     })
 }
 

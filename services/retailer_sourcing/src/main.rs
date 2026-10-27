@@ -70,6 +70,7 @@ fn app(state: AppState) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
+        .merge(platform::outbox_http::routes())
         .merge(sitemap_discovery::prelude::routes())
         .merge(development::prelude::routes())
         .merge(reporting::prelude::routes())
@@ -111,6 +112,8 @@ fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
 /// `DATABASE_URL` is set, after applying pending migrations. Without it the
 /// service only serves HTTP.
 async fn start_features(database_url: Result<String, VarError>) -> io::Result<AppState> {
+    let publisher =
+        platform::offers_publisher::OffersPublisher::from_env(tokio::runtime::Handle::current())?;
     let database_url = match database_url {
         Ok(database_url) if database_url.is_empty() => return Ok(AppState::default()),
         Ok(database_url) => database_url,
@@ -135,12 +138,20 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
     reporting::prelude::register(&mut bus, &platform);
 
     let db = platform.db.clone();
+    let outbox = publisher.map(|publisher| {
+        let service = outbox_api::io::OutboxService::from_postgres(
+            db.clone(),
+            std::sync::Arc::new(publisher),
+        );
+        mulac_axum::io::OutboxAdapter::new(service)
+    });
     let object_storage = platform.object_storage.clone();
     let bus = bus.start(platform.db).map_err(io::Error::other)?;
     Ok(AppState {
         bus: Some(bus),
         db: Some(db),
         object_storage: Some(object_storage),
+        outbox,
     })
 }
 
@@ -260,7 +271,12 @@ mod tests {
             spec["paths"]["/health"]["get"].is_object(),
             "OpenAPI must document GET /health",
         );
-        for path in ["/sitemap-retrievals", "/commands/run", "/events/run"] {
+        for path in [
+            "/sitemap-retrievals",
+            "/commands/run",
+            "/events/run",
+            "/outbox/run",
+        ] {
             assert!(
                 spec["paths"][path]["post"].is_object(),
                 "OpenAPI must document POST {path}",

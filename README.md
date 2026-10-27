@@ -200,6 +200,12 @@ batch requests return plain-text `400` errors, while a valid request without a
 database retains the existing JSON `503` error. Queue failures are reported in
 the `200` batch response. See the [queue contract](services/retailer_sourcing/README.md#driving-the-workflow).
 
+Retailer sourcing also exposes `POST /api/outbox/run` with the same batch body.
+Set `OFFERS_URL` to the offers origin to enable temporary HTTP delivery to its
+durable inbox. The export listener that creates those messages is separate work;
+see the [delivery contract](services/retailer_sourcing/README.md#http-outbox-delivery)
+and [ADR 20](docs/adr/0020-temporary-http-outbox-delivery.md).
+
 The `bruno/` folder is a [Bruno](https://www.usebruno.com/) workspace that lists
 every collection. Open the `bruno` folder as a workspace in Bruno to load them
 all at once. The workspace's `local` environment
