@@ -867,14 +867,21 @@ version = "0.1.0"
 dependencies = [
  "async-graphql",
  "async-graphql-poem",
+ "commanding_api",
  "diesel",
  "diesel_migrations",
+ "eventing_api",
+ "inbox_api",
+ "mulac-kernel",
+ "mulac_poem",
+ "outbox_api",
  "poem",
  "poem-openapi",
  "serde",
  "serde_json",
  "shared",
  "tokio",
+ "url",
  "uuid",
 ]
 

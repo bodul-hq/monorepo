@@ -20,6 +20,7 @@
 
 | [16](0016-offers-rabbitmq-outbox.md) | Application-owned offers inbox and RabbitMQ outbox delivery | Accepted |
 | [17](0017-retailer-sourcing-local-mulac.md) | Local Mulac adapters for retailer sourcing | Accepted |
+| [18](0018-customer-facing-mulac-queues.md) | Customer facing persistent Mulac queues | Accepted |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

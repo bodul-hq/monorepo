@@ -1,5 +1,13 @@
+mod bootstrap;
+mod orchestration;
+#[cfg(test)]
+mod postgres_tests;
+#[cfg(test)]
+mod queue_tests;
+
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema};
 use async_graphql_poem::GraphQL;
+use orchestration::{AppState, QueueApi};
 use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
 use poem_openapi::{OpenApi, OpenApiService, payload::PlainText};
 
@@ -31,8 +39,13 @@ async fn graphiql() -> Html<String> {
     )
 }
 
-fn app() -> Route {
-    let api = OpenApiService::new(Api, "Customer Facing", env!("CARGO_PKG_VERSION")).server("/api");
+fn app(state: AppState) -> Route {
+    let api = OpenApiService::new(
+        (Api, QueueApi(state)),
+        "Customer Facing",
+        env!("CARGO_PKG_VERSION"),
+    )
+    .server("/api");
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
 
     let mut route = Route::new()
@@ -64,9 +77,15 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let port = parse_port(std::env::var("PORT"))?;
-    Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
-        .run_with_graceful_shutdown(app(), shutdown_signal()?, None)
-        .await
+    let pool = bootstrap::database_pool()?;
+    let shutdown = shutdown_signal()?;
+    let (kernel, state) = orchestration::start_mulac(pool)
+        .map_err(|_| std::io::Error::other("Mulac kernel could not start"))?;
+    let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
+        .run_with_graceful_shutdown(app(state), shutdown, None)
+        .await;
+    kernel.shutdown();
+    result
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
@@ -94,7 +113,11 @@ mod tests {
     use poem::{http::StatusCode, test::TestClient};
     use serde_json::{Value, json};
 
-    use super::{app, parse_port};
+    use super::parse_port;
+
+    fn app() -> poem::Route {
+        super::app(crate::queue_tests::state())
+    }
 
     #[tokio::test]
     async fn health_returns_ok() {
@@ -153,9 +176,21 @@ mod tests {
         assert_eq!(spec["servers"][0]["url"], "/api");
 
         let server = spec["servers"][0]["url"].as_str().unwrap_or("");
-        for path in spec["paths"].as_object().unwrap().keys() {
-            let response = client.get(format!("{server}{path}")).send().await;
-            assert_ne!(response.0.status(), StatusCode::NOT_FOUND, "{server}{path}");
+        for (path, methods) in spec["paths"].as_object().unwrap() {
+            for method in methods.as_object().unwrap().keys() {
+                let uri = format!("{server}{path}");
+                let response = match method.as_str() {
+                    "get" => client.get(&uri).send().await,
+                    "post" => client.post(&uri).body_json(&json!({})).send().await,
+                    _ => panic!("unexpected documented method: {method}"),
+                };
+                assert_ne!(response.0.status(), StatusCode::NOT_FOUND, "{method} {uri}");
+                assert_ne!(
+                    response.0.status(),
+                    StatusCode::METHOD_NOT_ALLOWED,
+                    "{method} {uri}"
+                );
+            }
         }
     }
 

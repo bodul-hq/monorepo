@@ -10,6 +10,8 @@ collections:
     path: "retailer_sourcing"
   - name: "offers"
     path: "offers"
+  - name: "customer_facing"
+    path: "customer_facing"
 
 specs:
 

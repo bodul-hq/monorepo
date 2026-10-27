@@ -12,14 +12,12 @@ commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
 eventing_api.workspace = true
-#inbox_api = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_inbox_api", tag = "0.3.0" }
-inbox_api = { path = "../../../mulac/libs/inbox_api" }
+inbox_api.workspace = true
 kernel.workspace = true
 money = { path = "../../lib/money" }
-#mulac_poem = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_poem", tag = "0.3.0" }
-mulac_poem = { path = "../../../mulac/libs/mulac_poem", features = ["commanding", "eventing", "outbox"] }
+mulac_poem.workspace = true
 outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
-outbox_api = { path = "../../../mulac/libs/outbox_api" }
+outbox_api.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
 serde.workspace = true
@@ -29,13 +27,13 @@ testimony = { path = "../../lib/testimony" }
 testimony_infra = { path = "../../lib/testimony_infra" }
 thiserror.workspace = true
 tokio.workspace = true
-url = "2"
+url.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
 commanding_api = { workspace = true, features = ["testing"] }
 eventing_api = { workspace = true, features = ["testing"] }
-inbox_api = { path = "../../../mulac/libs/inbox_api", features = ["testing"] }
+inbox_api = { workspace = true, features = ["testing"] }
 lapin = "4.5.0"
-outbox_api = { path = "../../../mulac/libs/outbox_api", features = ["testing"] }
+outbox_api = { workspace = true, features = ["testing"] }
 poem = { workspace = true, features = ["test"] }

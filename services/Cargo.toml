@@ -18,7 +18,10 @@ diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json"
 diesel_migrations = "2"
 eventing_api = { path = "../../mulac/libs/eventing_api" }
 http-body-util = "0.1.5"
+inbox_api = { path = "../../mulac/libs/inbox_api" }
 kernel = { path = "../../mulac/kernel", package = "mulac-kernel" }
+mulac_poem = { path = "../../mulac/libs/mulac_poem", features = ["commanding", "eventing", "outbox"] }
+outbox_api = { path = "../../mulac/libs/outbox_api" }
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
 serde = { version = "1", features = ["derive"] }
@@ -31,5 +34,6 @@ tower-http = { version = "0.6.11", features = ["trace"] }
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+url = "2"
 utoipa-swagger-ui = { version = "10.0.1", features = ["axum", "vendored"] }
 uuid = { version = "1", features = ["serde", "v4", "v7"] }

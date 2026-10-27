@@ -1,0 +1,15 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{customerFacingBaseUrl}}/api/health
+  body: none
+  auth: none
+}
+
+docs {
+  Returns 200 and ok after startup. DATABASE_URL is required to start the server.
+}

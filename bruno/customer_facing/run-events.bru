@@ -1,0 +1,20 @@
+meta {
+  name: Run events
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/api/events/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Dispatches due events. Offer subscribers are not installed in this bootstrap.
+  The limit must be an integer from 1 through 1000. Inspect errors even after HTTP 200.
+}

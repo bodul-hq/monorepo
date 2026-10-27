@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "customer_facing",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

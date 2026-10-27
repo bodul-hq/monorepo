@@ -6,8 +6,13 @@ edition = "2024"
 [dependencies]
 async-graphql.workspace = true
 async-graphql-poem.workspace = true
+commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
+eventing_api.workspace = true
+inbox_api.workspace = true
+kernel.workspace = true
+mulac_poem.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
 serde.workspace = true
@@ -17,4 +22,9 @@ tokio.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
+commanding_api = { workspace = true, features = ["testing"] }
+eventing_api = { workspace = true, features = ["testing"] }
+inbox_api = { workspace = true, features = ["testing"] }
+outbox_api = { workspace = true, features = ["testing"] }
 poem = { workspace = true, features = ["test"] }
+url.workspace = true

@@ -1,0 +1,20 @@
+meta {
+  name: Run inbox
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/api/inbox/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Queues commands from due inbox messages without executing them.
+  The limit must be an integer from 1 through 1000. Inspect errors even after HTTP 200.
+}

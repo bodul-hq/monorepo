@@ -1,0 +1,25 @@
+meta {
+  name: Submit inbox message
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/api/inbox
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "routing_key": "DevelopmentProbe",
+    "source": "bruno",
+    "payload": { "value": "example" }
+  }
+}
+
+docs {
+  Stores a message and returns 202 with its message_id without processing it.
+  This development command is intentionally unregistered: Run commands reports a missing handler.
+  This bootstrap does not import or project offers.
+}

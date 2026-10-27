@@ -1,0 +1,20 @@
+meta {
+  name: Run commands
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{customerFacingBaseUrl}}/api/commands/run
+  body: json
+  auth: none
+}
+
+body:json {
+  { "limit": 1 }
+}
+
+docs {
+  Executes due commands. DevelopmentProbe has no production handler and reports a retryable error.
+  The limit must be an integer from 1 through 1000. Inspect errors even after HTTP 200.
+}

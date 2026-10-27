@@ -6,3 +6,5 @@ variables:
     value: http://172.28.100.40:3000
   - name: offersBaseUrl
     value: http://172.28.100.41:3000
+  - name: customerFacingBaseUrl
+    value: http://localhost:3003
