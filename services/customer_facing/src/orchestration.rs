@@ -31,10 +31,13 @@ impl AppState {
 }
 
 pub fn start_mulac(pool: DbPool) -> Result<(PersistentKernelHandle, AppState), KernelError> {
-    // No production handlers are registered yet. Unknown commands fail visibly
-    // through Mulac; accepting an inbox message never pretends to project offers.
     let kernel = kernel::boot(KernelConfig::default()).start_persistent(pool.clone(), 0)?;
-    let state = AppState::from_kernel(pool, &kernel);
+    let mut state = AppState::from_kernel(pool.clone(), &kernel);
+    // The typed kernel handler wrapper omits incoming metadata. Assemble the
+    // same Mulac consumer with an envelope handler to retain the inbox identity.
+    state.commands = CommandingAdapter::new(CommandingService::new(
+        crate::offer_projection::consumer(pool),
+    ));
     Ok((kernel, state))
 }
 

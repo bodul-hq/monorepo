@@ -82,9 +82,10 @@ and [ADR 15](docs/adr/0015-offers-testimony-and-mulac.md).
 
 `customer_facing` accepts durable inbox messages and exposes explicit inbox,
 command, event, and outbox batch runners using local Mulac. It requires its own
-PostgreSQL database; outbox delivery remains unconfigured and offer projection
-handlers are separate work. See its [setup and queue contracts](services/customer_facing/README.md)
-and [ADR 18](docs/adr/0018-customer-facing-mulac-queues.md).
+PostgreSQL database and projects incoming offer events into its own `offers`
+table during command processing, with transactional protection against replay.
+Outbox delivery remains unconfigured. See its [setup and queue contracts](services/customer_facing/README.md)
+and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 
 ### apps
 

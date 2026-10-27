@@ -13,6 +13,7 @@ async-graphql-poem = "7.2.1"
 axum = "0.8.9"
 bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
 chrono = { version = "0.4", features = ["serde"] }
+commanding = { path = "../../mulac/libs/commanding", package = "mulac-commanding" }
 commanding_api = { path = "../../mulac/libs/commanding_api" }
 diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json", "uuid"] }
 diesel_migrations = "2"

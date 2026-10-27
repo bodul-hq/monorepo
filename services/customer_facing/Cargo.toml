@@ -6,12 +6,16 @@ edition = "2024"
 [dependencies]
 async-graphql.workspace = true
 async-graphql-poem.workspace = true
+bodul_shared.workspace = true
+chrono.workspace = true
+commanding.workspace = true
 commanding_api.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
 eventing_api.workspace = true
 inbox_api.workspace = true
 kernel.workspace = true
+money.workspace = true
 mulac_poem.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true

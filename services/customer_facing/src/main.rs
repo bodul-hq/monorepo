@@ -1,4 +1,5 @@
 mod bootstrap;
+mod offer_projection;
 mod orchestration;
 #[cfg(test)]
 mod postgres_tests;

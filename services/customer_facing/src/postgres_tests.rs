@@ -1,5 +1,7 @@
 //! Opt-in tests use a fresh schema per case and never reset a database.
 
+mod projection;
+
 use std::sync::{Arc, Mutex};
 
 use diesel::{
@@ -334,7 +336,8 @@ fn migrations_round_trip_and_startup_is_idempotent() {
         &pool,
         "SELECT to_jsonb(count(*)) AS data FROM information_schema.tables
         WHERE table_schema = current_schema() AND table_name IN
-        ('inbox_entries','command_entries','event_entries','outbox_entries')",
+        ('inbox_entries','command_entries','event_entries','outbox_entries',
+         'offers','applied_offer_messages')",
     );
     assert_eq!(tables, 0);
     bootstrap::migrate(&pool).unwrap();

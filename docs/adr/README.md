@@ -22,6 +22,7 @@
 | [18](0018-customer-facing-mulac-queues.md) | Customer facing persistent Mulac queues | Accepted |
 | [19](0019-immutable-offer-export-preparation.md) | Immutable offer export preparation | Accepted; supersedes ADR 12 for structuralization event pinning and export upload preparation |
 | [20](0020-temporary-http-outbox-delivery.md) | Temporary HTTP outbox delivery to offers | Accepted |
+| [22](0022-customer-facing-offer-projection.md) | Customer-facing offer projection with original-message receipts | Accepted; supersedes ADR 18's bootstrap-only handler policy |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.
