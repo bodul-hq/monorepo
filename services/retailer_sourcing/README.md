@@ -41,9 +41,14 @@ POST /api/sitemap-retrievals
 
 Steps 6 to 8 fail the command when the input row is missing, when the retailer
 has no such step, or when the step fails, including a retailer whose step is
-still a `todo!()` stub; the bus retries a failed command on a later run. Only
-`ankerau` has every step implemented so far. Each of their tables holds one row
-per offer, replaced when the step runs again.
+still a `todo!()` stub; the bus retries a failed command on a later run. Each
+of their tables holds one row per offer, replaced when the step runs again.
+
+Implemented extraction, normalization and structuralization pipelines span
+Anker, Minisforum and Ugreen storefronts. Support is storefront-specific; see
+the [Anker](../../lib/retailers_anker/README.md),
+[Minisforum](../../lib/retailers_minisforum/README.md) and
+[Ugreen](../../lib/retailers_ugreen/README.md) READMEs for coverage and limitations.
 
 All seven pipeline tables keep metadata in PostgreSQL and payloads in object
 storage. Raw bodies are uploaded unchanged; JSON documents are uploaded as
@@ -626,6 +631,7 @@ No latest-snapshot fallback is performed.
 
 Each priced variation becomes an `ImportOfferDetails`-compatible payload with
 retailer code, title, exact variant URL and integer minor-unit price/currency.
+Schema v2 also carries filtered variation images; see the version contract below.
 Missing prices are recorded under `exclusions` with the variation index, URL
 and `missing_price` reason. Unavailable stock is included when priced. Blank
 titles, malformed money, negative prices, invalid HTTP(S) URLs and repeated
@@ -738,3 +744,19 @@ export from a fresh structuralization. The stable entry UUIDs keep this safe.
 
 That inbox test shows HTTP acceptance only. Offers' import still needs its
 own inbox, command and event runs.
+
+## Offer images and export versions
+
+New export commands explicitly use `schema_version: 2`; already queued commands
+without it retain v1. V1 snapshots and their outgoing messages omit `images`.
+V2 includes an ordered `images` array, including `[]`. Both versions may coexist
+for the same source, and pending bytes, snapshot IDs and entry message IDs are
+never rewritten during retries. Unknown or inconsistent versions fail visibly.
+
+Images preserve exact source strings and order. Invalid absolute HTTP(S) URLs
+are skipped; URLs with credentials, padding, control characters or more than
+2048 bytes are invalid. Duplicate strings keep their first occurrence. Logs
+record skipped counts, not full URLs. A malformed array type fails conversion.
+No image is downloaded. Price/exclusion and retailer-code behavior is unchanged.
+See [ADR 24](../../docs/adr/0024-append-only-offer-images.md) and the
+[combined walkthrough](../../docs/offer-images-walkthrough.md).

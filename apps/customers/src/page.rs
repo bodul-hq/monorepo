@@ -83,7 +83,8 @@ pub fn render(page: &Page) -> String {
         for offer in &page.items {
             let _ = write!(
                 html,
-                r#"<li class="offer-card"><article><span class="retailer">{}</span><h3>{}</h3><div class="card-bottom"><p class="price">{}</p>"#,
+                r#"<li class="offer-card"><article>{}<span class="retailer">{}</span><h3>{}</h3><div class="card-bottom"><p class="price">{}</p>"#,
+                image_html(offer),
                 escape(&offer.retailer_code),
                 escape(if offer.title.trim().is_empty() {
                     "Untitled offer"
@@ -152,9 +153,29 @@ fn page_url(offset: i32) -> String {
     }
 }
 
+fn image_html(offer: &crate::offers::Offer) -> String {
+    match offer
+        .images
+        .first()
+        .filter(|url| url.len() <= 2048 && safe_link(url))
+    {
+        Some(url) => format!(
+            r#"<div class="offer-image"><img src="{}" alt="{}" loading="lazy" width="480" height="360"></div>"#,
+            escape(url),
+            escape(&offer.title)
+        ),
+        None => String::from(r#"<div class="offer-image empty-image" aria-hidden="true"></div>"#),
+    }
+}
+
 fn safe_link(value: &str) -> bool {
     // Preserve the exact original URL in the attribute after validating it.
-    value.trim() == value
+    !value.split_once("://").is_some_and(|(_, rest)| {
+        rest.split(['/', '?', '#'])
+            .next()
+            .unwrap_or("")
+            .contains('@')
+    }) && value.trim() == value
         && !value.chars().any(char::is_control)
         && reqwest::Url::parse(value).is_ok_and(|url| {
             matches!(url.scheme(), "http" | "https")

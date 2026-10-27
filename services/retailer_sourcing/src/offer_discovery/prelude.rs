@@ -17,8 +17,7 @@ pub use super::structuralize_offer::prelude::OfferWasStructuralized;
 #[cfg(test)]
 pub(crate) use super::processing_for_export::prelude::testing as export_testing;
 pub use super::processing_for_export::prelude::{
-    OfferExport, OfferExportWasPrepared, PgStore as ExportStore,
-    SCHEMA_VERSION as EXPORT_SCHEMA_VERSION, StoreError as ExportStoreError,
+    OfferExport, OfferExportWasPrepared, PgStore as ExportStore, StoreError as ExportStoreError,
 };
 
 /// Registers every offer discovery slice.

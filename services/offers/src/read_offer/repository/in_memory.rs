@@ -7,6 +7,7 @@ use uuid::Uuid;
 #[derive(Default)]
 pub struct InMemoryRetailerOfferRepository {
     entries: Mutex<HashMap<Uuid, RetailerOffer>>,
+    images: Mutex<HashMap<Uuid, std::collections::BTreeMap<u32, String>>>,
 }
 
 impl InMemoryRetailerOfferRepository {
@@ -16,6 +17,44 @@ impl InMemoryRetailerOfferRepository {
 }
 
 impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
+    fn images(
+        &self,
+        id: &super::RetailerOfferId,
+    ) -> Result<Vec<String>, RetailerOfferRepositoryError> {
+        let id = Uuid::parse_str(id.value()).map_err(super::err_update)?;
+        Ok(self
+            .images
+            .lock()
+            .map_err(super::err_update)?
+            .get(&id)
+            .map(|images| images.values().cloned().collect())
+            .unwrap_or_default())
+    }
+    fn add_image(
+        &self,
+        event: &crate::offers::event::OfferImageAddedEvent,
+    ) -> Result<(), RetailerOfferRepositoryError> {
+        if !shared::images::is_valid(&event.image_url) {
+            return Err(super::err_update("invalid image URL"));
+        }
+        let id = Uuid::parse_str(event.id.value()).map_err(super::err_update)?;
+        let mut entries = self.entries.lock().map_err(super::err_update)?;
+        let entity = entries.get_mut(&id).ok_or_else(super::err_offer_missing)?;
+        let mut all = self.images.lock().map_err(super::err_update)?;
+        let images = all.entry(id).or_default();
+        if images.get(&event.position) == Some(&event.image_url) {
+            return Ok(());
+        }
+        if images.contains_key(&event.position)
+            || images.values().any(|url| url == &event.image_url)
+        {
+            return Err(super::err_update("conflicting image addition"));
+        }
+        images.insert(event.position, event.image_url.clone());
+        entity.images = images.values().cloned().collect();
+        Ok(())
+    }
+
     fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError> {
         let id = validate(entity)?;
         let mut entries = self.entries.lock().map_err(err_insert)?;
@@ -26,7 +65,16 @@ impl RetailerOfferRepository for InMemoryRetailerOfferRepository {
         {
             return Err(err_insert("offer ID or retailer/URL already exists"));
         }
+        let mut all_images = self.images.lock().map_err(err_insert)?;
+        let images = entity
+            .images
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(position, image)| (position as u32, image))
+            .collect();
         entries.insert(id, entity.clone());
+        all_images.insert(id, images);
         Ok(())
     }
     fn update_title(
@@ -67,6 +115,7 @@ mod tests {
     fn updates_preserve_other_fields_and_reject_missing_offers() {
         let repository = InMemoryRetailerOfferRepository::new();
         let mut expected = RetailerOffer {
+            images: Vec::new(),
             id: RetailerOfferId::new(Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),

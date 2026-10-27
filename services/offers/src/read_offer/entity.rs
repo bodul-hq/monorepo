@@ -11,5 +11,6 @@ pub struct RetailerOffer {
     pub title: String,
     pub price: Money,
     pub url: String,
+    pub images: Vec<String>,
     pub created_at: DateTime<Utc>,
 }

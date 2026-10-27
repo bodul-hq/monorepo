@@ -19,5 +19,6 @@ docs {
   Returns items, limit, offset and has_more. Newest first by created_at then id.
   Limit is 1–100; offset is 0–2147483647. Defaults are 30 and 0.
   Price amount is a decimal string of signed i64 minor units.
+  Each offer includes ordered images; old offers return an empty array.
   Reads never run queues. Process inbox and commands before expecting new offers.
 }

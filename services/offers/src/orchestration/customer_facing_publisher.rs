@@ -11,8 +11,9 @@ use serde_json::Value;
 use tokio::runtime::Handle;
 
 use crate::offers::event::{
-    OFFER_CREATED_EVENT, OFFER_PRICE_CHANGED_EVENT, OFFER_TITLE_CHANGED_EVENT, OfferCreatedEvent,
-    OfferPriceChangedEvent, OfferTitleChangedEvent,
+    OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
+    OFFER_TITLE_CHANGED_EVENT, OfferCreatedEvent, OfferImageAddedEvent, OfferPriceChangedEvent,
+    OfferTitleChangedEvent,
 };
 
 /// The outbox destination `CustomerFacingSubscriber` records.
@@ -73,9 +74,22 @@ impl CustomerFacingPublisher {
             return Err(err_payload());
         }
         let parsed = match event_type {
-            OFFER_CREATED_EVENT => {
-                serde_json::from_value::<OfferCreatedEvent>(payload.clone()).map(drop)
+            OFFER_IMAGE_ADDED_EVENT => {
+                serde_json::from_value::<OfferImageAddedEvent>(payload.clone()).and_then(|event| {
+                    if shared::images::is_valid(&event.image_url) {
+                        Ok(())
+                    } else {
+                        Err(<serde_json::Error as serde::de::Error>::custom(
+                            "invalid image URL",
+                        ))
+                    }
+                })
             }
+            OFFER_CREATED_EVENT => serde_json::from_value::<OfferCreatedEvent>(payload.clone())
+                .and_then(|event| {
+                    crate::offers::event::guard_images(&event.images)
+                        .map_err(<serde_json::Error as serde::de::Error>::custom)
+                }),
             OFFER_TITLE_CHANGED_EVENT => {
                 serde_json::from_value::<OfferTitleChangedEvent>(payload.clone()).map(drop)
             }
@@ -117,7 +131,7 @@ fn err_destination() -> OutboxError {
 
 fn err_event_type() -> OutboxError {
     OutboxError::Routing(format!(
-        "outbox message event type must be {OFFER_CREATED_EVENT}, {OFFER_TITLE_CHANGED_EVENT} or {OFFER_PRICE_CHANGED_EVENT}"
+        "outbox message event type must be {OFFER_CREATED_EVENT}, {OFFER_TITLE_CHANGED_EVENT}, {OFFER_PRICE_CHANGED_EVENT} or {OFFER_IMAGE_ADDED_EVENT}"
     ))
 }
 
@@ -308,6 +322,10 @@ mod tests {
         for (event_type, payload) in [
             (OFFER_CREATED_EVENT, offer_created()),
             (
+                OFFER_IMAGE_ADDED_EVENT,
+                json!({"id":id,"image_url":"https://shop.example/A?x=1&y=2","position":u32::MAX}),
+            ),
+            (
                 OFFER_TITLE_CHANGED_EVENT,
                 json!({"id": id, "title": " New title ž "}),
             ),
@@ -467,6 +485,31 @@ mod tests {
                 .to_string(),
             "transport error: customer-facing inbox request failed"
         );
+    }
+
+    #[test]
+    fn creation_images_keep_the_raw_payload_and_invalid_lists_fail() {
+        let mut payload = offer_created();
+        payload["images"] = json!(["https://shop.example/A?x=1&y=2", "https://shop.example/B"]);
+        let message = envelope(OFFER_CREATED_EVENT, &payload);
+        let id = message.metadata.message_id;
+        let result = CustomerFacingPublisher::submission(message).unwrap();
+        let result = serde_json::to_value(result).unwrap();
+        assert_eq!(result["payload"], payload);
+        assert_eq!(result["message_id"], json!(id));
+        for images in [
+            json!(null),
+            json!("url"),
+            json!([1]),
+            json!(["/bad"]),
+            json!(["https://shop.example/A", "https://shop.example/A"]),
+        ] {
+            payload["images"] = images;
+            assert!(
+                CustomerFacingPublisher::submission(envelope(OFFER_CREATED_EVENT, &payload))
+                    .is_err()
+            );
+        }
     }
 }
 

@@ -408,7 +408,7 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
     let mut other_source = event(&stored);
     other_source.source.url = "https://shop.example/Other".into();
     let mut unsupported = event(&stored);
-    unsupported.schema_version += 1;
+    unsupported.schema_version = 3;
     for payload in [missing, event(&pending), other_source, unsupported] {
         seed_event(
             &db,
@@ -548,4 +548,33 @@ fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_
         server.runtime.block_on(run(state, json!({"limit":10}))).1,
         json!({"processed":0,"errors":[]})
     );
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+fn both_export_versions_replay_with_stable_message_ids_and_payload_shapes() {
+    use crate::offer_discovery::prelude::export_testing::completed_version;
+    let db = Database::new();
+    let server = Server::new();
+    let source = stored_source(&server.client(), ANKER);
+    let listener = Listener::new(PgStore::new(db.pool.clone(), server.client()));
+    for version in [1, 2] {
+        let export = completed_version(&db.pool, server.client(), source.clone(), version);
+        let context = context();
+        listener.listen(event(&export), &context).unwrap();
+        let before = outbox_rows(&db);
+        listener.listen(event(&export), &context).unwrap();
+        assert_eq!(outbox_rows(&db), before);
+        for entry in &export.entries {
+            let row = before
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|row| row["id"] == entry.id.to_string())
+                .unwrap();
+            let payload: Value = serde_json::from_str(row["payload"].as_str().unwrap()).unwrap();
+            assert_eq!(payload, serde_json::to_value(&entry.payload).unwrap());
+            assert_eq!(payload.get("images").is_some(), version == 2);
+        }
+    }
 }

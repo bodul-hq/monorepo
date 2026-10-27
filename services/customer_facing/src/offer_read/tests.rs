@@ -22,6 +22,7 @@ pub(crate) fn offers(items: Vec<Offer>) -> Offers {
 
 fn fixture(index: u128) -> Offer {
     Offer {
+        images: Vec::new(),
         id: Uuid::from_u128(index).to_string(),
         retailer_code: "ankerau".into(),
         title: " \tČaj 🔌\n".into(),
@@ -59,7 +60,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} url createdAt }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} url images createdAt }} }} }}"
         );
         for get in [false, true] {
             let response = if get {

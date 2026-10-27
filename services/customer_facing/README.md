@@ -60,7 +60,7 @@ Submit the agreed Mulac envelope directly; no upstream service is required:
 ```sh
 curl http://localhost:3003/api/inbox \
   -H 'content-type: application/json' \
-  -d '{"routing_key":"OfferCreated","message_id":"0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7d","correlation_id":null,"source":"offers","payload":{"id":"0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7e","retailer_code":"AnkerAu","title":"USB charger","price":{"amount":1999,"currency":"AUD"},"url":"https://shop.example/Charger?variant=123#details","created_at":"2026-10-24T12:00:00Z"}}'
+  -d '{"routing_key":"OfferCreated","message_id":"0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7d","correlation_id":null,"source":"offers","payload":{"id":"0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7e","retailer_code":"AnkerAu","title":"USB charger","price":{"amount":1999,"currency":"AUD"},"url":"https://shop.example/Charger?variant=123#details","created_at":"2026-10-24T12:00:00Z","images":["https://shop.example/front.jpg"]}}'
 curl http://localhost:3003/api/inbox/run \
   -H 'content-type: application/json' -d '{"limit":10}'
 curl http://localhost:3003/api/commands/run \
@@ -84,9 +84,10 @@ Use the same envelope with a new message UUID for each distinct update:
 
 | Exact routing key | Payload |
 | --- | --- |
-| `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at` as above |
+| `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at`, ordered `images` (missing in legacy messages means `[]`) |
 | `OfferTitleChanged` | `{"id":"<offer UUID>","title":"New title"}` |
 | `OfferPriceChangedEvent` | `{"id":"<offer UUID>","price":{"amount":0,"currency":"EUR"}}` |
+| `OfferImageAdded` | `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}` |
 
 Payloads must be JSON objects without an event wrapper or JSON string encoding.
 The price event's `Event` suffix is required. Retailer enum values such as
@@ -146,7 +147,7 @@ manual requests.
 ```sh
 curl 'http://localhost:3003/api/offers?limit=30&offset=0'
 curl http://localhost:3003/graphql -H 'content-type: application/json' \
-  -d '{"query":"{ offers(limit: 30, offset: 0) { items { id retailerCode title price { amount currency } url createdAt } limit offset hasMore } }"}'
+  -d '{"query":"{ offers(limit: 30, offset: 0) { items { id retailerCode title price { amount currency } url images createdAt } limit offset hasMore } }"}'
 ```
 
 REST returns this page shape (GraphQL uses `retailerCode`, `createdAt`, and
@@ -160,6 +161,7 @@ REST returns this page shape (GraphQL uses `retailerCode`, `createdAt`, and
     "title": "USB charger",
     "price": {"amount": "1999", "currency": "AUD"},
     "url": "https://shop.example/Charger?variant=123#details",
+    "images": ["https://shop.example/front.jpg"],
     "created_at": "2026-10-24T12:00:00Z"
   }],
   "limit": 30,
@@ -331,3 +333,27 @@ The development app defaults `CUSTOMER_FACING_URL` to
 reporting token. Use `CUSTOMER_FACING_URL=http://localhost:3003` when running
 customer-facing locally on port 3003. Restart each process after configuration
 changes; recreate containers when changing their environment.
+
+## Ordered image projection
+
+Migration `2026-10-25-000001_offer_images` adds `offer_images` without rewriting
+old offers or receipts. `OfferImageAdded` requires a UUID, a valid exact HTTP(S)
+URL without credentials/padding/controls (at most 2048 bytes), and a u32 position.
+Invalid events fail; only import producers filter invalid strings.
+
+An image addition and its original-message receipt commit together. Missing
+parents and conflicting position/URL pairs roll back the receipt and retry.
+Identical additions under different message IDs succeed without extra images.
+Out-of-order messages may leave temporary gaps; REST and GraphQL always return
+URLs sorted by stored position. Old rows return `images: []`. A single SQL page
+query includes the image lists without duplicating offers or changing pagination.
+Title/price changes retain all images. Deploy this consumer before offers starts
+publishing images. See [ADR 24](../../docs/adr/0024-append-only-offer-images.md).
+
+Initial images now arrive in `OfferCreated`. The parent, all initial images and
+its original-message receipt commit atomically; a failed image insert rolls back
+the entire creation. Missing images in old events default to `[]`; malformed,
+invalid or duplicate event images are rejected. Separate `OfferImageAdded` events
+are emitted only by updates, while already queued legacy additions remain
+supported. Deploy this consumer before the new offers producer; see
+[ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md).

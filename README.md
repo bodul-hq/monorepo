@@ -19,7 +19,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 
 | Crate                     | Purpose                                                                     |
 | ------------------------- | --------------------------------------------------------------------------- |
-| `shared`                  | Code shared across the monorepo, including the `health()` liveness response |
+| `shared`                  | Shared liveness response and exact image URL validation |
 | `object_storage_client`   | Async object storage client using REST or GraphQL                           |
 | `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery      |
 | `money`                   | Money handling                                                              |
@@ -68,15 +68,17 @@ health only at `/api/health`. See its
 retailer's sitemaps and sorts the page URLs into products, catalogs and other
 content. Offer discovery then records every product URL as an offer and
 downloads its page, extracts, normalizes and structuralizes it, then prepares
-an immutable export of priced variations. Export snapshots are the handoff for
-future outbox delivery; preparing them does not contact offers. See
+an immutable export of priced variations. Export snapshots feed outbox
+delivery; preparing them does not contact offers. See
 [ADR 19](docs/adr/0019-immutable-offer-export-preparation.md). The code is organised as feature slices
 ([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
 pipeline runs only when `DATABASE_URL` is set (see below).
 
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
-history and retry receipts in one transaction, and projects events for REST
-lookups. Both queues run explicitly through the API. Set `DATABASE_URL` to
+history and projects offer events, with initial images in `OfferCreated` and
+ordered image additions on updates. Its current
+typed handler relies on the identity projection and does not have durable import
+receipts. Queues run explicitly through the API. Set `DATABASE_URL` to
 enable persistence; see its [setup and walkthrough](services/offers/README.md)
 and [ADR 15](docs/adr/0015-offers-testimony-and-mulac.md).
 
@@ -93,7 +95,8 @@ and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 `customers` and `development` are poem servers that render HTML on the server.
 Each serves an index page at `/`. The [customers app](apps/customers/README.md)
 shows 30 offers per page with responsive HTML/CSS cards and Previous/Next links,
-using customer-facing's REST API. Set `CUSTOMER_FACING_URL` to that service's
+using customer-facing's REST API. Cards show the first ordered offer image,
+with empty-image compatibility for older responses. Set `CUSTOMER_FACING_URL` to that service's
 base URL (default `http://localhost:3003`). The
 [development app](apps/development/README.md) also provides `/dashboard`,
 combining authenticated database table reports from retailer sourcing, object
@@ -208,8 +211,11 @@ the `200` batch response. See the [queue contract](services/retailer_sourcing/RE
 
 Retailer sourcing also exposes `POST /api/outbox/run` with the same batch body.
 Set `OFFERS_URL` to the offers origin to enable temporary HTTP delivery to its
-durable inbox. The export listener that creates those messages is separate work;
-see the [delivery contract](services/retailer_sourcing/README.md#http-outbox-delivery)
+durable inbox. The registered `record_export_messages` listener handles
+`OfferExportWasPrepared` during event processing and records one outbox message
+per export entry. Delivery runs separately through `/api/outbox/run`. See
+[message recording](services/retailer_sourcing/README.md#recording-export-messages),
+the [delivery contract](services/retailer_sourcing/README.md#http-outbox-delivery)
 and [ADR 20](docs/adr/0020-temporary-http-outbox-delivery.md).
 
 The `bruno/` folder is a [Bruno](https://www.usebruno.com/) workspace that lists

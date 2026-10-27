@@ -60,3 +60,19 @@ footer{align-items:flex-start;flex-direction:column;gap:15px;margin-top:45px}
 footer p{text-align:left}
 .empty-state{padding:40px 18px}
 }
+
+.offer-image { aspect-ratio: 4 / 3; width: 100%; overflow: hidden; border-radius: 8px; background: rgba(127,127,127,.06); margin-bottom: 1rem; }
+.offer-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+@media(prefers-color-scheme:dark){
+:root{color-scheme:dark;--ink:#e4eee8;--muted:#a5b9b0;--teal:#8dd6bc;--paper:#14201d;--line:#35473e}
+.offer-card,.button,.sort-label{background:#1c2c26}
+.retailer{background:#2b4035;color:#c1dacb}
+.brand-mark{background:#b8d9c8;color:#14201d}
+.offer-link{border-color:var(--line)}
+a:hover{color:#b9edda}
+.button:hover{background:#2b4035}
+.empty-state{background:#1c2c26;border-color:#4b6656}
+.empty-mark{background:#2b4035}
+.skip-link{background:#1c2c26}
+}

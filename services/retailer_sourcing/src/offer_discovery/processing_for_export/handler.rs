@@ -5,7 +5,11 @@ use super::store::StoreError;
 use crate::platform::bus::Handle;
 
 pub(super) trait Store: Send + Sync + 'static {
-    fn prepare(&self, source: ExportSource) -> Result<PreparedExport, StoreError>;
+    fn prepare(
+        &self,
+        source: ExportSource,
+        schema_version: u32,
+    ) -> Result<PreparedExport, StoreError>;
     fn complete(&self, prepared: PreparedExport) -> Result<OfferExport, StoreError>;
 }
 
@@ -45,7 +49,7 @@ impl<S: Store> Handle for Handler<S> {
             url: command.url,
             storage,
         };
-        let prepared = self.store.prepare(source)?;
+        let prepared = self.store.prepare(source, command.schema_version)?;
         let snapshot = self.store.complete(prepared)?;
         tracing::info!(
             export_id = %snapshot.id,
@@ -77,11 +81,15 @@ mod tests {
     }
 
     impl Store for FakeStore {
-        fn prepare(&self, source: ExportSource) -> Result<PreparedExport, StoreError> {
+        fn prepare(
+            &self,
+            source: ExportSource,
+            schema_version: u32,
+        ) -> Result<PreparedExport, StoreError> {
             if self.fail_prepare {
                 return Err(StoreError::Incomplete);
             }
-            let snapshot = convert(source, ANKER)?;
+            let snapshot = convert(source, ANKER, schema_version)?;
             Ok(PreparedExport {
                 body: serde_json::to_string(&snapshot)?,
                 snapshot,
@@ -99,6 +107,7 @@ mod tests {
     fn command() -> ProcessOfferForExport {
         let source = source();
         ProcessOfferForExport {
+            schema_version: 2,
             offer_id: source.offer_id,
             consolidated_sitemap_id: source.consolidated_sitemap_id,
             retailer_code: source.retailer_code,
@@ -141,5 +150,18 @@ mod tests {
         let error = handler.handle(command).unwrap_err();
         assert!(matches!(error, HandlerError::UnpinnedSource(id) if id == legacy.offer_id));
         assert!(error.to_string().contains("fresh structuralization"));
+    }
+
+    #[test]
+    fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v2() {
+        let mut value = serde_json::to_value(command()).unwrap();
+        value.as_object_mut().unwrap().remove("schema_version");
+        let legacy: ProcessOfferForExport = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(legacy.schema_version, 1);
+        let source: OfferWasStructuralized = serde_json::from_value(value).unwrap();
+        assert_eq!(
+            super::super::reacts_to::on(&source).unwrap().schema_version,
+            2
+        );
     }
 }

@@ -154,3 +154,33 @@ fn empty_states_and_navigation_handle_boundaries() {
     data.offset = i32::MAX;
     assert!(!render(&data).contains("rel=\"next\""));
 }
+
+#[test]
+fn first_image_only_with_escaping_and_safe_empty_states() {
+    let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+    assert!(render(&data).contains("empty-image"));
+    data.items[0].title = "A <charger> & \"test\"".into();
+    data.items[0].images = vec![
+        "https://shop.example/front?a=1&b=2".into(),
+        "https://shop.example/back".into(),
+    ];
+    let html = render(&data);
+    assert!(html.contains("src=\"https://shop.example/front?a=1&amp;b=2\""));
+    assert!(html.contains("alt=\"A &lt;charger&gt; &amp; &quot;test&quot;\""));
+    assert!(html.contains("loading=\"lazy\""));
+    assert!(!html.contains("shop.example/back"));
+    for url in [
+        "javascript:alert(1)",
+        "//shop.example/front",
+        "https://user@shop.example/front",
+        "https://@shop.example/front",
+        " https://shop.example/front",
+        "https://shop.example/front\n",
+    ] {
+        data.items[0].images[0] = url.into();
+        let html = render(&data);
+        assert!(!html.contains("<img "));
+        assert!(html.contains("empty-image"));
+        assert!(html.contains("View offer"));
+    }
+}

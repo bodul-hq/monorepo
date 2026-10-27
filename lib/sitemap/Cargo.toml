@@ -11,7 +11,7 @@ quick-xml = "0.42.0"
 serde.workspace = true
 strum = { version = "0.27", features = ["derive"] }
 thiserror.workspace = true
-url = "2.5.8"
+url.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

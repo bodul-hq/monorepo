@@ -12,6 +12,8 @@ mod model {
 
     #[derive(Object)]
     pub struct ImportOfferRequest {
+        #[oai(default)]
+        pub images: Vec<String>,
         pub retailer_code: String,
         pub title: String,
         /// Price in minor currency units (cents for currencies with two decimal places).
@@ -41,6 +43,7 @@ mod conversion {
                 "title": request.title,
                 "price": { "amount": request.price_amount, "currency": currency },
                 "url": request.url,
+                "images": request.images,
             });
 
             let submission = Self {
@@ -97,6 +100,7 @@ mod tests {
     fn request_converts_directly_to_a_command_compatible_inbox_message() {
         for amount in [0, 1999, i64::MAX] {
             let request = ImportOfferRequest {
+                images: Vec::new(),
                 retailer_code: "ankerau".into(),
                 title: " USB charger ".into(),
                 price_amount: amount,
@@ -119,6 +123,7 @@ mod tests {
                     "title": " USB charger ",
                     "price": { "amount": amount, "currency": "AUD" },
                     "url": "https://example.com/Charger?q=red#details",
+                    "images": [],
                 })
             );
 

@@ -2,7 +2,7 @@ use super::{handler, reacts_to, store};
 use crate::platform::{Platform, bus::Bus};
 
 pub use super::{
-    entity::{OfferExport, SCHEMA_VERSION},
+    entity::OfferExport,
     event::OfferExportWasPrepared,
     store::{PgStore, StoreError},
 };
@@ -36,14 +36,25 @@ pub(crate) mod testing {
 
     /// Prepares and completes the export of `source`.
     pub fn completed(db: &DbPool, objects: ObjectStorage, source: ExportSource) -> OfferExport {
+        completed_version(db, objects, source, 1)
+    }
+
+    pub fn completed_version(
+        db: &DbPool,
+        objects: ObjectStorage,
+        source: ExportSource,
+        version: u32,
+    ) -> OfferExport {
         let store = PgStore::new(db.clone(), objects);
-        store.complete(store.prepare(source).unwrap()).unwrap()
+        store
+            .complete(store.prepare(source, version).unwrap())
+            .unwrap()
     }
 
     /// Prepares the export of `source` without completing it.
     pub fn pending(db: &DbPool, objects: ObjectStorage, source: ExportSource) -> OfferExport {
         PgStore::new(db.clone(), objects)
-            .prepare(source)
+            .prepare(source, 1)
             .unwrap()
             .snapshot
     }

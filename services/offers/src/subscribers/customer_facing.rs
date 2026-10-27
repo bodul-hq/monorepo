@@ -3,7 +3,8 @@ use kernel::{EventError, EventSubscriberPort, NewEventEnvelope};
 use testimony_infra::prelude::DbPool;
 
 use crate::offers::event::{
-    OFFER_CREATED_EVENT, OFFER_PRICE_CHANGED_EVENT, OFFER_TITLE_CHANGED_EVENT,
+    OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
+    OFFER_TITLE_CHANGED_EVENT,
 };
 
 pub struct CustomerFacingSubscriber {
@@ -20,7 +21,10 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         if !matches!(
             envelope.event_type.as_str(),
-            OFFER_CREATED_EVENT | OFFER_TITLE_CHANGED_EVENT | OFFER_PRICE_CHANGED_EVENT
+            OFFER_CREATED_EVENT
+                | OFFER_TITLE_CHANGED_EVENT
+                | OFFER_PRICE_CHANGED_EVENT
+                | OFFER_IMAGE_ADDED_EVENT
         ) {
             return Ok(());
         }
@@ -71,6 +75,7 @@ mod tests {
     fn requires_metadata_for_offer_events_and_ignores_unrelated_events() {
         let subscriber = CustomerFacingSubscriber::new(crate::test_pool());
         for event_type in [
+            OFFER_IMAGE_ADDED_EVENT,
             OFFER_CREATED_EVENT,
             OFFER_TITLE_CHANGED_EVENT,
             OFFER_PRICE_CHANGED_EVENT,

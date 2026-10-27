@@ -11,6 +11,7 @@ pub struct RetailerOfferState {
     title: String,
     price: Money,
     url: String,
+    images: Vec<String>,
     created_at: DateTime<Utc>,
 }
 
@@ -37,8 +38,17 @@ impl RetailerOfferState {
             title: title.into(),
             price,
             url: url.into(),
+            images: Vec::new(),
             created_at,
         }
+    }
+
+    pub fn images(&self) -> &[String] {
+        &self.images
+    }
+
+    pub(super) fn add_image(&mut self, image: String) {
+        self.images.push(image);
     }
 
     pub fn id(&self) -> &RetailerOfferId {

@@ -2,7 +2,7 @@ use diesel::sql_types::{Integer, Jsonb, Nullable, Text, Uuid as SqlUuid};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::super::entity::{ExportSource, OfferExport, PreparedExport, SCHEMA_VERSION};
+use super::super::entity::{ExportSource, OfferExport, PreparedExport};
 use super::StoreError;
 use crate::platform::db::Json;
 use crate::platform::object_storage::ObjectStorageMetadata;
@@ -46,8 +46,8 @@ pub(super) struct OfferExportPgRecord {
 impl OfferExportPgRecord {
     pub fn into_prepared(self, body: String) -> Result<PreparedExport, StoreError> {
         let snapshot: OfferExport = serde_json::from_str(&body)?;
-        if self.schema_version != SCHEMA_VERSION as i32
-            || snapshot.schema_version != SCHEMA_VERSION
+        if !snapshot.valid_schema()
+            || self.schema_version != snapshot.schema_version as i32
             || snapshot.id != self.id
             || snapshot.source != self.source.0
             || snapshot.source.offer_id != self.offer_id

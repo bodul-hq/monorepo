@@ -22,3 +22,8 @@ The source and routing key must contain non-whitespace text; the payload must
 be nonempty. Optional message/correlation IDs must be UUID strings. Retrying the
 same message ID preserves the original row. Run requests accept integer limits
 from 1 through 1000. Inspect `errors` even when a runner returns HTTP 200.
+
+Both browse examples expose ordered `images` arrays (`[]` for old offers).
+Use `OfferImageAdded` with `id`, `image_url` and a nonnegative u32 `position`
+through Submit inbox, then run inbox and commands. Repeated identical additions
+are safe; positions determine display order.

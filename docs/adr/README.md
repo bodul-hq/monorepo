@@ -25,6 +25,8 @@
 | [21](0021-offers-http-outbox-to-customer-facing.md) | Temporary HTTP outbox delivery from offers to customer-facing | Accepted; supersedes ADR 16's RabbitMQ delivery for the offers to customer-facing hop |
 | [22](0022-customer-facing-offer-projection.md) | Customer-facing offer projection with original-message receipts | Accepted; supersedes ADR 18's bootstrap-only handler policy |
 | [23](0023-offer-browsing-and-customers-homepage.md) | Customer-facing offer browsing and the customers homepage | Accepted |
+| [24](0024-append-only-offer-images.md) | Append-only offer images with compatible v2 exports | Accepted; supersedes only ADR 19 image exclusion and ADR 21/22 three-event restrictions |
+| [25](0025-initial-images-in-offer-created.md) | Initial images in OfferCreated | Accepted; supersedes ADR 24 creation-event behavior |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.

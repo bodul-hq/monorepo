@@ -52,7 +52,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
         json!({
             "retailer_code":"AnkerAu", "title":"USB charger",
             "price":{"amount":1999,"currency":"AUD"},
-            "url":"https://example.com/charger?color=red"
+            "url":"https://example.com/charger?color=red", "images":[]
         })
     );
     assert_eq!(
@@ -395,6 +395,7 @@ fn read_repositories_insert_contracts() {
                 "inbox_entries",
                 "outbox_entries",
                 "read_offer_identities",
+                "read_offer_images",
                 "read_offers",
             ]
         );
@@ -759,6 +760,7 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "USB charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
@@ -837,6 +839,7 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     };
     for number in 0..3 {
         let command = crate::offers::command::ImportOfferDetailsCommand {
+            images: Vec::new(),
             retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
             title: "Charger".into(),
             price: money::Money::new(1999, money::Currency::AUD),
@@ -1119,6 +1122,7 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let command = crate::offers::command::ImportOfferDetailsCommand {
+        images: Vec::new(),
         retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
@@ -1226,4 +1230,185 @@ async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events()
     // The backoff keeps the failed event out of the next batch.
     run_queue(&client, "events", 10, 0).await;
     kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
+    use crate::offers::event::OfferImageAddedEvent;
+    use crate::read_offer::repository::{
+        InMemoryRetailerOfferRepository, PostgresRetailerOfferRepository, RetailerOfferRepository,
+    };
+    let (_schema, pool) = inbox_test_database();
+    let repositories: Vec<Box<dyn RetailerOfferRepository>> = vec![
+        Box::new(PostgresRetailerOfferRepository::new(pool)),
+        Box::new(InMemoryRetailerOfferRepository::new()),
+    ];
+    for repository in repositories {
+        let entity = crate::read_offer::entity::RetailerOffer {
+            images: Vec::new(),
+            id: RetailerOfferId::new(Uuid::now_v7().to_string()),
+            retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+            title: "Charger".into(),
+            price: money::Money::new(1999, money::Currency::AUD),
+            url: "https://shop.example/charger".into(),
+            created_at: chrono::Utc::now(),
+        };
+        let a = OfferImageAddedEvent {
+            id: entity.id.clone(),
+            image_url: "https://shop.example/A".into(),
+            position: 0,
+        };
+        let b = OfferImageAddedEvent {
+            id: entity.id.clone(),
+            image_url: "https://shop.example/B".into(),
+            position: 1,
+        };
+        assert!(repository.add_image(&b).is_err());
+        repository.insert(&entity).unwrap();
+        assert!(repository.images(&entity.id).unwrap().is_empty());
+        repository.add_image(&b).unwrap();
+        repository.add_image(&a).unwrap();
+        repository.add_image(&a).unwrap();
+        for event in [
+            OfferImageAddedEvent {
+                position: 2,
+                ..a.clone()
+            },
+            OfferImageAddedEvent {
+                image_url: "https://shop.example/conflict".into(),
+                ..a.clone()
+            },
+        ] {
+            assert!(repository.add_image(&event).is_err());
+        }
+        repository.update_title(&entity.id, "updated").unwrap();
+        repository
+            .update_price(&entity.id, &money::Money::new(42, money::Currency::EUR))
+            .unwrap();
+        assert_eq!(
+            repository.images(&entity.id).unwrap(),
+            [a.image_url, b.image_url]
+        );
+    }
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn image_imports_emit_append_only_events_through_existing_handler() {
+    let (_schema, pool) = inbox_test_database();
+    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let a = "https://shop.example/A";
+    let b = "https://shop.example/B";
+    let c = "https://shop.example/C";
+    for (images, events) in [
+        (json!([a, a, b, "/bad"]), 1),
+        (json!([b, c, a, c]), 1),
+        (json!([]), 0),
+        (json!([c, a, b]), 0),
+    ] {
+        let input = json!({"retailer_code":"ankerau","title":"charger","price_amount":1999,"currency":"AUD","url":"https://shop.example/charger","images":images});
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        run_queue(&client, "events", 100, events).await;
+    }
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg(image_url ORDER BY position) AS data FROM read_offer_images"
+        ),
+        json!([a, b, c])
+    );
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM event_store"),
+        2
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM outbox_entries"
+        ),
+        2
+    );
+    let created = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferCreated'",
+    );
+    assert_eq!(created["images"], json!([a, b]));
+    let added = inbox_test_snapshot(
+        &pool,
+        "SELECT payload::jsonb AS data FROM outbox_entries WHERE meta->>'event_type'='OfferImageAdded'",
+    );
+    assert_eq!(added["image_url"], c);
+    assert_eq!(added["position"], 2);
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_migration_preserves_preexisting_offer_rows() {
+    let (_schema, pool) = inbox_test_database();
+    let mut connection = pool.get().unwrap();
+    connection.revert_last_migration(MIGRATIONS).unwrap();
+    connection.batch_execute("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at) VALUES (gen_random_uuid(),'ankerau','https://shop.example/old','Old offer',123,'AUD',now())").unwrap();
+    let before = inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
+    connection.run_pending_migrations(MIGRATIONS).unwrap();
+    assert_eq!(
+        inbox_test_snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o"),
+        before
+    );
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM read_offer_images"
+        ),
+        0
+    );
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn creation_projection_rolls_back_parent_and_images_together() {
+    use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
+    let (_schema, pool) = inbox_test_database();
+    let entity = crate::read_offer::entity::RetailerOffer {
+        id: RetailerOfferId::new(Uuid::now_v7().to_string()),
+        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        title: "Charger".into(),
+        url: "https://shop.example/atomic".into(),
+        price: money::Money::new(1999, money::Currency::AUD),
+        created_at: chrono::Utc::now(),
+        images: vec![
+            "https://shop.example/A".into(),
+            "https://shop.example/B".into(),
+        ],
+    };
+    let repository = PostgresRetailerOfferRepository::new(pool.clone());
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "ALTER TABLE read_offer_images ADD CONSTRAINT fail_second_image CHECK (position <> 1)",
+        )
+        .unwrap();
+    assert!(repository.insert(&entity).is_err());
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_build_object('offers',(SELECT count(*) FROM read_offers),'images',(SELECT count(*) FROM read_offer_images)) AS data"
+        ),
+        json!({"offers":0,"images":0})
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE read_offer_images DROP CONSTRAINT fail_second_image")
+        .unwrap();
+    repository.insert(&entity).unwrap();
+    assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
 }

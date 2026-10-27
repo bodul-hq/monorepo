@@ -14,6 +14,12 @@ pub struct RetailerOfferRepositoryError(String);
 
 /// Inserts a new read model; duplicate IDs or retailer/URL pairs are errors.
 pub trait RetailerOfferRepository: Send + Sync {
+    fn add_image(
+        &self,
+        event: &crate::offers::event::OfferImageAddedEvent,
+    ) -> Result<(), RetailerOfferRepositoryError>;
+    fn images(&self, id: &RetailerOfferId) -> Result<Vec<String>, RetailerOfferRepositoryError>;
+
     fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError>;
     /// Fails if the offer has not been inserted yet.
     fn update_title(
@@ -42,6 +48,7 @@ fn err_insert(error: impl std::fmt::Display) -> RetailerOfferRepositoryError {
 }
 
 fn validate(entity: &RetailerOffer) -> Result<uuid::Uuid, RetailerOfferRepositoryError> {
+    crate::offers::event::guard_images(&entity.images).map_err(err_insert)?;
     let id = uuid::Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
     if entity.url.len() > 2048 || entity.url.contains('\0') {
         return Err(err_insert(
@@ -61,6 +68,10 @@ pub(crate) mod tests {
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferRepository) {
         let entity = RetailerOffer {
+            images: vec![
+                "https://shop.example/A".into(),
+                "https://shop.example/B".into(),
+            ],
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             url: "https://example.com/Charger?color=red#details".to_owned(),
@@ -69,6 +80,7 @@ pub(crate) mod tests {
             created_at: chrono::DateTime::from_timestamp(1_700_000_000, 123_000_000).unwrap(),
         };
         repository.insert(&entity).unwrap();
+        assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
         assert!(repository.insert(&entity).is_err());
         let mut other = entity.clone();
         other.url.push_str("-other");

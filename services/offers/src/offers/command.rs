@@ -9,6 +9,8 @@ pub enum ProductOfferCommand {
 
 #[derive(Serialize, Deserialize)]
 pub struct ImportOfferDetailsCommand {
+    #[serde(default)]
+    pub images: Vec<String>,
     pub retailer_code: RetailerCode,
     pub title: String,
     pub price: Money,
@@ -41,5 +43,44 @@ mod export_contract_tests {
             command.url,
             "https://shop.example/Charger?q=red&variant=1#details"
         );
+    }
+
+    #[test]
+    fn legacy_and_v2_imports_have_strict_array_types() {
+        let mut input: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload.json"
+        ))
+        .unwrap();
+        assert!(
+            serde_json::from_value::<ImportOfferDetailsCommand>(input.clone())
+                .unwrap()
+                .images
+                .is_empty()
+        );
+        input["images"] = serde_json::json!(["https://shop.example/a", "/invalid"]);
+        assert_eq!(
+            serde_json::from_value::<ImportOfferDetailsCommand>(input.clone())
+                .unwrap()
+                .images
+                .len(),
+            2
+        );
+        for value in [
+            serde_json::json!(null),
+            serde_json::json!("url"),
+            serde_json::json!([3]),
+        ] {
+            input["images"] = value;
+            assert!(serde_json::from_value::<ImportOfferDetailsCommand>(input.clone()).is_err());
+        }
+    }
+
+    #[test]
+    fn accepts_sourcing_v2_fixture() {
+        let command: ImportOfferDetailsCommand = serde_json::from_str(include_str!(
+            "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v2.json"
+        ))
+        .unwrap();
+        assert_eq!(command.images, ["https://example.com/a.png"]);
     }
 }

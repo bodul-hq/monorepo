@@ -17,6 +17,8 @@ pub struct Page {
 
 #[derive(Debug, Deserialize)]
 pub struct Offer {
+    #[serde(default)]
+    pub images: Vec<String>,
     pub id: String,
     pub retailer_code: String,
     pub title: String,

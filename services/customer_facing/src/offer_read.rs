@@ -32,6 +32,7 @@ pub struct Offer {
     pub title: String,
     pub price: OfferPrice,
     pub url: String,
+    pub images: Vec<String>,
     /// Original creation instant in UTC RFC3339 format.
     pub created_at: String,
 }
@@ -71,6 +72,8 @@ struct Record {
     currency: String,
     #[diesel(sql_type = Text)]
     url: String,
+    #[diesel(sql_type = diesel::sql_types::Array<Text>)]
+    images: Vec<String>,
     #[diesel(sql_type = Timestamptz)]
     created_at: DateTime<Utc>,
 }
@@ -79,8 +82,10 @@ impl Repository for PostgresRepository {
     fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
-            "SELECT id, retailer_code, title, price_amount, currency, url, created_at
-             FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2",
+            "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at
+             FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
+             ORDER BY created_at DESC, id DESC",
         )
         .bind::<BigInt, _>(limit)
         .bind::<BigInt, _>(offset)
@@ -97,6 +102,7 @@ impl Repository for PostgresRepository {
                     currency: record.currency,
                 },
                 url: record.url,
+                images: record.images,
                 created_at: record
                     .created_at
                     .to_rfc3339_opts(SecondsFormat::AutoSi, true),

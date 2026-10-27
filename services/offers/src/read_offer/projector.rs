@@ -20,11 +20,18 @@ impl<R: RetailerOfferRepository> RetailerOfferProjector<R> {
 impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<R> {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         match envelope.event_type.as_str() {
+            crate::offers::event::OFFER_IMAGE_ADDED_EVENT => {
+                let event = serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                self.repository
+                    .add_image(&event)
+                    .map_err(err_projection_failed)
+            }
             OFFER_CREATED_EVENT => {
                 let event: OfferCreatedEvent =
                     serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
 
                 let entity = RetailerOffer {
+                    images: event.images,
                     id: event.id,
                     retailer_code: event.retailer_code,
                     url: event.url,
@@ -75,6 +82,16 @@ mod tests {
     struct RecordingRepository(Mutex<Option<RetailerOffer>>);
 
     impl RetailerOfferRepository for RecordingRepository {
+        fn images(&self, _: &RetailerOfferId) -> Result<Vec<String>, RetailerOfferRepositoryError> {
+            Ok(Vec::new())
+        }
+        fn add_image(
+            &self,
+            _: &crate::offers::event::OfferImageAddedEvent,
+        ) -> Result<(), RetailerOfferRepositoryError> {
+            Ok(())
+        }
+
         fn insert(&self, entity: &RetailerOffer) -> Result<(), RetailerOfferRepositoryError> {
             *self.0.lock().unwrap() = Some(entity.clone());
             Ok(())
@@ -107,6 +124,7 @@ mod tests {
     fn maps_supported_events_and_rejects_malformed_payloads() {
         let projector = RetailerOfferProjector::new(RecordingRepository::default());
         let event = OfferCreatedEvent {
+            images: Vec::new(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
             retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),
@@ -129,6 +147,7 @@ mod tests {
         ));
         projector.handle(&envelope).unwrap();
         let mut expected = RetailerOffer {
+            images: Vec::new(),
             id: event.id.clone(),
             retailer_code: event.retailer_code,
             url: event.url.clone(),

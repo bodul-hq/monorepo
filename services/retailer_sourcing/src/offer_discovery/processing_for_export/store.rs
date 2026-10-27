@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use self::record::{ExportStats, OfferExportPgRecord};
 use super::conversion::{self, ConversionError};
-use super::entity::{ExportSource, OfferExport, PreparedExport, SCHEMA_VERSION};
+use super::entity::{ExportSource, OfferExport, PreparedExport};
 use super::handler::Store;
 use crate::platform::db::{self, DbPool, Json};
 use crate::platform::object_storage::{
@@ -56,13 +56,17 @@ impl PgStore {
             .transpose()
     }
 
-    fn find(&self, source: &ExportSource) -> Result<Option<OfferExportPgRecord>, StoreError> {
+    fn find(
+        &self,
+        source: &ExportSource,
+        schema_version: u32,
+    ) -> Result<Option<OfferExportPgRecord>, StoreError> {
         Ok(diesel::sql_query(
             "SELECT * FROM offer_export WHERE offer_id = $1 AND source_object_id = $2 AND schema_version = $3",
         )
         .bind::<SqlUuid, _>(source.offer_id)
         .bind::<SqlUuid, _>(source.storage.object_storage_id)
-        .bind::<Integer, _>(SCHEMA_VERSION as i32)
+        .bind::<Integer, _>(schema_version as i32)
         .get_result(&mut self.pool.get()?)
         .optional()?)
     }
@@ -93,15 +97,22 @@ impl PgStore {
 }
 
 impl Store for PgStore {
-    fn prepare(&self, source: ExportSource) -> Result<PreparedExport, StoreError> {
-        if let Some(record) = self.find(&source)? {
+    fn prepare(
+        &self,
+        source: ExportSource,
+        schema_version: u32,
+    ) -> Result<PreparedExport, StoreError> {
+        if !matches!(schema_version, 1 | 2) {
+            return Err(StoreError::InvalidRecord);
+        }
+        if let Some(record) = self.find(&source, schema_version)? {
             return self.prepared_for(record, &source);
         }
 
         let input = self
             .objects
             .get_offer(STRUCTURALIZED_OFFERS_BUCKET, &source.storage)?;
-        let snapshot = conversion::convert(source.clone(), &input)?;
+        let snapshot = conversion::convert(source.clone(), &input, schema_version)?;
         let body = serde_json::to_string(&snapshot)?;
         let stats = Json(ExportStats::from(&snapshot));
         let references = Json(source.clone());
@@ -115,13 +126,15 @@ impl Store for PgStore {
         .bind::<SqlUuid, _>(snapshot.id)
         .bind::<SqlUuid, _>(source.offer_id)
         .bind::<SqlUuid, _>(source.storage.object_storage_id)
-        .bind::<Integer, _>(SCHEMA_VERSION as i32)
+        .bind::<Integer, _>(schema_version as i32)
         .bind::<Jsonb, _>(references)
         .bind::<Jsonb, _>(stats)
         .bind::<Text, _>(body)
         .execute(&mut self.pool.get()?)?;
 
-        let record = self.find(&source)?.ok_or(StoreError::Incomplete)?;
+        let record = self
+            .find(&source, schema_version)?
+            .ok_or(StoreError::Incomplete)?;
         self.prepared_for(record, &source)
     }
 

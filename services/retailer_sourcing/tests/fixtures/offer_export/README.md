@@ -8,3 +8,6 @@ optional prices and unavailable stock without relying on downloaded retailer dat
 its serialized result against this fixture; offers deserializes the same fixture
 through its actual `ImportOfferDetailsCommand`. Run both services' `make ci` checks
 when changing this contract.
+
+`import_payload_v2.json` adds the first Anker variation's image array. Both
+fixtures are consumed by offers and sourcing tests. The v1 fixture stays unchanged.

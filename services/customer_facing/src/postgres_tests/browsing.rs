@@ -103,11 +103,18 @@ async fn browse_projection_order_values_updates_and_reversible_index() {
     assert_eq!(snapshot(&pool, index_query), 1);
     pool.get()
         .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-24-000003_offer_browsing/down.sql"
+        ))
         .unwrap();
     assert_eq!(snapshot(&pool, index_query), 0);
     assert_eq!(rest(&client, "").await, updated);
-    bootstrap::migrate(&pool).unwrap();
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-24-000003_offer_browsing/up.sql"
+        ))
+        .unwrap();
     assert_eq!(snapshot(&pool, index_query), 1);
     assert_eq!(rest(&client, "").await, updated);
     kernel.shutdown();

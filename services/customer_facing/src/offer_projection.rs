@@ -23,6 +23,8 @@ use uuid::Uuid;
 
 #[derive(Deserialize)]
 struct Created {
+    #[serde(default)]
+    images: Vec<String>,
     id: Uuid,
     retailer_code: RetailerCode,
     title: String,
@@ -43,7 +45,15 @@ struct PriceChanged {
     price: Money,
 }
 
+#[derive(Deserialize)]
+struct ImageAdded {
+    id: Uuid,
+    image_url: String,
+    position: u32,
+}
+
 enum Change {
+    Image(ImageAdded),
     Created(Created),
     Title(TitleChanged),
     Price(PriceChanged),
@@ -61,6 +71,7 @@ impl Change {
             return Err(invalid("price must be a JSON object"));
         }
         let change = match kind {
+            "OfferImageAdded" => Self::Image(serde_json::from_value(payload).map_err(invalid)?),
             "OfferCreated" => Self::Created(serde_json::from_value(payload).map_err(invalid)?),
             "OfferTitleChanged" => Self::Title(serde_json::from_value(payload).map_err(invalid)?),
             "OfferPriceChangedEvent" => {
@@ -70,6 +81,15 @@ impl Change {
         };
         let title = match &change {
             Self::Created(offer) => {
+                let (filtered, skipped) = shared::images::filter(offer.images.clone());
+                if skipped != 0
+                    || filtered != offer.images
+                    || offer.images.len() as u64 > u64::from(u32::MAX) + 1
+                {
+                    return Err(invalid(
+                        "creation images must be valid, unique URLs within position capacity",
+                    ));
+                }
                 if offer.url.len() > 2048 || offer.url.contains('\0') {
                     return Err(invalid("URL must be at most 2048 bytes and contain no NUL"));
                 }
@@ -77,6 +97,12 @@ impl Change {
             }
             Self::Title(change) => Some(&change.title),
             Self::Price(_) => None,
+            Self::Image(change) => {
+                if !shared::images::is_valid(&change.image_url) {
+                    return Err(invalid("invalid image URL"));
+                }
+                None
+            }
         };
         if title.is_some_and(|title| title.contains('\0')) {
             return Err(invalid("title must contain no NUL"));
@@ -86,18 +112,39 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
-            Self::Created(offer) => diesel::sql_query(
-                "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            Self::Image(change) => diesel::sql_query(
+                "INSERT INTO offer_images (offer_id, image_url, position) VALUES ($1,$2,$3)
+                 ON CONFLICT (offer_id, position) DO UPDATE SET image_url = EXCLUDED.image_url
+                 WHERE offer_images.image_url = EXCLUDED.image_url",
             )
-            .bind::<SqlUuid, _>(offer.id)
-            .bind::<Text, _>(offer.retailer_code.as_str())
-            .bind::<Text, _>(&offer.title)
-            .bind::<BigInt, _>(offer.price.amount())
-            .bind::<Text, _>(offer.price.currency().as_str())
-            .bind::<Text, _>(&offer.url)
-            .bind::<Timestamptz, _>(offer.created_at)
+            .bind::<SqlUuid, _>(change.id)
+            .bind::<Text, _>(&change.image_url)
+            .bind::<BigInt, _>(i64::from(change.position))
             .execute(connection)?,
+            Self::Created(offer) => {
+                let count = diesel::sql_query(
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                )
+                .bind::<SqlUuid, _>(offer.id)
+                .bind::<Text, _>(offer.retailer_code.as_str())
+                .bind::<Text, _>(&offer.title)
+                .bind::<BigInt, _>(offer.price.amount())
+                .bind::<Text, _>(offer.price.currency().as_str())
+                .bind::<Text, _>(&offer.url)
+                .bind::<Timestamptz, _>(offer.created_at)
+                .execute(connection)?;
+                for (position, image_url) in offer.images.iter().enumerate() {
+                    diesel::sql_query(
+                        "INSERT INTO offer_images (offer_id, image_url, position) VALUES ($1,$2,$3)",
+                    )
+                    .bind::<SqlUuid, _>(offer.id)
+                    .bind::<Text, _>(image_url)
+                    .bind::<BigInt, _>(position as i64)
+                    .execute(connection)?;
+                }
+                count
+            }
             Self::Title(change) => diesel::sql_query("UPDATE offers SET title = $2 WHERE id = $1")
                 .bind::<SqlUuid, _>(change.id)
                 .bind::<Text, _>(&change.title)

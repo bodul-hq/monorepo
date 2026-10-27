@@ -39,27 +39,20 @@ where
         let exists = self
             .identifiers_repository
             .find(command.retailer_code, &command.url)
-            .map_err(|error| testimony::prelude::EventStoreError::LoadFailed(error.to_string()))?;
+            .map_err(err_update)?;
 
         if let Some(read_row) = exists {
             let id = read_row.id;
 
-            self.update_offer(
-                id,
-                //command.retailer_code,
-                command.title,
-                command.price,
-                //command.url,
-            )
+            self.update_offer(id, command.title, command.price, command.images)
         } else {
-            let xxx = self.create_offer_event(
+            self.create_offer_event(
                 command.retailer_code,
                 command.title,
                 command.price,
                 command.url,
-            )?;
-
-            Ok(xxx)
+                command.images,
+            )
         }
     }
 
@@ -69,18 +62,14 @@ where
         title: String,
         price: Money,
         url: String,
+        images: Vec<String>,
     ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
-        let mut aggregate = RetailerOfferAggregate::create(
-            id,
-            retailer_code,
-            title.clone(),
-            price.clone(),
-            url.clone(),
-        );
-
-        let events = aggregate.get_just_events().clone();
+        let mut aggregate =
+            RetailerOfferAggregate::create(id, retailer_code, title, price, url, images)
+                .map_err(err_update)?;
+        let events = aggregate.get_just_events();
 
         self.repository.save(&mut aggregate)?;
 
@@ -90,27 +79,19 @@ where
     fn update_offer(
         &self,
         id: RetailerOfferId,
-        // retailer_code: RetailerCode,
         title: String,
         price: Money,
-        // url: String,
+        images: Vec<String>,
     ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
-            .load(id.clone())
-            // .map_err(|e| UpdateChannelsError::RepositoryError(e.to_string()))?
-            // .ok_or_else(|| UpdateChannelsError::RetailerOfferNotFound(id.to_string()))?;
-            .unwrap()
-            .unwrap();
-
-        let _ = aggregate.update(title, price);
-
-        let events = aggregate.get_just_events().clone();
-
-        self.repository
-            .save(&mut aggregate)
-            //.map_err(|e| UpdateChannelsError::RepositoryError(e.to_string()))?;
-            .unwrap();
+            .load(id.clone())?
+            .ok_or_else(|| err_update(format!("offer {id} not found")))?;
+        aggregate
+            .update_with_images(title, price, images)
+            .map_err(err_update)?;
+        let events = aggregate.get_just_events();
+        self.repository.save(&mut aggregate)?;
 
         Ok(events)
     }
@@ -164,3 +145,7 @@ pub trait RetailerOfferIdentifiersRepository {
 
 pub type RetailerOfferRepository<S, P = NoOpEventPublisher> =
     EventSourcedRepository<RetailerOfferAggregate, S, P>;
+
+fn err_update(error: impl std::fmt::Display) -> RepositoryError {
+    testimony::prelude::EventStoreError::LoadFailed(error.to_string()).into()
+}

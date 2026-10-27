@@ -161,7 +161,7 @@ HTTP is the only transport ([ADR 21](../../docs/adr/0021-offers-http-outbox-to-c
 
 | Field | Value |
 | --- | --- |
-| `routing_key` | The event type, exactly `OfferCreated`, `OfferTitleChanged` or `OfferPriceChangedEvent` |
+| `routing_key` | The event type, exactly `OfferCreated`, `OfferTitleChanged`, `OfferPriceChangedEvent` or `OfferImageAdded` |
 | `payload` | The recorded event JSON object, unchanged |
 | `message_id` | The row's stable message UUID |
 | `correlation_id` | The row's correlation UUID, or null |
@@ -241,7 +241,7 @@ queues the command and `/api/commands/run` executes it through
 input returns `400`; inbox storage failures return `500` with `inbox message
 could not be stored`. The generated offer UUID is new for every import:
 identity deduplication, update commands, and receipts are not wired yet.
-Stored records use the version tags `OfferCreated.v1`, `OfferTitleChanged.v1`,
+Stored records use `OfferCreated.v2` (also reading legacy `OfferCreated.v1`), `OfferTitleChanged.v1`,
 and `OfferPriceChanged.v1`. Existing records in earlier formats are not migrated.
 
 Other active routes are `/api/health`, `/api/openapi.json`, `/api/docs/`, and
@@ -440,28 +440,22 @@ control access when exposing the service beyond local development.
 
 ## Import walkthrough
 
-With the database configured and the server running on port 3001:
+Use the active inbox import route and manually run each queue:
 
 ```sh
-curl -i http://localhost:3001/api/offers/import \
+curl http://localhost:3001/api/tmp-import \
   -H 'content-type: application/json' \
-  -d '{"retailer_code":"ankerau","url":"https://shop.example/charger?color=red","title":"USB charger","price_amount":999,"currency":"AUD"}'
-
-curl http://localhost:3001/api/commands/run \
-  -H 'content-type: application/json' -d '{"limit":100}'
-
-curl http://localhost:3001/api/events/run \
-  -H 'content-type: application/json' -d '{"limit":100}'
-
-curl --get http://localhost:3001/api/offers \
-  --data-urlencode 'retailer_code=ankerau' \
-  --data-urlencode 'url=https://shop.example/charger?color=red'
+  -d '{"retailer_code":"ankerau","url":"https://shop.example/charger","title":"USB charger","price_amount":999,"currency":"AUD","images":["https://shop.example/front.jpg"]}'
+for queue in inbox commands events; do
+  curl "http://localhost:3001/api/$queue/run" \
+    -H 'content-type: application/json' -d '{"limit":100}'
+done
 ```
 
-The last response includes `id`, `sequence: 1`, and the imported fields. Use
-that ID with `GET /api/offers/{id}`. Repeating the import with different fields
-and running both queues updates the same offer and increments its sequence.
-Repeating identical fields keeps its sequence unchanged.
+Inspect `read_offers` and `read_offer_images` in offers' database, or deliver the
+outbox and browse customer-facing. The complete downstream sequence is in the
+[image walkthrough](../../docs/offer-images-walkthrough.md). This checkout does
+not expose the older `/api/offers/import` and offer lookup routes.
 
 ## Direct testing import
 
@@ -503,3 +497,42 @@ database's existing tables.
 
 Catalog imports, sourcing integration, external event delivery, list/search,
 and GraphQL offer mutations are outside this first implementation.
+
+## Image imports and events
+
+The active `/api/tmp-import` DTO and `ImportOfferDetails` inbox command accept
+`images: ["https://shop.example/front.jpg", "https://shop.example/back.jpg"]`.
+Omitting the field means an empty incoming list. Invalid URL strings are skipped
+and counted without logging their contents; wrong JSON types fail. Images use
+exact ordered deduplication and the shared 2048-byte HTTP(S) validation policy.
+
+Creation emits one `OfferCreated` containing the ordered `images` array.
+Initial images are saved with the parent in one projection transaction; no
+separate image events are emitted during creation.
+Updates retain title-then-price ordering and append only unseen images. Importing
+`[B,C]` into `[A,B]` produces `[A,B,C]`. Empty, reordered or repeated lists never
+remove images. The raw image event is
+`{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`;
+the update event's Testimony tag is `OfferImageAdded.v1`. New creation records
+use `OfferCreated.v2`; readers also accept `OfferCreated.v1` without images.
+Missing images in old creation payloads mean `[]`. History replay initializes
+images from creation before applying any subsequent additions.
+
+Migration `2026-10-25-000001_offer_images` adds `read_offer_images`. Positions
+are constrained BIGINTs representing u32; both positions and exact URLs are
+unique per parent. The repository returns URLs ordered by position, including
+after out-of-order additions. Identical additions succeed, conflicts and missing
+parents fail. Title and price updates preserve images. The registered subscriber
+and HTTP publisher preserve image event bodies and message IDs.
+
+This item retains the current typed handler, as requested. Descriptions elsewhere
+in this README of a durable command receipt handler are not implemented in this
+checkout. Identity lookup still relies on `read_offer_identities`, populated by
+event processing; history and Mulac publication are not one atomic transaction.
+Finish an import's events before submitting the next import for that identity.
+Image support does not repair these pre-existing concurrency/crash limitations.
+
+Deploy customer-facing's migration/consumer first; never roll offers back to a
+binary that cannot deserialize stored image events. See
+[ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md) and the
+[image walkthrough](../../docs/offer-images-walkthrough.md).

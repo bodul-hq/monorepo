@@ -7,6 +7,8 @@ use crate::platform::object_storage::OfferStorageMetadata;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ProcessOfferForExport {
+    #[serde(default = "super::entity::legacy_schema_version")]
+    pub schema_version: u32,
     pub offer_id: Uuid,
     pub consolidated_sitemap_id: Uuid,
     pub retailer_code: RetailerCode,

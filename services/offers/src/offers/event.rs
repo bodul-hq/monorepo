@@ -10,6 +10,7 @@ use super::retailer_offer_id::RetailerOfferId;
 #[serde(untagged)]
 pub enum RetailerOfferEvent {
     OfferCreated(OfferCreatedEvent),
+    OfferImageAdded(OfferImageAddedEvent),
     OfferTitleChanged(OfferTitleChangedEvent),
     OfferPriceChanged(OfferPriceChangedEvent),
 }
@@ -18,6 +19,7 @@ impl ApplicationEvent for RetailerOfferEvent {
     fn event_type(&self) -> &'static str {
         match self {
             Self::OfferCreated(event) => event.event_type(),
+            Self::OfferImageAdded(event) => event.event_type(),
             Self::OfferTitleChanged(event) => event.event_type(),
             Self::OfferPriceChanged(event) => event.event_type(),
         }
@@ -26,6 +28,8 @@ impl ApplicationEvent for RetailerOfferEvent {
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OfferCreatedEvent {
+    #[serde(default)]
+    pub images: Vec<String>,
     pub id: RetailerOfferId,
     pub retailer_code: RetailerCode,
     pub title: String,
@@ -50,6 +54,7 @@ impl HasAggregateId for RetailerOfferEvent {
     fn aggregate_id(&self) -> String {
         match self {
             Self::OfferCreated(event) => event.id.to_string(),
+            Self::OfferImageAdded(event) => event.id.to_string(),
             Self::OfferTitleChanged(event) => event.id.to_string(),
             Self::OfferPriceChanged(event) => event.id.to_string(),
         }
@@ -74,4 +79,33 @@ impl ApplicationEvent for OfferPriceChangedEvent {
     fn event_type(&self) -> &'static str {
         OFFER_PRICE_CHANGED_EVENT
     }
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct OfferImageAddedEvent {
+    pub id: RetailerOfferId,
+    pub image_url: String,
+    pub position: u32,
+}
+pub const OFFER_IMAGE_ADDED_EVENT: &str = "OfferImageAdded";
+impl ApplicationEvent for OfferImageAddedEvent {
+    fn event_type(&self) -> &'static str {
+        OFFER_IMAGE_ADDED_EVENT
+    }
+}
+
+/// Events contain validated, ordered unique images; filtering happens at import.
+pub(crate) fn guard_images(images: &[String]) -> Result<(), String> {
+    if images.len() as u64 > u64::from(u32::MAX) + 1 {
+        return Err(err_invalid_images());
+    }
+    let (filtered, skipped) = shared::images::filter(images.to_vec());
+    if skipped != 0 || filtered != images {
+        return Err(err_invalid_images());
+    }
+    Ok(())
+}
+
+fn err_invalid_images() -> String {
+    "creation images must be valid, unique URLs within position capacity".into()
 }

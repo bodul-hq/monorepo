@@ -43,7 +43,12 @@ Prices retain their currency and use integer arithmetic with the existing
 `money::Currency::exponent()`, including zero-decimal currencies and the full
 signed i64 range. Dynamic values are HTML-escaped; only absolute HTTP(S) URLs
 without credentials become store links. Offers with other URLs remain visible.
-Product images, search, filters, conversion and background fetching are not included.
+Each card renders only the first image, after URL validation and HTML escaping,
+with offer-title alt text, lazy loading, a 4:3 aspect ratio and object containment.
+The browser requests retailer images directly. Missing or unsafe images use an
+empty area; a failed load leaves title, price and purchase navigation usable.
+Older APIs may omit `images`. Desktop/mobile layouts support light and dark
+preferences. Search, filters, conversion and background fetching are not included.
 
 ## Checks
 
@@ -68,3 +73,6 @@ customer-facing's inbox and command queues in an isolated test schema. Verify
 to verify the 503 page. Do not populate or reset operational databases for tests.
 
 See [ADR 23](../../docs/adr/0023-offer-browsing-and-customers-homepage.md).
+
+Image behavior and rollout: [ADR 24](../../docs/adr/0024-append-only-offer-images.md),
+[combined walkthrough](../../docs/offer-images-walkthrough.md).

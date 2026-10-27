@@ -36,7 +36,7 @@ fn rows(db: &Database) -> serde_json::Value {
 pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let source = stored_source(&objects);
     let store = PgStore::new(db.pool.clone(), objects);
-    let prepared = store.prepare(source.clone()).unwrap();
+    let prepared = store.prepare(source.clone(), 1).unwrap();
     let id = prepared.snapshot.id;
     let snapshot = prepared.snapshot.clone();
     assert!(store.load(id).unwrap().is_none());
@@ -45,7 +45,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     assert_eq!(completed, snapshot);
     assert_eq!(store.load(id).unwrap(), Some(completed.clone()));
     assert_eq!(
-        store.complete(store.prepare(source).unwrap()).unwrap(),
+        store.complete(store.prepare(source, 1).unwrap()).unwrap(),
         completed
     );
     assert!(store.load(Uuid::now_v7()).unwrap().is_none());
@@ -78,7 +78,7 @@ fn postgres_upload_then_failed_completion_recovers_exact_bytes_after_restart() {
     let server = Server::new();
     let source = stored_source(&server.client());
     let store = PgStore::new(db.pool.clone(), server.client());
-    let prepared = store.prepare(source.clone()).unwrap();
+    let prepared = store.prepare(source.clone(), 1).unwrap();
     let expected = prepared.snapshot.clone();
     let pending = rows(&db);
     db.pool.get().unwrap().batch_execute(
@@ -93,7 +93,7 @@ fn postgres_upload_then_failed_completion_recovers_exact_bytes_after_restart() {
         .unwrap();
     drop(store);
     let restarted = PgStore::new(db.pool.clone(), server.client());
-    let retry = restarted.prepare(source).unwrap();
+    let retry = restarted.prepare(source, 1).unwrap();
     assert_eq!(retry.snapshot, expected);
     assert_eq!(restarted.complete(retry).unwrap(), expected);
     let data = server.data.lock().unwrap();
@@ -146,7 +146,7 @@ fn postgres_source_replacement_and_concurrent_preparation_do_not_change_pinned_e
                 let store = PgStore::new(db.pool.clone(), objects.clone());
                 scope.spawn(move || {
                     barrier.wait();
-                    let prepared = store.prepare(source).unwrap();
+                    let prepared = store.prepare(source, 1).unwrap();
                     prepared_barrier.wait();
                     store.complete(prepared).unwrap()
                 })
@@ -174,7 +174,9 @@ fn postgres_source_replacement_and_concurrent_preparation_do_not_change_pinned_e
     let mut new_source = source;
     new_source.storage = replacement;
     let store = PgStore::new(db.pool.clone(), objects);
-    let newer = store.complete(store.prepare(new_source).unwrap()).unwrap();
+    let newer = store
+        .complete(store.prepare(new_source, 1).unwrap())
+        .unwrap();
     assert_ne!(newer.id, completed[0].id);
     assert!(newer.entries.is_empty());
     assert_eq!(rows(&db).as_array().unwrap().len(), 2);
@@ -189,9 +191,9 @@ fn postgres_failures_preserve_preparation_and_reject_bad_sources() {
     let source = stored_source(&server.client());
     let mut invalid = source.clone();
     invalid.storage.content_size += 1;
-    assert!(store.prepare(invalid).is_err());
+    assert!(store.prepare(invalid, 1).is_err());
     assert_eq!(rows(&db), json!([]));
-    let prepared = store.prepare(source.clone()).unwrap();
+    let prepared = store.prepare(source.clone(), 1).unwrap();
     let pending = rows(&db);
     {
         let mut data = server.data.lock().unwrap();
@@ -203,10 +205,10 @@ fn postgres_failures_preserve_preparation_and_reject_bad_sources() {
     let mut conflicting = source.clone();
     conflicting.url.push_str("?other");
     assert!(matches!(
-        store.prepare(conflicting),
+        store.prepare(conflicting, 1),
         Err(super::store::StoreError::SourceConflict)
     ));
-    let complete = store.complete(store.prepare(source).unwrap()).unwrap();
+    let complete = store.complete(store.prepare(source, 1).unwrap()).unwrap();
     server.data.lock().unwrap().get_response = Some((404, "{}".into()));
     assert!(store.load(complete.id).is_err());
 }
@@ -329,4 +331,42 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
         "SELECT to_jsonb(count(*)) AS value FROM outbox_entries",
     );
     assert_eq!(count, json!(0));
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+fn versions_coexist_without_rewriting_pending_or_completed_v1() {
+    let db = Database::new();
+    let server = Server::new();
+    let source = stored_source(&server.client());
+    let store = PgStore::new(db.pool.clone(), server.client());
+    let old = store.prepare(source.clone(), 1).unwrap();
+    let old_body = old.body.clone();
+    let old_snapshot = old.snapshot.clone();
+    let new = store.prepare(source.clone(), 2).unwrap();
+    assert_ne!(old_snapshot.id, new.snapshot.id);
+    assert_ne!(old_snapshot.entries[0].id, new.snapshot.entries[0].id);
+    assert_eq!(
+        new.snapshot.entries[0].payload.images,
+        Some(vec!["https://example.com/a.png".into()])
+    );
+    assert_eq!(store.prepare(source.clone(), 1).unwrap().body, old_body);
+    let new = store.complete(new).unwrap();
+    assert_eq!(store.complete(old).unwrap(), old_snapshot);
+    let retry = store.prepare(source.clone(), 1).unwrap();
+    assert_eq!(retry.body, old_body);
+    assert_eq!(retry.snapshot, old_snapshot);
+    assert!(
+        serde_json::to_value(&retry.snapshot.entries[0].payload)
+            .unwrap()
+            .get("images")
+            .is_none()
+    );
+    assert_eq!(store.load(new.id).unwrap(), Some(new));
+    assert!(store.prepare(source, 3).is_err());
+    diesel::sql_query("UPDATE offer_export SET schema_version = 3 WHERE id = $1")
+        .bind::<SqlUuid, _>(old_snapshot.id)
+        .execute(&mut db.pool.get().unwrap())
+        .unwrap();
+    assert!(store.load(old_snapshot.id).is_err());
 }

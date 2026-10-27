@@ -1,9 +1,7 @@
 use diesel::r2d2::PoolError;
 use uuid::Uuid;
 
-use crate::offer_discovery::prelude::{
-    EXPORT_SCHEMA_VERSION, ExportStoreError, OfferExport, OfferExportWasPrepared,
-};
+use crate::offer_discovery::prelude::{ExportStoreError, OfferExport, OfferExportWasPrepared};
 use crate::platform::bus::{Event, EventContext, Listen};
 use crate::platform::outbox::{OutgoingMessage, RecordError};
 
@@ -61,7 +59,7 @@ impl<S: Store> Listen for Listener<S> {
 
     fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error> {
         let export_id = event.export_id;
-        if event.schema_version != EXPORT_SCHEMA_VERSION {
+        if !matches!(event.schema_version, 1 | 2) {
             return Err(ListenerError::UnsupportedSchema {
                 export_id,
                 version: event.schema_version,
@@ -72,7 +70,8 @@ impl<S: Store> Listen for Listener<S> {
             .store
             .load(export_id)?
             .ok_or(ListenerError::NotCompleted(export_id))?;
-        if export.id != export_id
+        if !export.valid_schema()
+            || export.id != export_id
             || export.schema_version != event.schema_version
             || export.source != event.source
         {
@@ -152,6 +151,7 @@ mod tests {
             id: Uuid::now_v7(),
             variation_index,
             payload: OfferImport {
+                images: None,
                 retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
                 title: "USB charger".into(),
                 price: serde_json::from_value::<Money>(
@@ -166,7 +166,7 @@ mod tests {
     fn export(entries: Vec<ExportEntry>, exclusions: Vec<ExportExclusion>) -> OfferExport {
         OfferExport {
             id: Uuid::now_v7(),
-            schema_version: EXPORT_SCHEMA_VERSION,
+            schema_version: 1,
             source: source(),
             entries,
             exclusions,
@@ -286,11 +286,11 @@ mod tests {
     fn an_unsupported_schema_or_different_source_records_nothing() {
         let export = export(vec![entry(0, 1999)], vec![]);
         let mut unsupported = event(&export);
-        unsupported.schema_version = EXPORT_SCHEMA_VERSION + 1;
+        unsupported.schema_version = 3;
         let mut other_source = event(&export);
         other_source.source.offer_id = Uuid::now_v7();
         let mut other_snapshot = export.clone();
-        other_snapshot.schema_version = EXPORT_SCHEMA_VERSION + 1;
+        other_snapshot.schema_version = 3;
 
         let listener = listener(export.clone());
         assert!(matches!(

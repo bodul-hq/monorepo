@@ -1,0 +1,12 @@
+{
+  "retailer_code": "AnkerAu",
+  "title": " USB charger ž ",
+  "price": {
+    "amount": 1999,
+    "currency": "AUD"
+  },
+  "url": "https://shop.example/Charger?q=red&variant=1#details",
+  "images": [
+    "https://example.com/a.png"
+  ]
+}

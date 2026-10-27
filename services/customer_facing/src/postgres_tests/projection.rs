@@ -431,3 +431,207 @@ async fn additive_migration_keeps_existing_queued_work() {
     assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
     kernel.shutdown();
 }
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn images_retry_reorder_deduplicate_and_keep_receipts_atomic() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let a = json!({"id":id,"image_url":"https://shop.example/A?x=1&y=2","position":0});
+    let b = json!({"id":id,"image_url":"https://shop.example/B","position":1});
+    let first_message = Uuid::now_v7();
+    let command = envelope(first_message, "OfferImageAdded", &b);
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    apply(&client, "OfferCreated", &created(id)).await;
+    projection.execute(&command).unwrap();
+    // Position one may arrive before zero without fixing the wrong first image.
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([b["image_url"]]));
+    let message = apply(&client, "OfferImageAdded", &a).await;
+    apply(&client, "OfferImageAdded", &a).await;
+    let barrier = std::sync::Barrier::new(3);
+    std::thread::scope(|scope| {
+        for _ in 0..3 {
+            let projection = &projection;
+            let barrier = &barrier;
+            let command = envelope(first_message, "OfferImageAdded", &b);
+            scope.spawn(move || {
+                barrier.wait();
+                projection.execute(&command).unwrap();
+            });
+        }
+    });
+    apply(
+        &client,
+        "OfferTitleChanged",
+        &json!({"id":id,"title":"updated"}),
+    )
+    .await;
+    apply(
+        &client,
+        "OfferPriceChangedEvent",
+        &json!({"id":id,"price":{"amount":42,"currency":"EUR"}}),
+    )
+    .await;
+    replay_inbox(&pool, message);
+    advance(&client, "inbox", 1).await;
+    advance(&client, "commands", 1).await;
+    let before = projection_counts(&pool);
+    for payload in [
+        json!({"id":id,"image_url":a["image_url"],"position":3}),
+        json!({"id":id,"image_url":"https://shop.example/conflict","position":0}),
+        json!({"id":id,"image_url":"/bad","position":2}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":-1}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":4294967296_u64}),
+        json!({"id":id,"image_url":"https://shop.example/C","position":1.5}),
+        json!({"id":id,"image_url":"https://shop.example/C"}),
+    ] {
+        assert!(
+            projection
+                .execute(&envelope(Uuid::now_v7(), "OfferImageAdded", &payload))
+                .is_err()
+        );
+        assert_eq!(projection_counts(&pool), before);
+    }
+    let page: Value = client
+        .get("/api/offers?limit=1")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"].as_array().unwrap().len(), 1);
+    assert_eq!(page["has_more"], false);
+    assert_eq!(
+        page["items"][0]["images"],
+        json!([a["image_url"], b["image_url"]])
+    );
+    assert_eq!(page["items"][0]["title"], "updated");
+    let graph: Value = client
+        .post("/graphql")
+        .body_json(&json!({"query":"{ offers(limit: 1) { items { images } hasMore } }"}))
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(
+        graph["data"]["offers"]["items"][0]["images"],
+        page["items"][0]["images"]
+    );
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+fn image_migration_preserves_existing_projection_and_receipts() {
+    let (_schema, pool) = database(true);
+    pool.get()
+        .unwrap()
+        .revert_last_migration(bootstrap::MIGRATIONS)
+        .unwrap();
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let command = envelope(Uuid::now_v7(), "OfferCreated", &created(id));
+    projection.execute(&command).unwrap();
+    let before = offer(&pool);
+    bootstrap::migrate(&pool).unwrap();
+    assert_eq!(offer(&pool), before);
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    projection.execute(&command).unwrap();
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
+    assert_eq!(
+        snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM offer_images"),
+        0
+    );
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn creation_images_commit_with_parent_and_receipt_then_updates_append() {
+    let (_schema, pool) = database(true);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    let id = Uuid::now_v7();
+    let mut payload = created(id);
+    let a = "https://shop.example/A?x=1&y=2";
+    let b = "https://shop.example/B";
+    let c = "https://shop.example/C";
+    payload["images"] = json!([a, b]);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let message = Uuid::now_v7();
+    let command = envelope(message, "OfferCreated", &payload);
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "ALTER TABLE offer_images ADD CONSTRAINT fail_second_image CHECK (position <> 1)",
+        )
+        .unwrap();
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    assert_eq!(
+        snapshot(&pool, "SELECT to_jsonb(count(*)) AS data FROM offer_images"),
+        0
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE offer_images DROP CONSTRAINT fail_second_image")
+        .unwrap();
+    projection.execute(&command).unwrap();
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([a, b]));
+    apply(
+        &client,
+        "OfferImageAdded",
+        &json!({"id":id,"image_url":c,"position":2}),
+    )
+    .await;
+    projection.execute(&command).unwrap();
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+    let page: Value = client
+        .get("/api/offers")
+        .send()
+        .await
+        .json()
+        .await
+        .value()
+        .deserialize();
+    assert_eq!(page["items"][0]["images"], json!([a, b, c]));
+    for images in [
+        json!(null),
+        json!("url"),
+        json!([1]),
+        json!(["/bad"]),
+        json!([a, a]),
+    ] {
+        let mut invalid = created(Uuid::now_v7());
+        invalid["images"] = images;
+        assert!(
+            projection
+                .execute(&envelope(Uuid::now_v7(), "OfferCreated", &invalid))
+                .is_err()
+        );
+        assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
+    }
+    kernel.shutdown();
+}

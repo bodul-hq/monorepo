@@ -29,7 +29,10 @@ use crate::infra::repository::offer_handler;
 use crate::monitoring::health::HealthApi;
 use crate::offers::{
     command::CREATE_FROM_OFFER_DETAILS_COMMAND,
-    event::{OFFER_CREATED_EVENT, OFFER_PRICE_CHANGED_EVENT, OFFER_TITLE_CHANGED_EVENT},
+    event::{
+        OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
+        OFFER_TITLE_CHANGED_EVENT,
+    },
     http::rest::OffersApi,
 };
 use crate::orchestration::customer_facing_publisher::CustomerFacingPublisher;
@@ -97,6 +100,11 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
             "read_offer",
             offer_projector.clone(),
         )
+        .event_subscriber(
+            OFFER_IMAGE_ADDED_EVENT,
+            "read_offer",
+            offer_projector.clone(),
+        )
         .event_subscriber(OFFER_PRICE_CHANGED_EVENT, "read_offer", offer_projector)
         .event_subscriber(
             OFFER_CREATED_EVENT,
@@ -110,6 +118,11 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
         )
         .event_subscriber(
             OFFER_TITLE_CHANGED_EVENT,
+            "customer_facing",
+            customer_facing.clone(),
+        )
+        .event_subscriber(
+            OFFER_IMAGE_ADDED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
