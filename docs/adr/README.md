@@ -36,6 +36,7 @@
 
 | [31](0031-source-locale-market-fallback.md) | Source locale market fallback and primary language | Accepted; partially supersedes ADR 28 |
 
+| [32](0032-customer-facing-shopify-identifiers-json.md) | Customer-facing Shopify identifiers in JSONB | Accepted; partially supersedes ADR 29 |
 
 | [33](0033-european-union-locale-market.md) | European Union locale market | Accepted; partially supersedes ADR 31 |
 

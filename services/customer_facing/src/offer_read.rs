@@ -72,12 +72,8 @@ struct Record {
     gtin: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     sku: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
-    shopify_product_gid: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
-    shopify_product_variation_gid: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
-    shopify_handle: Option<String>,
+    #[diesel(sql_type = diesel::sql_types::Jsonb)]
+    external_identifiers: crate::identifier::Identifier,
 
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
     target_market: Option<serde_json::Value>,
@@ -108,7 +104,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle
+             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -150,9 +146,21 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
                 gtin: record.gtin,
                 sku: record.sku,
                 external_identifiers: ExternalIdentifiers {
-                    shopify_product_gid: record.shopify_product_gid,
-                    shopify_product_variation_gid: record.shopify_product_variation_gid,
-                    shopify_handle: record.shopify_handle,
+                    shopify_product_gid: record
+                        .external_identifiers
+                        .0
+                        .shopify_product_gid
+                        .map(|value| value.value),
+                    shopify_product_variation_gid: record
+                        .external_identifiers
+                        .0
+                        .shopify_product_variation_gid
+                        .map(|value| value.value),
+                    shopify_handle: record
+                        .external_identifiers
+                        .0
+                        .shopify_handle
+                        .map(|value| value.value),
                 },
                 localization: OfferLocalization::from_record(
                     record.target_market,

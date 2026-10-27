@@ -53,6 +53,12 @@ IT/it observation uses `OfferLocalizationChanged.v1`, an identical reimport emit
 none, and an explicit null/null observation still clears both fields. No source
 corpus, immutable export or event history is rewritten by this change.
 
+Customer-facing persistence now keeps the three Shopify fields under
+`offers.external_identifiers` (JSONB); inspect `gtin`, `sku` and that object.
+Offers service's `read_offers` still has the original three TEXT columns. Public
+response/event examples above remain valid. Use the coordinated migration and
+targeted rollback in the customer-facing README, not a queue reset or replay.
+
 Under [ADR 33](adr/0033-european-union-locale-market.md), fresh Anker EU pages
 declaring `html[lang="en-EU"]` follow the same flow with market
 `{"kind":"region","label":"European Union"}` and language `en`. The `/eu-en/`

@@ -1,6 +1,7 @@
 //! Incoming offers events are commands in Mulac. Apply each original inbox
 //! identity once, in the same transaction as its projection change.
 
+use crate::identifier::Identifier;
 use std::sync::Arc;
 
 use bodul_shared::retailer::RetailerCode;
@@ -8,7 +9,7 @@ use chrono::{DateTime, Utc};
 use commanding::io::{CommandError, ErasedCommandHandler, NewCommandEnvelope};
 use diesel::{
     Connection, PgConnection, RunQueryDsl,
-    sql_types::{BigInt, Text, Timestamptz, Uuid as SqlUuid},
+    sql_types::{BigInt, Jsonb, Text, Timestamptz, Uuid as SqlUuid},
 };
 use kernel::{
     NewEventEnvelope,
@@ -154,12 +155,18 @@ impl Change {
 
     fn apply(&self, connection: &mut PgConnection) -> diesel::QueryResult<()> {
         let changed = match self {
-            Self::Identifiers(change) => diesel::sql_query("UPDATE offers SET gtin=$2, sku=$3, shopify_product_gid=$4, shopify_product_variation_gid=$5, shopify_handle=$6 WHERE id=$1").bind::<SqlUuid, _>(change.id)
-                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.gtin.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.sku.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(change.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value)).execute(connection)?,
+            Self::Identifiers(change) => diesel::sql_query(
+                "UPDATE offers SET gtin=$2, sku=$3, external_identifiers=$4 WHERE id=$1",
+            )
+            .bind::<SqlUuid, _>(change.id)
+            .bind::<diesel::sql_types::Nullable<Text>, _>(
+                change.identifiers.gtin.as_ref().map(|value| &value.value),
+            )
+            .bind::<diesel::sql_types::Nullable<Text>, _>(
+                change.identifiers.sku.as_ref().map(|value| &value.value),
+            )
+            .bind::<Jsonb, _>(Identifier(change.identifiers.external_identifiers.clone()))
+            .execute(connection)?,
             Self::Localization(change) => {
                 diesel::sql_query("UPDATE offers SET target_market=$2, language=$3 WHERE id=$1")
                     .bind::<SqlUuid, _>(change.id)
@@ -188,8 +195,8 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
@@ -203,9 +210,7 @@ impl Change {
                 .bind::<diesel::sql_types::Nullable<Text>, _>(&offer.localization.language)
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.gtin.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.sku.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_product_gid.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_product_variation_gid.as_ref().map(|value| &value.value))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.external_identifiers.shopify_handle.as_ref().map(|value| &value.value))
+                .bind::<Jsonb, _>(Identifier(offer.identifiers.external_identifiers.clone()))
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(

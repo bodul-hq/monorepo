@@ -132,7 +132,9 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
     );
     pool.get()
         .unwrap()
-        .revert_last_migration(bootstrap::MIGRATIONS)
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-26-000004_offer_title_search/down.sql"
+        ))
         .unwrap();
     assert_eq!(
         snapshot(
@@ -141,7 +143,12 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
         ),
         0
     );
-    bootstrap::migrate(&pool).unwrap();
+    pool.get()
+        .unwrap()
+        .batch_execute(include_str!(
+            "../../migrations/2026-10-26-000004_offer_title_search/up.sql"
+        ))
+        .unwrap();
     assert_eq!(
         snapshot(
             &pool,

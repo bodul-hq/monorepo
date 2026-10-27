@@ -431,3 +431,68 @@ three-second statement timeout and threshold inside its transaction, leaving
 pooled connections' settings unchanged. The isolated `make test-postgres` suite
 requires the provisioned extension and tests ranking, page mapping, title
 updates, replay, index reversal and setting isolation. See [ADR 30](../../docs/adr/0030-offer-title-search.md).
+
+## Shopify identifier JSONB storage and migration
+
+Customer-facing now stores `offers.external_identifiers` as a validated JSONB
+object; offers service's `read_offers` columns and all public contracts stay the
+same. GTIN and SKU retain separate columns. Example storage:
+
+```json
+{"shopify_product_gid":"gid://shopify/Product/001","shopify_product_variation_gid":null,"shopify_handle":"usb-charger"}
+```
+
+All three keys are required and nullable; the column itself is NOT NULL. The
+all-null object is the database default. `offers_external_identifiers_shape`
+rejects missing/extra keys and non-string/non-null values. The local typed
+`Identifier` adapter additionally validates present strings through shared
+`ExternalIdentifiers`, preserving whitespace, Unicode, case and leading zeros.
+Legacy wire defaults remain compatible. Projection creation binds the whole
+object; an identifier-change event replaces the complete decided set, including
+null members, atomically with its original-message receipt. There is no JSON
+merge or identifier reset. REST/GraphQL browse and search reuse that typed value.
+
+Migration `2026-10-26-000005_shopify_identifiers_json` copies all three old TEXT
+values, checks null-aware equality, then drops those columns in one transaction.
+It retains GTIN/SKU, localization, times, images, receipts, queue entries and
+indexes. Its down migration restores **latest** JSON values to the old columns.
+
+Deployment procedure:
+
+1. Build and test the binary/migration together and retain the previous binary
+   and a database backup. Check row count, disk/WAL headroom and lock/backfill
+   duration on a representative populated copy. Run this read-only preflight:
+
+   ```sql
+   SELECT id FROM offers
+   WHERE shopify_product_gid = '' OR shopify_product_variation_gid = ''
+      OR shopify_handle = '';
+   ```
+
+   These are the shared guard's invalid PostgreSQL text values; PostgreSQL TEXT
+   already excludes NUL. Whitespace-only strings are valid and stay unchanged.
+   If rows are returned, stop and resolve the affected IDs through a separate
+   data decision. The migration also rejects such rows, without erasing values.
+2. Stop routing requests and queue-run calls to customer-facing, wait for active
+   batches, and stop **all** old instances. Old readers reference the removed
+   columns too. Delivery failures during maintenance remain retryable.
+3. Start the new binary to apply embedded migrations before serving, or run
+   `make migrate` while all instances are down. Inspect the migrated objects:
+
+   ```sql
+   SELECT id, gtin, sku, external_identifiers FROM offers ORDER BY id LIMIT 30;
+   ```
+
+   Check health, REST/GraphQL browse/search, a creation and identifier-only update,
+   then resume inbox/command runs and delivery with original message identities.
+4. For rollback, stop every new instance. With this migration still the latest,
+   use `diesel migration revert` from this service to revert only
+   `2026-10-26-000005_shopify_identifiers_json`; verify the migration version
+   before running it. Verify restored TEXT values, then restart the old binary.
+   If later migrations exist, plan their rollback first. Do not use
+   `make migrate-redo`, which reverts all migrations and deletes data.
+
+This is a maintenance migration, not an online mixed-version deployment. The
+isolated PostgreSQL suite includes populated up/down/up preservation, updates
+before rollback, pending legacy/new messages, strict JSONB/default checks,
+receipt rollback/retry and API compatibility. See [ADR 32](../../docs/adr/0032-customer-facing-shopify-identifiers-json.md).

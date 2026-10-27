@@ -86,7 +86,7 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let mut expected = json!({
         "id":id, "retailer_code":"ankerau", "title":payload["title"],
         "price_amount":payload["price"]["amount"], "currency":"AUD",
-        "gtin":null,"sku":null,"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null,"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
+        "gtin":null,"sku":null,"external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null},"target_market":null, "language":null, "scraped_at":null, "url":payload["url"], "created_at":"2026-10-24T12:00:00.123456+00:00"
     });
     assert_eq!(offer(&pool), expected);
     let title_message = apply(
@@ -746,4 +746,126 @@ async fn localization_and_identifiers_replace_decided_state_with_atomic_receipts
             .is_empty()
     );
     assert_eq!(projection_counts(&pool), counts_before);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
+async fn json_identifiers_replace_atomically_and_keep_browse_search_and_graphql_contracts() {
+    let (_schema, pool) = database(true);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let mut payload = created(id);
+    payload["gtin"] = json!("0001");
+    payload["sku"] = json!("original");
+    payload["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/001","shopify_product_variation_gid":"002","shopify_handle":" ž \\\" "});
+    projection
+        .execute(&envelope(Uuid::now_v7(), "OfferCreated", &payload))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        payload["external_identifiers"]
+    );
+    let message = Uuid::now_v7();
+    let mut change = json!({"id":id,"gtin":"0002","sku":"reject","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":"003","shopify_handle":null}});
+    pool.get().unwrap().batch_execute("ALTER TABLE offers ADD CONSTRAINT test_identifier_failure CHECK (sku IS DISTINCT FROM 'reject')").unwrap();
+    let before = offer(&pool);
+    let counts = projection_counts(&pool);
+    assert!(
+        projection
+            .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+            .is_err()
+    );
+    assert_eq!(offer(&pool), before);
+    assert_eq!(projection_counts(&pool), counts);
+    pool.get()
+        .unwrap()
+        .batch_execute("ALTER TABLE offers DROP CONSTRAINT test_identifier_failure")
+        .unwrap();
+    projection
+        .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert_eq!(offer(&pool)["gtin"], "0002");
+    assert_eq!(offer(&pool)["sku"], "reject");
+    let decided = offer(&pool);
+    change["external_identifiers"]["shopify_handle"] = json!("must not replace replayed message");
+    projection
+        .execute(&envelope(message, "OfferIdentifiersChanged", &change))
+        .unwrap();
+    assert_eq!(offer(&pool), decided);
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app(state));
+    for (path, field) in [
+        ("/api/offers", "offers"),
+        ("/api/offers/search?q=USB", "searchOffers(q: \"USB\")"),
+    ] {
+        let response = client.get(path).send().await;
+        response.assert_status_is_ok();
+        let page: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            page["items"][0]["external_identifiers"],
+            decided["external_identifiers"]
+        );
+        let query = format!(
+            "{{ result: {field} {{ items {{ gtin sku external_identifiers: externalIdentifiers {{ shopify_product_gid: shopifyProductGid shopify_product_variation_gid: shopifyProductVariationGid shopify_handle: shopifyHandle }} }} }} }}"
+        );
+        let response = client
+            .post("/graphql")
+            .body_json(&json!({"query":query}))
+            .send()
+            .await;
+        let graph: Value = response.json().await.value().deserialize();
+        assert_eq!(
+            graph["data"]["result"]["items"][0],
+            json!({"gtin":"0002","sku":"reject","external_identifiers":decided["external_identifiers"]})
+        );
+    }
+    change["gtin"] = Value::Null;
+    change["sku"] = Value::Null;
+    change["external_identifiers"] = json!({"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null});
+    projection
+        .execute(&envelope(
+            Uuid::now_v7(),
+            "OfferIdentifiersChanged",
+            &change,
+        ))
+        .unwrap();
+    let unknown = offer(&pool);
+    assert_eq!(
+        unknown["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert!(unknown["gtin"].is_null() && unknown["sku"].is_null());
+    assert!(unknown.get("shopify_product_gid").is_none());
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":3}));
+    kernel.shutdown();
+}
+
+#[test]
+#[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
+fn missing_parent_json_update_retries_after_legacy_creation() {
+    let (_schema, pool) = database(true);
+    let projection = crate::offer_projection::Projection(pool.clone());
+    let id = Uuid::now_v7();
+    let message = Uuid::now_v7();
+    let change = json!({"id":id,"gtin":null,"sku":"001","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":"preserved"}});
+    let command = envelope(message, "OfferIdentifiersChanged", &change);
+    assert!(projection.execute(&command).is_err());
+    assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
+    projection
+        .execute(&envelope(Uuid::now_v7(), "OfferCreated", &created(id)))
+        .unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        json!({"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":null})
+    );
+    projection.execute(&command).unwrap();
+    assert_eq!(
+        offer(&pool)["external_identifiers"],
+        change["external_identifiers"]
+    );
+    assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":2}));
 }
