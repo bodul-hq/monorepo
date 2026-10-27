@@ -13,24 +13,15 @@ endif
 ifneq ($(origin OFFERS_REPORTING_TOKEN),undefined)
 offers_reporting_token := $(value OFFERS_REPORTING_TOKEN)
 endif
-ifneq ($(origin AMQP_URL),undefined)
-offers_amqp_url := $(value AMQP_URL)
-endif
-ifneq ($(origin OUTBOX_EXCHANGE),undefined)
-offers_outbox_exchange := $(value OUTBOX_EXCHANGE)
+ifneq ($(origin CUSTOMER_FACING_URL),undefined)
+offers_customer_facing_url := $(value CUSTOMER_FACING_URL)
 endif
 include $(wildcard .env)
-ifneq ($(origin offers_amqp_url),undefined)
-AMQP_URL := $(offers_amqp_url)
+ifneq ($(origin offers_customer_facing_url),undefined)
+CUSTOMER_FACING_URL := $(offers_customer_facing_url)
 endif
-ifneq ($(origin offers_outbox_exchange),undefined)
-OUTBOX_EXCHANGE := $(offers_outbox_exchange)
-endif
-ifneq ($(origin AMQP_URL),undefined)
-export AMQP_URL
-endif
-ifneq ($(origin OUTBOX_EXCHANGE),undefined)
-export OUTBOX_EXCHANGE
+ifneq ($(origin CUSTOMER_FACING_URL),undefined)
+export CUSTOMER_FACING_URL
 endif
 
 ifneq ($(origin offers_database_url),undefined)
@@ -85,8 +76,3 @@ test-postgres:
 
 wip:
 	git add . && git commit -m 'wip'
-
-.PHONY: test-rabbitmq
-test-rabbitmq:
-	@test -n "$$AMQP_URL_TEST" || { echo "AMQP_URL_TEST is required"; exit 1; }
-	cargo test rabbitmq_confirms_delivery -- --ignored

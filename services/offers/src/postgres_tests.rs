@@ -12,7 +12,7 @@ use crate::{
     offers::{event::RetailerOfferEvent, retailer_offer_id::RetailerOfferId},
 };
 
-struct TestSchema {
+pub(crate) struct TestSchema {
     connection: PgConnection,
     name: String,
 }
@@ -580,7 +580,12 @@ async fn registered_projectors_create_and_update_read_models() {
     kernel.shutdown();
 }
 
-async fn run_queue(client: &TestClient<poem::Route>, queue: &str, limit: usize, processed: usize) {
+pub(crate) async fn run_queue(
+    client: &TestClient<poem::Route>,
+    queue: &str,
+    limit: usize,
+    processed: usize,
+) {
     let response = client
         .post(format!("/api/{queue}/run"))
         .body_json(&json!({"limit": limit}))
@@ -592,7 +597,7 @@ async fn run_queue(client: &TestClient<poem::Route>, queue: &str, limit: usize, 
         .await;
 }
 
-fn inbox_test_database() -> (TestSchema, DbPool) {
+pub(crate) fn inbox_test_database() -> (TestSchema, DbPool) {
     let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).unwrap(),
@@ -622,7 +627,7 @@ struct InboxTestSnapshot {
     data: Value,
 }
 
-fn inbox_test_snapshot(pool: &DbPool, sql: &str) -> Value {
+pub(crate) fn inbox_test_snapshot(pool: &DbPool, sql: &str) -> Value {
     use diesel::RunQueryDsl;
     diesel::sql_query(sql)
         .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())

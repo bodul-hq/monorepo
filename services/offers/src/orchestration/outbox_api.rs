@@ -1,6 +1,6 @@
 //! Outbox batch endpoint; Mulac's Poem adapter validates and executes it, and
-//! answers `503` while no publisher is configured. The publisher is Mulac's
-//! `ConfirmedAmqpPublisher`, built by `rabbitmq::publisher_from_env` in `main`.
+//! answers `503` while no publisher is configured. The publisher is
+//! `CustomerFacingPublisher`, built from `CUSTOMER_FACING_URL` in `main`.
 
 use mulac_poem::io::{OutboxAdapter, RunRequest, RunResponse};
 use poem::Result;
@@ -18,7 +18,7 @@ impl OutboxApi {
 
 #[OpenApi]
 impl OutboxApi {
-    /// Publish one batch to RabbitMQ; returns 503 when delivery is not configured.
+    /// Publish one batch to customer-facing's inbox; returns 503 when delivery is not configured.
     #[oai(path = "/outbox/run", method = "post")]
     async fn run_outbox(&self, request: Json<RunRequest>) -> Result<Json<RunResponse>> {
         self.adapter.run(request).await
@@ -129,7 +129,7 @@ mod tests {
         let run = &spec["paths"]["/outbox/run"]["post"];
         assert_eq!(
             run["summary"],
-            "Publish one batch to RabbitMQ; returns 503 when delivery is not configured."
+            "Publish one batch to customer-facing's inbox; returns 503 when delivery is not configured."
         );
         assert_eq!(
             run["requestBody"]["content"]["application/json; charset=utf-8"]["schema"]["$ref"],
@@ -179,12 +179,15 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn outbox_run_reports_rabbitmq_publication_errors_verbatim() {
-        // Every connection is closed at once, so each publication fails.
-        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-        let url = format!("amqp://{}", listener.local_addr().unwrap());
-        std::thread::spawn(move || listener.incoming().for_each(drop));
-        let publisher = crate::orchestration::rabbitmq::publisher(url, String::new()).unwrap();
+    async fn outbox_run_reports_customer_facing_publisher_errors_verbatim() {
+        // Mulac's test rows are not routed to customer_facing, so each fails
+        // before any request is sent.
+        let publisher =
+            crate::orchestration::customer_facing_publisher::CustomerFacingPublisher::new(
+                "http://127.0.0.1:9",
+                tokio::runtime::Handle::current(),
+            )
+            .unwrap();
         let service = testing::publisher_service(2, Arc::new(publisher));
         let response = client_with(OutboxAdapter::new(service))
             .post("/api/outbox/run")
@@ -194,8 +197,8 @@ mod tests {
         response.assert_status_is_ok();
         response
             .assert_json(json!({"processed":null,"errors":[
-                "transport error: RabbitMQ connection or publication failed",
-                "transport error: RabbitMQ connection or publication failed",
+                "routing error: outbox message destination must be customer_facing",
+                "routing error: outbox message destination must be customer_facing",
             ]}))
             .await;
     }

@@ -32,6 +32,7 @@ use crate::offers::{
     event::{OFFER_CREATED_EVENT, OFFER_PRICE_CHANGED_EVENT, OFFER_TITLE_CHANGED_EVENT},
     http::rest::OffersApi,
 };
+use crate::orchestration::customer_facing_publisher::CustomerFacingPublisher;
 use crate::orchestration::{CommandingApi, EventingApi, InboxApi, OutboxApi};
 use crate::read_offer::{
     projector::RetailerOfferProjector, repository::PostgresRetailerOfferRepository,
@@ -57,12 +58,14 @@ use std::time::Duration;
 #[tokio::main]
 async fn main() -> io::Result<()> {
     let port = parse_port(env::var("PORT"))?;
+    // Checked before connecting; customer-facing may be down at startup.
+    let publisher = CustomerFacingPublisher::from_env(tokio::runtime::Handle::current())?;
     let pool = bootstrap::database_pool()?.expect("DATABASE_URL is required");
     let shutdown = shutdown_signal()?;
 
     // Boot the in-process kernel and register all command handlers and event subscribers.
     let (kernel, mut state) = start_mulac(pool.clone()).map_err(err_kernel_could_not_start)?;
-    if let Some(publisher) = orchestration::rabbitmq::publisher_from_env()? {
+    if let Some(publisher) = publisher {
         state.outbox = OutboxAdapter::new(OutboxService::from_postgres(
             pool.clone(),
             Arc::new(publisher),

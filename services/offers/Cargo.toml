@@ -13,10 +13,11 @@ diesel.workspace = true
 diesel_migrations.workspace = true
 eventing_api.workspace = true
 inbox_api.workspace = true
+inbox_client.workspace = true
 kernel.workspace = true
 money.workspace = true
 mulac_poem.workspace = true
-outbox = { workspace = true, features = ["amqp"] }
+outbox.workspace = true
 outbox_api.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true
@@ -31,9 +32,9 @@ url.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
+axum.workspace = true
 commanding_api = { workspace = true, features = ["testing"] }
 eventing_api = { workspace = true, features = ["testing"] }
 inbox_api = { workspace = true, features = ["testing"] }
-lapin = "4.5.0"
 outbox_api = { workspace = true, features = ["testing"] }
 poem = { workspace = true, features = ["test"] }

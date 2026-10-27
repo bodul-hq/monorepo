@@ -29,7 +29,7 @@ one queue at a time:
 | `/api/inbox/run` | Convert stored inbox messages to queued commands. |
 | `/api/commands/run` | Execute queued commands and enqueue their events. |
 | `/api/events/run` | Dispatch queued events to the projectors. |
-| `/api/outbox/run` | Publish a batch to RabbitMQ when `AMQP_URL` is configured; otherwise return `503` without reserving rows. |
+| `/api/outbox/run` | Deliver a batch to customer-facing's `/api/inbox` when `CUSTOMER_FACING_URL` is configured; otherwise return `503` without reserving rows. |
 
 All four require JSON `{"limit":100}` with an integer from 1 through 1000.
 Missing or invalid limits and malformed JSON return `400`. Configured consumers
@@ -78,15 +78,15 @@ Mulac also owns `/api/outbox/run` behavior. `src/orchestration/outbox_api.rs`
 only declares the route and delegates to `mulac_poem::io::OutboxAdapter`
 (feature `outbox`). The shared `outbox_api` crate validates the limit and
 publishes one batch through an outbox consumer that
-`OutboxService::from_postgres` builds from the pool and Mulac's
-`ConfirmedAmqpPublisher` (`mulac-outbox` feature `amqp`). Without `AMQP_URL`,
-`start_mulac` leaves the adapter
+`OutboxService::from_postgres` builds from the pool and
+`CustomerFacingPublisher` (`src/orchestration/customer_facing_publisher.rs`).
+Without `CUSTOMER_FACING_URL`, `start_mulac` leaves the adapter
 `unconfigured()`, so valid requests return `503`
 `outbox publisher is not configured` without touching storage. Publication
 failures are reported with their `OutboxError` text, for example
-`transport error: RabbitMQ publication timed out`, and use Mulac's retry
-schedule. `src/orchestration/rabbitmq.rs` reads and validates the environment
-variables and builds the publisher; broker topology also stays in offers.
+`transport error: customer-facing inbox request failed`, and use Mulac's retry
+schedule. The publisher validates rows and maps them to inbox submissions; the
+shared [`inbox_client`](../../lib/inbox_client/README.md) crate does the HTTP.
 
 ### Inbox submission
 
@@ -139,35 +139,73 @@ Each run advances only its own queue. The last step populates `read_offers` and
 `read_offer_identities`; read HTTP routes are not active yet. In Bruno, send
 **Submit inbox message**, **Run inbox**, **Run commands**, then **Run events**.
 
-### RabbitMQ delivery
+### HTTP delivery to customer-facing
 
-Set `AMQP_URL` to an `amqp://` or `amqps://` URL to enable outbox delivery.
-`OUTBOX_EXCHANGE` defaults to the empty RabbitMQ exchange. Provision a durable
-`customer_facing` queue in that virtual host first, or configure an existing
-exchange with a durable queue bound using routing key `customer_facing`.
-The service does not declare broker topology or read inbound RabbitMQ messages.
-Inbox processing still reads the database inbox.
+Set `CUSTOMER_FACING_URL` to customer-facing's HTTP(S) origin, for example
+`http://127.0.0.1:3003`. It must have no credentials, path, query, fragment,
+surrounding whitespace or control characters. An unset value disables delivery.
+An explicitly empty, invalid or non-Unicode value fails startup with a
+sanitized error, before the database is opened. No connection to
+customer-facing is made at startup, so it may be down. Shell and Make
+command-line values override `.env`, including empty values.
 
-`POST /api/outbox/run` publishes only its requested batch. Messages are persistent,
-mandatory, and use publisher confirms: only an ACK without a returned message
-completes the row. Unroutable messages, NACKs, connection errors and ten-second
-connection/publication timeouts fail the item and use Mulac's retry schedule.
-Connections are opened lazily, reused, and discarded on publication failure.
-A broker outage therefore does not prevent HTTP startup. Invalid URL configuration
-does fail startup. Keep credentials out of logs and use TLS for remote brokers.
+`AMQP_URL` and `OUTBOX_EXCHANGE` are no longer read. Offers does not publish
+to RabbitMQ, and those settings never enable delivery or act as a fallback;
+HTTP is the only transport ([ADR 21](../../docs/adr/0021-offers-http-outbox-to-customer-facing.md)).
 
-Payload, message/event IDs, event type, correlation/causation IDs, source, content
-type and routing key are preserved. Delivery is at least once: if a confirmation
-or the database completion write is lost, a retry may publish again. Receivers
-must deduplicate by message ID. Startup migrations backfill missing/null message
-IDs from existing event IDs. No background worker is started.
+`POST /api/outbox/run` delivers only its requested batch. Each row is posted to
+`/api/inbox` as JSON:
 
-`AMQP_URL_TEST=... make test-rabbitmq` is a smoke test of offers' publisher:
-confirmed persistent delivery, unroutable-message failure and recovery, using a
-temporary exclusive queue. Mulac's `ConfirmedAmqpPublisher` tests cover the
-publication semantics in detail.
-`make test-postgres` also tests outbox completion and retry state with an injected
-publisher, without requiring RabbitMQ.
+| Field | Value |
+| --- | --- |
+| `routing_key` | The event type, exactly `OfferCreated`, `OfferTitleChanged` or `OfferPriceChangedEvent` |
+| `payload` | The recorded event JSON object, unchanged |
+| `message_id` | The row's stable message UUID |
+| `correlation_id` | The row's correlation UUID, or null |
+| `source` | The row's source; `offers` when absent |
+
+Only rows with destination `customer_facing` are sent. A row with another
+destination, an unsupported event type, a payload that is not that event, or a
+blank source fails without a request. The event ID, event type and causation
+stay in offers' outbox metadata, because the inbox contract has no fields for
+them.
+
+Only `202` with a JSON body naming the same `message_id` completes the row.
+Any other status (including redirects, `400`, `429` and `500`), a mismatched or
+invalid acknowledgement, or one over 64 KiB fails the item. So do a
+connection failure and the ten-second deadline, which covers the request and
+the acknowledgement body. Redirects and client retries are disabled. Errors
+name the failure, never the URL, credentials or response body.
+
+Failed rows (`status = 4`) are retried by later runs with Mulac's backoff, and
+the same message ID and payload are sent. After six attempts a row is dead
+(`status = 7`). Fix the cause, then reschedule it with
+`status = 0, attempts = 0, scheduled_at = now()`. A failed completion write
+after acceptance leaves the row reserved (`status = 2`), and no sweeper
+releases it. Once no run is in progress and the cause is fixed, release it
+with `status = 0, reservation_id = NULL, reserved_at = NULL`. Never reset the
+database to recover.
+
+```sql
+SELECT id, status, attempts, last_error, meta->>'event_type' AS event_type
+FROM outbox_entries ORDER BY received_at;
+```
+
+Delivery is at least once. A lost acknowledgement or a failed completion can
+resend a message. Customer-facing keeps the first inbox row for a message ID,
+so receivers deduplicate by it. A `202` means durable storage only. Run
+customer-facing's inbox, commands and events afterwards; its offer projection
+is a separate step. Existing queued rows are delivered unchanged; startup
+migrations backfill missing message IDs from event IDs. No background worker
+is started.
+
+`make ci` covers configuration, submission mapping, rejections and
+HTTP-receiver behavior; [`inbox_client`](../../lib/inbox_client/README.md)
+covers the transport edge cases. `make test-postgres` delivers real recorded
+rows to a Mulac inbox in a separate schema, the same inbox customer-facing
+serves. It covers all three event types, a partial batch, a failed completion
+with recovery, and a lost acceptance response retried without a duplicate
+inbox row.
 
 After a successful `/api/tmp-import`, run the inbox, commands and events steps
 to populate `read_offers` and `read_offer_identities`:
@@ -259,7 +297,8 @@ The PostgreSQL contract tests run with
 Use the repository's pinned Rust toolchain, GNU Make, libpq, and PostgreSQL 16
 or later. Cargo also needs the configured `null-labs-hq` registry and the pinned
 Mulac Git dependency (`0.3.0`). No separate Testimony process, object storage, or retailer sourcing process is
-required. RabbitMQ is required only when outbox delivery is enabled.
+required. A reachable customer-facing service is needed only when running
+outbox delivery.
 
 ```sh
 make .env                 # optional; edit the commented examples
