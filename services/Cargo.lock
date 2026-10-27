@@ -3708,6 +3708,7 @@ dependencies = [
  "http-body-util",
  "money",
  "mulac-kernel",
+ "mulac-outbox",
  "mulac_axum",
  "object_storage_client",
  "percent-encoding",

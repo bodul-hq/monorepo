@@ -14,9 +14,11 @@ use crate::platform::bus::Bus;
 )]
 pub use super::structuralize_offer::prelude::OfferWasStructuralized;
 
-#[expect(unused_imports, reason = "handoff to the subsequent outbox feature")]
+#[cfg(test)]
+pub(crate) use super::processing_for_export::prelude::testing as export_testing;
 pub use super::processing_for_export::prelude::{
     OfferExport, OfferExportWasPrepared, PgStore as ExportStore,
+    SCHEMA_VERSION as EXPORT_SCHEMA_VERSION, StoreError as ExportStoreError,
 };
 
 /// Registers every offer discovery slice.

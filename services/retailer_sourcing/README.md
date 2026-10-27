@@ -600,3 +600,12 @@ behavior and separate HTTP queue batches. `make test-object-storage` also
 checks the new bucket against a running object-storage service. Offers' unit
 tests deserialize the same checked-in import fixture through its real command.
 See [ADR 19](../../docs/adr/0019-immutable-offer-export-preparation.md).
+
+## Recording export messages
+
+`offer_delivery` consumes `OfferExportWasPrepared` with its original event
+envelope and reads the immutable snapshot named by that event. It records one
+outbox entry per export entry, using the entry UUID as the stable message ID.
+The transaction preserves the first metadata and delivery state on replay,
+and rejects reuse of an ID for different content. Outbox delivery is configured
+separately from recording.

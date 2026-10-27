@@ -19,6 +19,7 @@ kernel.workspace = true
 money.workspace = true
 mulac_axum = { path = "../../../mulac/libs/mulac_axum", features = ["commanding", "eventing", "utoipa"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
+outbox.workspace = true
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }

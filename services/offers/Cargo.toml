@@ -16,7 +16,7 @@ inbox_api.workspace = true
 kernel.workspace = true
 money.workspace = true
 mulac_poem.workspace = true
-outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
+outbox = { workspace = true, features = ["amqp"] }
 outbox_api.workspace = true
 poem.workspace = true
 poem-openapi.workspace = true

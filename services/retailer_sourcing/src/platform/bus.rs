@@ -1,6 +1,6 @@
 //! Command and event bus on top of the Mulac kernel.
 //!
-//! Features register handlers and reactions here and never touch Mulac
+//! Features register handlers, reactions and listeners here and never touch Mulac
 //! directly. Mulac stores every command and event in Postgres, delivers each one
 //! at least once, and retries a failed command with backoff.
 //!
@@ -52,6 +52,27 @@ impl<E: Event> Publish for E {
     }
 }
 
+/// Where an event came from, as recorded in its envelope.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EventContext {
+    pub event_id: Uuid,
+    pub correlation_id: Option<Uuid>,
+    pub causation_id: Option<Uuid>,
+    pub source: Option<String>,
+}
+
+/// Consumes one event type with its envelope metadata, for subscribers that
+/// write state themselves rather than queue a command.
+pub trait Listen: Send + Sync + 'static {
+    type Event: Event;
+    type Error: Display;
+
+    /// The subscriber name Mulac registers.
+    const NAME: &'static str;
+
+    fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error>;
+}
+
 /// Handles one command type and returns the events it produced. Handlers
 /// don't publish events themselves.
 pub trait Handle: Send + Sync + 'static {
@@ -90,6 +111,14 @@ impl Bus {
             kernel.event_subscriber_with_command_gateway(E::NAME, C::NAME, move |gateway| {
                 Arc::new(Reaction { gateway, reaction }) as Arc<dyn EventSubscriberPort>
             })
+        }));
+    }
+
+    /// Registers a listener for its event type.
+    pub fn listen<L: Listen>(&mut self, listener: L) {
+        let port: Arc<dyn EventSubscriberPort> = Arc::new(Listener(listener));
+        self.registrations.push(Box::new(move |kernel| {
+            kernel.event_subscriber(<L::Event as Event>::NAME, L::NAME, port)
         }));
     }
 
@@ -266,6 +295,49 @@ where
     }
 }
 
+struct Listener<L>(L);
+
+impl<L: Listen> EventSubscriberPort for Listener<L> {
+    fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let name = <L::Event as Event>::NAME;
+        let start = Instant::now();
+        let result = self.listen(envelope);
+        let elapsed_ms = start.elapsed().as_millis() as u64;
+        let status = if result.is_ok() { "ok" } else { "error" };
+        tracing::info!(
+            target: TIMING_TARGET,
+            kind = "event",
+            name,
+            listener = L::NAME,
+            elapsed_ms,
+            status
+        );
+        if let Err(error) = &result {
+            tracing::error!(event = name, listener = L::NAME, "listener failed: {error}");
+        }
+        result
+    }
+}
+
+impl<L: Listen> Listener<L> {
+    fn listen(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let event: L::Event = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
+        let metadata = envelope.metadata.as_ref().ok_or_else(|| {
+            subscriber_error(format!(
+                "event {} has no envelope metadata",
+                <L::Event as Event>::NAME
+            ))
+        })?;
+        let context = EventContext {
+            event_id: metadata.event_id,
+            correlation_id: metadata.correlation_id,
+            causation_id: metadata.causation_id,
+            source: metadata.source.clone(),
+        };
+        self.0.listen(event, &context).map_err(subscriber_error)
+    }
+}
+
 fn command_envelope<C: Command>(
     command: &C,
     metadata: NewCommandMetadata,
@@ -320,6 +392,79 @@ mod tests {
             }
             Ok(vec![Ponged { id: command.id }])
         }
+    }
+
+    struct Record(std::sync::Mutex<Vec<(u32, EventContext)>>);
+
+    impl Listen for Record {
+        type Event = Ponged;
+        type Error = String;
+        const NAME: &'static str = "RecordPonged";
+
+        fn listen(&self, event: Ponged, context: &EventContext) -> Result<(), String> {
+            if event.id == 0 {
+                return Err("id must not be zero".to_string());
+            }
+            self.0.lock().unwrap().push((event.id, context.clone()));
+            Ok(())
+        }
+    }
+
+    fn ponged(id: u32, metadata: Option<kernel::NewEventMetadata>) -> NewEventEnvelope {
+        NewEventEnvelope {
+            event_type: Ponged::NAME.to_string(),
+            payload: serde_json::to_string(&Ponged { id }).unwrap(),
+            metadata,
+        }
+    }
+
+    fn metadata() -> kernel::NewEventMetadata {
+        kernel::NewEventMetadata {
+            event_id: Uuid::now_v7(),
+            correlation_id: Some(Uuid::now_v7()),
+            causation_id: Some(Uuid::now_v7()),
+            source: Some("test".to_string()),
+        }
+    }
+
+    #[test]
+    fn listeners_receive_the_envelope_metadata() {
+        let listener = Listener(Record(Default::default()));
+        let metadata = metadata();
+
+        listener.handle(&ponged(7, Some(metadata.clone()))).unwrap();
+
+        let calls = listener.0.0.lock().unwrap();
+        assert_eq!(
+            *calls,
+            [(
+                7,
+                EventContext {
+                    event_id: metadata.event_id,
+                    correlation_id: metadata.correlation_id,
+                    causation_id: metadata.causation_id,
+                    source: metadata.source,
+                }
+            )]
+        );
+    }
+
+    #[test]
+    fn listeners_reject_events_without_metadata_and_report_failures() {
+        let listener = Listener(Record(Default::default()));
+
+        let missing = listener.handle(&ponged(7, None)).unwrap_err();
+        let failed = listener.handle(&ponged(0, Some(metadata()))).unwrap_err();
+
+        assert!(
+            matches!(&missing, EventError::SubscriberExecution(message) if message.contains("no envelope metadata")),
+            "{missing:?}"
+        );
+        assert!(
+            matches!(&failed, EventError::SubscriberExecution(message) if message == "id must not be zero"),
+            "{failed:?}"
+        );
+        assert!(listener.0.0.lock().unwrap().is_empty());
     }
 
     #[test]
