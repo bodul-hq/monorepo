@@ -103,6 +103,7 @@ impl RetailerOfferAggregate {
         sequence
             .checked_add(field_changes)
             .and_then(|sequence| sequence.checked_add(new_images))
+            .filter(|sequence| *sequence <= i64::MAX as u64)
             .ok_or(RetailerOfferError::SequenceOverflow)?;
         Ok(())
     }
@@ -772,5 +773,34 @@ mod tests {
                 .is_err()
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod sequence_bound_tests {
+    use super::*;
+    #[test]
+    fn bigint_limit_rejects_whole_batch_before_mutation() {
+        let mut offer = RetailerOfferAggregate::create(
+            RetailerOfferId::new("bounded"),
+            RetailerCode::AnkerAu,
+            "Charger".into(),
+            Money::new(100, money::Currency::AUD),
+            "https://shop.example/a".into(),
+            vec![],
+        )
+        .unwrap();
+        offer.sequence = i64::MAX as u64 - 1;
+        let before = format!("{:?}", offer.state);
+        assert_eq!(
+            offer.update("Changed".into(), Money::new(200, money::Currency::AUD)),
+            Err(RetailerOfferError::SequenceOverflow)
+        );
+        assert_eq!(format!("{:?}", offer.state), before);
+        assert_eq!(offer.uncommitted_events.len(), 1);
+        offer
+            .update("Changed".into(), Money::new(100, money::Currency::AUD))
+            .unwrap();
+        assert_eq!(offer.sequence, i64::MAX as u64);
     }
 }

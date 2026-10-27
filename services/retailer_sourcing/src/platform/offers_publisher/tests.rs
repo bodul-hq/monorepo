@@ -34,6 +34,7 @@ pub(crate) fn envelope() -> OutboundMessageEnvelope {
         }))
         .unwrap(),
         metadata: OutboxEntryMetadata {
+            sequence: None,
             message_id: Uuid::now_v7(),
             event_id: Uuid::now_v7(),
             correlation_id: Some(Uuid::now_v7()),

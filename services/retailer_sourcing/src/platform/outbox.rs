@@ -116,6 +116,7 @@ pub fn record(
 
 fn metadata(message: &OutgoingMessage, context: &EventContext) -> OutboxEntryMetadata {
     OutboxEntryMetadata {
+        sequence: None,
         event_id: context.event_id,
         message_id: message.id,
         correlation_id: context.correlation_id,
@@ -176,6 +177,7 @@ mod tests {
         assert_eq!(
             metadata(&message, &context),
             OutboxEntryMetadata {
+                sequence: None,
                 event_id: context.event_id,
                 message_id: message.id,
                 correlation_id: context.correlation_id,

@@ -1,6 +1,6 @@
 use crate::offers::aggregate::RetailerOfferAggregate;
 use crate::offers::command::ImportOfferDetailsCommand;
-use crate::offers::event::RetailerOfferEvent;
+use crate::offers::event::{RetailerOfferEvent, SequencedOfferEvent};
 use crate::offers::retailer_offer_id::RetailerOfferId;
 use crate::read_offers_identifiers::entity::RetailerOfferIdentifiers;
 use bodul_shared::prelude::RetailerCode;
@@ -36,6 +36,14 @@ where
         &self,
         command: ImportOfferDetailsCommand,
     ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+        self.process_offer(command)
+            .map(|events| events.into_iter().map(|event| event.event).collect())
+    }
+
+    fn process_offer(
+        &self,
+        command: ImportOfferDetailsCommand,
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let exists = self
             .identifiers_repository
             .find(command.retailer_code, &command.url)
@@ -63,13 +71,20 @@ where
         price: Money,
         url: String,
         images: Vec<String>,
-    ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
         let mut aggregate =
             RetailerOfferAggregate::create(id, retailer_code, title, price, url, images)
                 .map_err(err_update)?;
-        let events = aggregate.get_just_events();
+        let events = aggregate
+            .uncommitted_events
+            .iter()
+            .map(|envelope| SequencedOfferEvent {
+                event: envelope.event().clone(),
+                sequence: envelope.sequence(),
+            })
+            .collect();
 
         self.repository.save(&mut aggregate)?;
 
@@ -82,7 +97,7 @@ where
         title: String,
         price: Money,
         images: Vec<String>,
-    ) -> Result<Vec<RetailerOfferEvent>, RepositoryError> {
+    ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
             .load(id.clone())?
@@ -90,7 +105,14 @@ where
         aggregate
             .update_with_images(title, price, images)
             .map_err(err_update)?;
-        let events = aggregate.get_just_events();
+        let events = aggregate
+            .uncommitted_events
+            .iter()
+            .map(|envelope| SequencedOfferEvent {
+                event: envelope.event().clone(),
+                sequence: envelope.sequence(),
+            })
+            .collect();
         self.repository.save(&mut aggregate)?;
 
         Ok(events)
@@ -109,7 +131,7 @@ pub enum UpdateChannelsError {
 
 // Mulac publishes the returned events, so this adapter uses Testimony's no-op
 // publisher to avoid publishing the same event through both systems.
-impl<S, R> kernel::CommandHandlerPort<ImportOfferDetailsCommand, RetailerOfferEvent>
+impl<S, R> kernel::CommandHandlerPort<ImportOfferDetailsCommand, SequencedOfferEvent>
     for ProcessOfferHandler<S, NoOpEventPublisher, R>
 where
     S: EventStore<RetailerOfferId, RetailerOfferEvent> + Send + Sync,
@@ -118,8 +140,8 @@ where
     fn execute(
         &self,
         command: ImportOfferDetailsCommand,
-    ) -> Result<Vec<RetailerOfferEvent>, kernel::CommandError> {
-        self.create_offer(command)
+    ) -> Result<Vec<SequencedOfferEvent>, kernel::CommandError> {
+        self.process_offer(command)
             .map_err(|error| kernel::CommandError::HandlerExecution(error.to_string()))
     }
 }

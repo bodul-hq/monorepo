@@ -536,3 +536,12 @@ Deploy customer-facing's migration/consumer first; never roll offers back to a
 binary that cannot deserialize stored image events. See
 [ADR 25](../../docs/adr/0025-initial-images-in-offer-created.md) and the
 [image walkthrough](../../docs/offer-images-walkthrough.md).
+
+## Event revisions
+
+Each offer starts at revision 1. Every event retains its exact Testimony revision
+in Mulac event metadata and offers outbox metadata, including multi-event updates.
+No-op imports consume no revisions. Legacy metadata may omit sequence; present
+values are positive integers bounded by PostgreSQL BIGINT. The optional-sequence
+Mulac prerequisite `dc60f443e4a2ed4a3e763855fe473426732baef1` is required. HTTP forwarding does not carry this metadata or
+provide source-order guarantees. See [ADR 27](../../docs/adr/0027-offer-revision-metadata.md).

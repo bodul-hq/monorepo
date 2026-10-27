@@ -32,7 +32,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             .metadata
             .as_ref()
             .ok_or_else(err_missing_metadata)?;
-        let meta = serde_json::json!({
+        let mut meta = serde_json::json!({
             "event_id": metadata.event_id,
             "message_id": metadata.event_id,
             "correlation_id": metadata.correlation_id,
@@ -42,6 +42,9 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             "source": metadata.source,
             "content_type": "application/json",
         });
+        if let Some(sequence) = metadata.sequence {
+            meta["sequence"] = serde_json::json!(sequence);
+        }
         let mut connection = self.pool.get().map_err(err_outbox_write_failed)?;
         // The source event ID makes re-delivery of the same event idempotent.
         diesel::sql_query(
@@ -106,6 +109,7 @@ mod tests {
             event_type: OFFER_CREATED_EVENT.to_owned(),
             payload: "{}".to_owned(),
             metadata: Some(kernel::NewEventMetadata {
+                sequence: None,
                 event_id: uuid::Uuid::new_v4(),
                 correlation_id: None,
                 causation_id: None,

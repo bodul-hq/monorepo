@@ -204,6 +204,7 @@ pub(crate) mod testing {
     pub fn envelope(event_type: &str, payload: &Value) -> OutboundMessageEnvelope {
         let event_id = Uuid::new_v4();
         let metadata = OutboxEntryMetadata {
+            sequence: None,
             event_id,
             message_id: event_id,
             correlation_id: Some(Uuid::new_v4()),

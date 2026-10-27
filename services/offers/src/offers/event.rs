@@ -109,3 +109,20 @@ pub(crate) fn guard_images(images: &[String]) -> Result<(), String> {
 fn err_invalid_images() -> String {
     "creation images must be valid, unique URLs within position capacity".into()
 }
+
+/// Preserve the exact Testimony envelope revision without changing the payload.
+#[derive(serde::Serialize)]
+#[serde(transparent)]
+pub struct SequencedOfferEvent {
+    pub event: RetailerOfferEvent,
+    #[serde(skip)]
+    pub sequence: u64,
+}
+impl ApplicationEvent for SequencedOfferEvent {
+    fn event_type(&self) -> &'static str {
+        self.event.event_type()
+    }
+    fn sequence(&self) -> Option<u64> {
+        Some(self.sequence)
+    }
+}

@@ -93,6 +93,7 @@ fn record(pool: &DbPool, event_type: &str, payload: &Value) -> Uuid {
         event_type: event_type.into(),
         payload: payload.to_string(),
         metadata: Some(kernel::NewEventMetadata {
+            sequence: None,
             event_id,
             correlation_id: Some(Uuid::new_v4()),
             causation_id: Some(Uuid::new_v4()),

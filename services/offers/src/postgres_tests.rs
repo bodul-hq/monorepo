@@ -977,6 +977,7 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
                 event_type: crate::offers::event::OFFER_CREATED_EVENT.into(),
                 payload: "{}".into(),
                 metadata: Some(kernel::NewEventMetadata {
+                    sequence: None,
                     event_id: Uuid::new_v4(),
                     correlation_id: None,
                     causation_id: None,
@@ -1411,4 +1412,80 @@ fn creation_projection_rolls_back_parent_and_images_together() {
         .unwrap();
     repository.insert(&entity).unwrap();
     assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
+async fn every_event_keeps_its_testimony_revision_through_outbox_replay() {
+    let (_schema, pool) = inbox_test_database();
+    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/revision"});
+    for update in [false, true, true] {
+        if update {
+            input["title"] = json!("New charger");
+            input["price_amount"] = json!(200);
+            input["images"] = json!(["https://shop.example/a.png", "https://shop.example/b.png"]);
+        }
+        client
+            .post("/api/tmp-import")
+            .body_json(&input)
+            .send()
+            .await
+            .assert_status(StatusCode::ACCEPTED);
+        run_queue(&client, "inbox", 100, 1).await;
+        run_queue(&client, "commands", 100, 1).await;
+        let response = client
+            .post("/api/events/run")
+            .body_json(&json!({"limit":100}))
+            .send()
+            .await;
+        response.assert_status_is_ok();
+    }
+    let sequences = inbox_test_snapshot(
+        &pool,
+        "SELECT jsonb_agg(sequence ORDER BY sequence) AS data FROM event_store",
+    );
+    assert_eq!(sequences, json!([1, 2, 3, 4, 5]));
+    for table in ["event_entries", "outbox_entries"] {
+        let actual = inbox_test_snapshot(
+            &pool,
+            &format!(
+                "SELECT jsonb_agg((meta->>'sequence')::bigint ORDER BY (meta->>'sequence')::bigint) AS data FROM {table}"
+            ),
+        );
+        assert_eq!(actual, sequences);
+        assert_eq!(
+            inbox_test_snapshot(
+                &pool,
+                &format!(
+                    "SELECT to_jsonb(count(*)) AS data FROM {table} WHERE payload::jsonb ? 'sequence'"
+                )
+            ),
+            0
+        );
+    }
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT to_jsonb(count(*)) AS data FROM event_store WHERE sequence <> (metadata->>'sequence')::bigint"
+        ),
+        0
+    );
+    let before = inbox_test_snapshot(
+        &pool,
+        "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM outbox_entries o",
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("UPDATE event_entries SET status=0,attempts=0,scheduled_at=now() WHERE event_type <> 'OfferCreated'")
+        .unwrap();
+    run_queue(&client, "events", 100, 4).await;
+    assert_eq!(
+        inbox_test_snapshot(
+            &pool,
+            "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM outbox_entries o"
+        ),
+        before
+    );
 }

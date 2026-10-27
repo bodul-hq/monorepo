@@ -420,6 +420,7 @@ mod tests {
 
     fn metadata() -> kernel::NewEventMetadata {
         kernel::NewEventMetadata {
+            sequence: None,
             event_id: Uuid::now_v7(),
             correlation_id: Some(Uuid::now_v7()),
             causation_id: Some(Uuid::now_v7()),
