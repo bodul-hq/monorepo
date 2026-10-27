@@ -84,6 +84,13 @@ through events.
 
 ## Running it
 
+The services workspace uses the local Mulac checkout next to `monorepo`, at
+`../mulac` relative to the repository root. Revision
+`9474319fff2237d81828a23d97df5d2f97741858` was verified for this integration.
+Cargo path dependencies compile the current checkout; they do not pin a Git
+revision. Keep that checkout available in development and build environments.
+See [ADR 17](../../docs/adr/0017-retailer-sourcing-local-mulac.md).
+
 The service needs Postgres for the workflow; without `DATABASE_URL` it serves
 HTTP only and the routes below return `503`. On startup it applies pending
 migrations. Configure `DATABASE_URL` for the service and `DATABASE_URL_TEST` for
@@ -120,9 +127,10 @@ delivered again.
 
 ## Driving the workflow
 
-Nothing processes the queues in the background (the polling workers are
-commented out in `Bus::start`). Queue retrievals, then run commands and events
-in turns:
+Nothing processes the queues in the background. `Bus::start` assembles the
+kernel with zero inline drain rounds and passes its existing consumers to
+Mulac's Axum command/event adapters. Queue retrievals, then run commands and
+events in turns:
 
 | Route                          | Body                          | Does                                                                      |
 | ------------------------------ | ----------------------------- | ------------------------------------------------------------------------- |
@@ -143,6 +151,31 @@ One retailer from start to finish takes alternating runs:
 Run responses look like `{"processed": 3, "errors": []}`. When something fails,
 `processed` is `null` and `errors` lists the failures; failed commands are
 retried on a later run.
+
+Both runners require a JSON object with an integer `limit` from 1 through 1000;
+unknown fields are ignored. They now use Mulac's shared validation and error
+contract:
+
+| Response | Meaning |
+| --- | --- |
+| `200`, JSON `RunResponse` | Batch finished. Reservation, storage, handler, and subscriber failures appear in `errors`; successful items remain committed. |
+| `400`, plain text | Invalid JSON or limit, including missing, null, negative, fractional, or wrongly typed values. |
+| `413`, plain text | Body exceeds Axum's configured size limit. |
+| `415`, plain text | Missing or non-JSON content type. |
+| `500`, plain text `queue processing task failed` | The blocking task failed; internal panic/join details are hidden. |
+| `503`, JSON `{ "error": "the command bus is not running; start the service with DATABASE_URL" }` | A valid request reached an unconfigured bus. |
+
+Request validation runs before the unavailable-bus check. This changes the old
+JSON range-error body to plain text and typed-JSON `422` errors to `400`.
+Successful batch responses, route paths, and authentication are unchanged.
+OpenAPI publishes one shared `RunRequest`/`RunResponse` pair for both queues.
+
+No queue schema migration is required for this upgrade. Existing command/event
+names, payloads, metadata, and retry state remain compatible. Queue progress
+still requires explicit runs; neither an automatic stale-reservation sweep nor
+a worker is started. Rows left reserved by an interrupted process require
+operator recovery before they can run again. Graceful shutdown drains HTTP
+requests before cancelling the kernel.
 
 The Bruno collection in `../../bruno/retailer_sourcing` has a request for each
 route.
@@ -166,6 +199,11 @@ volume on the log folder to keep them.
 `make ci` runs formatting, clippy and the tests. Handler tests use in-memory
 fakes, so they need no database or network. `make test-postgres` checks store
 queries and transactions in isolated schemas; see the database test setup below.
+Queue HTTP tests cover shared validation, schema reuse, batch isolation, partial
+failure, and sanitized task errors. PostgreSQL queue tests insert the original
+wire format directly, including null metadata and prior errors, then verify
+command → event → next-command progression, metadata preservation, and retries
+through the actual HTTP routes.
 
 ## Domain entities and PostgreSQL records
 

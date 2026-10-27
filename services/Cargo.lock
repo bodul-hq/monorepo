@@ -667,8 +667,8 @@ dependencies = [
 name = "commanding_api"
 version = "0.3.0"
 dependencies = [
- "mulac-commanding 0.3.0",
- "mulac-eventing 0.3.0",
+ "mulac-commanding",
+ "mulac-eventing",
  "serde",
  "serde_json",
  "thiserror",
@@ -1288,7 +1288,7 @@ dependencies = [
 name = "eventing_api"
 version = "0.3.0"
 dependencies = [
- "mulac-eventing 0.3.0",
+ "mulac-eventing",
  "serde",
  "serde_json",
  "thiserror",
@@ -2029,8 +2029,8 @@ dependencies = [
 name = "inbox_api"
 version = "0.3.0"
 dependencies = [
- "mulac-commanding 0.3.0",
- "mulac-inbox 0.3.0",
+ "mulac-commanding",
+ "mulac-inbox",
  "serde",
  "serde_json",
  "thiserror",
@@ -2438,23 +2438,8 @@ version = "0.3.0"
 dependencies = [
  "chrono",
  "diesel",
- "mulac-eventing 0.3.0",
- "mulac_diesel 0.3.0",
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "mulac-commanding"
-version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
-dependencies = [
- "chrono",
- "diesel",
- "mulac-eventing 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac_diesel 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
+ "mulac-eventing",
+ "mulac_diesel",
  "serde",
  "serde_json",
  "thiserror",
@@ -2467,21 +2452,7 @@ version = "0.3.0"
 dependencies = [
  "chrono",
  "diesel",
- "mulac_diesel 0.3.0",
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "mulac-eventing"
-version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
-dependencies = [
- "chrono",
- "diesel",
- "mulac_diesel 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
+ "mulac_diesel",
  "serde",
  "serde_json",
  "thiserror",
@@ -2494,23 +2465,8 @@ version = "0.3.0"
 dependencies = [
  "chrono",
  "diesel",
- "mulac-commanding 0.3.0",
- "mulac_diesel 0.3.0",
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "mulac-inbox"
-version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
-dependencies = [
- "chrono",
- "diesel",
- "mulac-commanding 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac_diesel 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
+ "mulac-commanding",
+ "mulac_diesel",
  "serde",
  "serde_json",
  "thiserror",
@@ -2521,29 +2477,11 @@ dependencies = [
 name = "mulac-kernel"
 version = "0.3.0"
 dependencies = [
- "mulac-commanding 0.3.0",
- "mulac-eventing 0.3.0",
- "mulac-inbox 0.3.0",
- "mulac-outbox 0.3.0",
- "mulac_diesel 0.3.0",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-util",
- "tracing",
-]
-
-[[package]]
-name = "mulac-kernel"
-version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
-dependencies = [
- "mulac-commanding 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac-eventing 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac-inbox 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac-outbox 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
- "mulac_diesel 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
+ "mulac-outbox",
+ "mulac_diesel",
  "serde",
  "serde_json",
  "thiserror",
@@ -2559,7 +2497,7 @@ dependencies = [
  "chrono",
  "diesel",
  "lapin",
- "mulac_diesel 0.3.0",
+ "mulac_diesel",
  "serde",
  "serde_json",
  "thiserror",
@@ -2568,28 +2506,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "mulac-outbox"
+name = "mulac_axum"
 version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
 dependencies = [
- "chrono",
- "serde",
+ "axum",
+ "commanding_api",
+ "eventing_api",
+ "inbox_api",
+ "outbox_api",
  "serde_json",
- "thiserror",
- "uuid",
+ "utoipa",
 ]
 
 [[package]]
 name = "mulac_diesel"
 version = "0.3.0"
-dependencies = [
- "diesel",
-]
-
-[[package]]
-name = "mulac_diesel"
-version = "0.3.0"
-source = "git+https://github.com/nulllabsdev/mulac?tag=0.3.0#87083a895b0fff37182219eda7aab9a58c8615e9"
 dependencies = [
  "diesel",
 ]
@@ -2789,8 +2720,8 @@ dependencies = [
  "inbox_api",
  "lapin",
  "money",
- "mulac-kernel 0.3.0",
- "mulac-outbox 0.3.0",
+ "mulac-kernel",
+ "mulac-outbox",
  "mulac_poem",
  "outbox_api",
  "poem",
@@ -2836,7 +2767,7 @@ name = "outbox_api"
 version = "0.3.0"
 dependencies = [
  "chrono",
- "mulac-outbox 0.3.0",
+ "mulac-outbox",
  "serde",
  "serde_json",
  "thiserror",
@@ -3762,11 +3693,14 @@ dependencies = [
  "axum",
  "bodul_shared",
  "chrono",
+ "commanding_api",
  "diesel",
  "diesel_migrations",
+ "eventing_api",
  "flate2",
  "http-body-util",
- "mulac-kernel 0.3.0 (git+https://github.com/nulllabsdev/mulac?tag=0.3.0)",
+ "mulac-kernel",
+ "mulac_axum",
  "object_storage_client",
  "percent-encoding",
  "reqwest",

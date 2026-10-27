@@ -89,6 +89,10 @@ storage through private server-side clients.
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
+- A sibling `mulac` checkout next to `monorepo` for the services workspace's
+  local Mulac dependencies. The queue adapters were verified with revision
+  `9474319fff2237d81828a23d97df5d2f97741858`; Cargo path dependencies use the
+  checked-out files rather than pinning that revision. See [ADR 17](docs/adr/0017-retailer-sourcing-local-mulac.md).
 - PostgreSQL 16 or later for `object_storage` (a separate UTF8 database), and to run the `retailer_sourcing` pipeline or persisted `offers` imports.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
 - [Diesel CLI](https://diesel.rs/guides/getting-started) with PostgreSQL support, only for `make migrate` and `make migrate-redo`: `cargo install diesel_cli --no-default-features --features postgres --locked`.
@@ -153,8 +157,8 @@ curl localhost:3001/api/health
 
 Servers shut down gracefully on Ctrl+C or SIGTERM.
 
-`retailer_sourcing` starts its sitemap discovery workers when `DATABASE_URL`
-points at a PostgreSQL database. On startup it applies any pending migrations
+`retailer_sourcing` configures its durable command and event queues when
+`DATABASE_URL` points at a PostgreSQL database. On startup it applies pending migrations
 from `services/retailer_sourcing/migrations`. Without `DATABASE_URL` it serves
 HTTP only.
 
@@ -180,6 +184,11 @@ queued commands and events in steps; each run waits for its batch to finish:
 | `POST /api/events/run`         | `{"limit": 10}`               | Process up to `limit` queued events, which queue the next commands |
 
 Without `DATABASE_URL` these routes return 503.
+
+The command and event runners delegate to local Mulac's Axum adapters. Invalid
+batch requests return plain-text `400` errors, while a valid request without a
+database retains the existing JSON `503` error. Queue failures are reported in
+the `200` batch response. See the [queue contract](services/retailer_sourcing/README.md#driving-the-workflow).
 
 The `bruno/` folder is a [Bruno](https://www.usebruno.com/) workspace that lists
 every collection. Open the `bruno` folder as a workspace in Bruno to load them

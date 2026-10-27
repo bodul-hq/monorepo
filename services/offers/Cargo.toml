@@ -14,14 +14,12 @@ diesel_migrations.workspace = true
 eventing_api.workspace = true
 #inbox_api = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_inbox_api", tag = "0.3.0" }
 inbox_api = { path = "../../../mulac/libs/inbox_api" }
-#outbox = { git = "https://github.com/nulllabsdev/mulac", package = "mulac-outbox", tag = "0.3.0" }
-outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
-outbox_api = { path = "../../../mulac/libs/outbox_api" }
-#kernel.workspace = true
-kernel = { path = "../../../mulac/kernel", package = "mulac-kernel" }
+kernel.workspace = true
 money = { path = "../../lib/money" }
 #mulac_poem = { git = "https://github.com/nulllabsdev/mulac", package = "mulac_poem", tag = "0.3.0" }
 mulac_poem = { path = "../../../mulac/libs/mulac_poem", features = ["commanding", "eventing", "outbox"] }
+outbox = { path = "../../../mulac/libs/outbox", package = "mulac-outbox", features = ["amqp"] }
+outbox_api = { path = "../../../mulac/libs/outbox_api" }
 poem.workspace = true
 poem-openapi.workspace = true
 serde.workspace = true

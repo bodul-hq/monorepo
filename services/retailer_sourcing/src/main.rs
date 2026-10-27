@@ -147,11 +147,16 @@ async fn main() -> io::Result<()> {
     let _logs = platform::logging::init();
     let port = parse_port(std::env::var("PORT"))?;
     let features = start_features(std::env::var("DATABASE_URL")).await?;
+    let bus = features.bus.clone();
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
-    axum::serve(listener, app(features))
+    let result = axum::serve(listener, app(features))
         .with_graceful_shutdown(shutdown_signal()?)
-        .await
+        .await;
+    if let Some(bus) = bus {
+        bus.shutdown();
+    }
+    result
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish

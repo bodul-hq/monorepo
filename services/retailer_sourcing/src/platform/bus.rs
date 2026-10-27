@@ -4,21 +4,21 @@
 //! directly. Mulac stores every command and event in Postgres, delivers each one
 //! at least once, and retries a failed command with backoff.
 //!
-//! Nothing processes the queues in the background: [`BusHandle::run_commands`]
-//! and [`BusHandle::run_events`] process a given number on request.
+//! Nothing processes the queues in the background. The HTTP routes delegate
+//! bounded batches to Mulac's command and event adapters.
 
 use std::fmt::Display;
 use std::sync::Arc;
 use std::time::Instant;
 
-use kernel::io::{
-    CommandConsumer, CommandGateway, EventConsumer, NewCommand, NewCommandEnvelope,
-    NewCommandMetadata, ReservableCommandSpec, ReservableEventSpec,
-};
+use commanding_api::io::CommandingService;
+use eventing_api::io::EventingService;
+use kernel::io::{CommandGateway, NewCommand, NewCommandEnvelope, NewCommandMetadata};
 use kernel::{
     ApplicationEvent, CommandError, CommandHandlerPort, EventError, EventSubscriberPort,
-    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope,
+    KernelBuilder, KernelConfig, KernelError, NewEventEnvelope, PersistentKernelHandle,
 };
+use mulac_axum::io::{CommandingAdapter, EventingAdapter};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use uuid::Uuid;
@@ -104,26 +104,13 @@ impl Bus {
             });
         let handle = kernel.start_persistent(pool, 0)?;
 
-        // Background workers are switched off: queued commands and events run
-        // only through `run_commands` and `run_events` (the `/api/commands/run`
-        // and `/api/events/run` routes). Uncomment to have Mulac poll both
-        // queues every second as well.
-        //
-        // tokio::spawn(kernel::io::run_command_worker(
-        //     handle.command_consumer(),
-        //     handle.child_token(),
-        // ));
-        // tokio::spawn(kernel::io::run_event_worker(
-        //     handle.event_consumer(),
-        //     handle.child_token(),
-        // ));
-
         Ok(BusHandle {
             dispatcher: Dispatcher {
                 gateway: handle.state().command_gateway(),
             },
-            commands: handle.command_consumer(),
-            events: handle.event_consumer(),
+            commands: CommandingAdapter::new(CommandingService::new(handle.command_consumer())),
+            events: EventingAdapter::new(EventingService::new(handle.event_consumer())),
+            kernel: Arc::new(handle),
         })
     }
 }
@@ -132,33 +119,9 @@ impl Bus {
 #[derive(Clone)]
 pub struct BusHandle {
     dispatcher: Dispatcher,
-    commands: Arc<CommandConsumer>,
-    events: Arc<EventConsumer>,
-}
-
-/// What one run of queued commands or events did.
-#[derive(Debug)]
-pub struct RunReport {
-    /// How many were processed, when all of them succeeded. Mulac doesn't
-    /// count the successes in a run that had failures.
-    pub processed: Option<usize>,
-    /// One message per failure. Failed commands are retried in a later run.
-    pub errors: Vec<String>,
-}
-
-impl RunReport {
-    fn from_result<E: Display>(result: Result<usize, Vec<E>>) -> Self {
-        match result {
-            Ok(processed) => Self {
-                processed: Some(processed),
-                errors: Vec::new(),
-            },
-            Err(errors) => Self {
-                processed: None,
-                errors: errors.iter().map(ToString::to_string).collect(),
-            },
-        }
-    }
+    pub(super) commands: CommandingAdapter,
+    pub(super) events: EventingAdapter,
+    kernel: Arc<PersistentKernelHandle>,
 }
 
 impl BusHandle {
@@ -166,16 +129,9 @@ impl BusHandle {
         &self.dispatcher
     }
 
-    /// Processes up to `limit` queued commands that are due. Blocks on the
-    /// handlers and the database, so call it off the async runtime.
-    pub fn run_commands(&self, limit: usize) -> RunReport {
-        RunReport::from_result(self.commands.consume(&ReservableCommandSpec::new(limit)))
-    }
-
-    /// Processes up to `limit` queued events that are due. Blocks on the
-    /// reactions and the database, so call it off the async runtime.
-    pub fn run_events(&self, limit: usize) -> RunReport {
-        RunReport::from_result(self.events.consume(&ReservableEventSpec::new(limit)))
+    /// Cancel the kernel after the HTTP server has drained in-flight requests.
+    pub fn shutdown(&self) {
+        self.kernel.shutdown();
     }
 }
 

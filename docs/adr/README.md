@@ -19,6 +19,7 @@
 | [15](0015-offers-testimony-and-mulac.md) | Offers with Testimony and Mulac | Accepted |
 
 | [16](0016-offers-rabbitmq-outbox.md) | Application-owned offers inbox and RabbitMQ outbox delivery | Accepted |
+| [17](0017-retailer-sourcing-local-mulac.md) | Local Mulac adapters for retailer sourcing | Accepted |
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.
