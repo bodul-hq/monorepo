@@ -22,7 +22,7 @@ pub struct Offer {
     pub was_price: Option<Price>,
     pub availability: Option<retailer_sauce::availability::Availability>,
     pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
-    pub content: Vec<retailer_sauce::offer_content::Content>,
+    pub content: Vec<facts::LocalizedContent>,
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     pub localization: retailer_sauce::localization::Localization,
     pub images: Vec<String>,
@@ -42,7 +42,7 @@ struct OfferWire {
     pub availability: Option<retailer_sauce::availability::Availability>,
     #[serde(default, deserialize_with = "facts::read_condition")]
     pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
-    pub content: Vec<retailer_sauce::offer_content::Content>,
+    pub content: Vec<facts::LocalizedContent>,
     #[serde(flatten)]
     pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
     #[serde(default, deserialize_with = "read_localization")]
@@ -63,14 +63,17 @@ impl<'de> Deserialize<'de> for Offer {
         let mut value = serde_json::Value::deserialize(deserializer)?;
         facts::normalize_content(&mut value).map_err(D::Error::custom)?;
         let wire: OfferWire = serde_json::from_value(value).map_err(D::Error::custom)?;
-        retailer_sauce::offer_content::guard(&wire.content, &wire.localization.language)
+        facts::guard_content(&wire.content, &wire.localization.language)
             .map_err(D::Error::custom)?;
-        if retailer_sauce::offer_content::selected(&wire.content, &wire.localization.language)
-            .map_err(D::Error::custom)?
-            .title
-            != wire.title
-        {
-            return Err(D::Error::custom("selected content title must match title"));
+        let selected = wire
+            .content
+            .iter()
+            .find(|entry| entry.language == wire.localization.language)
+            .ok_or_else(|| D::Error::custom("selected content is missing"))?;
+        if selected.title != wire.title || selected.url != wire.url {
+            return Err(D::Error::custom(
+                "selected content title and URL must match flat fields",
+            ));
         }
         Ok(Self {
             was_price: wire.was_price,
@@ -185,11 +188,7 @@ impl OffersClient {
             || page.items.iter().any(|offer| {
                 offer.identifiers.guard().is_err()
                     || offer.localization.guard().is_err()
-                    || retailer_sauce::offer_content::guard(
-                        &offer.content,
-                        &offer.localization.language,
-                    )
-                    .is_err()
+                    || facts::guard_content(&offer.content, &offer.localization.language).is_err()
                     || offer
                         .availability
                         .as_ref()

@@ -158,3 +158,10 @@ upstream errors, timeouts or invalid responses return HTML 503. All pages use
 messages. The existing five-second server-side timeout and configured base URL
 prefix handling also apply to search. Deploy the service's search endpoint and
 `pg_trgm` prerequisite first; see the customer-facing README and ADR 30.
+
+Localized content entries now accept and retain their own URL. During rolling
+upgrades, entries without a URL inherit the response's flat offer URL; legacy
+absent/object content remains supported. The selected entry must agree with the
+flat title and URL used by cards. Null, malformed and overlong entry URLs are
+rejected, and unrelated unknown entry fields remain invalid. Search now covers
+the selected language's title and description, with title weighted five times.
