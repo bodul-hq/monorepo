@@ -26,6 +26,8 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
         Err(ReportError::Unavailable),
         Ok(report()),
         Ok(EntryStatuses {
+            inbox_entries: Some(vec![]),
+            outbox_entries: Some(vec![]),
             generated_at: "2026-10-19T12:00:00Z".into(),
             command_entries: vec![],
             event_entries: vec![client::StatusCount {
@@ -39,9 +41,9 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
     );
     assert!(html.contains("3<small> / 4</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
-    assert!(html.contains("Offers command and event status"));
-    assert!(html.contains("Retailer Sourcing command and event status"));
-    assert!(html.contains("<td>42</td>"));
+    assert!(html.contains("Offers queue status"));
+    assert!(html.contains("Retailer Sourcing queue status"));
+    assert!(html.contains("<dt>Completed</dt><dd>42</dd>"));
     assert!(html.contains("<strong>6</strong>"));
     assert!(html.contains("Summary totals include available services only"));
 }
@@ -103,7 +105,7 @@ fn escapes_names_and_timestamps_and_displays_empty_schemas() {
     let html = render(Ok(bad), Ok(empty), Err(ReportError::Unavailable));
     assert!(!html.contains("<script>alert"));
     assert!(html.contains("&lt;script&gt;alert"));
-    assert!(!html.contains("<img"));
+    assert!(!html.contains("<img src=x onerror=alert(1)>"));
     assert!(html.contains("&lt;img"));
     assert!(html.contains("&quot; onmouseover=&quot;x"));
     assert!(html.contains("No tables yet"));
@@ -165,6 +167,8 @@ async fn dashboard_route_renders_when_services_are_unconfigured() {
 #[test]
 fn renders_exact_status_counts_and_empty_queues() {
     let entries = EntryStatuses {
+        inbox_entries: Some(vec![]),
+        outbox_entries: Some(vec![]),
         generated_at: "2026-10-18T12:00:00Z".into(),
         command_entries: vec![client::StatusCount {
             status: 4,
@@ -178,13 +182,15 @@ fn renders_exact_status_counts_and_empty_queues() {
     assert!(html.contains("Event entries"));
     assert!(html.contains("failed &lt;test&gt;"));
     assert!(html.contains("1,234"));
-    assert!(html.contains("No entries yet"));
-    assert!(html.contains("Exact counts by current status"));
+    assert!(!html.contains("No entries scheduled for this UTC day"));
+    assert!(!html.contains("Scheduled for today (UTC), by current status"));
 }
 
 #[test]
 fn customer_facing_contributes_to_totals_with_independent_reports() {
     let empty_entries = || EntryStatuses {
+        inbox_entries: Some(vec![]),
+        outbox_entries: Some(vec![]),
         generated_at: "2026-10-25T12:00:00Z".into(),
         command_entries: vec![],
         event_entries: vec![],
@@ -200,11 +206,23 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
     );
     assert!(html.contains("4<small> / 4</small>"));
     assert!(html.contains("<h2>Customer Facing</h2>"));
-    assert!(html.contains("Customer Facing command and event status"));
+    // Each service has separate command and event boxes, including zero counts.
+    assert_eq!(html.matches(r#"class="command-boxes""#).count(), 12);
+    assert_eq!(
+        html.matches(r#"<dt>New</dt><dd><span class="sr-only">0</span></dd>"#)
+            .count(),
+        12
+    );
+    assert_eq!(
+        html.matches(r#"<dt>Archive</dt><dd><span class="sr-only">0</span></dd>"#)
+            .count(),
+        12
+    );
+    assert!(html.contains("Customer Facing queue status"));
     assert!(html.contains("<strong>8</strong>"));
     assert!(html.contains("4.0 MiB"));
     assert!(!html.contains("Summary totals include available services only"));
-    assert!(html.contains("No entries yet"));
+    assert!(!html.contains("No entries scheduled for this UTC day"));
 
     for error in [
         ReportError::Unavailable,
@@ -225,7 +243,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(html.contains("<h2>Offers</h2>"));
         assert!(html.contains("<strong>6</strong>"));
         assert!(html.contains("Summary totals include available services only"));
-        assert!(html.contains("No entries yet"));
+        assert!(!html.contains("No entries scheduled for this UTC day"));
 
         let mut customer = report();
         customer.tables[0].table_name = "<customer-table>".into();
@@ -243,5 +261,82 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(!html.contains("<customer-table>"));
         assert!(!html.contains("customer-facing-development-token"));
         assert!(!html.contains("172.28.100.42"));
+    }
+}
+
+#[test]
+fn inbox_outbox_counts_and_older_service_reports() {
+    for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
+        let report = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-10-29T12:00:00Z",
+            "inbox_entries": [{"status": 0, "status_text": "received", "count": 1234}],
+            "command_entries": [], "event_entries": [],
+            "outbox_entries": [{"status": 8, "status_text": "archive", "count": 77},
+                {"status": 99, "status_text": "<unknown>", "count": 9}]
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, Ok(report));
+        assert!(html.contains("<dt>New</dt><dd>1,234</dd>"));
+        assert!(html.contains("<dt>Archive</dt><dd>77</dd>"));
+        assert!(html.contains("&lt;unknown&gt; (status 99)</dt><dd>9</dd>"));
+        let image = match service {
+            "Retailer Sourcing" => "retailer-sourcing",
+            "Offers" => "offers",
+            _ => "customer-facing",
+        };
+        assert!(html.contains(&format!("src=\"/assets/{image}.svg\"")));
+        assert!(html.contains(&format!("alt=\"{service} queue status\"")));
+        assert!(!html.contains("No entries scheduled for this UTC day"));
+        let inbox = html.find("aria-label=\"Inbox entries\"").unwrap();
+        let command = html.find("aria-label=\"Command entries\"").unwrap();
+        let event = html.find("aria-label=\"Event entries\"").unwrap();
+        let outbox = html.find("aria-label=\"Outbox entries\"").unwrap();
+        assert!(inbox < command && command < event && event < outbox);
+        for icon in ["inbox", "commands", "events", "outbox"] {
+            assert!(html.contains(&format!("src=\"/assets/{icon}.svg\"")));
+        }
+        assert!(!html.contains("<h3>Inbox entries</h3>"));
+        assert!(html[inbox..command].contains("1,234"));
+        assert!(!html[inbox..command].contains("command-empty"));
+        assert_eq!(html[command..outbox].matches("command-empty").count(), 12);
+        assert!(!html[outbox..].contains("command-empty"));
+        assert!(!html[command..outbox].contains("1,234"));
+        assert!(html[outbox..].contains("77"));
+
+        let old = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-10-29T12:00:00Z",
+            "command_entries": [], "event_entries": []
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, Ok(old));
+        assert_eq!(html.matches("Upgrade this service").count(), 2);
+        assert_eq!(html.matches("class=\"command-boxes\"").count(), 2);
+    }
+}
+
+#[test]
+fn compact_boxes_require_the_whole_queue_to_be_empty() {
+    for status in [0, 2, 4, 5, 7, 8, 99] {
+        for count in [0, 1] {
+            let entries = vec![client::StatusCount {
+                status,
+                status_text: "test".into(),
+                count,
+            }];
+            let mut html = String::new();
+            render_entry_boxes(&mut html, "Inbox entries", &entries);
+            assert_eq!(html.contains("queue-row-empty"), count == 0);
+            assert!(!html.contains("<dd>0</dd>"));
+            if count > 0 {
+                assert!(html.contains("<dd>1</dd>"));
+            }
+            let boxes = if status == 99 { 7 } else { 6 };
+            assert_eq!(
+                html.matches("command-empty").count(),
+                if count == 0 { boxes } else { 0 }
+            );
+        }
     }
 }

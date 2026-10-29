@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Inbox</title>
+<rect width="512" height="512" rx="88" fill="#fff"/>
+<path d="M119 243 Q123 227 142 227 H370 Q389 227 393 243 L424 346 V373 Q424 397 400 397 H112 Q88 397 88 373 V346 Z" fill="black"/>
+<path d="M146 253 H366 L390 329 H323 Q311 329 307 341 L301 358 H211 L205 341 Q201 329 189 329 H122 Z" fill="white"/><path d="M233 99 Q233 87 245 87 H267 Q279 87 279 99 V207 H316 Q331 207 321 221 L268 281 Q256 295 244 281 L191 221 Q181 207 196 207 H233 Z" fill="black"/>
+<text x="256" y="467" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#000">Inbox</text>
+</svg>

@@ -303,3 +303,29 @@ async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
         ReportError::Configuration
     );
 }
+
+#[test]
+fn new_queue_fields_distinguish_missing_empty_and_malformed() {
+    let base = serde_json::json!({"generated_at":"2026-10-29T12:00:00Z",
+        "command_entries":[], "event_entries":[]});
+    let old: EntryStatuses = serde_json::from_value(base.clone()).unwrap();
+    assert!(old.inbox_entries.is_none());
+    assert!(old.outbox_entries.is_none());
+    for field in ["inbox_entries", "outbox_entries"] {
+        for bad in [
+            serde_json::Value::Null,
+            serde_json::json!({}),
+            serde_json::json!([{"status":0,"status_text":"received","count":-1}]),
+        ] {
+            let mut input = base.clone();
+            input[field] = bad;
+            assert!(serde_json::from_value::<EntryStatuses>(input).is_err());
+        }
+    }
+    let mut empty = base;
+    empty["inbox_entries"] = serde_json::json!([]);
+    empty["outbox_entries"] = serde_json::json!([]);
+    let empty: EntryStatuses = serde_json::from_value(empty).unwrap();
+    assert!(empty.inbox_entries.unwrap().is_empty());
+    assert!(empty.outbox_entries.unwrap().is_empty());
+}

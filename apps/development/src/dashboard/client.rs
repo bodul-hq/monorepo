@@ -34,9 +34,20 @@ pub(super) struct TableStats {
 #[derive(Debug, Deserialize)]
 pub(super) struct EntryStatuses {
     pub generated_at: String,
+    #[serde(default, deserialize_with = "present_entries")]
+    pub inbox_entries: Option<Vec<StatusCount>>,
+    #[serde(default, deserialize_with = "present_entries")]
+    pub outbox_entries: Option<Vec<StatusCount>>,
     pub command_entries: Vec<StatusCount>,
     pub event_entries: Vec<StatusCount>,
 }
+// Missing fields identify older servers; present null or non-array fields are invalid.
+fn present_entries<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Vec<StatusCount>>, D::Error> {
+    Vec::deserialize(deserializer).map(Some)
+}
+
 #[derive(Debug, Deserialize)]
 pub(super) struct StatusCount {
     pub status: i32,
@@ -153,6 +164,8 @@ impl ReportingClients {
                 .command_entries
                 .iter()
                 .chain(&report.event_entries)
+                .chain(report.inbox_entries.iter().flatten())
+                .chain(report.outbox_entries.iter().flatten())
                 .any(|entry| entry.status_text.is_empty())
         {
             return Err(ReportError::Malformed);
