@@ -39,6 +39,8 @@ impl Repository for Fixture {
         self.check()?;
         Ok(EntryStatuses {
             generated_at: "2026-10-25T12:00:00Z".into(),
+            inbox_entries: vec![],
+            outbox_entries: vec![],
             command_entries: vec![],
             event_entries: vec![],
         })
@@ -112,7 +114,7 @@ async fn empty_reports_and_openapi_match_existing_contracts() {
         ),
         (
             PATHS[1],
-            json!({"generated_at":"2026-10-25T12:00:00Z","command_entries":[],"event_entries":[]}),
+            json!({"generated_at":"2026-10-25T12:00:00Z","command_entries":[],"event_entries":[],"inbox_entries":[],"outbox_entries":[]}),
         ),
     ] {
         let response = client
@@ -126,6 +128,17 @@ async fn empty_reports_and_openapi_match_existing_contracts() {
     }
     let response = client.get("/api/openapi.json").send().await;
     let spec: Value = response.json().await.value().deserialize();
+    for field in [
+        "inbox_entries",
+        "outbox_entries",
+        "command_entries",
+        "event_entries",
+    ] {
+        assert_eq!(
+            spec["components"]["schemas"]["EntryStatuses"]["properties"][field]["type"],
+            "array"
+        );
+    }
     for path in PATHS {
         let operation = &spec["paths"][path.strip_prefix("/api").unwrap()]["get"];
         assert!(!operation["security"].as_array().unwrap().is_empty());

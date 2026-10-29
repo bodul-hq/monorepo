@@ -136,11 +136,15 @@ fn postgres_entry_statuses_group_counts_and_report_changes() {
     let empty = store::load_entry_statuses(&mut conn).unwrap();
     assert!(empty.command_entries.is_empty());
     assert!(empty.event_entries.is_empty());
+    assert!(empty.inbox_entries.is_empty());
+    assert!(empty.outbox_entries.is_empty());
     conn.batch_execute(
         "INSERT INTO command_entries(id,command_type,payload,status)
         SELECT gen_random_uuid(), 'Test', '{}', s FROM unnest(ARRAY[0,0,2,4,5,7,8,99]) s;
         INSERT INTO event_entries(id,event_type,payload,status)
-        VALUES (gen_random_uuid(), 'Test', '{}', 4), (gen_random_uuid(), 'Test', '{}', 4)",
+        VALUES (gen_random_uuid(), 'Test', '{}', 4), (gen_random_uuid(), 'Test', '{}', 4);
+        INSERT INTO inbox_entries(id,payload,meta,status) SELECT gen_random_uuid(), '{}', '{}', s FROM unnest(ARRAY[0,0,0,99]) s;
+        INSERT INTO outbox_entries(id,payload,meta,status) SELECT gen_random_uuid(), '{}', '{}', s FROM unnest(ARRAY[5,5,8]) s",
     )
     .unwrap();
     let report = store::load_entry_statuses(&mut conn).unwrap();
@@ -160,6 +164,22 @@ fn postgres_entry_statuses_group_counts_and_report_changes() {
             (8, "archive", 1),
             (99, "unknown", 1)
         ]
+    );
+    assert_eq!(
+        report
+            .inbox_entries
+            .iter()
+            .map(|r| (r.status, r.count))
+            .collect::<Vec<_>>(),
+        vec![(0, 3), (99, 1)]
+    );
+    assert_eq!(
+        report
+            .outbox_entries
+            .iter()
+            .map(|r| (r.status, r.count))
+            .collect::<Vec<_>>(),
+        vec![(5, 2), (8, 1)]
     );
     assert_eq!(report.event_entries.len(), 1);
     assert_eq!(report.event_entries[0].status_text, "failed");
@@ -212,6 +232,8 @@ async fn postgres_entry_statuses_route_returns_exact_contract() {
     let report: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
     assert!(chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
     assert_eq!(report["command_entries"], serde_json::json!([]));
+    assert_eq!(report["inbox_entries"], serde_json::json!([]));
+    assert_eq!(report["outbox_entries"], serde_json::json!([]));
     assert_eq!(
         report["event_entries"],
         serde_json::json!([{"status":2,"status_text":"reserved","count":1}])

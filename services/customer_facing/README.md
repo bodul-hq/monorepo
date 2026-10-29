@@ -43,7 +43,7 @@ reset. No other service's tables or database are needed.
 | --- | --- |
 | `GET /api/health` | `200`, text `ok`; does not probe PostgreSQL |
 | `GET /api/reporting/database-tables` | Authenticated table storage and estimated row counts |
-| `GET /api/reporting/entry-statuses` | Authenticated exact command/event counts by status |
+| `GET /api/reporting/entry-statuses` | Authenticated exact inbox/command/event/outbox counts by status |
 | `GET /api/offers` | Paginated offers, with `limit` and `offset` query parameters |
 | `POST /api/inbox` | Store a message and return `202`, `{"message_id":"<uuid>"}` |
 | `POST /api/inbox/run` | Convert one batch of due inbox messages into queued commands |
@@ -580,3 +580,14 @@ unselected languages. Do not use `make migrate-redo` against operational data.
 mixed legacy/snapshot replay, receipt rollback, row locking, and REST/GraphQL
 browse/search parity. It requires a separate `DATABASE_URL_TEST` with `pg_trgm`
 provisioned as described above.
+
+Command and event counts from `/api/reporting/entry-statuses` include only entries
+whose current `scheduled_at` falls within today in UTC (midnight inclusive, next
+midnight exclusive), grouped by current status. Later today is included; retries
+can move entries between days. These counts are not historical throughput.
+
+The entry-status report includes `inbox_entries`, `command_entries`,
+`event_entries`, and `outbox_entries` arrays, grouped by current status for
+entries scheduled today in UTC. All four queues share one query snapshot.
+Deploy reporting services before the development app; absent inbox/outbox fields
+from older services show an upgrade message instead of zero counts.

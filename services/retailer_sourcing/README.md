@@ -844,3 +844,14 @@ and exclude variants lacking a payable price as before. Deploy downstream
 readers and migrations before enabling the v8 writer. See
 [ADRs 34–36](../../docs/adr/README.md) and the
 [verification record](../../docs/plans/24-27-offer-facts-verification.md).
+
+Command and event counts from `/api/reporting/entry-statuses` include only entries
+whose current `scheduled_at` falls within today in UTC (midnight inclusive, next
+midnight exclusive), grouped by current status. Later today is included; retries
+can move entries between days. These counts are not historical throughput.
+
+The entry-status report includes `inbox_entries`, `command_entries`,
+`event_entries`, and `outbox_entries` arrays, grouped by current status for
+entries scheduled today in UTC. All four queues share one query snapshot.
+Deploy reporting services before the development app; absent inbox/outbox fields
+from older services show an upgrade message instead of zero counts.

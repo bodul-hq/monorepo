@@ -45,6 +45,7 @@ impl ReportingApi {
         Ok(Response::new(Json(report)).header("cache-control", "no-store"))
     }
 
+    /// Exact inbox, command, event and outbox counts scheduled for today (UTC).
     #[oai(path = "/reporting/entry-statuses", method = "get")]
     async fn entry_statuses(
         &self,

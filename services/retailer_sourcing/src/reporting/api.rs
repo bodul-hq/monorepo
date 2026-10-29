@@ -26,7 +26,7 @@ pub(super) async fn database_tables(State(pool): State<Option<DbPool>>) -> Respo
 
 #[utoipa::path(get, path = "/reporting/entry-statuses", tag = "reporting",
     security(("bearer" = [])), responses(
-        (status = 200, description = "Exact command and event counts grouped by status", body = EntryStatuses),
+        (status = 200, description = "Inbox, command, event and outbox counts scheduled for today (UTC), grouped by status", body = EntryStatuses),
         (status = 401, description = "Invalid bearer token", body = ErrorBody),
         (status = 503, description = "Database unavailable", body = ErrorBody),
         (status = 500, description = "Unexpected reporting failure", body = ErrorBody)

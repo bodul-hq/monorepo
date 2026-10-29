@@ -10,7 +10,7 @@ Use `Authorization: Bearer <token>`; `OFFERS_REPORTING_TOKEN` defaults to
 no-store`; missing or incorrect credentials return `401`, an unavailable database
 returns `503`, and query failures return `500` without database diagnostics.
 Table row counts are estimates from PostgreSQL statistics for the active schema;
-command/event status counts are exact. Reporting does not run `ANALYZE` or mutate data.
+inbox/command/event/outbox status counts are exact. Reporting does not run `ANALYZE` or mutate data.
 
 `PORT=3001 make serve` starts Poem (default port: 3000). Set `DATABASE_URL` to
 connect to PostgreSQL and apply the embedded migrations at startup. An invalid,
@@ -625,3 +625,14 @@ inside a transaction. Downgrading removes only the list column; back up or repla
 additional languages if restoring it later. No event history or pending payloads
 are rewritten. Deploy customer-facing/readers before the v9 writer and quiesce
 projection runners while migrating. See [ADR 38](../../docs/adr/0038-localized-offer-content.md).
+
+Command and event counts from `/api/reporting/entry-statuses` include only entries
+whose current `scheduled_at` falls within today in UTC (midnight inclusive, next
+midnight exclusive), grouped by current status. Later today is included; retries
+can move entries between days. These counts are not historical throughput.
+
+The entry-status report includes `inbox_entries`, `command_entries`,
+`event_entries`, and `outbox_entries` arrays, grouped by current status for
+entries scheduled today in UTC. All four queues share one query snapshot.
+Deploy reporting services before the development app; absent inbox/outbox fields
+from older services show an upgrade message instead of zero counts.
