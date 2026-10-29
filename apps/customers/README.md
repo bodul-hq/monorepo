@@ -165,3 +165,11 @@ absent/object content remains supported. The selected entry must agree with the
 flat title and URL used by cards. Null, malformed and overlong entry URLs are
 rejected, and unrelated unknown entry fields remain invalid. Search now covers
 the selected language's title and description, with title weighted five times.
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.

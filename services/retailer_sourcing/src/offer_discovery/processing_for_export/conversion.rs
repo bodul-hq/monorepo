@@ -72,7 +72,7 @@ pub(super) fn convert(
     body: &str,
     schema_version: u32,
 ) -> Result<OfferExport, ConversionError> {
-    if !matches!(schema_version, 1..=8) {
+    if !matches!(schema_version, 1..=9) {
         return Err(ConversionError("unsupported schema version".into()));
     }
     if schema_version < 3 && source.storage.scraped_at.is_some() {
@@ -87,6 +87,13 @@ pub(super) fn convert(
     let mut urls = HashSet::new();
     for (variation_index, variation) in input.variations.into_iter().enumerate() {
         variation.guard(variation_index)?;
+        if schema_version >= 9 {
+            variation
+                .localization
+                .clone()
+                .for_write()
+                .map_err(ConversionError)?;
+        }
         if !urls.insert(variation.url.clone()) {
             return Err(ConversionError(format!(
                 "variation {variation_index} repeats a retailer/URL identity"
@@ -148,7 +155,13 @@ pub(super) fn convert(
                 },
                 external_identifiers: (schema_version >= 5)
                     .then_some(identifiers.external_identifiers),
-                localization: (schema_version >= 4).then_some(variation.localization),
+                localization: (schema_version >= 4).then(|| {
+                    if schema_version >= 9 {
+                        variation.localization.canonicalized()
+                    } else {
+                        variation.localization.legacy()
+                    }
+                }),
                 scraped_at: if schema_version >= 3 {
                     source.storage.scraped_at
                 } else {
@@ -633,6 +646,30 @@ mod facts_tests {
                 convert(tests::source(), &body.to_string(), 8).is_err(),
                 "{body}"
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod regional_versions {
+    use super::*;
+    #[test]
+    fn old_export_versions_keep_labels_and_v9_writes_codes() {
+        let mut body: serde_json::Value = serde_json::from_str(tests::ANKER).unwrap();
+        for variation in body["variations"].as_array_mut().unwrap() {
+            variation["localization"] = serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"});
+        }
+        for version in [4, 8, 9] {
+            let snapshot = convert(tests::source(), &body.to_string(), version).unwrap();
+            for entry in snapshot.entries {
+                let value = serde_json::to_value(entry.payload.localization).unwrap();
+                let expected = if version == 9 {
+                    serde_json::json!({"kind":"region","code":"eu"})
+                } else {
+                    serde_json::json!({"kind":"region","label":"European Union"})
+                };
+                assert_eq!(value["target_market"], expected);
+            }
         }
     }
 }

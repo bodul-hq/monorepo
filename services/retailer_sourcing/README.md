@@ -824,9 +824,9 @@ and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 
 ### Comparison price, availability, condition and descriptions
 
-New export commands select schema v8. Readers and immutable preparation support
-v1–v8: v6 adds same-variant `was_price`, v7 adds `availability` and
-`item_condition`, and v8 adds `content: {description}`. Old pinned commands keep
+New export commands select schema v9. Readers and immutable preparation support
+v1–v9: v6 adds same-variant `was_price`, v7 adds `availability` and
+`item_condition`, v8 adds `content: {description}`, and v9 uses canonical regional codes. Old pinned commands keep
 their requested version and serialization; retries do not regenerate completed
 snapshots or delivery identities.
 
@@ -841,7 +841,7 @@ Legacy artifacts omitting fields produce omitted observations. Explicit null
 pricing/status and `{description:null}` survive conversion as clears. Reject
 malformed facts before saving a prepared export. Keep titles and images flat,
 and exclude variants lacking a payable price as before. Deploy downstream
-readers and migrations before enabling the v8 writer. See
+readers and migrations before enabling the v9 writer. See
 [ADRs 34–36](../../docs/adr/README.md) and the
 [verification record](../../docs/plans/24-27-offer-facts-verification.md).
 
@@ -879,3 +879,13 @@ cargo test --bin retailer_sourcing postgres_scheduled_indexes_round_trip_and_exp
 ```
 
 Set `DATABASE_URL_TEST` as for `make test-postgres`.
+
+### Regional market codes
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.

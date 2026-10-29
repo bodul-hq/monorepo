@@ -51,7 +51,7 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
             if slug == "ankereu" {
                 assert_eq!(
                     selected,
-                    &serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"})
+                    &serde_json::json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
                 );
                 assert!(
                     raw["_localization_evidence"]["candidates"]

@@ -2,11 +2,80 @@
 use everyday::prelude::CountryCode;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+/// Stable identifiers for supported regional markets (not country codes).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RegionCode {
+    #[serde(rename = "eu")]
+    EuropeanUnion,
+}
+impl RegionCode {
+    pub fn as_str(self) -> &'static str {
+        "eu"
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
 pub enum TargetMarket {
-    Country { code: CountryCode },
-    Region { label: String },
+    Country {
+        code: CountryCode,
+    },
+    Region {
+        code: RegionCode,
+    },
+    /// Retains historical labels verbatim until an explicit mapping is known.
+    #[serde(rename = "region")]
+    LegacyRegion {
+        label: String,
+    },
+}
+impl<'de> Deserialize<'de> for TargetMarket {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+        enum Current {
+            Country { code: CountryCode },
+            Region { code: RegionCode },
+        }
+        #[derive(Deserialize)]
+        #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+        enum Legacy {
+            Region { label: String },
+        }
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum Wire {
+            Current(Current),
+            Legacy(Legacy),
+        }
+        Ok(match Wire::deserialize(deserializer)? {
+            Wire::Current(Current::Country { code }) => Self::Country { code },
+            Wire::Current(Current::Region { code }) => Self::Region { code },
+            Wire::Legacy(Legacy::Region { label }) => Self::LegacyRegion { label },
+        })
+    }
+}
+impl TargetMarket {
+    /// Canonicalize only known evidence; never guess a code for another label.
+    pub fn canonicalized(&self) -> Self {
+        match self {
+            Self::LegacyRegion { label } if label == "European Union" => Self::Region {
+                code: RegionCode::EuropeanUnion,
+            },
+            _ => self.clone(),
+        }
+    }
+    /// Used only by explicitly versioned historical export regeneration.
+    pub fn legacy(&self) -> Self {
+        match self {
+            Self::Region {
+                code: RegionCode::EuropeanUnion,
+            } => Self::LegacyRegion {
+                label: "European Union".into(),
+            },
+            _ => self.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,8 +103,25 @@ impl TryFrom<WireLocalization> for Localization {
     }
 }
 impl Localization {
+    /// New producer boundaries require an agreed code; historical readers stay lossless.
+    pub fn for_write(self) -> Result<Self, String> {
+        let value = self.canonicalized();
+        value.guard()?;
+        if matches!(value.target_market, Some(TargetMarket::LegacyRegion { .. })) {
+            return Err("unmapped regional market: an explicit code mapping is required".into());
+        }
+        Ok(value)
+    }
+    pub fn canonicalized(mut self) -> Self {
+        self.target_market = self.target_market.map(|market| market.canonicalized());
+        self
+    }
+    pub fn legacy(mut self) -> Self {
+        self.target_market = self.target_market.map(|market| market.legacy());
+        self
+    }
     pub fn guard(&self) -> Result<(), String> {
-        if let Some(TargetMarket::Region { label }) = &self.target_market
+        if let Some(TargetMarket::LegacyRegion { label }) = &self.target_market
             && (label.trim().is_empty() || label.len() > 128 || label.chars().any(char::is_control))
         {
             return Err(
@@ -178,5 +264,42 @@ mod source_locale_tests {
         let old = serde_json::json!({"target_market":null,"language":"IT-it"});
         let value: Localization = serde_json::from_value(old.clone()).unwrap();
         assert_eq!(serde_json::to_value(value).unwrap(), old);
+    }
+}
+
+#[cfg(test)]
+mod region_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn code_and_legacy_contracts_are_distinct_and_round_trip() {
+        let old = json!({"kind":"region","label":"European Union"});
+        let market: TargetMarket = serde_json::from_value(old.clone()).unwrap();
+        assert_eq!(serde_json::to_value(&market).unwrap(), old);
+        let current = market.canonicalized();
+        assert_eq!(
+            serde_json::to_value(&current).unwrap(),
+            json!({"kind":"region","code":"eu"})
+        );
+        assert_eq!(current.legacy(), market);
+        let europe: TargetMarket =
+            serde_json::from_value(json!({"kind":"region","label":"Europe"})).unwrap();
+        assert_eq!(europe.canonicalized(), europe);
+        let unsupported = Localization {
+            target_market: Some(europe),
+            language: None,
+        };
+        assert!(unsupported.guard().is_ok());
+        assert!(unsupported.for_write().is_err());
+        for value in [
+            json!({"kind":"region","code":"EU"}),
+            json!({"kind":"region","code":"unknown"}),
+            json!({"kind":"region","code":""}),
+            json!({"kind":"region","code":"eu","label":"European Union"}),
+            json!({"kind":"country","code":"EU"}),
+        ] {
+            assert!(serde_json::from_value::<TargetMarket>(value).is_err());
+        }
     }
 }

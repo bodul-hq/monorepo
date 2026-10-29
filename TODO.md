@@ -1,6 +1,8 @@
 
 GOAL: create full flow from structuralize to show on web
 
+[x] Replace regional market labels with canonical codes ([issue #24](https://github.com/bodul-hq/monorepo/issues/24)).
+
 [~] Count of commands and events by status are not taking on ONLY records scheduled for today — all three dashboard services, UTC ([plan](docs/plans/33-today-entry-status-counts.md))
 [x] Support inbox and outbox statistics, like for commands and events ([plan](docs/plans/34-inbox-outbox-statistics.md))
 

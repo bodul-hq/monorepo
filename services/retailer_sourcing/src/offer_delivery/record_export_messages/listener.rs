@@ -59,7 +59,7 @@ impl<S: Store> Listen for Listener<S> {
 
     fn listen(&self, event: Self::Event, context: &EventContext) -> Result<(), Self::Error> {
         let export_id = event.export_id;
-        if !matches!(event.schema_version, 1..=8) {
+        if !matches!(event.schema_version, 1..=9) {
             return Err(ListenerError::UnsupportedSchema {
                 export_id,
                 version: event.schema_version,
@@ -295,7 +295,7 @@ mod tests {
     fn an_unsupported_schema_or_different_source_records_nothing() {
         let export = export(vec![entry(0, 1999)], vec![]);
         let mut unsupported = event(&export);
-        unsupported.schema_version = 9;
+        unsupported.schema_version = 10;
         let mut other_source = event(&export);
         other_source.source.offer_id = Uuid::now_v7();
         let mut other_snapshot = export.clone();

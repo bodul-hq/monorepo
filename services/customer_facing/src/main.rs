@@ -293,3 +293,6 @@ mod tests {
         assert_eq!(error.kind(), ErrorKind::InvalidInput);
     }
 }
+
+#[cfg(test)]
+mod region_market_tests;

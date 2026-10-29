@@ -246,7 +246,9 @@ fn read_localization<'de, D: serde::Deserializer<'de>>(
             market.remove("label");
         }
     }
-    serde_json::from_value(value).map_err(serde::de::Error::custom)
+    serde_json::from_value::<retailer_sauce::localization::Localization>(value)
+        .map(|value| value.canonicalized())
+        .map_err(serde::de::Error::custom)
 }
 
 /// Keep these boundary rules aligned with the customers app.

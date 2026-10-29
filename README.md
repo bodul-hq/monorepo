@@ -80,7 +80,7 @@ ordered image additions on updates. Offer facts now include optional scrape time
 source-backed localization, typed product identifiers, comparison pricing,
 availability, item condition and localized title/description content. Content
 observations merge by language, while the selected flat title continues to drive
-cards and title search. Source exports stay v8; offers writes creation v9 and
+cards and title search. Source exports write v9; offers writes creation v10 and
 retains legacy readers. See [ADR 38](docs/adr/0038-localized-offer-content.md).
 Identity lookup keeps retailer/URL matching while retaining all five product
 identifiers. See
@@ -311,3 +311,11 @@ See [AGENTS.md](AGENTS.md) for commit, dependency and crate conventions, and
 Customer-facing stores localized title, description and URL entries with their
 selected language in one content envelope. Search uses the selected language
 with title weighted five times description; see [ADR 41](docs/adr/0041-customer-facing-content-storage.md).
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.
