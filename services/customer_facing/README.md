@@ -615,3 +615,21 @@ cargo test --bin customer_facing postgres_scheduled_indexes_round_trip_and_expla
 ```
 
 Set `DATABASE_URL_TEST` as for `make test-postgres`.
+
+## Content storage and search
+
+The `offers.content` JSONB envelope holds `selected_language` and localized
+`entries`, each with language, title, description and URL. The table no longer
+stores scalar title, description, language or URL columns. API responses retain
+flat selected title/URL/localization and expose per-entry URLs in content arrays.
+
+Search matches only the selected language. Title and description each use the
+0.5 pg_trgm word-similarity threshold; either can qualify. Results rank by
+`5 * title_similarity + description_similarity`, then creation time and UUID.
+The statement timeout and limit/offset contract remain unchanged.
+
+Deploy the compatible customers reader before customer-facing. Pause projection
+writers and reads for migration 2026-10-29-000011 and the server binary switch.
+The migration checks selected/scalar agreement and preserves all localized facts.
+Down migration refuses distinct per-language URLs rather than discarding them.
+See [ADR 41](../../docs/adr/0041-customer-facing-content-storage.md).

@@ -8,6 +8,7 @@ mod postgres_tests;
 #[cfg(test)]
 mod queue_tests;
 mod reporting;
+mod stored_content;
 
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema};
 use async_graphql_poem::GraphQL;

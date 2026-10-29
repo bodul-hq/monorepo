@@ -3,7 +3,7 @@ use crate::offer_read::Offers;
 use diesel::sql_types::{Text, Uuid as SqlUuid};
 
 fn insert(pool: &DbPool, id: u128, title: &str) {
-    diesel::sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,content) VALUES ($1,'ankerau',$2,1999,'AUD',$3,'2026-10-26T12:00:00Z',jsonb_build_array(jsonb_build_object('language',NULL,'title',$2::text,'description',NULL)))")
+    diesel::sql_query("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content) VALUES ($1,'ankerau',1999,'AUD','2026-10-26T12:00:00Z',jsonb_build_object('selected_language',NULL,'entries',jsonb_build_array(jsonb_build_object('language',NULL,'title',$2::text,'description',NULL,'url',$3::text))))")
         .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Text,_>(title)
         .bind::<Text,_>(format!("https://example.com/{id}"))
         .execute(&mut pool.get().unwrap()).unwrap();
@@ -29,13 +29,13 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
     assert_eq!(
         titles,
         [
+            "USB charger 65W",
+            "USB charger 65W",
             "Charger",
-            "USB charger 65W",
-            "USB charger 65W",
             "USB charge 65W"
         ]
     );
-    assert_eq!(found.items[1].id, Uuid::from_u128(6).to_string());
+    assert_eq!(found.items[0].id, Uuid::from_u128(6).to_string());
     for query in [
         "chargre",
         "charg",
@@ -56,7 +56,7 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
         }
     }
     pool.get().unwrap().batch_execute("INSERT INTO offer_images(offer_id,position,image_url) VALUES ('00000000-0000-0000-0000-000000000001',1,'https://example.com/b'),('00000000-0000-0000-0000-000000000001',0,'https://example.com/a')").unwrap();
-    let searched = offers.search("charger", 1, 0).await.unwrap();
+    let searched = offers.search("charger", 1, 2).await.unwrap();
     let browsed = offers
         .list(100, 0)
         .await
@@ -132,22 +132,18 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
     );
     pool.get()
         .unwrap()
-        .batch_execute(include_str!(
-            "../../migrations/2026-10-26-000004_offer_title_search/down.sql"
-        ))
+        .batch_execute("DROP INDEX offers_content_title_search_idx")
         .unwrap();
     assert_eq!(
         snapshot(
             &pool,
-            "SELECT to_jsonb(count(*)) AS data FROM pg_indexes WHERE schemaname=current_schema() AND indexname='offers_title_search_idx'"
+            "SELECT to_jsonb(count(*)) AS data FROM pg_indexes WHERE schemaname=current_schema() AND indexname='offers_content_title_search_idx'"
         ),
         0
     );
     pool.get()
         .unwrap()
-        .batch_execute(include_str!(
-            "../../migrations/2026-10-26-000004_offer_title_search/up.sql"
-        ))
+        .batch_execute("CREATE INDEX offers_content_title_search_idx ON offers USING gin (lower(offer_selected_content(content)->>'title') customer_facing_extensions.gin_trgm_ops)")
         .unwrap();
     assert_eq!(
         snapshot(

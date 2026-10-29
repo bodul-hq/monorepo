@@ -123,7 +123,7 @@ impl Repository for PostgresRepository {
         let mut connection = self.0.get().map_err(|_| ())?;
         let records = diesel::sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-             FROM (SELECT id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description, content
+             FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title, offer_selected_content(content)->>'description' AS description, offer_selected_content(content)->>'url' AS url, content->>'selected_language' AS language
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
              ORDER BY created_at DESC, id DESC",
         )
@@ -142,11 +142,15 @@ impl Repository for PostgresRepository {
             )?;
             diesel::sql_query(
                 "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
-                 FROM (SELECT offers.*, lower(title) = lower($1) AS exact_match,
-                    customer_facing_extensions.word_similarity(lower($1), lower(title)) AS score
-                 FROM offers WHERE lower($1) OPERATOR(customer_facing_extensions.<%) lower(title)
-                 ORDER BY exact_match DESC, score DESC, created_at DESC, id DESC LIMIT $2 OFFSET $3) page
-                 ORDER BY exact_match DESC, score DESC, created_at DESC, id DESC",
+                 FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title,
+                    offer_selected_content(content)->>'description' AS description,
+                    offer_selected_content(content)->>'url' AS url, content->>'selected_language' AS language,
+                    5 * customer_facing_extensions.word_similarity(lower($1), lower(offer_selected_content(content)->>'title'))
+                    + COALESCE(customer_facing_extensions.word_similarity(lower($1), lower(offer_selected_content(content)->>'description')),0) AS score
+                 FROM offers WHERE lower($1) OPERATOR(customer_facing_extensions.<%) lower(offer_selected_content(content)->>'title')
+                    OR lower($1) OPERATOR(customer_facing_extensions.<%) lower(offer_selected_content(content)->>'description')
+                 ORDER BY score DESC, created_at DESC, id DESC LIMIT $2 OFFSET $3) page
+                 ORDER BY score DESC, created_at DESC, id DESC",
             )
             .bind::<Text, _>(query)
             .bind::<BigInt, _>(limit)

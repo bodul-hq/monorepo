@@ -18,7 +18,7 @@ async fn assert_reads(client: &TestClient<poem::Route>, expected: &Value) {
     let mut facts = json!({
         "price":expected["price"],"was_price":expected["was_price"],
         "availability":expected["availability"],"item_condition":expected["item_condition"],
-        "content":expected["content"]
+        "content":with_urls(expected["content"].clone(), &expected["url"])
     });
     for field in ["availability", "item_condition"] {
         if let Some(kind) = facts[field].get_mut("kind") {
@@ -27,7 +27,7 @@ async fn assert_reads(client: &TestClient<poem::Route>, expected: &Value) {
     }
     for field in ["offers", "searchOffers(q:\"charger\")"] {
         let query = format!(
-            "{{ result: {field} {{ items {{ price {{amount currency}} was_price: wasPrice {{amount currency}} availability {{kind raw}} item_condition: itemCondition {{kind raw}} content {{language title description}} }} }} }}"
+            "{{ result: {field} {{ items {{ price {{amount currency}} was_price: wasPrice {{amount currency}} availability {{kind raw}} item_condition: itemCondition {{kind raw}} content {{language title description url}} }} }} }}"
         );
         let response = client
             .post("/graphql")
@@ -136,7 +136,7 @@ async fn independent_status_and_content_updates_preserve_neighbors_and_historica
         .await;
         stored["description"] = json!(description);
         stored["content"][0]["description"] = json!(description);
-        expected["content"] = stored["content"].clone();
+        expected["content"] = with_urls(stored["content"].clone(), &expected["url"]);
         assert_eq!(offer(&pool), stored);
         assert_reads(&client, &expected).await;
     }
@@ -229,7 +229,7 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
     );
     assert_eq!(
         item["content"],
-        json!([{ "language": null, "title": payload["title"], "description": payload["content"]["description"] }])
+        json!([{ "language": null, "title": payload["title"], "description": payload["content"]["description"], "url":payload["url"] }])
     );
     let response = client.get("/api/offers/search?q=charger").send().await;
     response.assert_status_is_ok();
@@ -237,7 +237,7 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
     assert_eq!(search["items"][0], item);
     for field in ["offers", "searchOffers(q:\"charger\")"] {
         let query = format!(
-            "{{ {field} {{ items {{ price {{amount currency}} wasPrice {{amount currency}} availability {{kind raw}} itemCondition {{kind raw}} content {{language title description}} }} }} }}"
+            "{{ {field} {{ items {{ price {{amount currency}} wasPrice {{amount currency}} availability {{kind raw}} itemCondition {{kind raw}} content {{language title description url}} }} }} }}"
         );
         let response = client
             .post("/graphql")
@@ -493,7 +493,7 @@ async fn fact_migrations_preserve_old_rows_and_reject_incomplete_prices_and_stat
     ] {
         assert!(pool.get().unwrap().batch_execute(sql).is_err(), "{sql}");
     }
-    pool.get().unwrap().batch_execute("UPDATE offers SET was_price_amount=20,was_price_currency='AUD',availability='\"in_stock\"',item_condition='{\"other\":\"Refurbished\"}',description='<p>Text</p>'").unwrap();
+    pool.get().unwrap().batch_execute("UPDATE offers SET was_price_amount=20,was_price_currency='AUD',availability='\"in_stock\"',item_condition='{\"other\":\"Refurbished\"}',content=jsonb_set(content,'{entries,0,description}','\"<p>Text</p>\"')").unwrap();
     revert_to(&pool, "20261026000005");
     assert_eq!(offer(&pool), before);
     assert_eq!(
