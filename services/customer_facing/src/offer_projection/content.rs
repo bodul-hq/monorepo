@@ -1,7 +1,7 @@
 //! Content reconciliation stays inside the inbox receipt transaction.
 use diesel::{
     PgConnection, RunQueryDsl,
-    sql_types::{Jsonb, Nullable, Text, Uuid as SqlUuid},
+    sql_types::{Jsonb, Uuid as SqlUuid},
 };
 use retailer_sauce::{
     offer_content::{self, Content},
@@ -55,18 +55,18 @@ pub(super) struct Current {
 struct Record {
     #[diesel(sql_type = Jsonb)]
     content: Value,
-    #[diesel(sql_type = Nullable<Text>)]
-    language: Option<String>,
 }
 
 pub(super) fn lock(connection: &mut PgConnection, id: Uuid) -> diesel::QueryResult<Current> {
-    let row = diesel::sql_query("SELECT content, language FROM offers WHERE id=$1 FOR UPDATE")
+    let row = diesel::sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
         .bind::<SqlUuid, _>(id)
         .get_result::<Record>(connection)?;
-    let content = serde_json::from_value(row.content).map_err(|cause| error(cause.to_string()))?;
+    let stored: crate::stored_content::StoredContent =
+        serde_json::from_value(row.content).map_err(|cause| error(cause.to_string()))?;
+    stored.guard().map_err(error)?;
     Ok(Current {
-        content,
-        language: row.language,
+        content: stored.contents(),
+        language: stored.selected_language,
     })
 }
 
@@ -76,19 +76,42 @@ pub(super) fn write(
     content: &[Content],
     language: &Option<String>,
 ) -> diesel::QueryResult<usize> {
-    offer_content::guard(content, language).map_err(error)?;
-    let mut content = content.to_vec();
-    offer_content::sort(&mut content);
-    let selected = offer_content::selected(&content, language).map_err(error)?;
-    diesel::sql_query(
-        "UPDATE offers SET content=$2, title=$3, description=$4, language=$5 WHERE id=$1",
-    )
-    .bind::<SqlUuid, _>(id)
-    .bind::<Jsonb, _>(serde_json::to_value(&content).expect("serializable content"))
-    .bind::<Text, _>(&selected.title)
-    .bind::<Nullable<Text>, _>(&selected.description)
-    .bind::<Nullable<Text>, _>(language)
-    .execute(connection)
+    write_inner(connection, id, content, language, false)
+}
+
+pub(super) fn write_language(
+    connection: &mut PgConnection,
+    id: Uuid,
+    content: &[Content],
+    language: &Option<String>,
+) -> diesel::QueryResult<usize> {
+    write_inner(connection, id, content, language, true)
+}
+fn write_inner(
+    connection: &mut PgConnection,
+    id: Uuid,
+    content: &[Content],
+    language: &Option<String>,
+    renamed: bool,
+) -> diesel::QueryResult<usize> {
+    let row = diesel::sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
+        .bind::<SqlUuid, _>(id)
+        .get_result::<Record>(connection)?;
+    let stored: crate::stored_content::StoredContent =
+        serde_json::from_value(row.content).map_err(|e| error(e.to_string()))?;
+    let mut list = content.to_vec();
+    offer_content::sort(&mut list);
+    let stored = stored
+        .reconcile(
+            &list,
+            language,
+            renamed && stored.selected_language != *language,
+        )
+        .map_err(error)?;
+    diesel::sql_query("UPDATE offers SET content=$2 WHERE id=$1")
+        .bind::<SqlUuid, _>(id)
+        .bind::<Jsonb, _>(serde_json::to_value(stored).expect("serializable content"))
+        .execute(connection)
 }
 
 pub(super) fn error(message: String) -> diesel::result::Error {

@@ -44,7 +44,7 @@ pub(super) async fn apply(client: &TestClient<poem::Route>, kind: &str, payload:
 }
 
 pub(super) fn offer(pool: &DbPool) -> Value {
-    snapshot(pool, "SELECT to_jsonb(o) AS data FROM offers o")
+    logical_offer(snapshot(pool, "SELECT to_jsonb(o) AS data FROM offers o"))
 }
 
 pub(super) fn projection_counts(pool: &DbPool) -> Value {
@@ -270,7 +270,7 @@ async fn failed_business_write_rolls_back_receipt_and_can_retry() {
             "OfferContentChanged",
             json!({"content":{"description":" <p>Retry ž &amp; source</p>\n"}}),
             json!({"description":" <p>Retry ž &amp; source</p>\n"}),
-            "description IS NULL",
+            "offer_selected_content(content)->>'description' IS NULL",
         ),
     ] {
         let (_schema, pool) = database(true);

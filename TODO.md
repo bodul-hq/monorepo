@@ -70,3 +70,5 @@ Restore object storage db locally
 ```
 PGPASSWORD='object_storing' pg_restore   --host=172.28.100.31   --port=5432   --username=object_storing   --dbname=object_storing_dev   --clean --if-exists --no-owner --single-transaction   'object-storing-2026-10-26-173837-kMcsVD.dump'
 ```
+
+[x] Move customer-facing offer fields into content and weight selected-language search ([issue #25](https://github.com/bodul-hq/monorepo/issues/25); [verification](docs/plans/36-content-storage-verification.md)).

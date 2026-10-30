@@ -77,7 +77,10 @@ async fn full_snapshots_mix_with_legacy_updates_and_replay_atomically() {
         let response = client.get(route).send().await;
         response.assert_status_is_ok();
         let data: Value = response.json().await.value().deserialize();
-        assert_eq!(data["items"][0]["content"], expected);
+        assert_eq!(
+            data["items"][0]["content"],
+            with_urls(expected.clone(), &creation["url"])
+        );
         assert_eq!(data["items"][0]["title"], "Updated charger");
     }
     client.post("/graphql").body_json(&json!({"query":"{ offers { items { title content { language title description } localization { language } } } }"})).send().await.assert_json(json!({"data":{"offers":{"items":[{"title":"Updated charger","content":expected,"localization":{"language":"fr"}}]}}})).await;
@@ -85,7 +88,7 @@ async fn full_snapshots_mix_with_legacy_updates_and_replay_atomically() {
     pool.get()
         .unwrap()
         .batch_execute(
-            "ALTER TABLE offers ADD CONSTRAINT force_content_rollback CHECK (language = 'fr')",
+            "ALTER TABLE offers ADD CONSTRAINT force_content_rollback CHECK (content->>'selected_language' = 'fr')",
         )
         .unwrap();
     let change = envelope(
@@ -148,9 +151,17 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
         "SELECT jsonb_build_object('receipts',(SELECT jsonb_agg(to_jsonb(r)) FROM applied_offer_messages r),'images',(SELECT jsonb_agg(to_jsonb(i)) FROM offer_images i)) AS data",
     );
     let rows = |pool: &DbPool| {
-        snapshot(
+        let rows = snapshot(
             pool,
             "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM offers o",
+        );
+        Value::Array(
+            rows.as_array()
+                .unwrap()
+                .iter()
+                .cloned()
+                .map(logical_offer)
+                .collect(),
         )
     };
     let before = rows(&pool);
@@ -244,7 +255,7 @@ fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_buck
         loop {
             let waiting = snapshot(
                 &pool,
-                "SELECT to_jsonb(count(*)) AS data FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE 'SELECT content, language FROM offers%'",
+                "SELECT to_jsonb(count(*)) AS data FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE 'SELECT content FROM offers%'",
             );
             if waiting.as_i64().unwrap() > 0 {
                 break;
@@ -255,7 +266,7 @@ fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_buck
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
-        connection.batch_execute("UPDATE offers SET description='concurrent description', content=jsonb_set(content,'{0,description}','\"concurrent description\"'); COMMIT").unwrap();
+        connection.batch_execute("UPDATE offers SET content=jsonb_set(content,'{entries,0,description}','\"concurrent description\"'); COMMIT").unwrap();
         receiver
             .recv_timeout(std::time::Duration::from_secs(5))
             .unwrap()

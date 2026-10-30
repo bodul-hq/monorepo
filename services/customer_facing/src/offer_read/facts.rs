@@ -69,6 +69,7 @@ impl OfferItemCondition {
 
 #[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
 pub struct OfferContent {
+    pub url: String,
     pub language: Option<String>,
     pub title: String,
     pub description: Option<String>,
@@ -99,17 +100,21 @@ pub(super) fn content(
     title: &str,
     description: &Option<String>,
 ) -> Result<Vec<OfferContent>, ()> {
-    use retailer_sauce::offer_content;
-    let mut content: Vec<offer_content::Content> = serde_json::from_value(value).map_err(|_| ())?;
-    offer_content::guard(&content, language).map_err(|_| ())?;
-    let selected = offer_content::selected(&content, language).map_err(|_| ())?;
-    if selected.title != title || &selected.description != description {
+    let mut stored: crate::stored_content::StoredContent =
+        serde_json::from_value(value).map_err(|_| ())?;
+    let selected = stored.selected().map_err(|_| ())?;
+    if &stored.selected_language != language
+        || selected.title != title
+        || &selected.description != description
+    {
         return Err(());
     }
-    offer_content::sort(&mut content);
-    Ok(content
+    stored.entries.sort_by(|a, b| a.language.cmp(&b.language));
+    Ok(stored
+        .entries
         .into_iter()
         .map(|value| OfferContent {
+            url: value.url,
             language: value.language,
             title: value.title,
             description: value.description,
@@ -124,10 +129,10 @@ mod tests {
 
     #[test]
     fn content_requires_consistent_selected_scalars_and_canonicalizes_output() {
-        let entries = json!([
-            {"language":"fr","title":"Sélection","description":" <p>ž &amp;</p>\n"},
-            {"language":null,"title":"Unknown","description":null}
-        ]);
+        let entries = json!({"selected_language":"fr","entries":[
+            {"url":"https://example.com/fr","language":"fr","title":"Sélection","description":" <p>ž &amp;</p>\n"},
+            {"url":"https://example.com","language":null,"title":"Unknown","description":null}
+        ]});
         let language = Some("fr".into());
         let description = Some(" <p>ž &amp;</p>\n".into());
         let result = content(entries.clone(), &language, "Sélection", &description).unwrap();

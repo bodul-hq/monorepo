@@ -110,7 +110,7 @@ and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 `customers` and `development` are poem servers that render HTML on the server.
 Each serves an index page at `/`. The [customers app](apps/customers/README.md)
 shows 30 offers per page with responsive HTML/CSS cards, Previous/Next links,
-and a centered title-search form with a server-rendered `/search` page,
+and a centered title-and-description search form with a server-rendered `/search` page,
 using customer-facing's REST API. Cards show the first ordered offer image,
 with empty-image compatibility for older responses, and a smaller crossed-out
 comparison price when the source supplies a valid discount. Set `CUSTOMER_FACING_URL` to that service's
@@ -307,3 +307,7 @@ Framework and architecture decisions are recorded in [docs/adr](docs/adr/README.
 
 See [AGENTS.md](AGENTS.md) for commit, dependency and crate conventions, and
 [CHANGELOG.md](CHANGELOG.md) for notable changes.
+
+Customer-facing stores localized title, description and URL entries with their
+selected language in one content envelope. Search uses the selected language
+with title weighted five times description; see [ADR 41](docs/adr/0041-customer-facing-content-storage.md).

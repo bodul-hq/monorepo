@@ -337,7 +337,7 @@ impl Change {
             Self::Localization(change) => {
                 let current = content::lock(connection, change.id)?;
                 let list = offer_content::legacy_language(&current.content, &current.language, change.localization.language.clone()).map_err(content::error)?;
-                content::write(connection, change.id, &list, &change.localization.language)?;
+                content::write_language(connection, change.id, &list, &change.localization.language)?;
                 diesel::sql_query("UPDATE offers SET target_market=$2 WHERE id=$1")
                     .bind::<SqlUuid, _>(change.id)
                     .bind::<diesel::sql_types::Nullable<Jsonb>, _>(change.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
@@ -360,19 +360,16 @@ impl Change {
             .execute(connection)?,
             Self::Created(offer) => {
                 let count = diesel::sql_query(
-                    "INSERT INTO offers (id, retailer_code, title, price_amount, currency, url, created_at, scraped_at, target_market, language, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, description, content)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)",
+                    "INSERT INTO offers (id, retailer_code, price_amount, currency, created_at, scraped_at, target_market, gtin, sku, external_identifiers, was_price_amount, was_price_currency, availability, item_condition, content)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
                 )
                 .bind::<SqlUuid, _>(offer.id)
                 .bind::<Text, _>(offer.retailer_code.as_str())
-                .bind::<Text, _>(&offer.title)
                 .bind::<BigInt, _>(offer.price.amount())
                 .bind::<Text, _>(offer.price.currency().as_str())
-                .bind::<Text, _>(&offer.url)
                 .bind::<Timestamptz, _>(offer.created_at)
                 .bind::<diesel::sql_types::Nullable<Timestamptz>, _>(offer.scraped_at)
                 .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(offer.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(&offer.localization.language)
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.gtin.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.sku.as_ref().map(|value| &value.value))
                 .bind::<Jsonb, _>(Identifier(offer.identifiers.external_identifiers.clone()))
@@ -380,8 +377,7 @@ impl Change {
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.was_price.as_ref().map(|value| value.currency().as_str()))
                 .bind::<diesel::sql_types::Nullable<Jsonb>, _>(offer.availability.as_ref().map(|value| serde_json::to_value(value).expect("serializable availability")))
                 .bind::<diesel::sql_types::Nullable<Jsonb>, _>(offer.item_condition.as_ref().map(|value| serde_json::to_value(value).expect("serializable condition")))
-                .bind::<diesel::sql_types::Nullable<Text>, _>(&offer_content::selected(&offer.content, &offer.localization.language).map_err(content::error)?.description)
-                .bind::<Jsonb, _>(serde_json::to_value(&offer.content).expect("serializable content"))
+                .bind::<Jsonb, _>(serde_json::to_value(crate::stored_content::StoredContent::new(&offer.content, &offer.localization.language, &offer.url).map_err(content::error)?).expect("serializable content"))
                 .execute(connection)?;
                 for (position, image_url) in offer.images.iter().enumerate() {
                     diesel::sql_query(

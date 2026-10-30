@@ -2,6 +2,7 @@
 
 mod browsing;
 mod content;
+mod content_storage;
 mod facts;
 mod identifiers;
 mod projection;
@@ -88,6 +89,37 @@ fn snapshot(pool: &DbPool, sql: &str) -> Value {
         .get_result::<Snapshot>(&mut pool.get().unwrap())
         .unwrap()
         .data
+}
+
+// Historical projection tests compare logical facts across schema versions.
+// Raw envelope/column invariants are tested separately in content_storage.
+fn logical_offer(mut row: Value) -> Value {
+    if row["content"].is_object() {
+        let envelope = row["content"].clone();
+        let language = envelope["selected_language"].clone();
+        let mut entries = envelope["entries"].as_array().unwrap().clone();
+        let selected = entries
+            .iter()
+            .find(|entry| entry["language"] == language)
+            .unwrap()
+            .clone();
+        for field in ["title", "description", "url"] {
+            row[field] = selected[field].clone();
+        }
+        row["language"] = language;
+        for entry in &mut entries {
+            entry.as_object_mut().unwrap().remove("url");
+        }
+        row["content"] = Value::Array(entries);
+    }
+    row
+}
+
+fn with_urls(mut entries: Value, url: &Value) -> Value {
+    for entry in entries.as_array_mut().unwrap() {
+        entry["url"] = url.clone();
+    }
+    entries
 }
 
 fn counts(pool: &DbPool) -> Value {

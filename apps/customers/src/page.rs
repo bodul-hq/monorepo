@@ -99,7 +99,7 @@ pub async fn search(
             search_message(
                 &parameters.q,
                 "Search offers",
-                "Enter a title or a few words in the search field.",
+                "Enter a title or description in the search field.",
                 "/",
             ),
         );
@@ -173,7 +173,7 @@ fn start(query: Option<&str>) -> String {
     html.push_str(r##"</style></head><body><a class="skip-link" href="#main">Skip to offers</a><header class="site-header"><a class="brand" href="/" aria-label="Bodul home"><span class="brand-mark" aria-hidden="true">b.</span>Bodul</a>"##);
     let _ = write!(
         html,
-        r#"<form class="search-form" role="search" action="/search" method="get"><label class="sr-only" for="offer-query">Search offer titles</label><input id="offer-query" type="search" name="q" value="{}" placeholder="Search offers" required><button class="button" type="submit">Search</button></form>"#,
+        r#"<form class="search-form" role="search" action="/search" method="get"><label class="sr-only" for="offer-query">Search offer titles and descriptions</label><input id="offer-query" type="search" name="q" value="{}" placeholder="Search offers" required><button class="button" type="submit">Search</button></form>"#,
         escape(query.unwrap_or(""))
     );
     html.push_str(r#"<span class="header-note">A little discovery. A good find.</span></header><main id="main">"#);
@@ -211,7 +211,7 @@ fn render_page(page: &Page, query: Option<&str>) -> String {
     if page.items.is_empty() {
         if let Some(query) = query {
             if page.offset == 0 {
-                html.push_str(r#"<div class="empty-state"><h3>No matching offers.</h3><p>Try another title or fewer words.</p></div>"#);
+                html.push_str(r#"<div class="empty-state"><h3>No matching offers.</h3><p>Try another title or description, or fewer words.</p></div>"#);
             } else {
                 let _ = write!(
                     html,

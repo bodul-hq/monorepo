@@ -37,6 +37,7 @@ fn fixture(index: u128) -> Offer {
                 .unwrap()
         }),
         content: vec![OfferContent {
+            url: "https://shop.example/Charger?a=1&variant=2#details".into(),
             language: (index == 0).then(|| "fr".into()),
             title: " \tČaj 🔌\n".into(),
             description: (index == 0).then(|| "<p>raw &amp; source</p>".into()),
@@ -92,7 +93,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         assert_eq!(page["items"].as_array().unwrap().len(), count);
         assert_eq!(page["has_more"], more);
         let query = format!(
-            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ language title description }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
+            "{{ offers(limit:{limit}, offset:{offset}) {{ limit offset hasMore items {{ id retailerCode title price {{ amount currency }} wasPrice {{ amount currency }} availability {{ kind raw }} itemCondition {{ kind raw }} content {{ language title description url }} gtin sku externalIdentifiers {{ shopifyProductGid shopifyProductVariationGid shopifyHandle }} url images createdAt scrapedAt localization {{ targetMarket {{ kind code label }} language }} }} }} }}"
         );
         for get in [false, true] {
             let response = if get {

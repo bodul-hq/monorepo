@@ -347,3 +347,30 @@ fn localized_content_accepts_complete_lists_and_rejects_invalid_selections() {
         );
     }
 }
+
+#[test]
+fn localized_urls_preserve_new_values_and_adapt_old_arrays() {
+    let mut value = page(1, 0, false)["items"][0].clone();
+    let url = value["url"].clone();
+    value["localization"] = json!({"language":"en"});
+    value["content"] = json!([
+        {"language":"en","title":value["title"],"description":null},
+        {"language":"fr","title":"Français","description":null,"url":"https://shop.example/fr"}
+    ]);
+    let parsed: Offer = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(parsed.content[0].url, url.as_str().unwrap());
+    assert_eq!(parsed.content[1].url, "https://shop.example/fr");
+    for invalid in [
+        json!(null),
+        json!(12),
+        json!("https://wrong.example"),
+        json!("\0"),
+        json!("x".repeat(2049)),
+    ] {
+        let mut bad = value.clone();
+        bad["content"][0]["url"] = invalid;
+        assert!(serde_json::from_value::<Offer>(bad).is_err());
+    }
+    value["content"][0]["unexpected"] = json!(true);
+    assert!(serde_json::from_value::<Offer>(value).is_err());
+}

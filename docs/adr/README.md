@@ -49,3 +49,5 @@
 
 To add a decision, copy the structure of an existing ADR (Status, Date, Context,
 Decision, Consequences) and give it the next number.
+
+- [ADR 41: Customer-facing content storage and selected-language search](0041-customer-facing-content-storage.md)
