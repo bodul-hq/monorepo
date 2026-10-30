@@ -23,15 +23,18 @@ pub trait Repository: Send + Sync {
     fn entry_statuses(&self) -> Result<EntryStatuses, ReportError>;
 }
 
-struct PostgresRepository(DbPool);
+struct PostgresRepository {
+    pool: DbPool,
+    clock: fn() -> chrono::DateTime<chrono::Utc>,
+}
 
 impl PostgresRepository {
     fn read<T>(
         &self,
-        load: fn(&mut PgConnection) -> diesel::QueryResult<T>,
+        load: impl FnOnce(&mut PgConnection) -> diesel::QueryResult<T>,
     ) -> Result<T, ReportError> {
         let mut connection = self
-            .0
+            .pool
             .get_timeout(Duration::from_secs(3))
             .map_err(|_| ReportError::Unavailable)?;
         load(&mut connection).map_err(|_| {
@@ -53,7 +56,7 @@ impl Repository for PostgresRepository {
     }
 
     fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
-        self.read(store::load_entry_statuses)
+        self.read(|connection| store::load_entry_statuses_at(connection, (self.clock)()))
     }
 }
 
@@ -66,7 +69,14 @@ impl Reporting {
     }
 
     pub fn postgres(pool: DbPool) -> Self {
-        Self::new(Arc::new(PostgresRepository(pool)))
+        Self::postgres_with_clock(pool, chrono::Utc::now)
+    }
+
+    pub(crate) fn postgres_with_clock(
+        pool: DbPool,
+        clock: fn() -> chrono::DateTime<chrono::Utc>,
+    ) -> Self {
+        Self::new(Arc::new(PostgresRepository { pool, clock }))
     }
 
     async fn run<T: Send + 'static>(

@@ -31,13 +31,19 @@ pub(super) async fn database_tables(State(pool): State<Option<DbPool>>) -> Respo
         (status = 503, description = "Database unavailable", body = ErrorBody),
         (status = 500, description = "Unexpected reporting failure", body = ErrorBody)
     ))]
-pub(super) async fn entry_statuses(State(pool): State<Option<DbPool>>) -> Response {
-    report(pool, store::load_entry_statuses).await
+pub(super) async fn entry_statuses(
+    State(pool): State<Option<DbPool>>,
+    axum::Extension(clock): axum::Extension<super::prelude::ReportingClock>,
+) -> Response {
+    report(pool, move |connection| {
+        store::load_entry_statuses_at(connection, (clock.0)())
+    })
+    .await
 }
 
 async fn report<T: Serialize + Send + 'static>(
     pool: Option<DbPool>,
-    load: fn(&mut diesel::PgConnection) -> diesel::QueryResult<T>,
+    load: impl FnOnce(&mut diesel::PgConnection) -> diesel::QueryResult<T> + Send + 'static,
 ) -> Response {
     let Some(pool) = pool else {
         return error(StatusCode::SERVICE_UNAVAILABLE);

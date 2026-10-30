@@ -100,10 +100,6 @@ pub struct StatusCount {
     pub count: u64,
 }
 
-pub(super) fn load_entry_statuses(connection: &mut PgConnection) -> QueryResult<EntryStatuses> {
-    load_entry_statuses_at(connection, chrono::Utc::now())
-}
-
 pub(super) fn load_entry_statuses_at(
     connection: &mut PgConnection,
     now: chrono::DateTime<chrono::Utc>,
