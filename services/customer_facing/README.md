@@ -595,3 +595,23 @@ from these bounds. Reports without bounds show an upgrade message for the
 entire panel; their potentially all-time counts are not displayed as daily totals.
 Invalid or incomplete windows are rejected. Missing inbox/outbox arrays in a
 windowed report still show an upgrade message for those queues.
+
+### Daily reporting indexes
+
+The `2026-10-30-000001_queue_scheduled_at_indexes` migration adds a B-tree
+`scheduled_at` index to each of the four queue tables. Existing worker indexes
+remain in place. It uses the existing transactional migration runner:
+**index creation blocks writes**, so schedule deployment in a maintenance
+window appropriate to the queue sizes. The down migration drops only these
+four indexes.
+
+The ignored `postgres_scheduled_indexes_round_trip_and_explain` test uses
+an isolated schema to verify up/down/reapply, unchanged reports and preserved
+worker indexes. It also prints PostgreSQL version, baseline and indexed
+`EXPLAIN (ANALYZE, BUFFERS)` plans, and index sizes for historical-heavy data:
+
+```sh
+cargo test --bin customer_facing postgres_scheduled_indexes_round_trip_and_explain -- --ignored --nocapture
+```
+
+Set `DATABASE_URL_TEST` as for `make test-postgres`.

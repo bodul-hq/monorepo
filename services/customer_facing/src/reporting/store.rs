@@ -280,4 +280,91 @@ mod postgres_tests {
             );
         }
     }
+
+    /// Run with --ignored --nocapture to capture baseline/post-migration plans.
+    #[test]
+    #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+    fn postgres_scheduled_indexes_round_trip_and_explain() {
+        use diesel::sql_types::Text;
+        use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+
+        #[derive(QueryableByName, Debug, PartialEq)]
+        struct Line {
+            #[diesel(sql_type = Text)]
+            value: String,
+        }
+        fn lines(conn: &mut PgConnection, query: &str) -> Vec<Line> {
+            diesel::sql_query(query).load(conn).unwrap()
+        }
+        fn explain(conn: &mut PgConnection, query: &str, phase: &str) {
+            #[derive(QueryableByName)]
+            struct Plan {
+                #[diesel(sql_type = Text, column_name = "QUERY PLAN")]
+                line: String,
+            }
+            let plan: Vec<Plan> = diesel::sql_query(format!("EXPLAIN (ANALYZE, BUFFERS) {query}"))
+                .load(conn)
+                .unwrap();
+            println!("{phase}");
+            for row in plan {
+                println!("{}", row.line);
+            }
+        }
+
+        let url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
+        let mut conn = PgConnection::establish(&url).unwrap();
+        // Roll back the private schema and fixtures even when an assertion fails.
+        conn.test_transaction::<_, diesel::result::Error, _>(|conn| {
+            let schema = format!("reporting_indexes_{}", uuid::Uuid::new_v4().simple());
+            conn.batch_execute(&format!("CREATE SCHEMA {schema}; SET LOCAL search_path TO {schema}")).unwrap();
+            const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            let index_query = "SELECT indexname || ': ' || indexdef AS value FROM pg_indexes WHERE schemaname = current_schema() ORDER BY indexname";
+            let migrated_indexes = lines(conn, index_query);
+            assert_eq!(conn.revert_last_migration(MIGRATIONS).unwrap().to_string(), "20261030000001");
+            let baseline_indexes = lines(conn, index_query);
+            assert_eq!(migrated_indexes.len(), baseline_indexes.len() + 4);
+
+            for (table, extra_column, extra_value) in [
+                ("inbox_entries", "", ""),
+                ("command_entries", ",command_type", ",'Probe'"),
+                ("event_entries", ",event_type", ",'Probe'"),
+                ("outbox_entries", "", ""),
+            ] {
+                // 200,000 historical rows, 200 today, 200 tomorrow per queue.
+                conn.batch_execute(&format!(
+                    "INSERT INTO {table}(id,status,payload,meta,scheduled_at{extra_column})
+                     SELECT gen_random_uuid(), (ARRAY[0,2,4,5,7,8,99])[1 + n % 7],
+                     repeat('x',256),'{{}}',
+                     CASE WHEN n <= 200000 THEN '2025-01-01Z'::timestamptz + (n % 365) * interval '1 day'
+                          WHEN n <= 200200 THEN '2026-12-31Z'::timestamptz
+                          ELSE '2027-01-01Z'::timestamptz END {extra_value}
+                     FROM generate_series(1,200400) n; ANALYZE {table};"
+                )).unwrap();
+            }
+            let now = chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z").unwrap().with_timezone(&chrono::Utc);
+            let before = serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap();
+            for queue in ["inbox_entries", "command_entries", "event_entries", "outbox_entries"] {
+                assert_eq!(before[queue].as_array().unwrap().iter().map(|entry| entry["count"].as_u64().unwrap()).sum::<u64>(), 200);
+            }
+            let query = ["command", "event", "inbox", "outbox"].map(|kind| format!(
+                "SELECT '{kind}' AS kind, status, COUNT(*) AS count FROM {kind}_entries WHERE scheduled_at >= '2026-12-31Z'::timestamptz AND scheduled_at < '2027-01-01Z'::timestamptz GROUP BY status"
+            )).join(" UNION ALL ") + " ORDER BY kind, status";
+            println!("PostgreSQL: {:?}", lines(conn, "SELECT version() AS value"));
+            explain(conn, &query, "Baseline (existing worker indexes)");
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), migrated_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            explain(conn, &query, "After scheduled_at indexes");
+            println!("Index sizes: {:?}", lines(conn,
+                "SELECT indexrelname || ': ' || pg_relation_size(indexrelid)::text || ' bytes' AS value FROM pg_stat_user_indexes WHERE schemaname = current_schema() AND indexrelname IN ('idx_inbox_entries_scheduled_at','idx_command_entries_scheduled_at','idx_event_entries_scheduled_at','idx_outbox_entries_scheduled_at') ORDER BY indexrelname"));
+            conn.revert_last_migration(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), baseline_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), migrated_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            Ok(())
+        });
+    }
 }
