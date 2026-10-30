@@ -9,7 +9,7 @@ PR #23 selected review fixes (implementation plan supplied):
 [>] Freeze reporting time in tests (comment 1)
 [x] Fix compact empty-box CSS (comment 2)
 [x] Pass icon slugs explicitly (comment 3)
-[>] Correct the development README (comment 4)
+[x] Correct the development README (comment 4)
 [>] Add date-range indexes (comment 6)
 [>] Replace obsolete rendering assertions (comment 9)
 [>] Update Bruno documentation (comment 11)

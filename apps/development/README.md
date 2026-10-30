@@ -115,9 +115,12 @@ Also stop one upstream service and check that the other services remain visible.
 
 The dashboard also requests retailer sourcing’s, Offers’, and Customer Facing’s `/api/reporting/entry-statuses`
 server-side and displays separate service sections with exact inbox, command, event and outbox counts by status, including
-numeric codes and `status_text` labels. These counts refresh on page load. Empty
-queues use small status-colored boxes, and unavailable status reports have their own messages, and a failed
-status request does not hide the database table reports.
+friendly labels for known statuses. Their numeric codes and API `status_text` labels
+are available in hover-only tooltips. Unknown statuses display their API labels
+and numeric codes visibly. These counts refresh on page load. Empty queues use
+compact status-colored boxes with visually hidden labels and accessible zero counts.
+Unavailable status reports have their own messages, and a failed status request
+does not hide the database table reports.
 
 Customer Facing is the fourth database card. Its offer projection and queue
 storage contribute to combined totals only when its table report succeeds.
