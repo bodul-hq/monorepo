@@ -1,5 +1,5 @@
 meta {
-  name: Report command and event statuses
+  name: Report queue entry statuses
   type: http
   seq: 8
 }
@@ -15,6 +15,12 @@ auth:bearer {
 }
 
 docs {
-  Exact command and event counts grouped by status, with status_text labels.
-  Empty queues return empty arrays. Requires a configured database.
+  Reports inbox_entries, command_entries, event_entries and outbox_entries arrays.
+  Each array groups exact counts by current status, with numeric status and status_text.
+  Counts include entries scheduled in [window_start, window_end): the inclusive
+  UTC midnight start and exclusive next UTC midnight end of the current UTC day.
+  Empty arrays mean no entries in that queue are scheduled within this window.
+  This read-only request does not process queues.
+  Requires a configured database.
+
 }

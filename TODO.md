@@ -12,7 +12,7 @@ PR #23 selected review fixes (implementation plan supplied):
 [x] Correct the development README (comment 4)
 [>] Add date-range indexes (comment 6)
 [>] Replace obsolete rendering assertions (comment 9)
-[>] Update Bruno documentation (comment 11)
+[x] Update Bruno documentation (comment 11)
 
 
 
