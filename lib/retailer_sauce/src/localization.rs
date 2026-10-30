@@ -10,7 +10,9 @@ pub enum RegionCode {
 }
 impl RegionCode {
     pub fn as_str(self) -> &'static str {
-        "eu"
+        match self {
+            Self::EuropeanUnion => "eu",
+        }
     }
 }
 
