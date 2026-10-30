@@ -87,13 +87,14 @@ pub(super) fn convert(
     let mut urls = HashSet::new();
     for (variation_index, variation) in input.variations.into_iter().enumerate() {
         variation.guard(variation_index)?;
-        if schema_version >= 9 {
+        let localization = if schema_version >= 9 {
             variation
                 .localization
-                .clone()
                 .for_write()
-                .map_err(ConversionError)?;
-        }
+                .map_err(ConversionError)?
+        } else {
+            variation.localization.legacy()
+        };
         if !urls.insert(variation.url.clone()) {
             return Err(ConversionError(format!(
                 "variation {variation_index} repeats a retailer/URL identity"
@@ -155,13 +156,7 @@ pub(super) fn convert(
                 },
                 external_identifiers: (schema_version >= 5)
                     .then_some(identifiers.external_identifiers),
-                localization: (schema_version >= 4).then(|| {
-                    if schema_version >= 9 {
-                        variation.localization.canonicalized()
-                    } else {
-                        variation.localization.legacy()
-                    }
-                }),
+                localization: (schema_version >= 4).then_some(localization),
                 scraped_at: if schema_version >= 3 {
                     source.storage.scraped_at
                 } else {
