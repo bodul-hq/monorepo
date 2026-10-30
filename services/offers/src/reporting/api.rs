@@ -18,11 +18,20 @@ struct ReportingBearer(Bearer);
 pub struct ReportingApi {
     pool: DbPool,
     token: String,
+    clock: fn() -> chrono::DateTime<chrono::Utc>,
 }
 
 impl ReportingApi {
     pub fn new(pool: DbPool, token: String) -> Self {
-        Self { pool, token }
+        Self::with_clock(pool, token, chrono::Utc::now)
+    }
+
+    pub(crate) fn with_clock(
+        pool: DbPool,
+        token: String,
+        clock: fn() -> chrono::DateTime<chrono::Utc>,
+    ) -> Self {
+        Self { pool, token, clock }
     }
 
     fn authorize(&self, bearer: ReportingBearer) -> Result<()> {
@@ -45,20 +54,25 @@ impl ReportingApi {
         Ok(Response::new(Json(report)).header("cache-control", "no-store"))
     }
 
+    /// Exact inbox, command, event and outbox counts scheduled for today (UTC).
     #[oai(path = "/reporting/entry-statuses", method = "get")]
     async fn entry_statuses(
         &self,
         bearer: ReportingBearer,
     ) -> Result<Response<Json<EntryStatuses>>> {
         self.authorize(bearer)?;
-        let report = report(self.pool.clone(), store::load_entry_statuses).await?;
+        let clock = self.clock;
+        let report = report(self.pool.clone(), move |connection| {
+            store::load_entry_statuses_at(connection, clock())
+        })
+        .await?;
         Ok(Response::new(Json(report)).header("cache-control", "no-store"))
     }
 }
 
 async fn report<T: Send + 'static>(
     pool: DbPool,
-    load: fn(&mut diesel::PgConnection) -> diesel::QueryResult<T>,
+    load: impl FnOnce(&mut diesel::PgConnection) -> diesel::QueryResult<T> + Send + 'static,
 ) -> Result<T> {
     tokio::task::spawn_blocking(move || {
         let mut connection = pool

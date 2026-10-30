@@ -114,15 +114,17 @@ wide tables scroll within their cards, and Refresh remains usable.
 Also stop one upstream service and check that the other services remain visible.
 
 The dashboard also requests retailer sourcing’s, Offers’, and Customer Facing’s `/api/reporting/entry-statuses`
-server-side and displays separate service sections with exact command and event counts by status, including
-numeric codes and `status_text` labels. These counts refresh on page load. Empty
-queues and unavailable status reports have their own messages, and a failed
-status request does not hide the database table reports.
+server-side and displays separate service sections with exact inbox, command, event and outbox counts by status, including
+friendly labels for known statuses. Their numeric codes and API `status_text` labels
+are available in hover-only tooltips. Unknown statuses display their API labels
+and numeric codes visibly. These counts refresh on page load. Empty queues use
+compact status-colored boxes with visually hidden labels and accessible zero counts.
+Unavailable status reports have their own messages, and a failed status request
+does not hide the database table reports.
 
 Customer Facing is the fourth database card. Its offer projection and queue
 storage contribute to combined totals only when its table report succeeds.
-Its status report can fail independently of its table report. Inbox and outbox
-appear as database tables but have no separate status breakdowns. The overview
+Its status report can fail independently of its table report. Inbox and outbox have their own status breakdowns alongside commands and events. The overview
 counts database reports available out of four; queue-report failures do not
 change that number. Reporting follows [ADR 13](../../docs/adr/0013-development-database-reporting.md).
 
@@ -133,3 +135,42 @@ an isolated test schema, then run this app with
 `http://localhost:3105/dashboard`. Configured tokens must match; they never
 appear in the rendered HTML. Existing deployments need their binaries rebuilt
 and containers recreated to pick up new environment settings.
+
+All three queue status sections show entries scheduled for the current
+UTC day, including later today. Each report uses its own generation time; retries
+can change the daily totals. Refresh the page to fetch current counts.
+
+Inbox, command, event and outbox counts for Retailer Sourcing, Offers, and Customer Facing
+each appear in six responsive boxes: New (received)
+is light green, Processing (reserved) is medium green, Completed is green, and Failed is orange,
+Dead is black, and Archive is grey. Missing statuses count as zero. Zero numbers are visually hidden in every box,
+including queues with other nonzero statuses, while remaining available to screen readers. Empty queues retain their status colors.
+If any count is nonzero, every box in that queue keeps its status color; unknown codes
+appear in additional neutral boxes. Box colors and contrasting labels work in
+both themes.
+
+The entry-status report includes `inbox_entries`, `command_entries`,
+`event_entries`, and `outbox_entries` arrays, grouped by current status for
+entries scheduled today in UTC. All four queues share one query snapshot.
+Reports include `window_start` (inclusive) and `window_end` (exclusive), the
+UTC midnight bounds used by the query. The dashboard derives its report date
+from these bounds. Reports without bounds show an upgrade message for the
+entire panel; their potentially all-time counts are not displayed as daily totals.
+Invalid or incomplete windows are rejected. Missing inbox/outbox arrays in a
+windowed report still show an upgrade message for those queues.
+
+Queue section headings use the three service SVGs in `assets/`, embedded into
+the binary and served under `/assets/` without a separate asset deployment.
+Each icon sits in a side column beside its service’s four queue groups, within
+one bordered panel. Images have accessible service labels. Database cards retain their text headings.
+Empty queues show small status-colored boxes without an additional empty-day message.
+
+Queue rows use the inbox, commands, events and outbox SVGs from `assets/`
+as their first element, followed by the status boxes. Accessible image labels
+replace the visible collection titles.
+
+All status boxes match their queue icon height: 64px normally and 40px on narrow
+screens. When every count in a queue is zero, its icon and colored boxes shrink
+together to 24px (18px on narrow screens), with box labels and zeros visually
+hidden but available to screen readers. The icon column retains its full width
+so status columns align across empty and populated collections.

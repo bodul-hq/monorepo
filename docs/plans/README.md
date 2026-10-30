@@ -7,6 +7,15 @@ clarification extends item 22. Status markers follow the
 
 ## Current round and dependencies
 
+[Plan 34: Inbox and outbox statistics](34-inbox-outbox-statistics.md) is implemented
+for all three dashboard services, extending the existing UTC-day reports and
+colored boxes to all four queues. PostgreSQL and live checks remain blocked
+by environment configuration and socket permissions; see its verification record.
+
+[Plan 33: Today's command and event status counts](33-today-entry-status-counts.md)
+is planned for all three dashboard services. It supersedes plan 32's preservation
+of all-time command/event counts; implementation has not started.
+
 [Items 17–20 implementation and verification](17-20-verification.md) records the
 separate implementation commits and remaining integration checks.
 

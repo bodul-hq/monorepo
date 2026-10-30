@@ -1,3 +1,9 @@
+fn reporting_now() -> chrono::DateTime<chrono::Utc> {
+    chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
+        .unwrap()
+        .with_timezone(&chrono::Utc)
+}
+
 use diesel::{Connection, PgConnection, connection::SimpleConnection, r2d2::ConnectionManager};
 use diesel_migrations::MigrationHarness;
 use poem::{http::StatusCode, test::TestClient};
@@ -134,7 +140,15 @@ async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
         .unwrap()
         .run_pending_migrations(MIGRATIONS)
         .unwrap();
-    let client = TestClient::new(crate::app(pool.clone()));
+    let api = crate::reporting::ReportingApi::with_clock(
+        pool.clone(),
+        crate::reporting::DEFAULT_REPORTING_TOKEN.into(),
+        reporting_now,
+    );
+    let client = TestClient::new(poem::Route::new().nest(
+        "/api",
+        poem_openapi::OpenApiService::new(api, "Reporting", "test"),
+    ));
     let token = format!("Bearer {}", crate::reporting::DEFAULT_REPORTING_TOKEN);
     let response = client
         .get("/api/reporting/database-tables")
@@ -171,17 +185,20 @@ async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
         .await;
     response.assert_status_is_ok();
     let empty: Value = response.json().await.value().deserialize();
+    assert_eq!(empty["generated_at"], "2026-12-31T23:59:59Z");
+    assert_eq!(empty["window_start"], "2026-12-31T00:00:00Z");
+    assert_eq!(empty["window_end"], "2027-01-01T00:00:00Z");
     assert_eq!(empty["command_entries"], json!([]));
     assert_eq!(empty["event_entries"], json!([]));
     pool.get()
         .unwrap()
         .batch_execute(
-            "INSERT INTO command_entries (id, command_type, payload, status) VALUES
-         ('00000000-0000-0000-0000-000000000001','test','{}',0),
-         ('00000000-0000-0000-0000-000000000002','test','{}',0),
-         ('00000000-0000-0000-0000-000000000003','test','{}',99);
-         INSERT INTO event_entries (id, event_type, payload, status) VALUES
-         ('00000000-0000-0000-0000-000000000004','test','{}',5);",
+            "INSERT INTO command_entries (id, command_type, payload, status, scheduled_at) VALUES
+         ('00000000-0000-0000-0000-000000000001','test','{}',0,'2026-12-31T12:00:00Z'),
+         ('00000000-0000-0000-0000-000000000002','test','{}',0,'2026-12-31T12:00:00Z'),
+         ('00000000-0000-0000-0000-000000000003','test','{}',99,'2026-12-31T12:00:00Z');
+         INSERT INTO event_entries (id, event_type, payload, status, scheduled_at) VALUES
+         ('00000000-0000-0000-0000-000000000004','test','{}',5,'2026-12-31T12:00:00Z');",
         )
         .unwrap();
     let response = client

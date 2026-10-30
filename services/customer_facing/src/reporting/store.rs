@@ -82,6 +82,12 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
 #[derive(Debug, Serialize, poem_openapi::Object)]
 pub struct EntryStatuses {
     pub generated_at: String,
+    /// Inclusive scheduled_at bound, at UTC midnight.
+    pub window_start: String,
+    /// Exclusive scheduled_at bound, at the next UTC midnight.
+    pub window_end: String,
+    pub inbox_entries: Vec<StatusCount>,
+    pub outbox_entries: Vec<StatusCount>,
     pub command_entries: Vec<StatusCount>,
     pub event_entries: Vec<StatusCount>,
 }
@@ -94,7 +100,12 @@ pub struct StatusCount {
     pub count: u64,
 }
 
-pub(super) fn load_entry_statuses(connection: &mut PgConnection) -> QueryResult<EntryStatuses> {
+pub(super) fn load_entry_statuses_at(
+    connection: &mut PgConnection,
+    now: chrono::DateTime<chrono::Utc>,
+) -> QueryResult<EntryStatuses> {
+    let start = now.date_naive().and_time(chrono::NaiveTime::MIN).and_utc();
+    let end = start + chrono::Duration::days(1);
     #[derive(QueryableByName)]
     struct Record {
         #[diesel(sql_type = Text)]
@@ -104,16 +115,26 @@ pub(super) fn load_entry_statuses(connection: &mut PgConnection) -> QueryResult<
         #[diesel(sql_type = BigInt)]
         count: i64,
     }
-    // One statement gives both queues the same PostgreSQL snapshot.
+    // One statement gives all four queues the same PostgreSQL snapshot.
     let records: Vec<Record> = diesel::sql_query(
-        "SELECT 'command' AS kind, status, COUNT(*) AS count FROM command_entries GROUP BY status
+        "SELECT 'command' AS kind, status, COUNT(*) AS count FROM command_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
          UNION ALL
-         SELECT 'event' AS kind, status, COUNT(*) AS count FROM event_entries GROUP BY status
+         SELECT 'event' AS kind, status, COUNT(*) AS count FROM event_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
+         UNION ALL
+         SELECT 'inbox' AS kind, status, COUNT(*) AS count FROM inbox_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
+         UNION ALL
+         SELECT 'outbox' AS kind, status, COUNT(*) AS count FROM outbox_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
          ORDER BY kind, status",
     )
+    .bind::<diesel::sql_types::Timestamptz, _>(start)
+    .bind::<diesel::sql_types::Timestamptz, _>(end)
     .load(connection)?;
     let mut report = EntryStatuses {
-        generated_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        generated_at: now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        window_start: start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        window_end: end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        inbox_entries: Vec::new(),
+        outbox_entries: Vec::new(),
         command_entries: Vec::new(),
         event_entries: Vec::new(),
     };
@@ -134,11 +155,216 @@ pub(super) fn load_entry_statuses(connection: &mut PgConnection) -> QueryResult<
             count: u64::try_from(record.count)
                 .map_err(|e| diesel::result::Error::DeserializationError(Box::new(e)))?,
         };
-        if record.kind == "command" {
-            report.command_entries.push(entry);
-        } else {
-            report.event_entries.push(entry);
+        match record.kind.as_str() {
+            "inbox" => report.inbox_entries.push(entry),
+            "command" => report.command_entries.push(entry),
+            "event" => report.event_entries.push(entry),
+            "outbox" => report.outbox_entries.push(entry),
+            _ => unreachable!("queue kinds are literals in the reporting query"),
         }
     }
     Ok(report)
+}
+
+#[cfg(test)]
+mod postgres_tests {
+    use super::*;
+    use diesel::connection::SimpleConnection;
+
+    #[test]
+    #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+    fn postgres_daily_window_and_rescheduling() {
+        let url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
+        let mut conn = PgConnection::establish(&url).unwrap();
+        conn.batch_execute("CREATE TEMP TABLE command_entries(status integer, scheduled_at timestamptz, received_at timestamptz DEFAULT '2000-01-01Z'); CREATE TEMP TABLE event_entries(LIKE command_entries INCLUDING DEFAULTS); CREATE TEMP TABLE inbox_entries(LIKE command_entries INCLUDING DEFAULTS); CREATE TEMP TABLE outbox_entries(LIKE command_entries INCLUDING DEFAULTS); SET TIME ZONE 'America/New_York';").unwrap();
+        for date in ["2026-03-08T12:00:00Z", "2026-12-31T23:59:59Z"] {
+            let now = chrono::DateTime::parse_from_rfc3339(date)
+                .unwrap()
+                .with_timezone(&chrono::Utc);
+            let start = now.date_naive().and_time(chrono::NaiveTime::MIN).and_utc();
+            let end = start + chrono::Duration::days(1);
+            conn.batch_execute(
+                "TRUNCATE command_entries, event_entries, inbox_entries, outbox_entries",
+            )
+            .unwrap();
+            assert!(
+                load_entry_statuses_at(&mut conn, now)
+                    .unwrap()
+                    .command_entries
+                    .is_empty()
+            );
+            for table in [
+                "command_entries",
+                "event_entries",
+                "inbox_entries",
+                "outbox_entries",
+            ] {
+                diesel::sql_query(format!("INSERT INTO {table}(status,scheduled_at) VALUES (0,$1 - interval '1 microsecond'),(0,$1),(5,$1 + interval '23 hours'),(99,$2 - interval '1 microsecond'),(0,$2)"))
+                    .bind::<diesel::sql_types::Timestamptz,_>(start)
+                    .bind::<diesel::sql_types::Timestamptz,_>(end)
+                    .execute(&mut conn).unwrap();
+            }
+            let report = load_entry_statuses_at(&mut conn, now).unwrap();
+            assert_eq!(
+                report.window_start,
+                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.window_end,
+                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.generated_at,
+                now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            for entries in [
+                &report.command_entries,
+                &report.event_entries,
+                &report.inbox_entries,
+                &report.outbox_entries,
+            ] {
+                assert_eq!(
+                    entries
+                        .iter()
+                        .map(|e| (e.status, e.count))
+                        .collect::<Vec<_>>(),
+                    vec![(0, 1), (5, 1), (99, 1)]
+                );
+                assert_eq!(entries[2].status_text, "unknown");
+            }
+            conn.batch_execute("UPDATE inbox_entries SET scheduled_at = scheduled_at + interval '2 days' WHERE status = 5; UPDATE outbox_entries SET status = 4 WHERE status = 99; INSERT INTO inbox_entries(status, scheduled_at) SELECT 7, scheduled_at FROM inbox_entries WHERE status = 0; INSERT INTO outbox_entries(status, scheduled_at) SELECT 8, scheduled_at FROM outbox_entries WHERE status = 0;").unwrap();
+            let changed = load_entry_statuses_at(&mut conn, now).unwrap();
+            assert_eq!(
+                changed
+                    .inbox_entries
+                    .iter()
+                    .map(|e| (e.status, e.count))
+                    .collect::<Vec<_>>(),
+                vec![(0, 1), (7, 1), (99, 1)]
+            );
+            assert_eq!(
+                changed
+                    .outbox_entries
+                    .iter()
+                    .map(|e| (e.status, e.count))
+                    .collect::<Vec<_>>(),
+                vec![(0, 1), (4, 1), (5, 1), (8, 1)]
+            );
+            assert_eq!(
+                changed
+                    .command_entries
+                    .iter()
+                    .map(|e| (e.status, e.count))
+                    .collect::<Vec<_>>(),
+                vec![(0, 1), (5, 1), (99, 1)]
+            );
+            conn.batch_execute("UPDATE command_entries SET scheduled_at = scheduled_at + interval '2 days' WHERE status = 5; UPDATE event_entries SET status = 4 WHERE status = 99").unwrap();
+            let report = load_entry_statuses_at(&mut conn, now).unwrap();
+            assert_eq!(
+                report.window_start,
+                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.window_end,
+                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.command_entries.iter().map(|e| e.count).sum::<u64>(),
+                2
+            );
+            assert!(
+                report
+                    .event_entries
+                    .iter()
+                    .any(|e| e.status == 4 && e.count == 1)
+            );
+        }
+    }
+
+    /// Run with --ignored --nocapture to capture baseline/post-migration plans.
+    #[test]
+    #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+    fn postgres_scheduled_indexes_round_trip_and_explain() {
+        use diesel::sql_types::Text;
+        use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+
+        #[derive(QueryableByName, Debug, PartialEq)]
+        struct Line {
+            #[diesel(sql_type = Text)]
+            value: String,
+        }
+        fn lines(conn: &mut PgConnection, query: &str) -> Vec<Line> {
+            diesel::sql_query(query).load(conn).unwrap()
+        }
+        fn explain(conn: &mut PgConnection, query: &str, phase: &str) {
+            #[derive(QueryableByName)]
+            struct Plan {
+                #[diesel(sql_type = Text, column_name = "QUERY PLAN")]
+                line: String,
+            }
+            let plan: Vec<Plan> = diesel::sql_query(format!("EXPLAIN (ANALYZE, BUFFERS) {query}"))
+                .load(conn)
+                .unwrap();
+            println!("{phase}");
+            for row in plan {
+                println!("{}", row.line);
+            }
+        }
+
+        let url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
+        let mut conn = PgConnection::establish(&url).unwrap();
+        // Roll back the private schema and fixtures even when an assertion fails.
+        conn.test_transaction::<_, diesel::result::Error, _>(|conn| {
+            let schema = format!("reporting_indexes_{}", uuid::Uuid::new_v4().simple());
+            conn.batch_execute(&format!("CREATE SCHEMA {schema}; SET LOCAL search_path TO {schema}")).unwrap();
+            const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            let index_query = "SELECT indexname || ': ' || indexdef AS value FROM pg_indexes WHERE schemaname = current_schema() ORDER BY indexname";
+            let migrated_indexes = lines(conn, index_query);
+            assert_eq!(conn.revert_last_migration(MIGRATIONS).unwrap().to_string(), "20261030000001");
+            let baseline_indexes = lines(conn, index_query);
+            assert_eq!(migrated_indexes.len(), baseline_indexes.len() + 4);
+
+            for (table, extra_column, extra_value) in [
+                ("inbox_entries", "", ""),
+                ("command_entries", ",command_type", ",'Probe'"),
+                ("event_entries", ",event_type", ",'Probe'"),
+                ("outbox_entries", "", ""),
+            ] {
+                // 200,000 historical rows, 200 today, 200 tomorrow per queue.
+                conn.batch_execute(&format!(
+                    "INSERT INTO {table}(id,status,payload,meta,scheduled_at{extra_column})
+                     SELECT gen_random_uuid(), (ARRAY[0,2,4,5,7,8,99])[1 + n % 7],
+                     repeat('x',256),'{{}}',
+                     CASE WHEN n <= 200000 THEN '2025-01-01Z'::timestamptz + (n % 365) * interval '1 day'
+                          WHEN n <= 200200 THEN '2026-12-31Z'::timestamptz
+                          ELSE '2027-01-01Z'::timestamptz END {extra_value}
+                     FROM generate_series(1,200400) n; ANALYZE {table};"
+                )).unwrap();
+            }
+            let now = chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z").unwrap().with_timezone(&chrono::Utc);
+            let before = serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap();
+            for queue in ["inbox_entries", "command_entries", "event_entries", "outbox_entries"] {
+                assert_eq!(before[queue].as_array().unwrap().iter().map(|entry| entry["count"].as_u64().unwrap()).sum::<u64>(), 200);
+            }
+            let query = ["command", "event", "inbox", "outbox"].map(|kind| format!(
+                "SELECT '{kind}' AS kind, status, COUNT(*) AS count FROM {kind}_entries WHERE scheduled_at >= '2026-12-31Z'::timestamptz AND scheduled_at < '2027-01-01Z'::timestamptz GROUP BY status"
+            )).join(" UNION ALL ") + " ORDER BY kind, status";
+            println!("PostgreSQL: {:?}", lines(conn, "SELECT version() AS value"));
+            explain(conn, &query, "Baseline (existing worker indexes)");
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), migrated_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            explain(conn, &query, "After scheduled_at indexes");
+            println!("Index sizes: {:?}", lines(conn,
+                "SELECT indexrelname || ': ' || pg_relation_size(indexrelid)::text || ' bytes' AS value FROM pg_stat_user_indexes WHERE schemaname = current_schema() AND indexrelname IN ('idx_inbox_entries_scheduled_at','idx_command_entries_scheduled_at','idx_event_entries_scheduled_at','idx_outbox_entries_scheduled_at') ORDER BY indexrelname"));
+            conn.revert_last_migration(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), baseline_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            conn.run_pending_migrations(MIGRATIONS).unwrap();
+            assert_eq!(lines(conn, index_query), migrated_indexes);
+            assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
+            Ok(())
+        });
+    }
 }

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Events</title>
+<rect width="512" height="512" rx="88" fill="#fff"/>
+<rect x="104" y="122" width="304" height="276" rx="42" fill="black"/>
+<rect x="160" y="88" width="31" height="81" rx="15.5" fill="black"/><rect x="321" y="88" width="31" height="81" rx="15.5" fill="black"/>
+<path d="M127 191 H385" stroke="white" stroke-width="15"/>
+<path d="M256 224 L275 263 L319 269 Q325 270 320 275 L288 307 L295 351 Q296 357 291 354 L256 335 L221 354 Q216 357 217 351 L224 307 L192 275 Q187 270 193 269 L237 263 Z" fill="white"/>
+<text x="256" y="467" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#000">Events</text>
+</svg>

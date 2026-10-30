@@ -7,15 +7,37 @@ use std::sync::Arc;
 #[handler]
 fn index() -> Html<String> {
     let mut html = layout::start("Development", layout::Page::Home);
-    html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">DEVELOPER TOOLS</p><h1>Development<span class="title-dot">.</span></h1><p class="lede">Tools for inspecting the services in your local workspace.</p></div></div><div class="tools"><a class="service tool" href="/dashboard"><span class="service-number" aria-hidden="true">01</span><h2>Database dashboard</h2><p>Table sizes, estimated rows, and command and event status for each service.</p><span class="tool-link">Open dashboard <span aria-hidden="true">→</span></span></a></div></main>"#);
+    html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">DEVELOPER TOOLS</p><h1>Development<span class="title-dot">.</span></h1><p class="lede">Tools for inspecting the services in your local workspace.</p></div></div><div class="tools"><a class="service tool" href="/dashboard"><span class="service-number" aria-hidden="true">01</span><h2>Database dashboard</h2><p>Table sizes, estimated rows, and inbox, command, event and outbox status for each service.</p><span class="tool-link">Open dashboard <span aria-hidden="true">→</span></span></a></div></main>"#);
     layout::end(&mut html);
     Html(html)
+}
+
+#[handler]
+fn service_image(poem::web::Path(name): poem::web::Path<String>) -> poem::Response {
+    let svg = match name.as_str() {
+        "retailer-sourcing.svg" => include_str!("../assets/retailer-sourcing.svg"),
+        "offers.svg" => include_str!("../assets/offers.svg"),
+        "inbox.svg" => include_str!("../assets/inbox.svg"),
+        "commands.svg" => include_str!("../assets/commands.svg"),
+        "events.svg" => include_str!("../assets/events.svg"),
+        "outbox.svg" => include_str!("../assets/outbox.svg"),
+        "customer-facing.svg" => include_str!("../assets/customer-facing.svg"),
+        _ => {
+            return poem::Response::builder()
+                .status(poem::http::StatusCode::NOT_FOUND)
+                .finish();
+        }
+    };
+    poem::Response::builder()
+        .content_type("image/svg+xml")
+        .body(svg)
 }
 
 fn app(state: Arc<dashboard::Dashboard>) -> impl Endpoint {
     Route::new()
         .at("/", get(index))
         .at("/dashboard", get(dashboard::page))
+        .at("/assets/:name", get(service_image))
         .data(state)
 }
 
@@ -84,6 +106,33 @@ mod tests {
         assert!(body.contains(r#"href="/dashboard""#));
         assert!(body.contains(r#"data-theme-choice="dark""#));
         assert!(body.contains("prefers-color-scheme:dark"));
+    }
+
+    #[tokio::test]
+    async fn service_images_are_served_as_svg() {
+        let client = TestClient::new(app(std::sync::Arc::new(
+            crate::dashboard::Dashboard::from_env().unwrap(),
+        )));
+        for name in [
+            "retailer-sourcing",
+            "offers",
+            "customer-facing",
+            "inbox",
+            "commands",
+            "events",
+            "outbox",
+        ] {
+            let response = client.get(format!("/assets/{name}.svg")).send().await;
+            response.assert_status_is_ok();
+            assert_eq!(response.0.headers()["content-type"], "image/svg+xml");
+            let body = response.0.into_body().into_string().await.unwrap();
+            assert!(body.starts_with("<svg"));
+        }
+        client
+            .get("/assets/missing.svg")
+            .send()
+            .await
+            .assert_status(poem::http::StatusCode::NOT_FOUND);
     }
 
     #[test]

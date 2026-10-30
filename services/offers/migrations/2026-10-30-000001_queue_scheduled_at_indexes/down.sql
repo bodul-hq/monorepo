@@ -1,0 +1,4 @@
+DROP INDEX idx_inbox_entries_scheduled_at;
+DROP INDEX idx_command_entries_scheduled_at;
+DROP INDEX idx_event_entries_scheduled_at;
+DROP INDEX idx_outbox_entries_scheduled_at;

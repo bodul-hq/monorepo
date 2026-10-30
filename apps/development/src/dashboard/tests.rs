@@ -26,6 +26,10 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
         Err(ReportError::Unavailable),
         Ok(report()),
         Ok(EntryStatuses {
+            window_start: Some("2026-10-29T00:00:00Z".into()),
+            window_end: Some("2026-10-30T00:00:00Z".into()),
+            inbox_entries: Some(vec![]),
+            outbox_entries: Some(vec![]),
             generated_at: "2026-10-19T12:00:00Z".into(),
             command_entries: vec![],
             event_entries: vec![client::StatusCount {
@@ -39,9 +43,9 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
     );
     assert!(html.contains("3<small> / 4</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
-    assert!(html.contains("Offers command and event status"));
-    assert!(html.contains("Retailer Sourcing command and event status"));
-    assert!(html.contains("<td>42</td>"));
+    assert!(html.contains("Offers queue status"));
+    assert!(html.contains("Retailer Sourcing queue status"));
+    assert!(html.contains("<dt>Completed</dt><dd>42</dd>"));
     assert!(html.contains("<strong>6</strong>"));
     assert!(html.contains("Summary totals include available services only"));
 }
@@ -103,7 +107,7 @@ fn escapes_names_and_timestamps_and_displays_empty_schemas() {
     let html = render(Ok(bad), Ok(empty), Err(ReportError::Unavailable));
     assert!(!html.contains("<script>alert"));
     assert!(html.contains("&lt;script&gt;alert"));
-    assert!(!html.contains("<img"));
+    assert!(!html.contains("<img src=x onerror=alert(1)>"));
     assert!(html.contains("&lt;img"));
     assert!(html.contains("&quot; onmouseover=&quot;x"));
     assert!(html.contains("No tables yet"));
@@ -165,6 +169,10 @@ async fn dashboard_route_renders_when_services_are_unconfigured() {
 #[test]
 fn renders_exact_status_counts_and_empty_queues() {
     let entries = EntryStatuses {
+        window_start: Some("2026-10-29T00:00:00Z".into()),
+        window_end: Some("2026-10-30T00:00:00Z".into()),
+        inbox_entries: Some(vec![]),
+        outbox_entries: Some(vec![]),
         generated_at: "2026-10-18T12:00:00Z".into(),
         command_entries: vec![client::StatusCount {
             status: 4,
@@ -178,13 +186,19 @@ fn renders_exact_status_counts_and_empty_queues() {
     assert!(html.contains("Event entries"));
     assert!(html.contains("failed &lt;test&gt;"));
     assert!(html.contains("1,234"));
-    assert!(html.contains("No entries yet"));
-    assert!(html.contains("Exact counts by current status"));
+    assert_queue(&html, "Retailer Sourcing", "Inbox entries", true);
+    assert_queue(&html, "Retailer Sourcing", "Command entries", false);
+    assert_queue(&html, "Retailer Sourcing", "Event entries", true);
+    assert_queue(&html, "Retailer Sourcing", "Outbox entries", true);
 }
 
 #[test]
 fn customer_facing_contributes_to_totals_with_independent_reports() {
     let empty_entries = || EntryStatuses {
+        window_start: Some("2026-10-29T00:00:00Z".into()),
+        window_end: Some("2026-10-30T00:00:00Z".into()),
+        inbox_entries: Some(vec![]),
+        outbox_entries: Some(vec![]),
         generated_at: "2026-10-25T12:00:00Z".into(),
         command_entries: vec![],
         event_entries: vec![],
@@ -200,11 +214,32 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
     );
     assert!(html.contains("4<small> / 4</small>"));
     assert!(html.contains("<h2>Customer Facing</h2>"));
-    assert!(html.contains("Customer Facing command and event status"));
+    // Each service has separate command and event boxes, including zero counts.
+    assert_eq!(html.matches(r#"class="command-boxes""#).count(), 12);
+    assert_eq!(
+        html.matches(r#"<dt>New</dt><dd><span class="sr-only">0</span></dd>"#)
+            .count(),
+        12
+    );
+    assert_eq!(
+        html.matches(r#"<dt>Archive</dt><dd><span class="sr-only">0</span></dd>"#)
+            .count(),
+        12
+    );
+    assert!(html.contains("Customer Facing queue status"));
     assert!(html.contains("<strong>8</strong>"));
     assert!(html.contains("4.0 MiB"));
     assert!(!html.contains("Summary totals include available services only"));
-    assert!(html.contains("No entries yet"));
+    for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
+        for queue in [
+            "Inbox entries",
+            "Command entries",
+            "Event entries",
+            "Outbox entries",
+        ] {
+            assert_queue(&html, service, queue, true);
+        }
+    }
 
     for error in [
         ReportError::Unavailable,
@@ -225,7 +260,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(html.contains("<h2>Offers</h2>"));
         assert!(html.contains("<strong>6</strong>"));
         assert!(html.contains("Summary totals include available services only"));
-        assert!(html.contains("No entries yet"));
+        assert_queue(&html, "Customer Facing", "Command entries", true);
 
         let mut customer = report();
         customer.tables[0].table_name = "<customer-table>".into();
@@ -243,5 +278,252 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(!html.contains("<customer-table>"));
         assert!(!html.contains("customer-facing-development-token"));
         assert!(!html.contains("172.28.100.42"));
+        let panel = service_panel(&html, "Customer Facing");
+        assert!(panel.contains("error-state"));
+        assert!(!panel.contains("queue-row-empty"));
+        assert!(!panel.contains("command-boxes"));
+    }
+}
+
+#[test]
+fn inbox_outbox_counts_and_older_service_reports() {
+    for (service, image) in [
+        ("Retailer Sourcing", "retailer-sourcing"),
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+    ] {
+        let report = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-10-29T12:00:00Z",
+            "window_start": "2026-10-29T00:00:00Z",
+            "window_end": "2026-10-30T00:00:00Z",
+            "inbox_entries": [{"status": 0, "status_text": "received", "count": 1234}],
+            "command_entries": [], "event_entries": [],
+            "outbox_entries": [{"status": 8, "status_text": "archive", "count": 77},
+                {"status": 99, "status_text": "<unknown>", "count": 9}]
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, image, Ok(report));
+        assert!(html.contains("<dt>New</dt><dd>1,234</dd>"));
+        assert!(html.contains("<dt>Archive</dt><dd>77</dd>"));
+        assert!(html.contains("&lt;unknown&gt; (status 99)</dt><dd>9</dd>"));
+        assert!(html.contains(&format!("src=\"/assets/{image}.svg\"")));
+        assert!(html.contains(&format!("alt=\"{service} queue status\"")));
+        assert_queue(&html, service, "Inbox entries", false);
+        assert_queue(&html, service, "Command entries", true);
+        assert_queue(&html, service, "Event entries", true);
+        assert_queue(&html, service, "Outbox entries", false);
+        let inbox = html.find("aria-label=\"Inbox entries\"").unwrap();
+        let command = html.find("aria-label=\"Command entries\"").unwrap();
+        let event = html.find("aria-label=\"Event entries\"").unwrap();
+        let outbox = html.find("aria-label=\"Outbox entries\"").unwrap();
+        assert!(inbox < command && command < event && event < outbox);
+        for icon in ["inbox", "commands", "events", "outbox"] {
+            assert!(html.contains(&format!("src=\"/assets/{icon}.svg\"")));
+        }
+        assert!(!html.contains("<h3>Inbox entries</h3>"));
+        assert!(html[inbox..command].contains("1,234"));
+        assert!(!html[inbox..command].contains("command-empty"));
+        assert_eq!(html[command..outbox].matches("command-empty").count(), 12);
+        assert!(!html[outbox..].contains("command-empty"));
+        assert!(!html[command..outbox].contains("1,234"));
+        assert!(html[outbox..].contains("77"));
+
+        let old = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-10-29T12:00:00Z",
+            "command_entries": [], "event_entries": []
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, image, Ok(old));
+        assert_eq!(html.matches("Upgrade this service").count(), 1);
+        assert!(!html.contains("Report UTC date"));
+        assert_eq!(html.matches("class=\"command-boxes\"").count(), 0);
+    }
+}
+
+#[test]
+fn compact_boxes_require_the_whole_queue_to_be_empty() {
+    for status in [0, 2, 4, 5, 7, 8, 99] {
+        for count in [0, 1] {
+            let entries = vec![client::StatusCount {
+                status,
+                status_text: "test".into(),
+                count,
+            }];
+            let mut html = String::new();
+            render_entry_boxes(&mut html, "Inbox entries", "inbox", &entries);
+            assert_eq!(html.contains("queue-row-empty"), count == 0);
+            assert!(!html.contains("<dd>0</dd>"));
+            if count > 0 {
+                assert!(html.contains("<dd>1</dd>"));
+            }
+            let boxes = if status == 99 { 7 } else { 6 };
+            assert_eq!(
+                html.matches("command-empty").count(),
+                if count == 0 { boxes } else { 0 }
+            );
+        }
+    }
+}
+
+#[test]
+fn daily_counts_require_an_explicit_valid_window() {
+    for (service, image) in [
+        ("Retailer Sourcing", "retailer-sourcing"),
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+    ] {
+        let legacy = serde_json::json!({
+            "generated_at": "2026-10-30T01:00:00+02:00",
+            "command_entries": [{"status":5,"status_text":"completed","count":120000}],
+            "event_entries": []
+        });
+        for with_queues in [false, true] {
+            let mut value = legacy.clone();
+            if with_queues {
+                value["inbox_entries"] = serde_json::json!([]);
+                value["outbox_entries"] = serde_json::json!([]);
+            }
+            let mut html = String::new();
+            render_entries(
+                &mut html,
+                service,
+                image,
+                Ok(serde_json::from_value(value).unwrap()),
+            );
+            assert!(html.contains("Upgrade this service"));
+            assert!(!html.contains("120,000"));
+            assert!(!html.contains("Report UTC date"));
+        }
+        let mut value = legacy;
+        // Local dates differ from the UTC date; generation time is not the window.
+        value["window_start"] = "2026-10-28T19:00:00-05:00".into();
+        value["window_end"] = "2026-10-29T19:00:00-05:00".into();
+        let mut html = String::new();
+        render_entries(
+            &mut html,
+            service,
+            image,
+            Ok(serde_json::from_value(value.clone()).unwrap()),
+        );
+        assert!(html.contains("Report UTC date: 2026-10-29"));
+        assert!(html.contains("120,000"));
+        for end in [
+            "bad",
+            "2026-10-29T00:00:00Z",
+            "2026-10-31T00:00:00Z",
+            "2026-10-30T01:00:00Z",
+        ] {
+            value["window_end"] = end.into();
+            let mut html = String::new();
+            render_entries(
+                &mut html,
+                service,
+                image,
+                Ok(serde_json::from_value(value.clone()).unwrap()),
+            );
+            assert!(html.contains("Invalid reporting window"));
+            assert!(!html.contains("120,000"));
+            assert!(!html.contains("Report UTC date"));
+        }
+        value.as_object_mut().unwrap().remove("window_end");
+        let report: EntryStatuses = serde_json::from_value(value).unwrap();
+        assert!(report.window_date().is_err());
+    }
+}
+
+#[test]
+fn present_window_bounds_must_be_strings() {
+    for field in ["window_start", "window_end"] {
+        for invalid in [
+            serde_json::Value::Null,
+            serde_json::json!(42),
+            serde_json::json!([]),
+        ] {
+            let mut value = serde_json::json!({
+                "generated_at": "2026-10-29T12:00:00Z",
+                "command_entries": [], "event_entries": []
+            });
+            value[field] = invalid;
+            assert!(serde_json::from_value::<EntryStatuses>(value).is_err());
+        }
+    }
+}
+
+#[test]
+fn display_labels_do_not_select_icons() {
+    let mut html = String::new();
+    render_entries(
+        &mut html,
+        "Renamed service",
+        "offers",
+        Err(ReportError::Unavailable),
+    );
+    assert!(html.contains(r#"src="/assets/offers.svg" alt="Renamed service queue status""#));
+    html.clear();
+    render_entry_boxes(&mut html, "Renamed queue", "inbox", &[]);
+    assert!(html.contains(r#"src="/assets/inbox.svg" alt="Renamed queue""#));
+}
+
+fn service_panel<'a>(html: &'a str, service: &str) -> &'a str {
+    let start = html
+        .find(&format!(r#"aria-label="{service} queue status""#))
+        .unwrap();
+    let rest = &html[start..];
+    &rest[..rest
+        .find(r#"<section class="service "#)
+        .unwrap_or(rest.len())]
+}
+
+fn assert_queue(html: &str, service: &str, queue: &str, empty: bool) {
+    let panel = service_panel(html, service);
+    let label = panel.find(&format!(r#"aria-label="{queue}""#)).unwrap();
+    let start = panel[..label].rfind("<section").unwrap();
+    let row = &panel[start..];
+    let row = &row[..row.find("</section>").unwrap()];
+    assert_eq!(row.contains("queue-row-empty"), empty, "{service}: {queue}");
+    assert_eq!(
+        row.matches("command-empty").count(),
+        if empty { 6 } else { 0 }
+    );
+    if empty {
+        for label in [
+            "New",
+            "Processing",
+            "Failed",
+            "Completed",
+            "Dead",
+            "Archive",
+        ] {
+            assert!(row.contains(&format!(
+                r#"<dt>{label}</dt><dd><span class="sr-only">0</span></dd>"#
+            )));
+        }
+    }
+}
+
+#[test]
+fn missing_queues_are_distinct_from_empty_and_unknown_only_queues() {
+    for (service, image) in [
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+        ("Retailer Sourcing", "retailer-sourcing"),
+    ] {
+        let report = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-12-31T12:00:00Z",
+            "window_start": "2026-12-31T00:00:00Z",
+            "window_end": "2027-01-01T00:00:00Z",
+            "command_entries": [{"status":99,"status_text":"unknown","count":1}],
+            "event_entries": []
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, image, Ok(report));
+        assert_queue(&html, service, "Command entries", false);
+        assert_queue(&html, service, "Event entries", true);
+        assert_eq!(html.matches("queue-row-empty").count(), 1);
+        assert_eq!(html.matches("Upgrade this service").count(), 2);
+        assert!(html.contains("unknown (status 99)</dt><dd>1</dd>"));
     }
 }

@@ -97,9 +97,14 @@ fn render(
             r#"<p class="partial-note">Summary totals include available services only.</p>"#,
         );
     }
-    render_entries(&mut html, "Retailer Sourcing", entries);
-    render_entries(&mut html, "Offers", offers_entries);
-    render_entries(&mut html, "Customer Facing", customer_facing_entries);
+    render_entries(&mut html, "Retailer Sourcing", "retailer-sourcing", entries);
+    render_entries(&mut html, "Offers", "offers", offers_entries);
+    render_entries(
+        &mut html,
+        "Customer Facing",
+        "customer-facing",
+        customer_facing_entries,
+    );
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(
@@ -142,40 +147,48 @@ fn render(
     layout::end(&mut html);
     html
 }
-fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses, ReportError>) {
+fn render_entries(
+    html: &mut String,
+    service: &str,
+    image: &str,
+    report: Result<EntryStatuses, ReportError>,
+) {
     let _ = write!(
         html,
-        r#"<section class="service" aria-label="{service} command and event status"><header class="service-header"><div><h2>{service} command and event status</h2><p>Exact counts by current status</p></div></header>"#
+        r#"<section class="service queue-service" aria-label="{service} queue status"><header class="queue-service-heading"><h2><img class="queue-service-image" src="/assets/{image}.svg" alt="{service} queue status" width="128" height="128"></h2></header><div class="queue-service-content">"#
     );
     match report {
         Ok(report) => {
+            let date = match report.window_date() {
+                Ok(Some(date)) => date,
+                Ok(None) => {
+                    html.push_str("<p>Upgrade this service to report daily counts. This report does not identify its counting window.</p></div></section>");
+                    return;
+                }
+                Err(_) => {
+                    html.push_str("<p>Invalid reporting window. Daily counts unavailable.</p></div></section>");
+                    return;
+                }
+            };
             let _ = write!(
                 html,
-                r#"<div class="report-meta">Updated <time datetime="{}">{}</time></div>"#,
+                r#"<div class="report-meta">Report UTC date: {}. Updated <time datetime="{}">{}</time></div>"#,
+                date,
                 escape(&report.generated_at),
                 escape(&report.generated_at)
             );
-            for (title, entries) in [
-                ("Command entries", report.command_entries),
-                ("Event entries", report.event_entries),
+            for (title, image, entries) in [
+                ("Inbox entries", "inbox", report.inbox_entries),
+                ("Command entries", "commands", Some(report.command_entries)),
+                ("Event entries", "events", Some(report.event_entries)),
+                ("Outbox entries", "outbox", report.outbox_entries),
             ] {
-                let _ = write!(
-                    html,
-                    r#"<div class="table-scroll" tabindex="0" role="region" aria-label="{title}"><table><caption>{title}</caption><thead><tr><th scope="col">Status</th><th scope="col">Status code</th><th scope="col">Count</th></tr></thead><tbody>"#
-                );
-                if entries.is_empty() {
-                    html.push_str(r#"<tr><td colspan="3">No entries yet</td></tr>"#);
+                if let Some(entries) = entries {
+                    render_entry_boxes(html, title, image, &entries);
+                } else {
+                    render_queue_start(html, title, image, false);
+                    html.push_str("<p>Upgrade this service to report these counts.</p></section>");
                 }
-                for entry in entries {
-                    let _ = write!(
-                        html,
-                        r#"<tr><th scope="row">{}</th><td>{}</td><td>{}</td></tr>"#,
-                        escape(&entry.status_text),
-                        entry.status,
-                        number(entry.count as u128)
-                    );
-                }
-                html.push_str("</tbody></table></div>");
             }
         }
         Err(error) => {
@@ -194,7 +207,67 @@ fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses
             let _ = write!(html, r#"<div class="error-state"><p>{message}</p></div>"#);
         }
     }
-    html.push_str("</section>");
+    html.push_str("</div></section>");
+}
+
+fn render_queue_start(html: &mut String, title: &str, image: &str, empty: bool) {
+    let row_class = if empty { " queue-row-empty" } else { "" };
+    let _ = write!(
+        html,
+        r#"<section class="command-summary queue-row{row_class}" aria-label="{title}"><h3><img class="queue-icon" src="/assets/{image}.svg" alt="{title}" width="64" height="64"></h3>"#
+    );
+}
+
+fn render_entry_boxes(
+    html: &mut String,
+    title: &str,
+    image: &str,
+    entries: &[client::StatusCount],
+) {
+    let statuses = [
+        (0, "New", "new"),
+        (2, "Processing", "processing"),
+        (4, "Failed", "failed"),
+        (5, "Completed", "completed"),
+        (7, "Dead", "dead"),
+        (8, "Archive", "archive"),
+    ];
+    let empty = entries.iter().all(|entry| entry.count == 0);
+    render_queue_start(html, title, image, empty);
+    let empty_class = if empty { " command-empty" } else { "" };
+    html.push_str(r#"<dl class="command-boxes">"#);
+    for (code, label, class) in statuses {
+        let entry = entries.iter().find(|entry| entry.status == code);
+        let count = entry.map_or(0, |entry| entry.count);
+        let source_label = entry.map_or(label, |entry| entry.status_text.as_str());
+        let _ = write!(
+            html,
+            r#"<div class="command-box command-{class}{empty_class}" title="{} (status {code})"><dt>{label}</dt><dd>{}</dd></div>"#,
+            escape(source_label),
+            queue_count(count)
+        );
+    }
+    for entry in entries
+        .iter()
+        .filter(|entry| !statuses.iter().any(|(code, _, _)| *code == entry.status))
+    {
+        let _ = write!(
+            html,
+            r#"<div class="command-box command-unknown{empty_class}"><dt>{} (status {})</dt><dd>{}</dd></div>"#,
+            escape(&entry.status_text),
+            entry.status,
+            queue_count(entry.count)
+        );
+    }
+    html.push_str("</dl></section>");
+}
+
+fn queue_count(count: u64) -> String {
+    if count == 0 {
+        r#"<span class="sr-only">0</span>"#.into()
+    } else {
+        number(count as u128)
+    }
 }
 
 fn render_report(html: &mut String, report: &Report) {

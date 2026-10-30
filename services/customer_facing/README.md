@@ -43,7 +43,7 @@ reset. No other service's tables or database are needed.
 | --- | --- |
 | `GET /api/health` | `200`, text `ok`; does not probe PostgreSQL |
 | `GET /api/reporting/database-tables` | Authenticated table storage and estimated row counts |
-| `GET /api/reporting/entry-statuses` | Authenticated exact command/event counts by status |
+| `GET /api/reporting/entry-statuses` | Authenticated exact inbox/command/event/outbox counts by status |
 | `GET /api/offers` | Paginated offers, with `limit` and `offset` query parameters |
 | `POST /api/inbox` | Store a message and return `202`, `{"message_id":"<uuid>"}` |
 | `POST /api/inbox/run` | Convert one batch of due inbox messages into queued commands |
@@ -580,3 +580,38 @@ unselected languages. Do not use `make migrate-redo` against operational data.
 mixed legacy/snapshot replay, receipt rollback, row locking, and REST/GraphQL
 browse/search parity. It requires a separate `DATABASE_URL_TEST` with `pg_trgm`
 provisioned as described above.
+
+Command and event counts from `/api/reporting/entry-statuses` include only entries
+whose current `scheduled_at` falls within today in UTC (midnight inclusive, next
+midnight exclusive), grouped by current status. Later today is included; retries
+can move entries between days. These counts are not historical throughput.
+
+The entry-status report includes `inbox_entries`, `command_entries`,
+`event_entries`, and `outbox_entries` arrays, grouped by current status for
+entries scheduled today in UTC. All four queues share one query snapshot.
+Reports include `window_start` (inclusive) and `window_end` (exclusive), the
+UTC midnight bounds used by the query. The dashboard derives its report date
+from these bounds. Reports without bounds show an upgrade message for the
+entire panel; their potentially all-time counts are not displayed as daily totals.
+Invalid or incomplete windows are rejected. Missing inbox/outbox arrays in a
+windowed report still show an upgrade message for those queues.
+
+### Daily reporting indexes
+
+The `2026-10-30-000001_queue_scheduled_at_indexes` migration adds a B-tree
+`scheduled_at` index to each of the four queue tables. Existing worker indexes
+remain in place. It uses the existing transactional migration runner:
+**index creation blocks writes**, so schedule deployment in a maintenance
+window appropriate to the queue sizes. The down migration drops only these
+four indexes.
+
+The ignored `postgres_scheduled_indexes_round_trip_and_explain` test uses
+an isolated schema to verify up/down/reapply, unchanged reports and preserved
+worker indexes. It also prints PostgreSQL version, baseline and indexed
+`EXPLAIN (ANALYZE, BUFFERS)` plans, and index sizes for historical-heavy data:
+
+```sh
+cargo test --bin customer_facing postgres_scheduled_indexes_round_trip_and_explain -- --ignored --nocapture
+```
+
+Set `DATABASE_URL_TEST` as for `make test-postgres`.

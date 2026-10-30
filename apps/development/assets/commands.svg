@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Commands</title>
+<rect width="512" height="512" rx="88" fill="#fff"/>
+<rect x="88" y="106" width="336" height="288" rx="47" fill="black"/>
+<path d="M153 195 L206 246 L153 297" fill="none" stroke="white" stroke-width="29" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="244" y="285" width="106" height="28" rx="14" fill="white"/>
+<circle cx="126" cy="143" r="7" fill="white"/><circle cx="150" cy="143" r="7" fill="white"/><circle cx="174" cy="143" r="7" fill="white"/>
+<text x="256" y="467" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#000">Commands</text>
+</svg>

@@ -1,3 +1,9 @@
+fn reporting_now() -> chrono::DateTime<chrono::Utc> {
+    chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
+        .unwrap()
+        .with_timezone(&chrono::Utc)
+}
+
 use super::*;
 
 async fn report(client: &TestClient<poem::Route>, name: &str) -> Value {
@@ -27,10 +33,10 @@ async fn reports_active_schema_tables_and_storage_without_changing_queues() {
         "CREATE TABLE z_report (id INT PRIMARY KEY, value TEXT);
          INSERT INTO z_report SELECT n, repeat('value', 100) FROM generate_series(1,100) n;
          CREATE VIEW report_view AS SELECT * FROM z_report;
-         INSERT INTO inbox_entries(id,payload,meta) VALUES(gen_random_uuid(),'{}','{}');
-         INSERT INTO outbox_entries(id,payload,meta) VALUES(gen_random_uuid(),'{}','{}');
-         INSERT INTO command_entries(id,command_type,payload) VALUES(gen_random_uuid(),'Probe','{}');
-         INSERT INTO event_entries(id,event_type,payload) VALUES(gen_random_uuid(),'Probe','{}');"
+         INSERT INTO inbox_entries(id,payload,meta,scheduled_at) VALUES(gen_random_uuid(),'{}','{}','2026-12-31T12:00:00Z');
+         INSERT INTO outbox_entries(id,payload,meta,scheduled_at) VALUES(gen_random_uuid(),'{}','{}','2026-12-31T12:00:00Z');
+         INSERT INTO command_entries(id,command_type,payload,scheduled_at) VALUES(gen_random_uuid(),'Probe','{}','2026-12-31T12:00:00Z');
+         INSERT INTO event_entries(id,event_type,payload,scheduled_at) VALUES(gen_random_uuid(),'Probe','{}','2026-12-31T12:00:00Z');"
     ).unwrap();
     let snapshot_sql = "SELECT jsonb_build_object(
         'inbox',(SELECT jsonb_agg(to_jsonb(t) ORDER BY id) FROM inbox_entries t),
@@ -39,7 +45,8 @@ async fn reports_active_schema_tables_and_storage_without_changing_queues() {
         'outbox',(SELECT jsonb_agg(to_jsonb(t) ORDER BY id) FROM outbox_entries t)
     ) AS data";
     let before = snapshot(&pool, snapshot_sql);
-    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
+    state.reporting = crate::reporting::Reporting::postgres_with_clock(pool.clone(), reporting_now);
     let client = TestClient::new(crate::app_with_reporting_token(
         state,
         "reporting-test-token".into(),
@@ -92,7 +99,8 @@ async fn reports_active_schema_tables_and_storage_without_changing_queues() {
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn reports_exact_status_counts_empty_queues_and_unknown_codes() {
     let (_schema, pool) = database(true);
-    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
+    state.reporting = crate::reporting::Reporting::postgres_with_clock(pool.clone(), reporting_now);
     let client = TestClient::new(crate::app_with_reporting_token(
         state,
         "reporting-test-token".into(),
@@ -103,13 +111,16 @@ async fn reports_exact_status_counts_empty_queues_and_unknown_codes() {
     pool.get()
         .unwrap()
         .batch_execute(
-            "INSERT INTO command_entries(id,command_type,payload,status)
-         SELECT gen_random_uuid(),'Probe','{}',s FROM unnest(ARRAY[0,0,2,4,5,7,8,99]) s;
-         INSERT INTO event_entries(id,event_type,payload,status)
-         SELECT gen_random_uuid(),'Probe','{}',s FROM unnest(ARRAY[0,2,4,5,5,7,8,99]) s;",
+            "INSERT INTO command_entries(id,command_type,payload,status,scheduled_at)
+         SELECT gen_random_uuid(),'Probe','{}',s,'2026-12-31T12:00:00Z' FROM unnest(ARRAY[0,0,2,4,5,7,8,99]) s;
+         INSERT INTO event_entries(id,event_type,payload,status,scheduled_at)
+         SELECT gen_random_uuid(),'Probe','{}',s,'2026-12-31T12:00:00Z' FROM unnest(ARRAY[0,2,4,5,5,7,8,99]) s;",
         )
         .unwrap();
     let statuses = report(&client, "entry-statuses").await;
+    assert_eq!(statuses["generated_at"], "2026-12-31T23:59:59Z");
+    assert_eq!(statuses["window_start"], "2026-12-31T00:00:00Z");
+    assert_eq!(statuses["window_end"], "2027-01-01T00:00:00Z");
     for (queue, repeated) in [("command_entries", 0), ("event_entries", 5)] {
         let expected: Vec<_> = [(0,"received"),(2,"reserved"),(4,"failed"),(5,"completed"),(7,"dead"),(8,"archive"),(99,"unknown")].into_iter().map(|(status,label)| json!({"status":status,"status_text":label,"count":if status==repeated {2}else{1}})).collect();
         assert_eq!(statuses[queue], json!(expected));

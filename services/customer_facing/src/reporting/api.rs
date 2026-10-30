@@ -45,7 +45,7 @@ impl ReportingApi {
             .map_err(load_error)
     }
 
-    /// Exact command and event counts, grouped by their current status.
+    /// Inbox, command, event and outbox counts scheduled for today (UTC), grouped by current status.
     #[oai(
         path = "/reporting/entry-statuses",
         method = "get",
