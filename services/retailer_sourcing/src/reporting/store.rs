@@ -164,7 +164,7 @@ pub(super) fn load_entry_statuses_at(
 }
 
 #[cfg(test)]
-mod daily_tests {
+mod postgres_tests {
     use super::*;
     use diesel::connection::SimpleConnection;
 

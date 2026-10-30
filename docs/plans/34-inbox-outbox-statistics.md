@@ -133,9 +133,9 @@ Verification on 2026-10-29:
 - Daily PostgreSQL fixtures now include all four queues and independently
   verify inbox rescheduling and outbox status changes. The migrated sourcing
   fixture verifies distinct inbox/outbox groups. `make test-postgres` cannot
-  run without `DATABASE_URL_TEST`. Also run the focused daily tests with
-  `cargo test --bin <service> daily_tests -- --ignored` once configured, since
-  the existing Make target filters by `postgres_tests`.
+  run without `DATABASE_URL_TEST`. Follow-up: all three daily-window test
+  modules are now named `postgres_tests`, so `make test-postgres` includes
+  their midnight, DST, and rescheduling checks without a separate command.
 - `PORT=<port> make serve` was attempted for every changed server. Offers and
   Customer Facing require missing database configuration; Retailer Sourcing
   rejects its configured object-storage URL; development cannot bind a socket.
