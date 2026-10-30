@@ -5,6 +5,16 @@ GOAL: create full flow from structuralize to show on web
 [x] Support inbox and outbox statistics, like for commands and events ([plan](docs/plans/34-inbox-outbox-statistics.md))
 
 
+PR #23 selected review fixes (implementation plan supplied):
+[>] Freeze reporting time in tests (comment 1)
+[x] Fix compact empty-box CSS (comment 2)
+[>] Pass icon slugs explicitly (comment 3)
+[>] Correct the development README (comment 4)
+[>] Add date-range indexes (comment 6)
+[>] Replace obsolete rendering assertions (comment 9)
+[>] Update Bruno documentation (comment 11)
+
+
 
 Status follows the [TODO workflow](AGENTS.md#todo-workflow):
 

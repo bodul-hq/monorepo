@@ -546,7 +546,8 @@ tbody tr:hover {
   color:var(--warn);
   margin:-17px 0 24px;
 }
-.sr-only,.command-empty dt,.command-empty dd {
+.sr-only,.command-box.command-empty dt,.command-box.command-empty dd {
+  min-height:0;
   position:absolute;
   width:1px;
   height:1px;
