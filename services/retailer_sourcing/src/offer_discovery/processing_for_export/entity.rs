@@ -118,20 +118,23 @@ impl OfferExport {
         matches!(self.schema_version, 1..=9)
             && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
-                if self.schema_version >= 9
-                    && entry
-                        .payload
-                        .localization
-                        .as_ref()
-                        .and_then(|value| value.target_market.as_ref())
-                        .is_some_and(|market| {
-                            matches!(
-                                market,
-                                retailer_sauce::localization::TargetMarket::LegacyRegion { .. }
-                            )
-                        })
-                {
-                    return false;
+                let market = entry
+                    .payload
+                    .localization
+                    .as_ref()
+                    .and_then(|value| value.target_market.as_ref());
+                match market {
+                    Some(retailer_sauce::localization::TargetMarket::Region { .. })
+                        if self.schema_version < 9 =>
+                    {
+                        return false;
+                    }
+                    Some(retailer_sauce::localization::TargetMarket::LegacyRegion { .. })
+                        if self.schema_version >= 9 =>
+                    {
+                        return false;
+                    }
+                    _ => {}
                 }
                 let payload = &entry.payload;
                 if (self.schema_version < 6 && !payload.was_price.is_missing())

@@ -654,8 +654,21 @@ mod regional_versions {
         for variation in body["variations"].as_array_mut().unwrap() {
             variation["localization"] = serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"});
         }
-        for version in [4, 8, 9] {
+        for version in 4..=9 {
             let snapshot = convert(tests::source(), &body.to_string(), version).unwrap();
+            assert!(snapshot.valid_schema());
+            let mut invalid = snapshot.clone();
+            for entry in &mut invalid.entries {
+                let localization = entry.payload.localization.as_mut().unwrap();
+                localization.target_market = localization.target_market.as_ref().map(|market| {
+                    if version == 9 {
+                        market.legacy()
+                    } else {
+                        market.canonicalized()
+                    }
+                });
+            }
+            assert!(!invalid.valid_schema());
             for entry in snapshot.entries {
                 let value = serde_json::to_value(entry.payload.localization).unwrap();
                 let expected = if version == 9 {
