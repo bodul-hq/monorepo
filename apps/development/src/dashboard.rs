@@ -97,9 +97,14 @@ fn render(
             r#"<p class="partial-note">Summary totals include available services only.</p>"#,
         );
     }
-    render_entries(&mut html, "Retailer Sourcing", entries);
-    render_entries(&mut html, "Offers", offers_entries);
-    render_entries(&mut html, "Customer Facing", customer_facing_entries);
+    render_entries(&mut html, "Retailer Sourcing", "retailer-sourcing", entries);
+    render_entries(&mut html, "Offers", "offers", offers_entries);
+    render_entries(
+        &mut html,
+        "Customer Facing",
+        "customer-facing",
+        customer_facing_entries,
+    );
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(
@@ -142,13 +147,12 @@ fn render(
     layout::end(&mut html);
     html
 }
-fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses, ReportError>) {
-    let image = match service {
-        "Retailer Sourcing" => "retailer-sourcing",
-        "Offers" => "offers",
-        "Customer Facing" => "customer-facing",
-        _ => unreachable!("queue sections use the three reporting services"),
-    };
+fn render_entries(
+    html: &mut String,
+    service: &str,
+    image: &str,
+    report: Result<EntryStatuses, ReportError>,
+) {
     let _ = write!(
         html,
         r#"<section class="service queue-service" aria-label="{service} queue status"><header class="queue-service-heading"><h2><img class="queue-service-image" src="/assets/{image}.svg" alt="{service} queue status" width="128" height="128"></h2></header><div class="queue-service-content">"#
@@ -173,16 +177,16 @@ fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses
                 escape(&report.generated_at),
                 escape(&report.generated_at)
             );
-            for (title, entries) in [
-                ("Inbox entries", report.inbox_entries),
-                ("Command entries", Some(report.command_entries)),
-                ("Event entries", Some(report.event_entries)),
-                ("Outbox entries", report.outbox_entries),
+            for (title, image, entries) in [
+                ("Inbox entries", "inbox", report.inbox_entries),
+                ("Command entries", "commands", Some(report.command_entries)),
+                ("Event entries", "events", Some(report.event_entries)),
+                ("Outbox entries", "outbox", report.outbox_entries),
             ] {
                 if let Some(entries) = entries {
-                    render_entry_boxes(html, title, &entries);
+                    render_entry_boxes(html, title, image, &entries);
                 } else {
-                    render_queue_start(html, title, false);
+                    render_queue_start(html, title, image, false);
                     html.push_str("<p>Upgrade this service to report these counts.</p></section>");
                 }
             }
@@ -206,22 +210,20 @@ fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses
     html.push_str("</div></section>");
 }
 
-fn render_queue_start(html: &mut String, title: &str, empty: bool) {
+fn render_queue_start(html: &mut String, title: &str, image: &str, empty: bool) {
     let row_class = if empty { " queue-row-empty" } else { "" };
-    let image = match title {
-        "Inbox entries" => "inbox",
-        "Command entries" => "commands",
-        "Event entries" => "events",
-        "Outbox entries" => "outbox",
-        _ => unreachable!("queue titles are defined by the dashboard"),
-    };
     let _ = write!(
         html,
         r#"<section class="command-summary queue-row{row_class}" aria-label="{title}"><h3><img class="queue-icon" src="/assets/{image}.svg" alt="{title}" width="64" height="64"></h3>"#
     );
 }
 
-fn render_entry_boxes(html: &mut String, title: &str, entries: &[client::StatusCount]) {
+fn render_entry_boxes(
+    html: &mut String,
+    title: &str,
+    image: &str,
+    entries: &[client::StatusCount],
+) {
     let statuses = [
         (0, "New", "new"),
         (2, "Processing", "processing"),
@@ -231,7 +233,7 @@ fn render_entry_boxes(html: &mut String, title: &str, entries: &[client::StatusC
         (8, "Archive", "archive"),
     ];
     let empty = entries.iter().all(|entry| entry.count == 0);
-    render_queue_start(html, title, empty);
+    render_queue_start(html, title, image, empty);
     let empty_class = if empty { " command-empty" } else { "" };
     html.push_str(r#"<dl class="command-boxes">"#);
     for (code, label, class) in statuses {

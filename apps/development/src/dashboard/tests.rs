@@ -272,7 +272,11 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
 
 #[test]
 fn inbox_outbox_counts_and_older_service_reports() {
-    for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
+    for (service, image) in [
+        ("Retailer Sourcing", "retailer-sourcing"),
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+    ] {
         let report = serde_json::from_value(serde_json::json!({
             "generated_at": "2026-10-29T12:00:00Z",
             "window_start": "2026-10-29T00:00:00Z",
@@ -284,15 +288,10 @@ fn inbox_outbox_counts_and_older_service_reports() {
         }))
         .unwrap();
         let mut html = String::new();
-        render_entries(&mut html, service, Ok(report));
+        render_entries(&mut html, service, image, Ok(report));
         assert!(html.contains("<dt>New</dt><dd>1,234</dd>"));
         assert!(html.contains("<dt>Archive</dt><dd>77</dd>"));
         assert!(html.contains("&lt;unknown&gt; (status 99)</dt><dd>9</dd>"));
-        let image = match service {
-            "Retailer Sourcing" => "retailer-sourcing",
-            "Offers" => "offers",
-            _ => "customer-facing",
-        };
         assert!(html.contains(&format!("src=\"/assets/{image}.svg\"")));
         assert!(html.contains(&format!("alt=\"{service} queue status\"")));
         assert!(!html.contains("No entries scheduled for this UTC day"));
@@ -318,7 +317,7 @@ fn inbox_outbox_counts_and_older_service_reports() {
         }))
         .unwrap();
         let mut html = String::new();
-        render_entries(&mut html, service, Ok(old));
+        render_entries(&mut html, service, image, Ok(old));
         assert_eq!(html.matches("Upgrade this service").count(), 1);
         assert!(!html.contains("Report UTC date"));
         assert_eq!(html.matches("class=\"command-boxes\"").count(), 0);
@@ -335,7 +334,7 @@ fn compact_boxes_require_the_whole_queue_to_be_empty() {
                 count,
             }];
             let mut html = String::new();
-            render_entry_boxes(&mut html, "Inbox entries", &entries);
+            render_entry_boxes(&mut html, "Inbox entries", "inbox", &entries);
             assert_eq!(html.contains("queue-row-empty"), count == 0);
             assert!(!html.contains("<dd>0</dd>"));
             if count > 0 {
@@ -352,7 +351,11 @@ fn compact_boxes_require_the_whole_queue_to_be_empty() {
 
 #[test]
 fn daily_counts_require_an_explicit_valid_window() {
-    for service in ["Offers", "Customer Facing", "Retailer Sourcing"] {
+    for (service, image) in [
+        ("Retailer Sourcing", "retailer-sourcing"),
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+    ] {
         let legacy = serde_json::json!({
             "generated_at": "2026-10-30T01:00:00+02:00",
             "command_entries": [{"status":5,"status_text":"completed","count":120000}],
@@ -368,6 +371,7 @@ fn daily_counts_require_an_explicit_valid_window() {
             render_entries(
                 &mut html,
                 service,
+                image,
                 Ok(serde_json::from_value(value).unwrap()),
             );
             assert!(html.contains("Upgrade this service"));
@@ -382,6 +386,7 @@ fn daily_counts_require_an_explicit_valid_window() {
         render_entries(
             &mut html,
             service,
+            image,
             Ok(serde_json::from_value(value.clone()).unwrap()),
         );
         assert!(html.contains("Report UTC date: 2026-10-29"));
@@ -397,6 +402,7 @@ fn daily_counts_require_an_explicit_valid_window() {
             render_entries(
                 &mut html,
                 service,
+                image,
                 Ok(serde_json::from_value(value.clone()).unwrap()),
             );
             assert!(html.contains("Invalid reporting window"));
@@ -425,4 +431,19 @@ fn present_window_bounds_must_be_strings() {
             assert!(serde_json::from_value::<EntryStatuses>(value).is_err());
         }
     }
+}
+
+#[test]
+fn display_labels_do_not_select_icons() {
+    let mut html = String::new();
+    render_entries(
+        &mut html,
+        "Renamed service",
+        "offers",
+        Err(ReportError::Unavailable),
+    );
+    assert!(html.contains(r#"src="/assets/offers.svg" alt="Renamed service queue status""#));
+    html.clear();
+    render_entry_boxes(&mut html, "Renamed queue", "inbox", &[]);
+    assert!(html.contains(r#"src="/assets/inbox.svg" alt="Renamed queue""#));
 }
