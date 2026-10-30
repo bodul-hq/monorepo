@@ -319,3 +319,17 @@ not reinterpreted. Deploy compatible readers before new producers and pause
 projection writers during the regional-code migrations (ADR 40). Source exports
 now write v9, Offers creation v10 and localization changes v2; old immutable
 versions retain their original readers and encodings.
+
+## GitHub Actions verification
+
+The Rust CI workflow runs portable checks for the region-code pipeline, separate
+PostgreSQL tests, and a live pipeline smoke job. It checks out the pinned public
+Mulac repository beside this repository. PostgreSQL tests use disposable databases
+and provision pg_trgm in customer_facing_extensions.
+
+To reproduce locally, run make ci in each affected crate, set DATABASE_URL_TEST
+to a disposable PostgreSQL database, and run make test-postgres in each service.
+The smoke job in .github/workflows/ci.yml documents the distinct ports, test
+databases and explicit queue runners. Its shell blocks can be syntax-checked
+with bash -n; full execution requires PostgreSQL and permission to open sockets.
+A workflow definition is not evidence of a passing Actions run.
