@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};
 
-pub const SCHEMA_VERSION: u32 = 8;
+pub const SCHEMA_VERSION: u32 = 9;
 
 pub fn legacy_schema_version() -> u32 {
     1
@@ -115,9 +115,27 @@ pub struct OfferExport {
 
 impl OfferExport {
     pub fn valid_schema(&self) -> bool {
-        matches!(self.schema_version, 1..=8)
+        matches!(self.schema_version, 1..=9)
             && (self.schema_version >= 3 || self.source.storage.scraped_at.is_none())
             && self.entries.iter().all(|entry| {
+                let market = entry
+                    .payload
+                    .localization
+                    .as_ref()
+                    .and_then(|value| value.target_market.as_ref());
+                match market {
+                    Some(retailer_sauce::localization::TargetMarket::Region { .. })
+                        if self.schema_version < 9 =>
+                    {
+                        return false;
+                    }
+                    Some(retailer_sauce::localization::TargetMarket::LegacyRegion { .. })
+                        if self.schema_version >= 9 =>
+                    {
+                        return false;
+                    }
+                    _ => {}
+                }
                 let payload = &entry.payload;
                 if (self.schema_version < 6 && !payload.was_price.is_missing())
                     || (self.schema_version < 7

@@ -584,7 +584,7 @@ makes it incompatible. New price changes emit `OfferPricingChanged` with
 with the corresponding required field. These events project to `read_offers`
 and publish to customer-facing with the same message identity and sequence.
 
-New creation records are `OfferCreated.v9`; explicit legacy readers retain v1–v8. The nullable
+New creation records are `OfferCreated.v10`; explicit legacy readers retain v1–v9. The nullable
 comparison pair, JSONB statuses and TEXT description are additive migrations.
 The identity projection also gains five nullable identifier columns, preserving
 lookup by retailer/URL. It backfills only matching ID/retailer/URL rows from
@@ -592,7 +592,7 @@ lookup by retailer/URL. It backfills only matching ID/retailer/URL rows from
 It applies complete identifier changes atomically.
 
 Stop event runners during identity migration, apply migrations, then restart.
-Deploy customer-facing and offers readers before sourcing's v8 writer. No old
+Deploy customer-facing and offers readers before sourcing's v9 writer. No old
 snapshots or event history are rewritten. See [ADRs 34–37](../../docs/adr/README.md)
 and [verification](../../docs/plans/24-27-offer-facts-verification.md).
 
@@ -602,7 +602,7 @@ Offers store `content` as a nonempty list of
 `{language: string|null, title: string, description: string|null}`. Exact language
 keys are unique; the unknown bucket comes first, followed by lexical tag order.
 `title` and `localization.language` select the compatibility view, and the SQL
-`description` column mirrors that selected entry. Source/export v1–v8 and
+`description` column mirrors that selected entry. Source/export v1–v9 and
 `ImportOfferDetails` retain their singular description object.
 
 Imports upsert the observed language and preserve all other buckets. Omitted
@@ -623,7 +623,7 @@ language/title/description tuple. Full snapshots update content and all selected
 scalars in one SQL statement. Legacy read-modify-write operations lock the row
 inside a transaction. Downgrading removes only the list column; back up or replay
 additional languages if restoring it later. No event history or pending payloads
-are rewritten. Deploy customer-facing/readers before the v9 writer and quiesce
+are rewritten. Deploy customer-facing/readers before the v10 writer and quiesce
 projection runners while migrating. See [ADR 38](../../docs/adr/0038-localized-offer-content.md).
 
 Command and event counts from `/api/reporting/entry-statuses` include only entries
@@ -660,3 +660,13 @@ cargo test --bin offers postgres_scheduled_indexes_round_trip_and_explain -- --i
 ```
 
 Set `DATABASE_URL_TEST` as for `make test-postgres`.
+
+### Regional market codes
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.

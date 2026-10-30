@@ -41,3 +41,8 @@ normalizes historical text or language tags. Import upserts preserve a missing
 description only in the destination bucket. Legacy title/description updates
 change the selected bucket; legacy language corrections move it, replacing any
 destination collision without copying a translation.
+
+Regional markets use `RegionCode` (`eu` for the European Union). Historical
+label-based regions decode to `LegacyRegion` to preserve immutable encoding;
+`canonicalized()` maps only the exact European Union label. Country codes remain
+separate, and unknown regional codes are rejected. See ADR 40.

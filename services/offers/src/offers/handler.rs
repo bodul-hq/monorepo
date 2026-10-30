@@ -55,7 +55,11 @@ where
                 external_identifiers: command.external_identifiers,
             },
             scraped_at: command.scraped_at,
-            localization: command.localization,
+            localization: command
+                .localization
+                .map(|value| value.for_write())
+                .transpose()
+                .map_err(err_update)?,
         };
         observation.guard().map_err(err_update)?;
         let exists = self

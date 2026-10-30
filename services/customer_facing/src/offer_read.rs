@@ -411,18 +411,25 @@ impl OfferLocalization {
             language,
         };
         localization.guard().map_err(|_| ())?;
-        let target_market = localization.target_market.map(|market| match market {
-            TargetMarket::Country { code } => OfferMarket {
-                kind: MarketKind::Country,
-                code: Some(code.as_str().into()),
-                label: None,
-            },
-            TargetMarket::Region { label } => OfferMarket {
-                kind: MarketKind::Region,
-                code: None,
-                label: Some(label),
-            },
-        });
+        let target_market = localization
+            .target_market
+            .map(|market| match market.canonicalized() {
+                TargetMarket::Country { code } => OfferMarket {
+                    kind: MarketKind::Country,
+                    code: Some(code.as_str().into()),
+                    label: None,
+                },
+                TargetMarket::Region { code } => OfferMarket {
+                    kind: MarketKind::Region,
+                    code: Some(code.as_str().into()),
+                    label: None,
+                },
+                TargetMarket::LegacyRegion { label } => OfferMarket {
+                    kind: MarketKind::Region,
+                    code: None,
+                    label: Some(label),
+                },
+            });
         Ok(Self {
             target_market,
             language: localization.language,

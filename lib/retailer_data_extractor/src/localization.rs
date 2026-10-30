@@ -255,7 +255,7 @@ fn apply_selection(
                     );
                 } else if locale.region.as_deref() == Some("EU") {
                     evidence.selected.target_market = Some(TargetMarket::Region {
-                        label: "European Union".into(),
+                        code: retailer_sauce::localization::RegionCode::EuropeanUnion,
                     });
                     decision(
                         evidence,
@@ -628,7 +628,7 @@ mod locale_fallback_tests {
             let evidence = extract(html);
             assert_eq!(
                 serde_json::to_value(&evidence.selected).unwrap(),
-                json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"})
+                json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
             );
             assert!(evidence.candidates.iter().any(|candidate| {
                 matches!(candidate.raw.as_str(), "en-EU" | "EN-eu")
@@ -672,7 +672,7 @@ mod locale_fallback_tests {
                 decision: String::new(),
             }],
         };
-        let region = TargetMarket::Region {
+        let region = TargetMarket::LegacyRegion {
             label: "Europe".into(),
         };
         apply_selection(

@@ -633,3 +633,13 @@ writers and reads for migration 2026-10-29-000011 and the server binary switch.
 The migration checks selected/scalar agreement and preserves all localized facts.
 Down migration refuses distinct per-language URLs rather than discarding them.
 See [ADR 41](../../docs/adr/0041-customer-facing-content-storage.md).
+
+### Regional market codes
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.

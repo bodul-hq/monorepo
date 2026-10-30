@@ -64,3 +64,11 @@ The opt-in, read-only `offer_facts_corpus` integration test checks canonical com
 prices, availability, item condition, and descriptions across the saved source
 corpus. See [source coverage](../../docs/offer-facts-source-coverage.md) for source
 semantics, nullable fields, and the survey command.
+
+European Union target markets now use `{"kind":"region","code":"eu"}`.
+Historical labels remain readable; exact `European Union` labels canonicalize
+at current read/write boundaries. Countries and other historical labels are
+not reinterpreted. Deploy compatible readers before new producers and pause
+projection writers during the regional-code migrations (ADR 40). Source exports
+now write v9, Offers creation v10 and localization changes v2; old immutable
+versions retain their original readers and encodings.

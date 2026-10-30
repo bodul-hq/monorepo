@@ -1,6 +1,8 @@
 
 GOAL: create full flow from structuralize to show on web
 
+[x] Replace regional market labels with canonical codes ([issue #24](https://github.com/bodul-hq/monorepo/issues/24)).
+
 [~] Count of commands and events by status are not taking on ONLY records scheduled for today — all three dashboard services, UTC ([plan](docs/plans/33-today-entry-status-counts.md))
 [x] Support inbox and outbox statistics, like for commands and events ([plan](docs/plans/34-inbox-outbox-statistics.md))
 
@@ -72,3 +74,29 @@ PGPASSWORD='object_storing' pg_restore   --host=172.28.100.31   --port=5432   --
 ```
 
 [x] Move customer-facing offer fields into content and weight selected-language search ([issue #25](https://github.com/bodul-hq/monorepo/issues/25); [verification](docs/plans/36-content-storage-verification.md)).
+
+## PR #27 review fixes
+
+[>] Comment 1: Two-release compatibility rollout
+[>] Comment 2: EU-only projection migrations (Release 2)
+[>] Comment 4: Customers-first deployment
+[~] Comment 5: Export version validation
+[x] Comment 6: Explicit market decoder
+[>] Comment 7: Canonical runtime boundaries
+[x] Comment 8: Reuse export localization
+[x] Comment 9: Exhaustive region string mapping
+[~] Comment 10: GitHub Actions verification
+
+Comment 3 is intentionally skipped. Release 2 activation requires all Release 1 readers deployed.
+
+## After a full regional-data reset
+
+[ ] Remove LegacyRegion, legacy label decoding/validation, EU-label canonicalization and legacy() helpers.
+[ ] Remove temporary Release 1 legacy writer adapters.
+[ ] Retire label-era Offers record variants and compatibility fixtures.
+[ ] Retire pre-v9 export paths requiring legacy labels.
+[ ] Remove legacy-region API/client fallback branches; retain nullable-field handling required by the current API.
+[ ] Remove region backfill/downgrade logic only within a reviewed fresh migration baseline; retain schema creation.
+[ ] Replace obsolete compatibility tests and rollout documentation with code-only contract coverage.
+
+Gate cleanup on resetting or retiring event stores, queues, projections, stored source/export artifacts, replay inputs and old producers/clients. A database reset alone is insufficient if old payloads can be restored or redelivered. Unrelated compatibility remains out of scope.

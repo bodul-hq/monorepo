@@ -199,7 +199,7 @@ impl RetailerOfferRepository for PostgresRetailerOfferRepository {
             .localization
             .target_market
             .as_ref()
-            .map(serde_json::to_value)
+            .map(|market| serde_json::to_value(market.canonicalized()))
             .transpose()
             .map_err(err_insert)?;
         let availability = entity
@@ -343,7 +343,7 @@ impl PostgresRetailerOfferRepository {
                 let market = localization
                     .target_market
                     .as_ref()
-                    .map(serde_json::to_value)
+                    .map(|market| serde_json::to_value(market.canonicalized()))
                     .transpose()
                     .map_err(super::err_update)?;
                 diesel::sql_query("UPDATE read_offers SET target_market=$2 WHERE id=$1")

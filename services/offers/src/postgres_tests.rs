@@ -1605,8 +1605,7 @@ async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrich
         if step == 1 {
             input["gtin"] = json!("0012345678905");
             input["sku"] = json!("A1");
-            input["localization"] =
-                json!({"target_market":{"kind":"region","label":"Europe"},"language":"en-AU"});
+            input["localization"] = json!({"target_market":{"kind":"region","label":"European Union"},"language":"en-AU"});
         }
         if step == 2 {
             input.as_object_mut().unwrap().remove("gtin");

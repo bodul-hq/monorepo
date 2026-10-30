@@ -374,3 +374,19 @@ fn localized_urls_preserve_new_values_and_adapt_old_arrays() {
     value["content"][0]["unexpected"] = json!(true);
     assert!(serde_json::from_value::<Offer>(value).is_err());
 }
+
+#[test]
+fn region_inputs_support_current_and_legacy_api_shapes() {
+    for market in [
+        json!({"kind":"region","code":"eu"}),
+        json!({"kind":"region","code":"eu","label":null}),
+        json!({"kind":"region","label":"European Union","code":null}),
+    ] {
+        let value = json!({"target_market":market,"language":"en"});
+        let localization = super::read_localization(value).unwrap();
+        assert_eq!(
+            serde_json::to_value(localization).unwrap(),
+            json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
+        );
+    }
+}

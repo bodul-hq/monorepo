@@ -90,7 +90,7 @@ impl RetailerOfferAggregate {
             eprintln!("skipped invalid offer images: {skipped}");
         }
         Self::guard_capacity(0, 0, images.len() as u64, 1)?;
-        let localization = observation.localization.unwrap_or_default();
+        let localization = observation.localization.unwrap_or_default().canonicalized();
         let content = offer_content::singleton(
             title.clone(),
             localization.language.clone(),
@@ -207,9 +207,15 @@ impl RetailerOfferAggregate {
         let localization = observation
             .localization
             .clone()
-            .unwrap_or_else(|| self.state.localization.clone());
-        let localization_changed =
-            localization.target_market != self.state.localization.target_market;
+            .unwrap_or_else(|| self.state.localization.clone())
+            .canonicalized();
+        let localization_changed = localization.target_market
+            != self
+                .state
+                .localization
+                .clone()
+                .canonicalized()
+                .target_market;
         let content = offer_content::upsert(
             &self.state.facts.content,
             localization.language.clone(),
@@ -1008,7 +1014,7 @@ mod tests {
             offer.uncommitted_events[0].event(),
         ))
         .unwrap();
-        assert_eq!(serialized["type"], "OfferCreated.v9");
+        assert_eq!(serialized["type"], "OfferCreated.v10");
         assert_eq!(serialized["data"]["images"], serde_json::json!([a, b]));
         let replay =
             RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
@@ -1339,3 +1345,35 @@ mod facts_tests;
 
 #[cfg(test)]
 mod localized_content_tests;
+
+#[cfg(test)]
+mod regional_identity_tests {
+    use super::*;
+    #[test]
+    fn equivalent_legacy_eu_observation_does_not_create_an_update() {
+        let mut offer = RetailerOfferAggregate::create(
+            RetailerOfferId::new("eu"),
+            RetailerCode::AnkerAu,
+            "Charger".into(),
+            Money::new(100, money::Currency::AUD),
+            "https://example.com/a".into(),
+            vec![],
+        )
+        .unwrap();
+        // Replay retains the old in-memory representation; comparison must not emit a spurious change.
+        offer.state.localization = serde_json::from_value(serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":null})).unwrap();
+        let observation = OfferObservation {
+            localization: Some(offer.state.localization.clone().canonicalized()),
+            ..Default::default()
+        };
+        offer
+            .update_with_observation(
+                "Charger".into(),
+                Money::new(100, money::Currency::AUD),
+                vec![],
+                observation,
+            )
+            .unwrap();
+        assert_eq!(offer.sequence, 1);
+    }
+}

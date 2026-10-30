@@ -1,0 +1,178 @@
+name: Rust CI
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  portable:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        crate: [lib/retailer_sauce, lib/retailer_data_extractor, services/offers, services/retailer_sourcing, services/customer_facing, apps/customers]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: monorepo
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: nl-miro/mulac
+          ref: fd29f72a5b73ff5549440e547f0a0a50a705a504
+          path: mulac
+          persist-credentials: false
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev postgresql-client
+          cd monorepo
+          rustup show
+      - run: make -C monorepo/${{ matrix.crate }} ci
+  postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [offers, retailer_sourcing, customer_facing]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: monorepo
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: nl-miro/mulac
+          ref: fd29f72a5b73ff5549440e547f0a0a50a705a504
+          path: mulac
+          persist-credentials: false
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev postgresql-client
+          cd monorepo
+          rustup show
+      - name: Prepare isolated test database
+        run: |
+          createdb pipeline_test
+          psql -v ON_ERROR_STOP=1 -d pipeline_test -c 'CREATE SCHEMA customer_facing_extensions; REVOKE CREATE ON SCHEMA customer_facing_extensions FROM PUBLIC; CREATE EXTENSION pg_trgm WITH SCHEMA customer_facing_extensions;'
+      - name: PostgreSQL tests
+        env:
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pipeline_test
+        run: |
+          set -o pipefail
+          make -C monorepo/services/${{ matrix.service }} test-postgres 2>&1 | tee postgres-tests.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: postgres-${{ matrix.service }}
+          path: postgres-tests.log
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: monorepo
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: nl-miro/mulac
+          ref: fd29f72a5b73ff5549440e547f0a0a50a705a504
+          path: mulac
+          persist-credentials: false
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev postgresql-client
+          cd monorepo
+          rustup show
+      - name: Live pipeline smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p smoke-logs
+          for db in offers customer_facing retailer_sourcing object_storage; do createdb "$db"; done
+          psql -v ON_ERROR_STOP=1 -d customer_facing -c 'CREATE SCHEMA customer_facing_extensions; REVOKE CREATE ON SCHEMA customer_facing_extensions FROM PUBLIC; CREATE EXTENSION pg_trgm WITH SCHEMA customer_facing_extensions;'
+          cargo build --manifest-path monorepo/services/Cargo.toml --bins
+          cargo build --manifest-path monorepo/apps/Cargo.toml -p customers
+          pids=()
+          cleanup() { for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; }
+          trap cleanup EXIT
+          export CUSTOMER_FACING_URL=http://localhost:3412
+          export OBJECT_STORAGE_URL=http://localhost:3410
+          export OBJECT_STORAGE_TOKEN=6fe0382d64bba74e205af86e397d902c0f5e6f3d8e15b1a4f87c6a309d752eb1
+          export COMMAND_WORKERS=0
+          for spec in object_storage:3410 offers:3411 customer_facing:3412 retailer_sourcing:3413; do
+            service="${spec%:*}"
+            port="${spec#*:}"
+            DATABASE_URL="postgres://postgres:postgres@localhost:5432/$service" PORT="$port" make -C "monorepo/services/$service" serve >"smoke-logs/$service.log" 2>&1 &
+            pids+=("$!")
+          done
+          PORT=3414 make -C monorepo/apps/customers serve >smoke-logs/customers.log 2>&1 &
+          pids+=("$!")
+          wait_http() {
+            for attempt in {1..60}; do
+              if curl --max-time 2 -fsS "$@" >/dev/null; then return 0; fi
+              sleep 1
+            done
+            return 1
+          }
+          wait_http -H "Authorization: Bearer $OBJECT_STORAGE_TOKEN" http://localhost:3410/api/health
+          for port in 3411 3412 3413; do wait_http "http://localhost:$port/api/health"; done
+          wait_http http://localhost:3414/
+          curl -fsS -H 'Content-Type: application/json' -d '{"retailer_code":"ankerau","title":"CI region fixture","url":"https://example.com/ci-region","price_amount":1999,"currency":"AUD","localization":{"target_market":{"kind":"region","label":"European Union"},"language":"en"}}' http://localhost:3411/api/tmp-import
+          for queue in inbox commands events outbox; do
+            curl -fsS -H 'Content-Type: application/json' -d '{"limit":100}' "http://localhost:3411/api/$queue/run"
+          done
+          for queue in inbox commands; do
+            curl -fsS -H 'Content-Type: application/json' -d '{"limit":100}' "http://localhost:3412/api/$queue/run"
+          done
+          curl -fsS http://localhost:3412/api/offers > smoke-logs/offers.json
+          grep -q 'CI region fixture' smoke-logs/offers.json
+          curl -fsS http://localhost:3414/ > smoke-logs/customers.html
+          grep -q 'CI region fixture' smoke-logs/customers.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-logs
+          path: smoke-logs/

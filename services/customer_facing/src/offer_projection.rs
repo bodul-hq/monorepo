@@ -340,7 +340,7 @@ impl Change {
                 content::write_language(connection, change.id, &list, &change.localization.language)?;
                 diesel::sql_query("UPDATE offers SET target_market=$2 WHERE id=$1")
                     .bind::<SqlUuid, _>(change.id)
-                    .bind::<diesel::sql_types::Nullable<Jsonb>, _>(change.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
+                    .bind::<diesel::sql_types::Nullable<Jsonb>, _>(change.localization.target_market.as_ref().map(|market| serde_json::to_value(market.canonicalized()).expect("serializable market")))
                     .execute(connection)?
             }
             Self::ScrapedAt(change) => diesel::sql_query(
@@ -369,7 +369,7 @@ impl Change {
                 .bind::<Text, _>(offer.price.currency().as_str())
                 .bind::<Timestamptz, _>(offer.created_at)
                 .bind::<diesel::sql_types::Nullable<Timestamptz>, _>(offer.scraped_at)
-                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(offer.localization.target_market.as_ref().map(|market| serde_json::to_value(market).expect("serializable market")))
+                .bind::<diesel::sql_types::Nullable<diesel::sql_types::Jsonb>, _>(offer.localization.target_market.as_ref().map(|market| serde_json::to_value(market.canonicalized()).expect("serializable market")))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.gtin.as_ref().map(|value| &value.value))
                 .bind::<diesel::sql_types::Nullable<Text>, _>(offer.identifiers.sku.as_ref().map(|value| &value.value))
                 .bind::<Jsonb, _>(Identifier(offer.identifiers.external_identifiers.clone()))
