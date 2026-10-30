@@ -342,6 +342,7 @@ name = "development"
 version = "0.1.0"
 dependencies = [
  "bodul_shared",
+ "chrono",
  "object_storage_client",
  "percent-encoding",
  "poem",

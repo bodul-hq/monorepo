@@ -34,12 +34,42 @@ pub(super) struct TableStats {
 #[derive(Debug, Deserialize)]
 pub(super) struct EntryStatuses {
     pub generated_at: String,
+    #[serde(default, deserialize_with = "present_window_bound")]
+    pub window_start: Option<String>,
+    #[serde(default, deserialize_with = "present_window_bound")]
+    pub window_end: Option<String>,
     #[serde(default, deserialize_with = "present_entries")]
     pub inbox_entries: Option<Vec<StatusCount>>,
     #[serde(default, deserialize_with = "present_entries")]
     pub outbox_entries: Option<Vec<StatusCount>>,
     pub command_entries: Vec<StatusCount>,
     pub event_entries: Vec<StatusCount>,
+}
+fn present_window_bound<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<String>, D::Error> {
+    String::deserialize(deserializer).map(Some)
+}
+
+impl EntryStatuses {
+    pub(super) fn window_date(&self) -> Result<Option<chrono::NaiveDate>, ReportError> {
+        let (start, end) = match (&self.window_start, &self.window_end) {
+            (None, None) => return Ok(None),
+            (Some(start), Some(end)) => (start, end),
+            _ => return Err(ReportError::Malformed),
+        };
+        let parse = |value: &str| {
+            chrono::DateTime::parse_from_rfc3339(value)
+                .map(|time| time.with_timezone(&chrono::Utc))
+                .map_err(|_| ReportError::Malformed)
+        };
+        let start = parse(start)?;
+        let end = parse(end)?;
+        if start.time() != chrono::NaiveTime::MIN || end - start != chrono::Duration::days(1) {
+            return Err(ReportError::Malformed);
+        }
+        Ok(Some(start.date_naive()))
+    }
 }
 // Missing fields identify older servers; present null or non-array fields are invalid.
 fn present_entries<'de, D: serde::Deserializer<'de>>(
@@ -159,6 +189,7 @@ impl ReportingClients {
         endpoint: &Result<Endpoint, ReportError>,
     ) -> Result<EntryStatuses, ReportError> {
         let report: EntryStatuses = self.fetch_json(endpoint).await?;
+        report.window_date()?;
         if report.generated_at.is_empty()
             || report
                 .command_entries

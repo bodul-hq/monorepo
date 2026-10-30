@@ -26,6 +26,8 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
         Err(ReportError::Unavailable),
         Ok(report()),
         Ok(EntryStatuses {
+            window_start: Some("2026-10-29T00:00:00Z".into()),
+            window_end: Some("2026-10-30T00:00:00Z".into()),
             inbox_entries: Some(vec![]),
             outbox_entries: Some(vec![]),
             generated_at: "2026-10-19T12:00:00Z".into(),
@@ -167,6 +169,8 @@ async fn dashboard_route_renders_when_services_are_unconfigured() {
 #[test]
 fn renders_exact_status_counts_and_empty_queues() {
     let entries = EntryStatuses {
+        window_start: Some("2026-10-29T00:00:00Z".into()),
+        window_end: Some("2026-10-30T00:00:00Z".into()),
         inbox_entries: Some(vec![]),
         outbox_entries: Some(vec![]),
         generated_at: "2026-10-18T12:00:00Z".into(),
@@ -189,6 +193,8 @@ fn renders_exact_status_counts_and_empty_queues() {
 #[test]
 fn customer_facing_contributes_to_totals_with_independent_reports() {
     let empty_entries = || EntryStatuses {
+        window_start: Some("2026-10-29T00:00:00Z".into()),
+        window_end: Some("2026-10-30T00:00:00Z".into()),
         inbox_entries: Some(vec![]),
         outbox_entries: Some(vec![]),
         generated_at: "2026-10-25T12:00:00Z".into(),
@@ -269,6 +275,8 @@ fn inbox_outbox_counts_and_older_service_reports() {
     for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
         let report = serde_json::from_value(serde_json::json!({
             "generated_at": "2026-10-29T12:00:00Z",
+            "window_start": "2026-10-29T00:00:00Z",
+            "window_end": "2026-10-30T00:00:00Z",
             "inbox_entries": [{"status": 0, "status_text": "received", "count": 1234}],
             "command_entries": [], "event_entries": [],
             "outbox_entries": [{"status": 8, "status_text": "archive", "count": 77},
@@ -311,8 +319,9 @@ fn inbox_outbox_counts_and_older_service_reports() {
         .unwrap();
         let mut html = String::new();
         render_entries(&mut html, service, Ok(old));
-        assert_eq!(html.matches("Upgrade this service").count(), 2);
-        assert_eq!(html.matches("class=\"command-boxes\"").count(), 2);
+        assert_eq!(html.matches("Upgrade this service").count(), 1);
+        assert!(!html.contains("Report UTC date"));
+        assert_eq!(html.matches("class=\"command-boxes\"").count(), 0);
     }
 }
 
@@ -337,6 +346,83 @@ fn compact_boxes_require_the_whole_queue_to_be_empty() {
                 html.matches("command-empty").count(),
                 if count == 0 { boxes } else { 0 }
             );
+        }
+    }
+}
+
+#[test]
+fn daily_counts_require_an_explicit_valid_window() {
+    for service in ["Offers", "Customer Facing", "Retailer Sourcing"] {
+        let legacy = serde_json::json!({
+            "generated_at": "2026-10-30T01:00:00+02:00",
+            "command_entries": [{"status":5,"status_text":"completed","count":120000}],
+            "event_entries": []
+        });
+        for with_queues in [false, true] {
+            let mut value = legacy.clone();
+            if with_queues {
+                value["inbox_entries"] = serde_json::json!([]);
+                value["outbox_entries"] = serde_json::json!([]);
+            }
+            let mut html = String::new();
+            render_entries(
+                &mut html,
+                service,
+                Ok(serde_json::from_value(value).unwrap()),
+            );
+            assert!(html.contains("Upgrade this service"));
+            assert!(!html.contains("120,000"));
+            assert!(!html.contains("Report UTC date"));
+        }
+        let mut value = legacy;
+        // Local dates differ from the UTC date; generation time is not the window.
+        value["window_start"] = "2026-10-28T19:00:00-05:00".into();
+        value["window_end"] = "2026-10-29T19:00:00-05:00".into();
+        let mut html = String::new();
+        render_entries(
+            &mut html,
+            service,
+            Ok(serde_json::from_value(value.clone()).unwrap()),
+        );
+        assert!(html.contains("Report UTC date: 2026-10-29"));
+        assert!(html.contains("120,000"));
+        for end in [
+            "bad",
+            "2026-10-29T00:00:00Z",
+            "2026-10-31T00:00:00Z",
+            "2026-10-30T01:00:00Z",
+        ] {
+            value["window_end"] = end.into();
+            let mut html = String::new();
+            render_entries(
+                &mut html,
+                service,
+                Ok(serde_json::from_value(value.clone()).unwrap()),
+            );
+            assert!(html.contains("Invalid reporting window"));
+            assert!(!html.contains("120,000"));
+            assert!(!html.contains("Report UTC date"));
+        }
+        value.as_object_mut().unwrap().remove("window_end");
+        let report: EntryStatuses = serde_json::from_value(value).unwrap();
+        assert!(report.window_date().is_err());
+    }
+}
+
+#[test]
+fn present_window_bounds_must_be_strings() {
+    for field in ["window_start", "window_end"] {
+        for invalid in [
+            serde_json::Value::Null,
+            serde_json::json!(42),
+            serde_json::json!([]),
+        ] {
+            let mut value = serde_json::json!({
+                "generated_at": "2026-10-29T12:00:00Z",
+                "command_entries": [], "event_entries": []
+            });
+            value[field] = invalid;
+            assert!(serde_json::from_value::<EntryStatuses>(value).is_err());
         }
     }
 }

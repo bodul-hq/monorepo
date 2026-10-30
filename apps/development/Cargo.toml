@@ -6,6 +6,7 @@ default-run = "development"
 
 [dependencies]
 bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
 percent-encoding = "2.3.2"
 poem.workspace = true

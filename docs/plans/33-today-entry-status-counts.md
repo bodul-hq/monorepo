@@ -28,21 +28,25 @@ Inbox/outbox reports, table row estimates and queue execution are out of scope.
    single `UNION ALL` query. Apply `scheduled_at >= start AND scheduled_at < end`
    before grouping. Preserve one PostgreSQL snapshot for both queues, active
    schema behavior, integer counts, ordering, status labels and unknown codes.
-   Set `generated_at` from the same reference instant. Avoid session-local
+   Set `generated_at` from the same reference instant and return `window_start`
+   and `window_end` from the exact query bounds. Avoid session-local
    `CURRENT_DATE` and casting the indexed column to a date.
 3. Keep the existing response fields and routes. Update API descriptions to
    explain scheduled-for-today UTC semantics. Preserve bearer authentication,
    missing-database/error handling and checked count conversion. Follow the
    offers crate's named error helper conventions if new errors are needed.
 4. Update the shared dashboard renderer to say “Scheduled for today (UTC), by
-   current status”; derive the displayed report date from its `generated_at`,
-   so independent service fetches around midnight remain understandable.
+   current status”; derive the displayed report date from parsed `window_start`
+   in UTC, validating that `window_end` is the next UTC midnight. Reports
+   without bounds require a service upgrade and must not display any counts
+   as daily totals; incomplete or invalid bounds are malformed.
    Change empty copy to “No entries scheduled for this UTC day”. Keep unavailable
    reports visibly distinct from empty reports. Retain manual refresh and
-   server-side credentials. Deploy all three service fixes before the app copy.
+   server-side credentials. Mixed-version deployments must remain safe.
 5. Update the three service READMEs and development README with the changed
-   report semantics. No dependency, schema, worker or architectural change is
-   expected. Inspect representative query plans before proposing indexes;
+   report semantics. The development app uses chrono to parse window timestamps
+   and normalize offsets to UTC. No schema or worker changes are needed.
+   Inspect representative query plans before proposing indexes;
    preserve existing consumer indexes and require measured justification for
    any follow-up migration.
 
@@ -74,3 +78,31 @@ not historical throughput. Different services need not share a database snapshot
 
 Mark the TODO `[~]` when implementation starts and `[x]` only when the fix and
 its verification are complete. This planning task stops at `[>]`.
+
+
+## Window-contract follow-up (2026-10-30)
+
+All three services now return the exact inclusive/exclusive query bounds as
+`window_start` and `window_end`. The dashboard validates a full UTC calendar
+day and derives its date from the normalized start. Missing bounds suppress
+all counts behind an upgrade message, regardless of which queue arrays exist.
+Partial, null, non-string, malformed, and non-day windows are rejected.
+
+Verification:
+
+- Formatting and clippy pass for all four changed crates.
+- Customer Facing `make ci`: 41 passed; 38 database tests ignored.
+- All 12 dashboard rendering tests pass, including legacy 120,000-count
+  responses, mixed-version queue fields, non-UTC timestamp offsets, and invalid
+  bounds. Full development CI has 19 passing tests and seven existing socket
+  permission failures.
+- Offers CI has 86 passing tests and four existing socket permission failures;
+  Retailer Sourcing CI stops at its export tool's local-listener test.
+- PostgreSQL targets require missing `DATABASE_URL_TEST`; their window fixtures
+  now assert returned bounds as well as query results.
+- Service startup is blocked by missing database configuration (Offers and
+  Customer Facing) or invalid object-storage configuration (Sourcing). The
+  development server cannot bind a socket in this sandbox.
+- `make audit` was attempted for the apps dependency change but cannot lock the
+  read-only advisory cache; advisory results remain unverified. The lockfile
+  only adds the app's direct reference to the already-resolved chrono version.

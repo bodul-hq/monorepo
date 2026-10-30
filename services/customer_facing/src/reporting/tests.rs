@@ -38,6 +38,8 @@ impl Repository for Fixture {
     fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
         self.check()?;
         Ok(EntryStatuses {
+            window_start: "2026-10-25T00:00:00Z".into(),
+            window_end: "2026-10-26T00:00:00Z".into(),
             generated_at: "2026-10-25T12:00:00Z".into(),
             inbox_entries: vec![],
             outbox_entries: vec![],
@@ -114,7 +116,7 @@ async fn empty_reports_and_openapi_match_existing_contracts() {
         ),
         (
             PATHS[1],
-            json!({"generated_at":"2026-10-25T12:00:00Z","command_entries":[],"event_entries":[],"inbox_entries":[],"outbox_entries":[]}),
+            json!({"window_start":"2026-10-25T00:00:00Z","window_end":"2026-10-26T00:00:00Z","generated_at":"2026-10-25T12:00:00Z","command_entries":[],"event_entries":[],"inbox_entries":[],"outbox_entries":[]}),
         ),
     ] {
         let response = client
@@ -137,6 +139,12 @@ async fn empty_reports_and_openapi_match_existing_contracts() {
         assert_eq!(
             spec["components"]["schemas"]["EntryStatuses"]["properties"][field]["type"],
             "array"
+        );
+    }
+    for field in ["window_start", "window_end"] {
+        assert_eq!(
+            spec["components"]["schemas"]["EntryStatuses"]["properties"][field]["type"],
+            "string"
         );
     }
     for path in PATHS {

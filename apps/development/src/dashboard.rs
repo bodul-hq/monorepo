@@ -155,15 +155,21 @@ fn render_entries(html: &mut String, service: &str, report: Result<EntryStatuses
     );
     match report {
         Ok(report) => {
+            let date = match report.window_date() {
+                Ok(Some(date)) => date,
+                Ok(None) => {
+                    html.push_str("<p>Upgrade this service to report daily counts. This report does not identify its counting window.</p></div></section>");
+                    return;
+                }
+                Err(_) => {
+                    html.push_str("<p>Invalid reporting window. Daily counts unavailable.</p></div></section>");
+                    return;
+                }
+            };
             let _ = write!(
                 html,
                 r#"<div class="report-meta">Report UTC date: {}. Updated <time datetime="{}">{}</time></div>"#,
-                escape(
-                    report
-                        .generated_at
-                        .get(..10)
-                        .unwrap_or(&report.generated_at)
-                ),
+                date,
                 escape(&report.generated_at),
                 escape(&report.generated_at)
             );

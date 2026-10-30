@@ -589,5 +589,9 @@ can move entries between days. These counts are not historical throughput.
 The entry-status report includes `inbox_entries`, `command_entries`,
 `event_entries`, and `outbox_entries` arrays, grouped by current status for
 entries scheduled today in UTC. All four queues share one query snapshot.
-Deploy reporting services before the development app; absent inbox/outbox fields
-from older services show an upgrade message instead of zero counts.
+Reports include `window_start` (inclusive) and `window_end` (exclusive), the
+UTC midnight bounds used by the query. The dashboard derives its report date
+from these bounds. Reports without bounds show an upgrade message for the
+entire panel; their potentially all-time counts are not displayed as daily totals.
+Invalid or incomplete windows are rejected. Missing inbox/outbox arrays in a
+windowed report still show an upgrade message for those queues.

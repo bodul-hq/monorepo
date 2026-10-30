@@ -81,6 +81,10 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
 #[derive(Debug, Serialize, utoipa::ToSchema)]
 pub(super) struct EntryStatuses {
     pub generated_at: String,
+    /// Inclusive scheduled_at bound, at UTC midnight.
+    pub window_start: String,
+    /// Exclusive scheduled_at bound, at the next UTC midnight.
+    pub window_end: String,
     pub inbox_entries: Vec<StatusCount>,
     pub outbox_entries: Vec<StatusCount>,
     pub command_entries: Vec<StatusCount>,
@@ -130,6 +134,8 @@ pub(super) fn load_entry_statuses_at(
     .load(connection)?;
     let mut report = EntryStatuses {
         generated_at: now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        window_start: start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        window_end: end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
         inbox_entries: Vec::new(),
         outbox_entries: Vec::new(),
         command_entries: Vec::new(),
@@ -203,6 +209,14 @@ mod postgres_tests {
             }
             let report = load_entry_statuses_at(&mut conn, now).unwrap();
             assert_eq!(
+                report.window_start,
+                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.window_end,
+                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
                 report.generated_at,
                 now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
             );
@@ -249,6 +263,14 @@ mod postgres_tests {
             );
             conn.batch_execute("UPDATE command_entries SET scheduled_at = scheduled_at + interval '2 days' WHERE status = 5; UPDATE event_entries SET status = 4 WHERE status = 99").unwrap();
             let report = load_entry_statuses_at(&mut conn, now).unwrap();
+            assert_eq!(
+                report.window_start,
+                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
+            assert_eq!(
+                report.window_end,
+                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+            );
             assert_eq!(
                 report.command_entries.iter().map(|e| e.count).sum::<u64>(),
                 2
