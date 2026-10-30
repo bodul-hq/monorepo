@@ -33,28 +33,58 @@ pub enum TargetMarket {
 }
 impl<'de> Deserialize<'de> for TargetMarket {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        #[derive(Deserialize)]
-        #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
-        enum Current {
-            Country { code: CountryCode },
-            Region { code: RegionCode },
+        struct MarketVisitor;
+        impl<'de> serde::de::Visitor<'de> for MarketVisitor {
+            type Value = TargetMarket;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a market with kind and exactly one code or label")
+            }
+            fn visit_map<M: serde::de::MapAccess<'de>>(
+                self,
+                mut map: M,
+            ) -> Result<Self::Value, M::Error> {
+                use serde::de::Error;
+                let (mut kind, mut code, mut label) = (None, None, None);
+                while let Some(key) = map.next_key::<String>()? {
+                    let slot = match key.as_str() {
+                        "kind" => &mut kind,
+                        "code" => &mut code,
+                        "label" => &mut label,
+                        _ => return Err(M::Error::unknown_field(&key, &["kind", "code", "label"])),
+                    };
+                    if slot.is_some() {
+                        return Err(M::Error::custom(format!("duplicate field `{key}`")));
+                    }
+                    *slot = Some(map.next_value::<String>()?);
+                }
+                let kind = kind.ok_or_else(|| M::Error::missing_field("kind"))?;
+                match kind.as_str() {
+                    "country" => {
+                        if label.is_some() {
+                            return Err(M::Error::unknown_field("label", &["kind", "code"]));
+                        }
+                        let code = code.ok_or_else(|| M::Error::missing_field("code"))?;
+                        let decoder = serde::de::value::StringDeserializer::<M::Error>::new(code);
+                        CountryCode::deserialize(decoder).map(|code| TargetMarket::Country { code })
+                    }
+                    "region" => match (code, label) {
+                        (Some(_), Some(_)) => Err(M::Error::custom(
+                            "region must contain code or label, not both",
+                        )),
+                        (Some(code), None) => {
+                            let decoder =
+                                serde::de::value::StringDeserializer::<M::Error>::new(code);
+                            RegionCode::deserialize(decoder)
+                                .map(|code| TargetMarket::Region { code })
+                        }
+                        (None, Some(label)) => Ok(TargetMarket::LegacyRegion { label }),
+                        (None, None) => Err(M::Error::custom("region requires code or label")),
+                    },
+                    _ => Err(M::Error::unknown_variant(&kind, &["country", "region"])),
+                }
+            }
         }
-        #[derive(Deserialize)]
-        #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
-        enum Legacy {
-            Region { label: String },
-        }
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum Wire {
-            Current(Current),
-            Legacy(Legacy),
-        }
-        Ok(match Wire::deserialize(deserializer)? {
-            Wire::Current(Current::Country { code }) => Self::Country { code },
-            Wire::Current(Current::Region { code }) => Self::Region { code },
-            Wire::Legacy(Legacy::Region { label }) => Self::LegacyRegion { label },
-        })
+        deserializer.deserialize_map(MarketVisitor)
     }
 }
 impl TargetMarket {
@@ -302,6 +332,33 @@ mod region_tests {
             json!({"kind":"country","code":"EU"}),
         ] {
             assert!(serde_json::from_value::<TargetMarket>(value).is_err());
+        }
+    }
+}
+
+#[cfg(test)]
+mod decoder_errors {
+    use super::*;
+    #[test]
+    fn errors_identify_invalid_fields_and_values() {
+        for (input, detail) in [
+            (r#"{"kind":"region","code":"EU"}"#, "EU"),
+            (r#"{"kind":"country","code":"XX"}"#, "XX"),
+            (r#"{"kind":"other","code":"eu"}"#, "other"),
+            (
+                r#"{"kind":"region","code":"eu","label":"European Union"}"#,
+                "not both",
+            ),
+            (r#"{"kind":"region","code":"eu","code":"eu"}"#, "duplicate"),
+            (r#"{"kind":"region","code":null}"#, "string"),
+            (r#"{"kind":"region","extra":"x"}"#, "extra"),
+            (r#"{"code":"eu"}"#, "kind"),
+            (r#"{"kind":"region"}"#, "requires"),
+        ] {
+            let error = serde_json::from_str::<TargetMarket>(input)
+                .unwrap_err()
+                .to_string();
+            assert!(error.contains(detail), "{input}: {error}");
         }
     }
 }
