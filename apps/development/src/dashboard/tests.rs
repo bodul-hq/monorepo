@@ -186,8 +186,10 @@ fn renders_exact_status_counts_and_empty_queues() {
     assert!(html.contains("Event entries"));
     assert!(html.contains("failed &lt;test&gt;"));
     assert!(html.contains("1,234"));
-    assert!(!html.contains("No entries scheduled for this UTC day"));
-    assert!(!html.contains("Scheduled for today (UTC), by current status"));
+    assert_queue(&html, "Retailer Sourcing", "Inbox entries", true);
+    assert_queue(&html, "Retailer Sourcing", "Command entries", false);
+    assert_queue(&html, "Retailer Sourcing", "Event entries", true);
+    assert_queue(&html, "Retailer Sourcing", "Outbox entries", true);
 }
 
 #[test]
@@ -228,7 +230,16 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
     assert!(html.contains("<strong>8</strong>"));
     assert!(html.contains("4.0 MiB"));
     assert!(!html.contains("Summary totals include available services only"));
-    assert!(!html.contains("No entries scheduled for this UTC day"));
+    for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
+        for queue in [
+            "Inbox entries",
+            "Command entries",
+            "Event entries",
+            "Outbox entries",
+        ] {
+            assert_queue(&html, service, queue, true);
+        }
+    }
 
     for error in [
         ReportError::Unavailable,
@@ -249,7 +260,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(html.contains("<h2>Offers</h2>"));
         assert!(html.contains("<strong>6</strong>"));
         assert!(html.contains("Summary totals include available services only"));
-        assert!(!html.contains("No entries scheduled for this UTC day"));
+        assert_queue(&html, "Customer Facing", "Command entries", true);
 
         let mut customer = report();
         customer.tables[0].table_name = "<customer-table>".into();
@@ -267,6 +278,10 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         assert!(!html.contains("<customer-table>"));
         assert!(!html.contains("customer-facing-development-token"));
         assert!(!html.contains("172.28.100.42"));
+        let panel = service_panel(&html, "Customer Facing");
+        assert!(panel.contains("error-state"));
+        assert!(!panel.contains("queue-row-empty"));
+        assert!(!panel.contains("command-boxes"));
     }
 }
 
@@ -294,7 +309,10 @@ fn inbox_outbox_counts_and_older_service_reports() {
         assert!(html.contains("&lt;unknown&gt; (status 99)</dt><dd>9</dd>"));
         assert!(html.contains(&format!("src=\"/assets/{image}.svg\"")));
         assert!(html.contains(&format!("alt=\"{service} queue status\"")));
-        assert!(!html.contains("No entries scheduled for this UTC day"));
+        assert_queue(&html, service, "Inbox entries", false);
+        assert_queue(&html, service, "Command entries", true);
+        assert_queue(&html, service, "Event entries", true);
+        assert_queue(&html, service, "Outbox entries", false);
         let inbox = html.find("aria-label=\"Inbox entries\"").unwrap();
         let command = html.find("aria-label=\"Command entries\"").unwrap();
         let event = html.find("aria-label=\"Event entries\"").unwrap();
@@ -446,4 +464,66 @@ fn display_labels_do_not_select_icons() {
     html.clear();
     render_entry_boxes(&mut html, "Renamed queue", "inbox", &[]);
     assert!(html.contains(r#"src="/assets/inbox.svg" alt="Renamed queue""#));
+}
+
+fn service_panel<'a>(html: &'a str, service: &str) -> &'a str {
+    let start = html
+        .find(&format!(r#"aria-label="{service} queue status""#))
+        .unwrap();
+    let rest = &html[start..];
+    &rest[..rest
+        .find(r#"<section class="service "#)
+        .unwrap_or(rest.len())]
+}
+
+fn assert_queue(html: &str, service: &str, queue: &str, empty: bool) {
+    let panel = service_panel(html, service);
+    let label = panel.find(&format!(r#"aria-label="{queue}""#)).unwrap();
+    let start = panel[..label].rfind("<section").unwrap();
+    let row = &panel[start..];
+    let row = &row[..row.find("</section>").unwrap()];
+    assert_eq!(row.contains("queue-row-empty"), empty, "{service}: {queue}");
+    assert_eq!(
+        row.matches("command-empty").count(),
+        if empty { 6 } else { 0 }
+    );
+    if empty {
+        for label in [
+            "New",
+            "Processing",
+            "Failed",
+            "Completed",
+            "Dead",
+            "Archive",
+        ] {
+            assert!(row.contains(&format!(
+                r#"<dt>{label}</dt><dd><span class="sr-only">0</span></dd>"#
+            )));
+        }
+    }
+}
+
+#[test]
+fn missing_queues_are_distinct_from_empty_and_unknown_only_queues() {
+    for (service, image) in [
+        ("Offers", "offers"),
+        ("Customer Facing", "customer-facing"),
+        ("Retailer Sourcing", "retailer-sourcing"),
+    ] {
+        let report = serde_json::from_value(serde_json::json!({
+            "generated_at": "2026-12-31T12:00:00Z",
+            "window_start": "2026-12-31T00:00:00Z",
+            "window_end": "2027-01-01T00:00:00Z",
+            "command_entries": [{"status":99,"status_text":"unknown","count":1}],
+            "event_entries": []
+        }))
+        .unwrap();
+        let mut html = String::new();
+        render_entries(&mut html, service, image, Ok(report));
+        assert_queue(&html, service, "Command entries", false);
+        assert_queue(&html, service, "Event entries", true);
+        assert_eq!(html.matches("queue-row-empty").count(), 1);
+        assert_eq!(html.matches("Upgrade this service").count(), 2);
+        assert!(html.contains("unknown (status 99)</dt><dd>1</dd>"));
+    }
 }
