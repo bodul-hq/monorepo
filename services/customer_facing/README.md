@@ -9,9 +9,8 @@ messages are generated.
 ## Setup and startup
 
 Use the repository's pinned Rust toolchain, GNU Make, libpq, and PostgreSQL 16
-or later. The sibling Mulac checkout must be at `../mulac` beside `monorepo`.
-The queue adapters were integrated against Mulac revision
-`9474319fff2237d81828a23d97df5d2f97741858`.
+or later. Mulac 0.4.1 is resolved from the configured `null-labs-hq` Cargo registry.
+See [ADR 42](../../docs/adr/0042-published-mulac-crates.md) for dependency resolution.
 
 Configure this service's own UTF8 development database and a separate test
 database. The development user needs migration DDL permissions; the test user
@@ -385,8 +384,8 @@ creation history uses `OfferCreated.v9` with localized content.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
-building/deploying this version. This does not change HTTP inbox metadata or add
+legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and

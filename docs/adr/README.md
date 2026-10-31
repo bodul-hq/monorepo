@@ -53,3 +53,5 @@ Decision, Consequences) and give it the next number.
 - [ADR 41: Customer-facing content storage and selected-language search](0041-customer-facing-content-storage.md)
 
 - [ADR 40: Canonical regional market codes](0040-region-market-codes.md)
+
+- [ADR 42: Published Mulac crates](0042-published-mulac-crates.md)

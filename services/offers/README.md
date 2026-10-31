@@ -558,8 +558,8 @@ them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
-building/deploying this version. This does not change HTTP inbox metadata or add
+legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and

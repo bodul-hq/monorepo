@@ -410,19 +410,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "commanding_api"
-version = "0.3.0"
-dependencies = [
- "mulac-commanding",
- "mulac-eventing",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -588,16 +575,16 @@ dependencies = [
  "async-graphql-poem",
  "bodul_shared",
  "chrono",
- "commanding_api",
  "diesel",
  "diesel_migrations",
- "eventing_api",
- "inbox_api",
  "money",
  "mulac-commanding",
  "mulac-kernel",
+ "mulac_commanding_api",
+ "mulac_eventing_api",
+ "mulac_inbox_api",
+ "mulac_outbox_api",
  "mulac_poem",
- "outbox_api",
  "poem",
  "poem-openapi",
  "retailer_sauce",
@@ -945,18 +932,6 @@ checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "eventing_api"
-version = "0.3.0"
-dependencies = [
- "mulac-eventing",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
 ]
 
 [[package]]
@@ -1574,19 +1549,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inbox_api"
-version = "0.3.0"
-dependencies = [
- "mulac-commanding",
- "mulac-inbox",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
 name = "inbox_client"
 version = "0.1.0"
 dependencies = [
@@ -1928,7 +1890,9 @@ dependencies = [
 
 [[package]]
 name = "mulac-commanding"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "da7817e99a716b5e5e368cb95cba889c2ef46a1cb8fd8f18f9d216b84a22efa5"
 dependencies = [
  "chrono",
  "diesel",
@@ -1942,7 +1906,9 @@ dependencies = [
 
 [[package]]
 name = "mulac-eventing"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "a6f27abbc024d71ba522cfd3a3e9a576e05c6cc3e845ecf9aeb0e5c4972d944c"
 dependencies = [
  "chrono",
  "diesel",
@@ -1955,7 +1921,9 @@ dependencies = [
 
 [[package]]
 name = "mulac-inbox"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "79816fce79256155e8422f0902da7bd7109a9b133db4b28c1277d7769f915bdc"
 dependencies = [
  "chrono",
  "diesel",
@@ -1969,7 +1937,9 @@ dependencies = [
 
 [[package]]
 name = "mulac-kernel"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "b25d7f4c260b229044dee87b7b1dc09f5edb6837e086a03ba4c0f559b60c7dad"
 dependencies = [
  "mulac-commanding",
  "mulac-eventing",
@@ -1986,7 +1956,9 @@ dependencies = [
 
 [[package]]
 name = "mulac-outbox"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "efecdb7d2d3c0b0cfc700db1e9eea926dc21b38c5786834153f972514333dfc5"
 dependencies = [
  "chrono",
  "diesel",
@@ -1999,32 +1971,97 @@ dependencies = [
 
 [[package]]
 name = "mulac_axum"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "8b6087af71cc082d1846ef407874c060412bc4fcad70cbde523c1229feb5264b"
 dependencies = [
  "axum",
- "commanding_api",
- "eventing_api",
- "inbox_api",
- "outbox_api",
+ "mulac_commanding_api",
+ "mulac_eventing_api",
+ "mulac_inbox_api",
+ "mulac_outbox_api",
  "serde_json",
  "utoipa",
 ]
 
 [[package]]
+name = "mulac_commanding_api"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "3709888ee631c53d7f995e326bf332abbbdba94c75651eed15d11d35ed20cfc1"
+dependencies = [
+ "mulac-commanding",
+ "mulac-eventing",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
 name = "mulac_diesel"
-version = "0.3.0"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "f39c935695c85511c0affa7040b11a4c49de1e4f45803240344d81cc6d89702c"
 dependencies = [
  "diesel",
 ]
 
 [[package]]
-name = "mulac_poem"
-version = "0.3.0"
+name = "mulac_eventing_api"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "a02258588825b7f723a00d283d66327b432be9566525314498224f914bb2462a"
 dependencies = [
- "commanding_api",
- "eventing_api",
- "inbox_api",
- "outbox_api",
+ "mulac-eventing",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "mulac_inbox_api"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "36fe617cce21e4a8fd160b08e8eacf08a373c2147d29fb930814cc5a5dc5d3fe"
+dependencies = [
+ "mulac-commanding",
+ "mulac-inbox",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "mulac_outbox_api"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "ad5ca15b7c7a43175085bda3cda4756a90d54a30ceca04471d42363f25b5f519"
+dependencies = [
+ "chrono",
+ "mulac-outbox",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "mulac_poem"
+version = "0.4.1"
+source = "sparse+https://null-labs-hq.github.io/crates/"
+checksum = "0260108598fb65a96f88c2e7383be9f163ed3b34abea634d67bd4414bf5d56be"
+dependencies = [
+ "mulac_commanding_api",
+ "mulac_eventing_api",
+ "mulac_inbox_api",
+ "mulac_outbox_api",
  "poem",
  "poem-openapi",
  "serde",
@@ -2162,17 +2199,17 @@ dependencies = [
  "axum",
  "bodul_shared",
  "chrono",
- "commanding_api",
  "diesel",
  "diesel_migrations",
- "eventing_api",
- "inbox_api",
  "inbox_client",
  "money",
  "mulac-kernel",
  "mulac-outbox",
+ "mulac_commanding_api",
+ "mulac_eventing_api",
+ "mulac_inbox_api",
+ "mulac_outbox_api",
  "mulac_poem",
- "outbox_api",
  "poem",
  "poem-openapi",
  "retailer_sauce",
@@ -2198,19 +2235,6 @@ name = "openssl-probe"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
-
-[[package]]
-name = "outbox_api"
-version = "0.3.0"
-dependencies = [
- "chrono",
- "mulac-outbox",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
 
 [[package]]
 name = "parking"
@@ -3020,21 +3044,21 @@ dependencies = [
  "axum",
  "bodul_shared",
  "chrono",
- "commanding_api",
  "diesel",
  "diesel_migrations",
- "eventing_api",
  "fastrand",
  "flate2",
  "http-body-util",
- "inbox_api",
  "inbox_client",
  "money",
  "mulac-kernel",
  "mulac-outbox",
  "mulac_axum",
+ "mulac_commanding_api",
+ "mulac_eventing_api",
+ "mulac_inbox_api",
+ "mulac_outbox_api",
  "object_storage_client",
- "outbox_api",
  "percent-encoding",
  "reqwest",
  "retailer_data_extractor",
@@ -3800,7 +3824,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
