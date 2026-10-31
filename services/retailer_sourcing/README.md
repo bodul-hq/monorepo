@@ -96,12 +96,9 @@ through events.
 
 ## Running it
 
-The services workspace uses the local Mulac checkout next to `monorepo`, at
-`../mulac` relative to the repository root. Revision
-`9474319fff2237d81828a23d97df5d2f97741858` was verified for this integration.
-Cargo path dependencies compile the current checkout; they do not pin a Git
-revision. Keep that checkout available in development and build environments.
-See [ADR 17](../../docs/adr/0017-retailer-sourcing-local-mulac.md).
+The services workspace resolves Mulac 0.4.1 from the `null-labs-hq` registry
+configured in the repository. No sibling checkout is needed. The committed
+lockfile records package checksums. See [ADR 42](../../docs/adr/0042-published-mulac-crates.md).
 
 The service needs Postgres for the workflow; without `DATABASE_URL` it serves
 HTTP only and the routes below return `503`. On startup it applies pending
@@ -815,8 +812,8 @@ them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Use the sibling Mulac optional-sequence API before
-building/deploying this version. This does not change HTTP inbox metadata or add
+legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),
 [28](../../docs/adr/0028-source-backed-offer-localization.md) and

@@ -98,7 +98,7 @@ is declared, a supported country or the European Union regional market
 preserved; see [ADR 33](docs/adr/0033-european-union-locale-market.md).
 
 `customer_facing` accepts durable inbox messages and exposes explicit inbox,
-command, event, and outbox batch runners using local Mulac. It requires its own
+command, event, and outbox batch runners using published Mulac. It requires its own
 PostgreSQL database and projects incoming offer events into its own `offers`
 table during command processing, with transactional protection against replay.
 It also exposes paginated offers through REST and GraphQL for the customers
@@ -125,10 +125,10 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
-- A sibling `mulac` checkout next to `monorepo` for the services workspace's
-  local Mulac dependencies. The optional-sequence API requires revision
-  `dc60f443e4a2ed4a3e763855fe473426732baef1` or a compatible later checkout; Cargo path dependencies use the
-  checked-out files rather than pinning that revision. See [ADR 17](docs/adr/0017-retailer-sourcing-local-mulac.md).
+- Mulac 0.4.1 packages from the `null-labs-hq` Cargo registry at
+  `https://null-labs-hq.github.io/crates/`, configured in `.cargo/config.toml`.
+  The services lockfile pins resolved versions and checksums; no sibling Mulac
+  checkout is required. See [ADR 42](docs/adr/0042-published-mulac-crates.md).
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
 - PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.
@@ -234,7 +234,7 @@ random one to five whole seconds between fetch attempts. These delays apply
 per handler/crawl and permit concurrent workers. Shutdown requests cancellation,
 drains HTTP and waits for reserved command batches to finish.
 
-The command and event runners delegate to local Mulac's Axum adapters. Invalid
+The command and event runners delegate to Mulac's Axum adapters. Invalid
 batch requests return plain-text `400` errors, while a valid request without a
 database retains the existing JSON `503` error. Queue failures are reported in
 the `200` batch response. See the [queue contract](services/retailer_sourcing/README.md#driving-the-workflow).

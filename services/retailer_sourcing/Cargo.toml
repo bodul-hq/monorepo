@@ -20,7 +20,7 @@ inbox_api.workspace = true
 inbox_client.workspace = true
 kernel.workspace = true
 money.workspace = true
-mulac_axum = { path = "../../../mulac/libs/mulac_axum", features = ["commanding", "eventing", "outbox", "utoipa"] }
+mulac_axum = { version = "0.4.1", registry = "null-labs-hq", features = ["commanding", "eventing", "outbox", "utoipa"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
 outbox.workspace = true
 outbox_api.workspace = true
