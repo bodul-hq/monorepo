@@ -100,3 +100,11 @@ Comment 3 is intentionally skipped. Release 2 activation requires all Release 1 
 [ ] Replace obsolete compatibility tests and rollout documentation with code-only contract coverage.
 
 Gate cleanup on resetting or retiring event stores, queues, projections, stored source/export artifacts, replay inputs and old producers/clients. A database reset alone is insufficient if old payloads can be restored or redelivered. Unrelated compatibility remains out of scope.
+
+## Broken CI tests
+
+[x] Run smoke-test builds inside the checkout so Cargo loads the registry configuration.
+[x] Make the Offers content migration test independent of newer migrations.
+[x] Repair Customer Facing selected-content lookup and verify PostgreSQL failures.
+[x] Update the cleared-facts API assertion to retain each content entry's URL.
+[x] Prebuild smoke services individually to avoid feature rebuilds and Cargo lock waits during startup.

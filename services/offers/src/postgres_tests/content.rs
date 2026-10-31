@@ -17,13 +17,12 @@ use crate::{
 fn localized_migration_preserves_exact_values_and_pending_work_through_round_trip() {
     let (_schema, pool) = inbox_test_database();
     let mut connection = pool.get().unwrap();
-    assert_eq!(
-        connection
-            .revert_last_migration(MIGRATIONS)
-            .unwrap()
-            .to_string(),
-        "20261027000005"
-    );
+    while connection
+        .revert_last_migration(MIGRATIONS)
+        .unwrap()
+        .to_string()
+        != "20261027000005"
+    {}
     for (index, language, description) in [
         (1, None, None),
         (2, Some("EN-au"), Some("")),
@@ -75,7 +74,12 @@ fn localized_migration_preserves_exact_values_and_pending_work_through_round_tri
     ] {
         assert!(connection.batch_execute(sql).is_err());
     }
-    connection.revert_last_migration(MIGRATIONS).unwrap();
+    while connection
+        .revert_last_migration(MIGRATIONS)
+        .unwrap()
+        .to_string()
+        != "20261027000005"
+    {}
     assert_eq!(rows(), before);
     connection.run_pending_migrations(MIGRATIONS).unwrap();
     assert_eq!(rows(), migrated);

@@ -343,7 +343,10 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
     }
     assert_eq!(
         cleared["content"],
-        json!([{"language":null,"title":"USB charger","description":null}])
+        with_urls(
+            json!([{"language":null,"title":"USB charger","description":null}]),
+            &payload["url"]
+        )
     );
     assert_eq!(cleared["title"], "USB charger");
     kernel.shutdown();

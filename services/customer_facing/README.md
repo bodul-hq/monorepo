@@ -618,6 +618,15 @@ Set `DATABASE_URL_TEST` as for `make test-postgres`.
 
 ## Content storage and search
 
+Migration `2026-10-31-000001_selected_content_lookup` repairs a SQL argument
+shadowing bug in `offer_selected_content` and rebuilds its three expression
+indexes. Schedule it with projection writers stopped: it locks `offers` for the
+transaction. If the earlier broken unique index admitted duplicate selected
+URLs for a retailer, the rebuild fails atomically; resolve those duplicates
+before retrying. The repair's down migration deliberately retains the corrected
+function and indexes, so older readers and the content-storage downgrade remain
+usable. Reverting content storage itself still removes them.
+
 The `offers.content` JSONB envelope holds `selected_language` and localized
 `entries`, each with language, title, description and URL. The table no longer
 stores scalar title, description, language or URL columns. API responses retain
