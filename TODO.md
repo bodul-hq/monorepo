@@ -104,3 +104,4 @@ Gate cleanup on resetting or retiring event stores, queues, projections, stored 
 ## Broken CI tests
 
 [x] Run smoke-test builds inside the checkout so Cargo loads the registry configuration.
+[x] Make the Offers content migration test independent of newer migrations.
