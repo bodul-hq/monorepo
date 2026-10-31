@@ -133,8 +133,8 @@ jobs:
           mkdir -p smoke-logs
           for db in offers customer_facing retailer_sourcing object_storage; do createdb "$db"; done
           psql -v ON_ERROR_STOP=1 -d customer_facing -c 'CREATE SCHEMA customer_facing_extensions; REVOKE CREATE ON SCHEMA customer_facing_extensions FROM PUBLIC; CREATE EXTENSION pg_trgm WITH SCHEMA customer_facing_extensions;'
-          cargo build --manifest-path monorepo/services/Cargo.toml --bins
-          cargo build --manifest-path monorepo/apps/Cargo.toml -p customers
+          (cd monorepo && cargo build --manifest-path services/Cargo.toml --bins)
+          (cd monorepo && cargo build --manifest-path apps/Cargo.toml -p customers)
           pids=()
           cleanup() { for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; }
           trap cleanup EXIT
