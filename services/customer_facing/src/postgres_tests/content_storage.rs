@@ -14,6 +14,100 @@ fn content(id: u128, title: &str, description: Option<&str>) -> Value {
     ]})
 }
 
+#[test]
+#[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
+fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls() {
+    let (_schema, pool) = database(true);
+    revert_to(&pool, "20261030000001");
+    // Reproduce the deployed function and its NULL-valued expression indexes.
+    pool.get()
+        .unwrap()
+        .batch_execute(
+            "CREATE OR REPLACE FUNCTION offer_selected_content(value jsonb) RETURNS jsonb
+         LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE AS $$
+         SELECT e FROM pg_catalog.jsonb_array_elements(value->'entries') e
+         WHERE (e->'language') = (value->'selected_language') LIMIT 1 $$;
+         REINDEX INDEX offers_selected_url_idx;
+         REINDEX INDEX offers_content_title_search_idx;
+         REINDEX INDEX offers_content_description_search_idx;",
+        )
+        .unwrap();
+    insert(&pool, 1, content(1, "Charger", Some("Fast")));
+    insert(&pool, 2, content(1, "Charger", Some("Fast")));
+    let before = snapshot(
+        &pool,
+        "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM offers o",
+    );
+    assert!(bootstrap::migrate(&pool).is_err());
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM offers o"
+        ),
+        before
+    );
+    assert!(
+        snapshot(
+            &pool,
+            "SELECT COALESCE(offer_selected_content(content), 'null'::jsonb) AS data FROM offers LIMIT 1"
+        )
+        .is_null()
+    );
+    pool.get()
+        .unwrap()
+        .batch_execute("DELETE FROM offers WHERE id='00000000-0000-0000-0000-000000000002'")
+        .unwrap();
+    bootstrap::migrate(&pool).unwrap();
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT offer_selected_content(content) AS data FROM offers"
+        ),
+        content(1, "Charger", Some("Fast"))["entries"][0]
+    );
+    // Force use of rebuilt expression indexes; old NULL entries would miss it.
+    let mut connection = pool.get().unwrap();
+    connection.batch_execute("SET enable_seqscan=off").unwrap();
+    for predicate in [
+        "offer_selected_content(content)->>'url' COLLATE \"C\" = 'https://example.com/1'",
+        "lower(offer_selected_content(content)->>'title') OPERATOR(customer_facing_extensions.%) 'charger'",
+        "lower(offer_selected_content(content)->>'description') OPERATOR(customer_facing_extensions.%) 'fast'",
+    ] {
+        let count = diesel::sql_query(format!(
+            "SELECT to_jsonb(count(*)) AS data FROM offers WHERE {predicate}"
+        ))
+        .get_result::<Snapshot>(&mut connection)
+        .unwrap()
+        .data;
+        assert_eq!(count, 1);
+    }
+    connection.batch_execute("RESET enable_seqscan").unwrap();
+    drop(connection);
+    // Unknown language and exact spelling must select their own entry too.
+    for language in [Value::Null, json!("EN-au")] {
+        let envelope = json!({"selected_language":language,"entries":[
+            {"language":"en","title":"Other","description":null,"url":"https://example.com/other"},
+            {"language":language,"title":"Selected","description":null,"url":"https://example.com/selected"}
+        ]});
+        let selected = diesel::sql_query("SELECT offer_selected_content($1) AS data")
+            .bind::<Jsonb, _>(&envelope)
+            .get_result::<Snapshot>(&mut pool.get().unwrap())
+            .unwrap()
+            .data;
+        assert_eq!(selected, envelope["entries"][1]);
+    }
+    // Rolling back the repair retains correct semantics for older readers.
+    revert_to(&pool, "20261030000001");
+    assert_eq!(
+        snapshot(
+            &pool,
+            "SELECT offer_selected_content(content)->'title' AS data FROM offers"
+        ),
+        "Charger"
+    );
+    bootstrap::migrate(&pool).unwrap();
+}
+
 #[tokio::test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn selected_content_search_weights_and_language_switches() {
@@ -84,6 +178,8 @@ fn content_migration_preserves_multilingual_data_and_refuses_lossy_downgrade() {
         snapshot(&pool, "SELECT to_jsonb(o) AS data FROM offers o"),
         after
     );
+    // Reach the content-storage migration even after later repairs are added.
+    revert_to(&pool, "20261029000011");
     pool.get().unwrap().batch_execute("UPDATE offers SET content=jsonb_set(content,'{entries,0,url}','\"https://example.com/unknown\"')").unwrap();
     assert!(
         pool.get()

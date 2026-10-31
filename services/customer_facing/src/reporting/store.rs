@@ -321,7 +321,7 @@ mod postgres_tests {
             conn.run_pending_migrations(MIGRATIONS).unwrap();
             let index_query = "SELECT indexname || ': ' || indexdef AS value FROM pg_indexes WHERE schemaname = current_schema() ORDER BY indexname";
             let migrated_indexes = lines(conn, index_query);
-            assert_eq!(conn.revert_last_migration(MIGRATIONS).unwrap().to_string(), "20261030000001");
+            while conn.revert_last_migration(MIGRATIONS).unwrap().to_string() != "20261030000001" {}
             let baseline_indexes = lines(conn, index_query);
             assert_eq!(migrated_indexes.len(), baseline_indexes.len() + 4);
 
@@ -358,7 +358,7 @@ mod postgres_tests {
             explain(conn, &query, "After scheduled_at indexes");
             println!("Index sizes: {:?}", lines(conn,
                 "SELECT indexrelname || ': ' || pg_relation_size(indexrelid)::text || ' bytes' AS value FROM pg_stat_user_indexes WHERE schemaname = current_schema() AND indexrelname IN ('idx_inbox_entries_scheduled_at','idx_command_entries_scheduled_at','idx_event_entries_scheduled_at','idx_outbox_entries_scheduled_at') ORDER BY indexrelname"));
-            conn.revert_last_migration(MIGRATIONS).unwrap();
+            while conn.revert_last_migration(MIGRATIONS).unwrap().to_string() != "20261030000001" {}
             assert_eq!(lines(conn, index_query), baseline_indexes);
             assert_eq!(serde_json::to_value(load_entry_statuses_at(conn, now).unwrap()).unwrap(), before);
             conn.run_pending_migrations(MIGRATIONS).unwrap();
