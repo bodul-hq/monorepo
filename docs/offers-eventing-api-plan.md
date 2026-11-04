@@ -36,12 +36,12 @@ types and functions exist in the two checkouts today.
 
 ## 1. Establish the crate boundaries
 
-| Location | Responsibility |
-| --- | --- |
-| `libs/eventing_api` (exists, empty) | Framework-free run operation over an application-supplied `EventConsumer`, typed errors, optional Tokio execution, test fixtures |
-| `libs/eventing_api` run types (*proposed*) | Its own framework-free `RunEventsRequest`/`RunEventsResponse`, copied from `inbox_api`'s run types (section 3) |
-| `libs/mulac_poem` (exists) | New private `eventing` module behind the opt-in `eventing` feature: Poem `EventingAdapter` (*proposed*) that reuses the existing schema-owning `RunRequest`/`RunResponse` wrappers and converts them |
-| `libs/mulac_axum` (exists) | New private `eventing` module behind the opt-in `eventing` feature: Axum `EventingAdapter`, extractor and response types (*proposed*), reusing the existing Utoipa schema twins |
+| Location                                   | Responsibility                                                                                                                                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `libs/eventing_api` (exists, empty)        | Framework-free run operation over an application-supplied `EventConsumer`, typed errors, optional Tokio execution, test fixtures                                                                     |
+| `libs/eventing_api` run types (*proposed*) | Its own framework-free `RunEventsRequest`/`RunEventsResponse`, copied from `inbox_api`'s run types (section 3)                                                                                       |
+| `libs/mulac_poem` (exists)                 | New private `eventing` module behind the opt-in `eventing` feature: Poem `EventingAdapter` (*proposed*) that reuses the existing schema-owning `RunRequest`/`RunResponse` wrappers and converts them |
+| `libs/mulac_axum` (exists)                 | New private `eventing` module behind the opt-in `eventing` feature: Axum `EventingAdapter`, extractor and response types (*proposed*), reusing the existing Utoipa schema twins                      |
 
 Reservation, dispatch, retry scheduling and the attempt limit stay in the
 existing `mulac-eventing` crate (`libs/eventing`). Routing one event to many
@@ -158,23 +158,23 @@ Current behaviour, as implemented by `QueueApi::run_events` and
 Before extraction, extend characterization tests where the current behaviour is
 not already covered.
 
-| Case | Required behaviour | Source / existing coverage |
-| --- | --- | --- |
-| Limit bounds | Required integer from `1` through `1000` | `RunRequest::MIN_LIMIT`/`MAX_LIMIT` in `libs/inbox_api/src/contract.rs`; `queue_routes_validate_requests_and_report_failures` in `src/main.rs` |
-| Invalid limit | `400` for `{}`, `0`, `1001`, `-1`, `1.5`, `"1"` | Same offers test |
-| Additional invalid bodies | `400` for `{"limit":null}`, `{"limit":1.0}` and `[]` | Covered for `/inbox/run` only (`inbox_run_accepts_limit_bounds_and_unknown_fields`, `testing::invalid_run_requests`); **add for `/events/run`** |
-| Malformed JSON | `400` for body `{` | Offers queue test |
-| Out-of-range message | Poem `400` whose text wraps `limit must be between 1 and 1000` (`InboxApiError::LimitOutOfRange`) in poem-openapi's `parse request payload error: {reason}` | **Add an exact-text assertion** before replacing the parser |
-| Unknown fields | `{"limit":1,"extra":true}` accepted | Inbox only; **add for events** |
-| Content type | `415` when missing or `text/plain` | Inbox only (`inbox_routes_require_json_content_type`); **add for events** |
-| Successful batch | `200`, `{"processed":N,"errors":[]}`, including `N=0` | `run_queue` helper in `src/postgres_tests.rs` |
-| Consumer failure | `200`, `{"processed":null,"errors":[...]}`, with `EventError` display text such as `storage error: …` | Offers queue test against the unreachable test pool |
-| Subscriber failure | `200`, `processed: null`, the subscriber's error in `errors`; the row is marked failed through `EventProcessPort::failed` with `ReservableEventSpec::DEFAULT_MAX_ATTEMPTS` (`6`) | `EventConsumer::process_entry`; **add a PostgreSQL test**, for example an `OfferCreated` event without metadata, which `CustomerFacingSubscriber` rejects |
-| Partial batch failure | Successful entries stay completed | `EventConsumer::consume`; covered by the PostgreSQL subscriber-failure test above |
-| Event type without subscribers | Completed and counted, because `EventSubscriberRegistry::handle` iterates an empty list | Kernel behaviour; document, do not change |
-| Batch limit | Processes at most `limit` due events from this queue only | `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox` |
-| Blocking-task failure | `500`, text `queue processing task failed` | `err_queue_task_failed` in `api.rs`; **no events test today**; add one with a panicking service after the fixture exists (section 8) |
-| OpenAPI | `/events/run` documented; request `RunRequest` with `minimum` 1 and `maximum` 1000; response `RunResponse` | `openapi_spec_matches_routes` in `src/main.rs` |
+| Case                           | Required behaviour                                                                                                                                                               | Source / existing coverage                                                                                                                                |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Limit bounds                   | Required integer from `1` through `1000`                                                                                                                                         | `RunRequest::MIN_LIMIT`/`MAX_LIMIT` in `libs/inbox_api/src/contract.rs`; `queue_routes_validate_requests_and_report_failures` in `src/main.rs`            |
+| Invalid limit                  | `400` for `{}`, `0`, `1001`, `-1`, `1.5`, `"1"`                                                                                                                                  | Same offers test                                                                                                                                          |
+| Additional invalid bodies      | `400` for `{"limit":null}`, `{"limit":1.0}` and `[]`                                                                                                                             | Covered for `/inbox/run` only (`inbox_run_accepts_limit_bounds_and_unknown_fields`, `testing::invalid_run_requests`); **add for `/events/run`**           |
+| Malformed JSON                 | `400` for body `{`                                                                                                                                                               | Offers queue test                                                                                                                                         |
+| Out-of-range message           | Poem `400` whose text wraps `limit must be between 1 and 1000` (`InboxApiError::LimitOutOfRange`) in poem-openapi's `parse request payload error: {reason}`                      | **Add an exact-text assertion** before replacing the parser                                                                                               |
+| Unknown fields                 | `{"limit":1,"extra":true}` accepted                                                                                                                                              | Inbox only; **add for events**                                                                                                                            |
+| Content type                   | `415` when missing or `text/plain`                                                                                                                                               | Inbox only (`inbox_routes_require_json_content_type`); **add for events**                                                                                 |
+| Successful batch               | `200`, `{"processed":N,"errors":[]}`, including `N=0`                                                                                                                            | `run_queue` helper in `src/postgres_tests.rs`                                                                                                             |
+| Consumer failure               | `200`, `{"processed":null,"errors":[...]}`, with `EventError` display text such as `storage error: …`                                                                            | Offers queue test against the unreachable test pool                                                                                                       |
+| Subscriber failure             | `200`, `processed: null`, the subscriber's error in `errors`; the row is marked failed through `EventProcessPort::failed` with `ReservableEventSpec::DEFAULT_MAX_ATTEMPTS` (`6`) | `EventConsumer::process_entry`; **add a PostgreSQL test**, for example an `OfferCreated` event without metadata, which `CustomerFacingSubscriber` rejects |
+| Partial batch failure          | Successful entries stay completed                                                                                                                                                | `EventConsumer::consume`; covered by the PostgreSQL subscriber-failure test above                                                                         |
+| Event type without subscribers | Completed and counted, because `EventSubscriberRegistry::handle` iterates an empty list                                                                                          | Kernel behaviour; document, do not change                                                                                                                 |
+| Batch limit                    | Processes at most `limit` due events from this queue only                                                                                                                        | `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox`                                                                                       |
+| Blocking-task failure          | `500`, text `queue processing task failed`                                                                                                                                       | `err_queue_task_failed` in `api.rs`; **no events test today**; add one with a panicking service after the fixture exists (section 8)                      |
+| OpenAPI                        | `/events/run` documented; request `RunRequest` with `minimum` 1 and `maximum` 1000; response `RunResponse`                                                                       | `openapi_spec_matches_routes` in `src/main.rs`                                                                                                            |
 
 Preserve the error strings exactly. `queue processing task failed` is already
 the display text of `InboxApiError::RunTaskFailed`, so offers and Mulac agree
@@ -229,21 +229,21 @@ module exposes the same run-request table, and each crate's tests run it.
 
 Add these to `eventing_api`, following `libs/inbox_api`:
 
-| Proposed type | Purpose |
-| --- | --- |
-| `RunEventsRequest`, `RunEventsResponse` | Framework-free run types (above) |
-| `EventingApiError` | Typed validation and execution failures |
-| `EventingService` | Synchronous batch operation over an `Arc<EventConsumer>` |
-| `AsyncEventingService` | Optional Tokio wrapper (feature `tokio`) |
-| `testing` module | Fixtures and port doubles (feature `testing`) |
+| Proposed type                           | Purpose                                                  |
+| --------------------------------------- | -------------------------------------------------------- |
+| `RunEventsRequest`, `RunEventsResponse` | Framework-free run types (above)                         |
+| `EventingApiError`                      | Typed validation and execution failures                  |
+| `EventingService`                       | Synchronous batch operation over an `Arc<EventConsumer>` |
+| `AsyncEventingService`                  | Optional Tokio wrapper (feature `tokio`)                 |
+| `testing` module                        | Fixtures and port doubles (feature `testing`)            |
 
 `EventingApiError` variants and display strings:
 
-| Proposed variant | Display | Client error |
-| --- | --- | --- |
-| `MalformedRequest(String)` | the Serde message | yes |
-| `LimitOutOfRange { limit, min, max }` | `limit must be between {min} and {max}` | yes |
-| `RunTaskFailed(Cause)` | `queue processing task failed` | no |
+| Proposed variant                      | Display                                 | Client error |
+| ------------------------------------- | --------------------------------------- | ------------ |
+| `MalformedRequest(String)`            | the Serde message                       | yes          |
+| `LimitOutOfRange { limit, min, max }` | `limit must be between {min} and {max}` | yes          |
+| `RunTaskFailed(Cause)`                | `queue processing task failed`          | no           |
 
 Provide `is_client_error()`. Construct every error in a named `err_*` helper
 (`err_malformed_request`, `err_limit_out_of_range`, `err_run_task_failed`), as
@@ -302,14 +302,14 @@ added later behind a new optional feature without breaking anything.
 
 ### Feature and Diesel audit
 
-| Crate | Current features (verified) | Effect |
-| --- | --- | --- |
-| `mulac-eventing` | `default = ["diesel"]`, `diesel = ["dep:diesel", "dep:mulac_diesel"]` | `cargo tree -p mulac-eventing --no-default-features -e normal` contains no `diesel` |
-| `mulac-commanding` | `diesel` forwards `eventing/diesel`; depends on eventing with `default-features = false` | Diesel only when requested |
-| `mulac-inbox` | `diesel` forwards `commanding/diesel`; `amqp` implies `diesel` | Diesel only when requested |
-| `inbox_api` | `default = ["diesel"]`; workspace entry sets `default-features = false` | `--no-default-features` tree has no `diesel` |
-| `mulac_poem`, `mulac_axum` | `default = ["diesel"]` | `--no-default-features` trees have no `diesel`; the new `eventing` feature stays out of `default` and forwards no Diesel feature |
-| `mulac-kernel` | depends on `inbox` with `features = ["diesel"]` unconditionally | Any kernel user, including offers, always builds Diesel; this is expected and outside this plan |
+| Crate                      | Current features (verified)                                                              | Effect                                                                                                                           |
+| -------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `mulac-eventing`           | `default = ["diesel"]`, `diesel = ["dep:diesel", "dep:mulac_diesel"]`                    | `cargo tree -p mulac-eventing --no-default-features -e normal` contains no `diesel`                                              |
+| `mulac-commanding`         | `diesel` forwards `eventing/diesel`; depends on eventing with `default-features = false` | Diesel only when requested                                                                                                       |
+| `mulac-inbox`              | `diesel` forwards `commanding/diesel`; `amqp` implies `diesel`                           | Diesel only when requested                                                                                                       |
+| `inbox_api`                | `default = ["diesel"]`; workspace entry sets `default-features = false`                  | `--no-default-features` tree has no `diesel`                                                                                     |
+| `mulac_poem`, `mulac_axum` | `default = ["diesel"]`                                                                   | `--no-default-features` trees have no `diesel`; the new `eventing` feature stays out of `default` and forwards no Diesel feature |
+| `mulac-kernel`             | depends on `inbox` with `features = ["diesel"]` unconditionally                          | Any kernel user, including offers, always builds Diesel; this is expected and outside this plan                                  |
 
 `eventing_api` needs no `diesel` feature. Everything it uses is ungated in
 `libs/eventing/src/lib.rs`: `EventConsumer`, `ReservableEventSpec`,
@@ -444,16 +444,16 @@ path, and add an `axum_eventing` example (*proposed*) without `utoipa`.
 
 ## 7. Integrate offers
 
-| File | Change |
-| --- | --- |
-| `Cargo.toml` | Add `eventing_api`, plus `eventing_api` with `testing` in `[dev-dependencies]`. Enable the opt-in feature on `mulac_poem` (`features = ["eventing"]`). Before this stage merges, all of offers' Mulac dependencies move from local `path` to `git = "https://github.com/nulllabsdev/mulac", branch = "wip/inbox-api"`, and the commented `tag = "0.3.0"` lines are removed. There are no release tags |
-| New `src/orchestration/eventing_api.rs` (*proposed*) | `EventingApi` with the single `/events/run` declaration and delegation, and route-level tests, mirroring `src/orchestration/inbox_api.rs` |
-| `src/orchestration/api.rs` | Remove `run_events` and the `ReservableEventSpec` import. `QueueApi`, its `run` helper and `err_queue_task_failed` remain while `/commands/run` or `/outbox/run` still live there |
-| `src/orchestration/mod.rs` | Declare `pub mod eventing_api;` and `pub use eventing_api::EventingApi;`; update the module doc |
-| `src/main.rs` | In `start_mulac`, build `EventingAdapter::new(EventingService::new(kernel.event_consumer()))` and store it in a new `AppState` field `events` (*proposed*). Register `EventingApi::new(state.events)` in the `OpenApiService` tuple in `app_with_reporting_token` |
-| `src/postgres_tests.rs` | No setup change, because the `run_queue` helper exercises HTTP. Add the subscriber-failure characterization from section 2 |
-| `README.md` | State that Mulac owns `/events/run` behaviour, that `src/orchestration/eventing_api.rs` only declares it, and that subscribers stay registered in `start_mulac` |
-| `bruno/offers/run-events.bru` | No change; the path and body are unchanged |
+| File                                                 | Change                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cargo.toml`                                         | Add `eventing_api`, plus `eventing_api` with `testing` in `[dev-dependencies]`. Enable the opt-in feature on `mulac_poem` (`features = ["eventing"]`). Before this stage merges, all of offers' Mulac dependencies move from local `path` to `git = "https://github.com/nulllabsdev/mulac", branch = "wip/inbox-api"`, and the commented `tag = "0.3.0"` lines are removed. There are no release tags |
+| New `src/orchestration/eventing_api.rs` (*proposed*) | `EventingApi` with the single `/events/run` declaration and delegation, and route-level tests, mirroring `src/orchestration/inbox_api.rs`                                                                                                                                                                                                                                                             |
+| `src/orchestration/api.rs`                           | Remove `run_events` and the `ReservableEventSpec` import. `QueueApi`, its `run` helper and `err_queue_task_failed` remain while `/commands/run` or `/outbox/run` still live there                                                                                                                                                                                                                     |
+| `src/orchestration/mod.rs`                           | Declare `pub mod eventing_api;` and `pub use eventing_api::EventingApi;`; update the module doc                                                                                                                                                                                                                                                                                                       |
+| `src/main.rs`                                        | In `start_mulac`, build `EventingAdapter::new(EventingService::new(kernel.event_consumer()))` and store it in a new `AppState` field `events` (*proposed*). Register `EventingApi::new(state.events)` in the `OpenApiService` tuple in `app_with_reporting_token`                                                                                                                                     |
+| `src/postgres_tests.rs`                              | No setup change, because the `run_queue` helper exercises HTTP. Add the subscriber-failure characterization from section 2                                                                                                                                                                                                                                                                            |
+| `README.md`                                          | State that Mulac owns `/events/run` behaviour, that `src/orchestration/eventing_api.rs` only declares it, and that subscribers stay registered in `start_mulac`                                                                                                                                                                                                                                       |
+| `bruno/offers/run-events.bru`                        | No change; the path and body are unchanged                                                                                                                                                                                                                                                                                                                                                            |
 
 Subscriber assembly does not move. `RetailerOfferProjector`,
 `RetailerOfferIdentifiersProjector` and `CustomerFacingSubscriber` remain
@@ -473,15 +473,15 @@ asserts `500` with `queue processing task failed`. This is the same pattern as
 
 ## 8. Build a shared verification suite
 
-| Test layer | Coverage |
-| --- | --- |
-| `eventing_api` run types | Bounds, strict integer parsing, unknown fields, `from_result` shapes, display strings, using the same bodies as `inbox_api`'s run fixtures |
-| `eventing_api` service | Empty batch, successful dispatch count, reservation failure, subscriber failure with failure marking, partial success, limit validation for direct callers |
-| Tokio wrapper | Runs on the blocking pool; panics become `queue processing task failed` with a `source()` |
-| Poem HTTP | Statuses, bodies, malformed JSON, 415, exact Mulac messages, OpenAPI names and bounds; a spec containing both inbox and eventing routes builds without the duplicate-name panic |
-| Axum HTTP | The same contract, 422-to-400 normalization, preserved 415 and 413, router state composition, Utoipa components with one `RunRequest` |
-| PostgreSQL (offers) | `run_queue` sequences, projections, subscriber failure scheduling a retry, one-stage-per-endpoint |
-| Offers integration | inbox -> commands -> events -> `read_offers`/`read_offer_identities` (`inbox_submission_processes_offer_through_all_http_stages`) |
+| Test layer               | Coverage                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `eventing_api` run types | Bounds, strict integer parsing, unknown fields, `from_result` shapes, display strings, using the same bodies as `inbox_api`'s run fixtures                                      |
+| `eventing_api` service   | Empty batch, successful dispatch count, reservation failure, subscriber failure with failure marking, partial success, limit validation for direct callers                      |
+| Tokio wrapper            | Runs on the blocking pool; panics become `queue processing task failed` with a `source()`                                                                                       |
+| Poem HTTP                | Statuses, bodies, malformed JSON, 415, exact Mulac messages, OpenAPI names and bounds; a spec containing both inbox and eventing routes builds without the duplicate-name panic |
+| Axum HTTP                | The same contract, 422-to-400 normalization, preserved 415 and 413, router state composition, Utoipa components with one `RunRequest`                                           |
+| PostgreSQL (offers)      | `run_queue` sequences, projections, subscriber failure scheduling a retry, one-stage-per-endpoint                                                                               |
+| Offers integration       | inbox -> commands -> events -> `read_offers`/`read_offer_identities` (`inbox_submission_processes_offer_through_all_http_stages`)                                               |
 
 Proposed `eventing_api::io::testing` fixtures. They use existing ports
 (`EventReservePort`, `EventProcessPort`, `EventSubscriberPort`), so no database

@@ -45,11 +45,11 @@ and accepted ADRs establish the implemented boundaries.
 
 `OfferExportWasPrepared` contains:
 
-| Field | Meaning |
-| --- | --- |
-| `export_id` | Completed immutable export UUID |
-| `schema_version` | Export contract version; currently `1` |
-| `source` | Sourcing offer UUID, consolidated sitemap UUID, retailer code, source URL, and immutable structuralized-object reference |
+| Field            | Meaning                                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `export_id`      | Completed immutable export UUID                                                                                          |
+| `schema_version` | Export contract version; currently `1`                                                                                   |
+| `source`         | Sourcing offer UUID, consolidated sitemap UUID, retailer code, source URL, and immutable structuralized-object reference |
 
 The event envelope separately supplies event identity and optional correlation,
 causation, and source metadata.
@@ -73,16 +73,16 @@ not the receiving offers service's business IDs.
 
 ## Required output contract
 
-| Outbox value | Required meaning |
-| --- | --- |
-| Row ID | Stable export-entry UUID |
-| `message_id` | Same stable export-entry UUID |
-| Payload | That entry's existing import payload |
-| `routing_key` | `offers` |
-| `event_type` | `OfferExportWasPrepared` |
-| `event_id` | Original event-envelope UUID |
-| `correlation_id`, `causation_id`, `source` | Original event-envelope values |
-| `content_type` | `application/json` |
+| Outbox value                               | Required meaning                     |
+| ------------------------------------------ | ------------------------------------ |
+| Row ID                                     | Stable export-entry UUID             |
+| `message_id`                               | Same stable export-entry UUID        |
+| Payload                                    | That entry's existing import payload |
+| `routing_key`                              | `offers`                             |
+| `event_type`                               | `OfferExportWasPrepared`             |
+| `event_id`                                 | Original event-envelope UUID         |
+| `correlation_id`, `causation_id`, `source` | Original event-envelope values       |
+| `content_type`                             | `application/json`                   |
 
 The source event identifies a notification about an export; one export can
 contain many entries. Its event UUID cannot substitute for each entry's
@@ -133,20 +133,20 @@ type, and causation remain local outbox metadata.
 
 ## Acceptance scenarios
 
-| Scenario | Required evidence |
-| --- | --- |
-| Zero, one, and multiple entries | Exactly the eligible message set, including zero-message success |
-| Mixed entries and exclusions | No message for excluded variations |
-| Duplicate/concurrent notification | One delivery identity per entry |
-| New envelope UUID, same export | Existing messages and first metadata remain unchanged |
-| Partial recording failure then retry | Complete final message set without duplicates |
-| Replay after publication | Completed rows are not reset or resent by recording |
-| Conflicting entry identity | Visible error; existing content preserved |
-| Newer source exists | Delayed event uses its own completed snapshot |
-| Missing/pending export, object-storage failure | Visible retryable processing failure |
-| Malformed object, unsupported schema, source mismatch | No false success or incorrect import |
-| Unrelated event | No export outbox effects |
-| Publisher compatibility | Recorded payload deserializes as the actual offers import command |
+| Scenario                                              | Required evidence                                                 |
+| ----------------------------------------------------- | ----------------------------------------------------------------- |
+| Zero, one, and multiple entries                       | Exactly the eligible message set, including zero-message success  |
+| Mixed entries and exclusions                          | No message for excluded variations                                |
+| Duplicate/concurrent notification                     | One delivery identity per entry                                   |
+| New envelope UUID, same export                        | Existing messages and first metadata remain unchanged             |
+| Partial recording failure then retry                  | Complete final message set without duplicates                     |
+| Replay after publication                              | Completed rows are not reset or resent by recording               |
+| Conflicting entry identity                            | Visible error; existing content preserved                         |
+| Newer source exists                                   | Delayed event uses its own completed snapshot                     |
+| Missing/pending export, object-storage failure        | Visible retryable processing failure                              |
+| Malformed object, unsupported schema, source mismatch | No false success or incorrect import                              |
+| Unrelated event                                       | No export outbox effects                                          |
+| Publisher compatibility                               | Recorded payload deserializes as the actual offers import command |
 
 Database tests must establish persistence, concurrency, and recovery behavior.
 Verify the existing publisher can consume representative recorded messages.

@@ -17,15 +17,15 @@ payable-price selection. Display a valid comparison in smaller crossed-out text
 on customer cards, using the existing currency formatter and accessible wording.
 [ADR 34](../adr/0034-source-comparison-pricing.md) is the accepted contract.
 
-| Input or event | Required result |
-| --- | --- |
-| Source comparison greater than current price in the same currency | Carry exact integer Money; show both amounts. |
-| Missing source comparison, no payable price, equal/lower amount, wrong currency, or conflicting valid comparisons | Structuralizer emits unknown comparison; do not infer a discount. |
-| Import omits `was_price` | Preserve a stored comparison if compatible with the incoming current price. |
-| Import supplies `was_price: null` | Clear the comparison. |
-| Legacy import changes current price so the retained comparison is incompatible | Emit one atomic pricing event with the new current price and null comparison. |
-| New import supplies an invalid comparison | Reject before aggregate mutation or persistence. |
-| Historical `OfferPriceChangedEvent` | Replay only current price; retain stored comparison even if it becomes incompatible. Suppress that comparison in read responses and cards. |
+| Input or event                                                                                                    | Required result                                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Source comparison greater than current price in the same currency                                                 | Carry exact integer Money; show both amounts.                                                                                              |
+| Missing source comparison, no payable price, equal/lower amount, wrong currency, or conflicting valid comparisons | Structuralizer emits unknown comparison; do not infer a discount.                                                                          |
+| Import omits `was_price`                                                                                          | Preserve a stored comparison if compatible with the incoming current price.                                                                |
+| Import supplies `was_price: null`                                                                                 | Clear the comparison.                                                                                                                      |
+| Legacy import changes current price so the retained comparison is incompatible                                    | Emit one atomic pricing event with the new current price and null comparison.                                                              |
+| New import supplies an invalid comparison                                                                         | Reject before aggregate mutation or persistence.                                                                                           |
+| Historical `OfferPriceChangedEvent`                                                                               | Replay only current price; retain stored comparison even if it becomes incompatible. Suppress that comparison in read responses and cards. |
 
 Export v6 introduced the field; current v8 retains it. Creation readers accept
 v1–v8 and the current writer uses `OfferCreated.v8`. New changes route as
@@ -36,13 +36,13 @@ from that event. The existing `OfferPriceChanged.v1` record and
 
 ## Existing implementation to retain
 
-| Boundary | Current implementation |
-| --- | --- |
-| Retailer evidence | Family helpers in [Anker](../../lib/retailers_anker/src/offer_facts.rs), [Minisforum](../../lib/retailers_minisforum/src/offer_facts.rs), and [Ugreen](../../lib/retailers_ugreen/src/offer_facts.rs). Ugreen accepts scoped explicit ListPrice/StrikethroughPrice specifications only when valid comparisons agree. See [storefront coverage](../offer-facts-source-coverage.md). |
-| Immutable export | [Conversion](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/conversion.rs), [schema validation](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/entity.rs), and [store](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/store.rs) preserve versioned omission/null semantics. |
-| Offers import and history | [Observation type](../../lib/retailer_sauce/src/observation.rs), [import command](../../services/offers/src/offers/command.rs), [aggregate](../../services/offers/src/offers/aggregate.rs), [events](../../services/offers/src/offers/event.rs), and [record versions](../../services/offers/src/infra/records.rs). JSON money objects are validated before use. |
-| Persistence and delivery | [Offers projection](../../services/offers/src/read_offer/repository/postgres.rs), [outbox publisher](../../services/offers/src/orchestration/customer_facing_publisher.rs), and [customer-facing projection](../../services/customer_facing/src/offer_projection.rs). Pricing updates replace the whole pair atomically. |
-| Read and display | [API mapping](../../services/customer_facing/src/offer_read/facts.rs), [customers model](../../apps/customers/src/offers.rs), and [card renderer](../../apps/customers/src/page.rs). Incompatible stored comparison prices are hidden without rewriting history. |
+| Boundary                  | Current implementation                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Retailer evidence         | Family helpers in [Anker](../../lib/retailers_anker/src/offer_facts.rs), [Minisforum](../../lib/retailers_minisforum/src/offer_facts.rs), and [Ugreen](../../lib/retailers_ugreen/src/offer_facts.rs). Ugreen accepts scoped explicit ListPrice/StrikethroughPrice specifications only when valid comparisons agree. See [storefront coverage](../offer-facts-source-coverage.md). |
+| Immutable export          | [Conversion](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/conversion.rs), [schema validation](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/entity.rs), and [store](../../services/retailer_sourcing/src/offer_discovery/processing_for_export/store.rs) preserve versioned omission/null semantics.                    |
+| Offers import and history | [Observation type](../../lib/retailer_sauce/src/observation.rs), [import command](../../services/offers/src/offers/command.rs), [aggregate](../../services/offers/src/offers/aggregate.rs), [events](../../services/offers/src/offers/event.rs), and [record versions](../../services/offers/src/infra/records.rs). JSON money objects are validated before use.                   |
+| Persistence and delivery  | [Offers projection](../../services/offers/src/read_offer/repository/postgres.rs), [outbox publisher](../../services/offers/src/orchestration/customer_facing_publisher.rs), and [customer-facing projection](../../services/customer_facing/src/offer_projection.rs). Pricing updates replace the whole pair atomically.                                                           |
+| Read and display          | [API mapping](../../services/customer_facing/src/offer_read/facts.rs), [customers model](../../apps/customers/src/offers.rs), and [card renderer](../../apps/customers/src/page.rs). Incompatible stored comparison prices are hidden without rewriting history.                                                                                                                   |
 
 Both projections have additive nullable `was_price_amount` / `was_price_currency`
 columns and paired-null constraints: [offers migration](../../services/offers/migrations/2026-10-27-000002_offer_was_price/up.sql)

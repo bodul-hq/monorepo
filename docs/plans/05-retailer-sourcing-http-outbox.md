@@ -37,13 +37,13 @@ importable variation, with payload matching
 The publisher does not load export snapshots, split variation arrays, convert
 prices, or interpret retailer documents.
 
-| Proposed input from the outbox | HTTP inbox field |
-| --- | --- |
-| JSON import payload | `payload`, as a JSON object rather than a JSON-encoded string |
-| `metadata.message_id` | `message_id`, unchanged across retries |
-| Destination `routing_key = "offers"` | Command `routing_key = "ImportOfferDetails"` |
-| `metadata.correlation_id` | `correlation_id`, unchanged |
-| Nonblank metadata source | `source`, unchanged; use documented `retailer_sourcing` fallback when absent |
+| Proposed input from the outbox       | HTTP inbox field                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
+| JSON import payload                  | `payload`, as a JSON object rather than a JSON-encoded string                |
+| `metadata.message_id`                | `message_id`, unchanged across retries                                       |
+| Destination `routing_key = "offers"` | Command `routing_key = "ImportOfferDetails"`                                 |
+| `metadata.correlation_id`            | `correlation_id`, unchanged                                                  |
+| Nonblank metadata source             | `source`, unchanged; use documented `retailer_sourcing` fallback when absent |
 
 Confirm this handoff when item 4 is planned. The delivery `message_id` identifies
 one importable entry; it is distinct from the source `event_id`, which may

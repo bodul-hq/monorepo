@@ -28,21 +28,21 @@ Use the following explicit product conventions. These are deterministic display
 choices, not a claim that every country using a currency formats it identically.
 Dollar prefixes distinguish currencies in a mixed-currency offer list.
 
-| Currency | Symbol | Group separator | Decimal separator | Example display |
-| --- | --- | --- | --- | --- |
-| USD | `$` | comma | dot | `$1,234.56` |
-| EUR | `€` | dot | comma | `1.234,56 €` |
-| CAD | `CA$` | comma | dot | `CA$1,234.56` |
-| AUD | `A$` | comma | dot | `A$1,234.56` |
-| GBP | `£` | comma | dot | `£1,234.56` |
-| JPY | `¥` | comma | none | `¥1,234` |
-| KRW | `₩` | comma | none | `₩1,234` |
-| HKD | `HK$` | comma | dot | `HK$1,234.56` |
-| PLN | `zł` | nonbreaking space | comma | `1 234,56 zł` |
-| SEK | `kr` | nonbreaking space | comma | `1 234,56 kr` |
-| VND | `₫` | dot | none | `1.234 ₫` |
-| NZD | `NZ$` | comma | dot | `NZ$1,234.56` |
-| INR | `₹` | comma, Indian grouping | dot | `₹1,23,456.78` |
+| Currency | Symbol | Group separator        | Decimal separator | Example display |
+| -------- | ------ | ---------------------- | ----------------- | --------------- |
+| USD      | `$`    | comma                  | dot               | `$1,234.56`     |
+| EUR      | `€`    | dot                    | comma             | `1.234,56 €`    |
+| CAD      | `CA$`  | comma                  | dot               | `CA$1,234.56`   |
+| AUD      | `A$`   | comma                  | dot               | `A$1,234.56`    |
+| GBP      | `£`    | comma                  | dot               | `£1,234.56`     |
+| JPY      | `¥`    | comma                  | none              | `¥1,234`        |
+| KRW      | `₩`    | comma                  | none              | `₩1,234`        |
+| HKD      | `HK$`  | comma                  | dot               | `HK$1,234.56`   |
+| PLN      | `zł`   | nonbreaking space      | comma             | `1 234,56 zł`   |
+| SEK      | `kr`   | nonbreaking space      | comma             | `1 234,56 kr`   |
+| VND      | `₫`    | dot                    | none              | `1.234 ₫`       |
+| NZD      | `NZ$`  | comma                  | dot               | `NZ$1,234.56`   |
+| INR      | `₹`    | comma, Indian grouping | dot               | `₹1,23,456.78`  |
 
 Suffix symbols have one U+00A0 nonbreaking space before them. PLN/SEK grouping
 also uses U+00A0. Other groups contain three digits; INR has a three-digit final

@@ -24,12 +24,12 @@ projector also subscribes to `OfferTitleChanged` and `OfferPriceChangedEvent`.
 No background queue workers are started. The queue APIs process one batch from
 one queue at a time:
 
-| POST endpoint | Effect |
-| --- | --- |
-| `/api/inbox/run` | Convert stored inbox messages to queued commands. |
-| `/api/commands/run` | Execute queued commands and enqueue their events. |
-| `/api/events/run` | Dispatch queued events to the projectors. |
-| `/api/outbox/run` | Deliver a batch to customer-facing's `/api/inbox` when `CUSTOMER_FACING_URL` is configured; otherwise return `503` without reserving rows. |
+| POST endpoint       | Effect                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/api/inbox/run`    | Convert stored inbox messages to queued commands.                                                                                          |
+| `/api/commands/run` | Execute queued commands and enqueue their events.                                                                                          |
+| `/api/events/run`   | Dispatch queued events to the projectors.                                                                                                  |
+| `/api/outbox/run`   | Deliver a batch to customer-facing's `/api/inbox` when `CUSTOMER_FACING_URL` is configured; otherwise return `503` without reserving rows. |
 
 All four require JSON `{"limit":100}` with an integer from 1 through 1000.
 Missing or invalid limits and malformed JSON return `400`. Configured consumers
@@ -159,13 +159,13 @@ HTTP is the only transport ([ADR 21](../../docs/adr/0021-offers-http-outbox-to-c
 `POST /api/outbox/run` delivers only its requested batch. Each row is posted to
 `/api/inbox` as JSON:
 
-| Field | Value |
-| --- | --- |
-| `routing_key` | The event type, exactly `OfferCreated`, `OfferTitleChanged`, `OfferPriceChangedEvent` or `OfferImageAdded` |
-| `payload` | The recorded event JSON object, unchanged |
-| `message_id` | The row's stable message UUID |
-| `correlation_id` | The row's correlation UUID, or null |
-| `source` | The row's source; `offers` when absent |
+| Field            | Value                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `routing_key`    | The event type, exactly `OfferCreated`, `OfferTitleChanged`, `OfferPriceChangedEvent` or `OfferImageAdded` |
+| `payload`        | The recorded event JSON object, unchanged                                                                  |
+| `message_id`     | The row's stable message UUID                                                                              |
+| `correlation_id` | The row's correlation UUID, or null                                                                        |
+| `source`         | The row's source; `offers` when absent                                                                     |
 
 Only rows with destination `customer_facing` are sent. A row with another
 destination, an unsupported event type, a payload that is not that event, or a
@@ -261,16 +261,16 @@ Imports retailer page snapshots into a Testimony aggregate, publishes changes
 through Mulac, and serves a PostgreSQL projection. The module boundaries follow
 `/home/nulllabs/work/labs/bodulv6`:
 
-| Module | Responsibility |
-| --- | --- |
-| `src/core.rs` | `RetailerOffer`, events, sequence tracking, replay. |
-| `src/offers/offer_identity.rs` | Validated retailer and URL identity. |
-| `src/offers/offer_page.rs` | Validated offer page snapshot. |
-| `src/app.rs` | Import/project use cases and repository interfaces. |
-| `src/infra/` | Versioned records, transactional PostgreSQL repositories, Mulac adapters. |
-| `src/bootstrap.rs` | Database startup, migrations, shared runtime construction. |
-| `src/api.rs` | REST DTOs, OpenAPI, GraphQL health, `app()` routes. |
-| `src/main.rs` | Port configuration, server, graceful shutdown. |
+| Module                         | Responsibility                                                            |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| `src/core.rs`                  | `RetailerOffer`, events, sequence tracking, replay.                       |
+| `src/offers/offer_identity.rs` | Validated retailer and URL identity.                                      |
+| `src/offers/offer_page.rs`     | Validated offer page snapshot.                                            |
+| `src/app.rs`                   | Import/project use cases and repository interfaces.                       |
+| `src/infra/`                   | Versioned records, transactional PostgreSQL repositories, Mulac adapters. |
+| `src/bootstrap.rs`             | Database startup, migrations, shared runtime construction.                |
+| `src/api.rs`                   | REST DTOs, OpenAPI, GraphQL health, `app()` routes.                       |
+| `src/main.rs`                  | Port configuration, server, graceful shutdown.                            |
 
 See [the implementation plan](offers-plan.md), [bodulv6 research](testimony.md),
 and [ADR 15](../../docs/adr/0015-offers-testimony-and-mulac.md).
@@ -419,20 +419,20 @@ changing the application.
 
 ## Routes
 
-| Method/path | Response |
-| --- | --- |
-| `GET /api/health` | `200`, text `ok` (liveness). |
-| `POST /api/tmp-import` | Validate an import and store it in the inbox; `202`, `{ "message_id": "<uuid>" }`. |
-| `POST /api/offers/import` | `202`, `{ "command_id": "<uuid>" }`. |
-| `POST /api/inbox` | Store one message; `202`, `{ "message_id": "<uuid>" }`. |
-| `GET /api/offers/{id}` | Projected offer, or `404`. |
-| `GET /api/offers?retailer_code=…&url=…` | Exact identity lookup; both parameters required. |
-| `POST /api/commands/run` | Consume commands with `{ "limit": 1..1000 }`. |
-| `POST /api/events/run` | Consume events with the same batch request. |
-| `GET /api/openapi.json` | OpenAPI operations and schemas. |
-| `/api/docs/` | Swagger UI. |
-| `GET /graphql`, `POST /graphql` | GraphQL `{ health }`. |
-| `GET /graphql/ide` | GraphiQL in debug builds only. |
+| Method/path                             | Response                                                                           |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| `GET /api/health`                       | `200`, text `ok` (liveness).                                                       |
+| `POST /api/tmp-import`                  | Validate an import and store it in the inbox; `202`, `{ "message_id": "<uuid>" }`. |
+| `POST /api/offers/import`               | `202`, `{ "command_id": "<uuid>" }`.                                               |
+| `POST /api/inbox`                       | Store one message; `202`, `{ "message_id": "<uuid>" }`.                            |
+| `GET /api/offers/{id}`                  | Projected offer, or `404`.                                                         |
+| `GET /api/offers?retailer_code=…&url=…` | Exact identity lookup; both parameters required.                                   |
+| `POST /api/commands/run`                | Consume commands with `{ "limit": 1..1000 }`.                                      |
+| `POST /api/events/run`                  | Consume events with the same batch request.                                        |
+| `GET /api/openapi.json`                 | OpenAPI operations and schemas.                                                    |
+| `/api/docs/`                            | Swagger UI.                                                                        |
+| `GET /graphql`, `POST /graphql`         | GraphQL `{ health }`.                                                              |
+| `GET /graphql/ide`                      | GraphiQL in debug builds only.                                                     |
 
 Malformed/invalid input returns `400`; storage failures return `500`. Batch item failures are reported in the
 `200` batch response. These development endpoints have no authentication;

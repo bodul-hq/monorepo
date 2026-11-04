@@ -39,14 +39,14 @@ exclude overdue rows from yesterday and tomorrow's rows. Received, processed,
 and creation timestamps do not select membership. Retries can move rows into
 or out of the window; these snapshots are not throughput history.
 
-| Code | API label | Dashboard label | Background |
-| --- | --- | --- | --- |
-| 0 | received | New | Light green `#BBEFC9` |
-| 2 | reserved | Processing | Medium green `#66BB6A` |
-| 4 | failed | Failed | Orange `#FFAD4D` |
-| 5 | completed | Completed | Green `#237A43` |
-| 7 | dead | Dead | Black `#000000` |
-| 8 | archive | Archive | Grey `#D1D5DB` |
+| Code | API label | Dashboard label | Background             |
+| ---- | --------- | --------------- | ---------------------- |
+| 0    | received  | New             | Light green `#BBEFC9`  |
+| 2    | reserved  | Processing      | Medium green `#66BB6A` |
+| 4    | failed    | Failed          | Orange `#FFAD4D`       |
+| 5    | completed | Completed       | Green `#237A43`        |
+| 7    | dead      | Dead            | Black `#000000`        |
+| 8    | archive   | Archive         | Grey `#D1D5DB`         |
 
 Retain unknown codes with API label `unknown` and neutral additional boxes.
 Preserve existing authentication, missing-database responses, sanitized errors,

@@ -52,21 +52,21 @@ it without depending on the other's internal design.
 
 Send `POST /api/inbox` with `Content-Type: application/json`.
 
-| HTTP field | Required value |
-| --- | --- |
-| `payload` | Existing event payload as a JSON object |
-| `routing_key` | Exact supported event type below |
-| `message_id` | Existing stable outbox message UUID |
+| HTTP field       | Required value                                                |
+| ---------------- | ------------------------------------------------------------- |
+| `payload`        | Existing event payload as a JSON object                       |
+| `routing_key`    | Exact supported event type below                              |
+| `message_id`     | Existing stable outbox message UUID                           |
 | `correlation_id` | Existing optional correlation UUID; null or absent when unset |
-| `source` | Existing nonblank source; `offers` when absent |
+| `source`         | Existing nonblank source; `offers` when absent                |
 
 Only destination `customer_facing` and these event types are eligible:
 
-| Event type, exactly as emitted | Payload fields |
-| --- | --- |
-| `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at` |
-| `OfferTitleChanged` | `id`, `title` |
-| `OfferPriceChangedEvent` | `id`, `price` |
+| Event type, exactly as emitted | Payload fields                                               |
+| ------------------------------ | ------------------------------------------------------------ |
+| `OfferCreated`                 | `id`, `retailer_code`, `title`, `price`, `url`, `created_at` |
+| `OfferTitleChanged`            | `id`, `title`                                                |
+| `OfferPriceChangedEvent`       | `id`, `price`                                                |
 
 The price event's `Event` suffix is part of the existing contract. Payload
 `id` is the original offer UUID serialized as a string. `price` contains
@@ -162,22 +162,22 @@ or assigned different identities on retry.
 
 ## Acceptance scenarios
 
-| Scenario | Required evidence |
-| --- | --- |
-| Each supported event | Exact routing key, raw payload object, stable message UUID |
-| Metadata and source | Correlation preserved; absent source defaults; blank source fails |
-| Existing queued rows | Compatibility without changed business content or identity |
-| Unknown destination/type or malformed payload | Visible failure without false completion |
-| Matching and duplicate `202` | Sender completion only for the expected UUID |
-| Wrong/missing UUID, invalid/oversized JSON | Failed delivery |
-| Other success status, redirect, `400`, `429`, `500` | Failed delivery under normal retry policy |
-| Timeout or disconnect after acceptance | Retry retains identity and content |
-| Acceptance followed by completion failure | No claim of exactly-once delivery; recovery demonstrated |
-| Partial batch | Successful rows remain completed; failures remain recoverable |
-| Missing configuration | `503` and untouched queue |
-| Destination offline during startup | Service still starts |
-| Legacy AMQP settings present | No broker publication or fallback |
-| Error output | No credentials or response bodies exposed |
+| Scenario                                            | Required evidence                                                 |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| Each supported event                                | Exact routing key, raw payload object, stable message UUID        |
+| Metadata and source                                 | Correlation preserved; absent source defaults; blank source fails |
+| Existing queued rows                                | Compatibility without changed business content or identity        |
+| Unknown destination/type or malformed payload       | Visible failure without false completion                          |
+| Matching and duplicate `202`                        | Sender completion only for the expected UUID                      |
+| Wrong/missing UUID, invalid/oversized JSON          | Failed delivery                                                   |
+| Other success status, redirect, `400`, `429`, `500` | Failed delivery under normal retry policy                         |
+| Timeout or disconnect after acceptance              | Retry retains identity and content                                |
+| Acceptance followed by completion failure           | No claim of exactly-once delivery; recovery demonstrated          |
+| Partial batch                                       | Successful rows remain completed; failures remain recoverable     |
+| Missing configuration                               | `503` and untouched queue                                         |
+| Destination offline during startup                  | Service still starts                                              |
+| Legacy AMQP settings present                        | No broker publication or fallback                                 |
+| Error output                                        | No credentials or response bodies exposed                         |
 
 Use deterministic HTTP receiver tests and isolated PostgreSQL tests for queue
 effects, including separate receiver storage. Verify a real existing

@@ -19,18 +19,18 @@ entities again or collapse empty strings to null. Transport JSON escaping may
 differ; decoded values must match. Prepared immutable export retries must also
 retain their original bytes and IDs.
 
-| Context/input | Required behavior |
-| --- | --- |
-| Implemented structuralizer has no primary description | Emit `content: {"description": null}`; no inferred fallback. |
-| Legacy structuralized/export/import payload omits content | No observation: retain an existing description; initialize unknown on creation. A v8 export built from an old artifact may also omit content. |
-| Present `{"description":""}` or whitespace-only string | Preserve and replace with that exact known string. |
-| Present `{"description":null}` | Explicitly clear the description. |
-| `content:null`, array/scalar, `{}`, wrong member type, extra keys | Reject. Present content must be an object with exactly one required nullable description key. |
-| NUL in description | Reject through `Content::guard()` before business persistence/events. Shape deserialization alone is not the guard. |
-| Historical creation v1–v7 omits content | Default to unknown without rewriting history. New `OfferCreated.v8` includes the complete object. |
-| `OfferContentChanged` / stored `OfferContentChanged.v1` | Require `id` and complete content; replace the decided value, including null. |
-| Customer-facing REST/GraphQL | Always return nonnull `content` with nullable `description`, identically for browse/search. |
-| Customers receives an old response without content | Default to `Content { description: None }`, preserve existing HTML. This does not make present `{}` valid. |
+| Context/input                                                     | Required behavior                                                                                                                             |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Implemented structuralizer has no primary description             | Emit `content: {"description": null}`; no inferred fallback.                                                                                  |
+| Legacy structuralized/export/import payload omits content         | No observation: retain an existing description; initialize unknown on creation. A v8 export built from an old artifact may also omit content. |
+| Present `{"description":""}` or whitespace-only string            | Preserve and replace with that exact known string.                                                                                            |
+| Present `{"description":null}`                                    | Explicitly clear the description.                                                                                                             |
+| `content:null`, array/scalar, `{}`, wrong member type, extra keys | Reject. Present content must be an object with exactly one required nullable description key.                                                 |
+| NUL in description                                                | Reject through `Content::guard()` before business persistence/events. Shape deserialization alone is not the guard.                           |
+| Historical creation v1–v7 omits content                           | Default to unknown without rewriting history. New `OfferCreated.v8` includes the complete object.                                             |
+| `OfferContentChanged` / stored `OfferContentChanged.v1`           | Require `id` and complete content; replace the decided value, including null.                                                                 |
+| Customer-facing REST/GraphQL                                      | Always return nonnull `content` with nullable `description`, identically for browse/search.                                                   |
+| Customers receives an old response without content                | Default to `Content { description: None }`, preserve existing HTML. This does not make present `{}` valid.                                    |
 
 Typed temporary imports validate before queuing. A generic inbox may accept an
 envelope before command processing rejects its payload; no offer change or
@@ -38,14 +38,14 @@ applied-message receipt may survive that failure.
 
 ## Existing implementation
 
-| Layer | Current paths and behavior to retain |
-| --- | --- |
-| Shared value/source selection | [structuralized.rs](../../lib/retailer_sauce/src/structuralized.rs), [observation.rs](../../lib/retailer_sauce/src/observation.rs); `lib/retailers_{anker,minisforum,ugreen}/src/offer_facts.rs` and each `src/<storefront>/offer_details/v1/structuralize.rs`. Helpers copy the optional primary description unchanged. |
-| Source boundary | [Coverage report](../offer-facts-source-coverage.md): 44 completed structuralizers; expected nulls are listed. Anker KR and Mi/WIP stubs are outside that completed set. |
-| Export | `services/retailer_sourcing/src/offer_discovery/processing_for_export/{entity,conversion,handler,store}.rs`: write v8/read v1–v8; older versions omit content, old artifact omission remains distinct from clearing; pinned references/prepared bytes stay immutable. Fixtures are in `services/retailer_sourcing/tests/fixtures/offer_export/`. |
-| Offers import/history/delivery | `services/offers/src/offers/{command,handler,aggregate,event}.rs`, `offers/http/rest.rs`, `infra/records.rs`, and `orchestration/customer_facing_publisher.rs`: preserve observations, compare full content, write creation v8/read v1–v8, publish original payload/identity. HTTP routing uses `OfferContentChanged`, without `.v1`. |
-| Projections/API | `services/offers/src/read_offer/` writes description; `services/customer_facing/src/offer_projection.rs` couples writes with original-message receipts. `offer_read.rs` and `offer_read/facts.rs` share browse/search REST/GraphQL mapping. |
-| Customers | `apps/customers/src/offers.rs`, `offers/facts.rs`, and `page/tests.rs` validate/default content and verify descriptions never enter browse/search HTML. |
+| Layer                          | Current paths and behavior to retain                                                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Shared value/source selection  | [structuralized.rs](../../lib/retailer_sauce/src/structuralized.rs), [observation.rs](../../lib/retailer_sauce/src/observation.rs); `lib/retailers_{anker,minisforum,ugreen}/src/offer_facts.rs` and each `src/<storefront>/offer_details/v1/structuralize.rs`. Helpers copy the optional primary description unchanged.                         |
+| Source boundary                | [Coverage report](../offer-facts-source-coverage.md): 44 completed structuralizers; expected nulls are listed. Anker KR and Mi/WIP stubs are outside that completed set.                                                                                                                                                                         |
+| Export                         | `services/retailer_sourcing/src/offer_discovery/processing_for_export/{entity,conversion,handler,store}.rs`: write v8/read v1–v8; older versions omit content, old artifact omission remains distinct from clearing; pinned references/prepared bytes stay immutable. Fixtures are in `services/retailer_sourcing/tests/fixtures/offer_export/`. |
+| Offers import/history/delivery | `services/offers/src/offers/{command,handler,aggregate,event}.rs`, `offers/http/rest.rs`, `infra/records.rs`, and `orchestration/customer_facing_publisher.rs`: preserve observations, compare full content, write creation v8/read v1–v8, publish original payload/identity. HTTP routing uses `OfferContentChanged`, without `.v1`.            |
+| Projections/API                | `services/offers/src/read_offer/` writes description; `services/customer_facing/src/offer_projection.rs` couples writes with original-message receipts. `offer_read.rs` and `offer_read/facts.rs` share browse/search REST/GraphQL mapping.                                                                                                      |
+| Customers                      | `apps/customers/src/offers.rs`, `offers/facts.rs`, and `page/tests.rs` validate/default content and verify descriptions never enter browse/search HTML.                                                                                                                                                                                          |
 
 Existing additive migrations are offers
 [`2026-10-27-000004_offer_content`](../../services/offers/migrations/2026-10-27-000004_offer_content/up.sql)

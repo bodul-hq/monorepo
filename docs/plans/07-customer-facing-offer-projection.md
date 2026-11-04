@@ -68,21 +68,21 @@ it without depending on the other's internal design.
 
 Send `POST /api/inbox` with `Content-Type: application/json`.
 
-| HTTP field | Required value |
-| --- | --- |
-| `payload` | Existing event payload as a JSON object |
-| `routing_key` | Exact supported event type below |
-| `message_id` | Existing stable outbox message UUID |
+| HTTP field       | Required value                                                |
+| ---------------- | ------------------------------------------------------------- |
+| `payload`        | Existing event payload as a JSON object                       |
+| `routing_key`    | Exact supported event type below                              |
+| `message_id`     | Existing stable outbox message UUID                           |
 | `correlation_id` | Existing optional correlation UUID; null or absent when unset |
-| `source` | Existing nonblank source; `offers` when absent |
+| `source`         | Existing nonblank source; `offers` when absent                |
 
 Only destination `customer_facing` and these event types are eligible:
 
-| Event type, exactly as emitted | Payload fields |
-| --- | --- |
-| `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at` |
-| `OfferTitleChanged` | `id`, `title` |
-| `OfferPriceChangedEvent` | `id`, `price` |
+| Event type, exactly as emitted | Payload fields                                               |
+| ------------------------------ | ------------------------------------------------------------ |
+| `OfferCreated`                 | `id`, `retailer_code`, `title`, `price`, `url`, `created_at` |
+| `OfferTitleChanged`            | `id`, `title`                                                |
+| `OfferPriceChangedEvent`       | `id`, `price`                                                |
 
 The price event's `Event` suffix is part of the existing contract. Payload
 `id` is the original offer UUID serialized as a string. `price` contains
@@ -129,14 +129,14 @@ later payload differs.
 
 ## Business and persisted data contract
 
-| Business property | Required representation and meaning |
-| --- | --- |
-| `id` | Original offer UUID; do not allocate a new customer-facing identity |
-| `retailer_code` | Original retailer identity |
-| `title` | Original text, including Unicode and meaningful whitespace |
-| `price` | Exact signed integer minor-unit amount and currency |
-| `url` | Original URL without normalization |
-| `created_at` | Original creation instant, not receipt or processing time |
+| Business property | Required representation and meaning                                 |
+| ----------------- | ------------------------------------------------------------------- |
+| `id`              | Original offer UUID; do not allocate a new customer-facing identity |
+| `retailer_code`   | Original retailer identity                                          |
+| `title`           | Original text, including Unicode and meaningful whitespace          |
+| `price`           | Exact signed integer minor-unit amount and currency                 |
+| `url`             | Original URL without normalization                                  |
+| `created_at`      | Original creation instant, not receipt or processing time           |
 
 The existing `read_offers` record stores `id` as UUID, `retailer_code`,
 `url`, and `title` as text, `price_amount` as BIGINT, `currency` as text,
@@ -195,26 +195,26 @@ on reading another service's database or executing another service's queues.
 
 ## Acceptance scenarios
 
-| Scenario | Required evidence |
-| --- | --- |
-| Creation | All business properties durably preserved |
-| Title update | Only title changes |
-| Price/currency update | Both change together; unrelated fields preserved |
-| Value fidelity | Unicode, whitespace, exact URL, retailer identity, UUID, original instant, and integer precision |
-| HTTP submission only | Durable receipt without claiming applied persistence |
-| Inbox runner only | Commands queued; no claim that application has completed |
-| Full documented queue sequence | Expected final `offers` record |
-| Duplicate HTTP message | One inbox identity and one logical business effect |
-| Different command UUIDs, same original message | Replay does not duplicate or reset business state |
-| Replay after later updates | Older already-applied create/title/price does not regress state |
-| Concurrent duplicate | One logical application |
-| Persistence failure and retry | No false success or permanently suppressed update |
-| Restart | Offer state and replay protection survive |
-| Update before create | Visible failure; eligible retry succeeds after creation |
-| Distinct updates in reverse source order | Processing-order behavior, with limitation documented |
-| Conflicting creation/retailer-URL identity | Existing record preserved; visible error |
-| Malformed or unsupported message | No partial change or silent success |
-| Existing database with queue data | Additive migration preserves prior queued work |
+| Scenario                                       | Required evidence                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Creation                                       | All business properties durably preserved                                                        |
+| Title update                                   | Only title changes                                                                               |
+| Price/currency update                          | Both change together; unrelated fields preserved                                                 |
+| Value fidelity                                 | Unicode, whitespace, exact URL, retailer identity, UUID, original instant, and integer precision |
+| HTTP submission only                           | Durable receipt without claiming applied persistence                                             |
+| Inbox runner only                              | Commands queued; no claim that application has completed                                         |
+| Full documented queue sequence                 | Expected final `offers` record                                                                   |
+| Duplicate HTTP message                         | One inbox identity and one logical business effect                                               |
+| Different command UUIDs, same original message | Replay does not duplicate or reset business state                                                |
+| Replay after later updates                     | Older already-applied create/title/price does not regress state                                  |
+| Concurrent duplicate                           | One logical application                                                                          |
+| Persistence failure and retry                  | No false success or permanently suppressed update                                                |
+| Restart                                        | Offer state and replay protection survive                                                        |
+| Update before create                           | Visible failure; eligible retry succeeds after creation                                          |
+| Distinct updates in reverse source order       | Processing-order behavior, with limitation documented                                            |
+| Conflicting creation/retailer-URL identity     | Existing record preserved; visible error                                                         |
+| Malformed or unsupported message               | No partial change or silent success                                                              |
+| Existing database with queue data              | Additive migration preserves prior queued work                                                   |
 
 Use direct submissions to the real customer-facing inbox with isolated
 PostgreSQL schemas; no item 6 implementation is necessary. Cover receipt,

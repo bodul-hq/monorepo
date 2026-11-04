@@ -18,11 +18,11 @@ The implementation targets the Mulac checkout referenced by offers:
 
 Add these crates to Mulac's existing `libs` workspace:
 
-| Location | Responsibility |
-| --- | --- |
-| `libs/inbox_api` | Shared request/response contract, validation, submission and batch operations, optional Tokio execution, PostgreSQL assembly helpers |
-| `libs/mulac_poem` | Poem/OpenAPI types, request parsing integration, response and error conversion |
-| `libs/mulac_axum` | Axum extractors, response and error conversion, optional Utoipa schema support |
+| Location          | Responsibility                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `libs/inbox_api`  | Shared request/response contract, validation, submission and batch operations, optional Tokio execution, PostgreSQL assembly helpers |
+| `libs/mulac_poem` | Poem/OpenAPI types, request parsing integration, response and error conversion                                                       |
+| `libs/mulac_axum` | Axum extractors, response and error conversion, optional Utoipa schema support                                                       |
 
 Keep storage, deduplication, reservations, and retry behavior in the existing
 `mulac-inbox` crate.
@@ -51,22 +51,22 @@ configuration, migration execution, and server lifecycle.
 Before extraction, extend characterization tests where the current behavior is
 not already covered.
 
-| Case | Required behavior |
-| --- | --- |
-| Valid submission | `202` with `{"message_id":"<uuid>"}` after storage succeeds |
-| Missing message ID | Generate UUID v7 through the existing envelope conversion |
-| Duplicate message ID | `202`; preserve every column of the original row |
-| Payload | Required; accepts any JSON value, including explicit `null` |
-| Routing key | Required string containing non-whitespace text; preserve its original value |
-| Optional metadata | Preserve current UUID parsing and missing/null behavior |
-| Unknown routing key | Accept at submission; processing resolves the command |
-| Malformed JSON or invalid fields | `400` |
-| Submission storage failure | `500` with the existing sanitized message |
-| Blocking-task failure | `500` with the existing sanitized message |
-| Run limit | Required integer from `1` through `1000` |
-| Successful batch | `200`, `{"processed":N,"errors":[]}` |
-| Consumer failure | `200`, `{"processed":null,"errors":[...]}` |
-| Partial batch failure | Successful items remain committed |
+| Case                             | Required behavior                                                           |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| Valid submission                 | `202` with `{"message_id":"<uuid>"}` after storage succeeds                 |
+| Missing message ID               | Generate UUID v7 through the existing envelope conversion                   |
+| Duplicate message ID             | `202`; preserve every column of the original row                            |
+| Payload                          | Required; accepts any JSON value, including explicit `null`                 |
+| Routing key                      | Required string containing non-whitespace text; preserve its original value |
+| Optional metadata                | Preserve current UUID parsing and missing/null behavior                     |
+| Unknown routing key              | Accept at submission; processing resolves the command                       |
+| Malformed JSON or invalid fields | `400`                                                                       |
+| Submission storage failure       | `500` with the existing sanitized message                                   |
+| Blocking-task failure            | `500` with the existing sanitized message                                   |
+| Run limit                        | Required integer from `1` through `1000`                                    |
+| Successful batch                 | `200`, `{"processed":N,"errors":[]}`                                        |
+| Consumer failure                 | `200`, `{"processed":null,"errors":[...]}`                                  |
+| Partial batch failure            | Successful items remain committed                                           |
 
 Preserve existing batch error strings during this extraction. Submission
 currently sanitizes storage errors, while batch responses expose consumer error
@@ -81,15 +81,15 @@ statuses, response shapes, and explicit Mulac error messages must agree.
 
 Introduce these public concepts in `inbox_api`:
 
-| Proposed type | Purpose |
-| --- | --- |
-| `SubmitInboxRequest` | Shared Serde submission contract |
-| `SubmitInboxResponse` | Accepted message ID |
-| `RunRequest` | Shared batch request |
-| `RunResponse` | Processed count and errors |
-| `InboxApiError` | Typed validation and execution failures |
-| `InboxService` | Synchronous submission and batch operations |
-| `AsyncInboxService` | Optional Tokio wrapper around blocking operations |
+| Proposed type         | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| `SubmitInboxRequest`  | Shared Serde submission contract                  |
+| `SubmitInboxResponse` | Accepted message ID                               |
+| `RunRequest`          | Shared batch request                              |
+| `RunResponse`         | Processed count and errors                        |
+| `InboxApiError`       | Typed validation and execution failures           |
+| `InboxService`        | Synchronous submission and batch operations       |
+| `AsyncInboxService`   | Optional Tokio wrapper around blocking operations |
 
 Implement submission in this order:
 
@@ -247,15 +247,15 @@ endpoints.
 
 Make the following focused changes:
 
-| File | Change |
-| --- | --- |
-| `Cargo.toml` | Add the shared API and Poem adapter dependencies |
-| `src/orchestration/mod.rs` | Replace local inbox assembly with Mulac constructors |
-| `src/orchestration/api.rs` | Remove inbox validation, conversion, execution, and error-building code |
-| New `src/orchestration/inbox_api.rs` | Keep only the two endpoint declarations and delegation |
-| `src/main.rs` | Construct the shared service/adapter and register `InboxApi` in the existing API tuple |
-| `src/postgres_tests.rs` | Adapt setup while retaining end-to-end persistence assertions |
-| `README.md` | Document the new ownership and integration |
+| File                                 | Change                                                                                 |
+| ------------------------------------ | -------------------------------------------------------------------------------------- |
+| `Cargo.toml`                         | Add the shared API and Poem adapter dependencies                                       |
+| `src/orchestration/mod.rs`           | Replace local inbox assembly with Mulac constructors                                   |
+| `src/orchestration/api.rs`           | Remove inbox validation, conversion, execution, and error-building code                |
+| New `src/orchestration/inbox_api.rs` | Keep only the two endpoint declarations and delegation                                 |
+| `src/main.rs`                        | Construct the shared service/adapter and register `InboxApi` in the existing API tuple |
+| `src/postgres_tests.rs`              | Adapt setup while retaining end-to-end persistence assertions                          |
+| `README.md`                          | Document the new ownership and integration                                             |
 
 Use one shared inbox service instance for submission and processing. Retain
 explicit dependency injection for tests, including the existing panicking-store
@@ -270,15 +270,15 @@ and GraphQL integration.
 Use one set of request/response fixtures for both adapters, with a small
 framework-specific test harness.
 
-| Test layer | Coverage |
-| --- | --- |
-| Shared contract | Missing/null distinctions, strict strings, UUIDs, whitespace preservation, arbitrary payloads, batch limits |
-| Shared operations | Assigned IDs, storage failures, empty batches, consumer failures |
-| Tokio wrapper | Blocking operations and sanitized task failures |
-| Poem HTTP | Statuses, responses, malformed requests, route mounting, OpenAPI |
-| Axum HTTP | The same contract, normalized JSON rejections, state/router composition |
-| PostgreSQL | Deduplication, unchanged duplicate rows, metadata, reservations, retry scheduling, partial failures |
-| Offers integration | Submission -> inbox -> commands -> events -> offer projections |
+| Test layer         | Coverage                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Shared contract    | Missing/null distinctions, strict strings, UUIDs, whitespace preservation, arbitrary payloads, batch limits |
+| Shared operations  | Assigned IDs, storage failures, empty batches, consumer failures                                            |
+| Tokio wrapper      | Blocking operations and sanitized task failures                                                             |
+| Poem HTTP          | Statuses, responses, malformed requests, route mounting, OpenAPI                                            |
+| Axum HTTP          | The same contract, normalized JSON rejections, state/router composition                                     |
+| PostgreSQL         | Deduplication, unchanged duplicate rows, metadata, reservations, retry scheduling, partial failures         |
+| Offers integration | Submission -> inbox -> commands -> events -> offer projections                                              |
 
 For database-independent tests, use Mulac's existing storage and reservation
 ports rather than introducing a second abstraction solely for mocking.

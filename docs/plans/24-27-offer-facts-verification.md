@@ -152,18 +152,18 @@ wire-version or architecture change. The added tests cover:
 
 ### Executed checks
 
-| Command / scope | Result |
-| --- | --- |
-| Root `make fmt`; `git diff --check` | Passed. |
-| Root `make ci` | Blocked in unchanged `inbox_client`: 1 passed, 7 failed at socket creation with `Operation not permitted`. |
-| `services/offers`: `make fmt`, `make ci` | Formatting/all-target clippy passed; 80 tests passed, 4 existing HTTP publisher socket tests failed with `Operation not permitted`, 32 PostgreSQL tests ignored. |
-| Offers portable retry, explicitly excluding those four socket tests | 80 passed, 32 ignored, 4 filtered. The seven aggregate fact tests passed, as did four portable identity tests; the six identity PostgreSQL tests compiled. |
-| `services/retailer_sourcing`: `make fmt`, `make ci` | Formatting/all-target clippy passed; full CI stopped in existing `export_offer_sources` socket fixtures with `Operation not permitted`. |
-| Sourcing export-focused / outbox-focused tests | 19 passed / 5 passed; 13 / 10 database/live tests ignored respectively. |
-| Sourcing main binary, excluding its two existing publisher socket tests | 128 passed, 74 ignored, 2 filtered. |
-| `services/customer_facing`: `make fmt`, `make ci` | Passed: 38 tests; 34 PostgreSQL tests ignored. |
-| `apps/customers`: `make fmt`, `make ci` | Passed: 32 tests, including HTTP fixtures. This records that command's result; it does not establish live server socket access. |
-| `make test-postgres` in all three services; sourcing `make test-object-storage` | Could not run: `DATABASE_URL_TEST` is absent. |
+| Command / scope                                                                 | Result                                                                                                                                                           |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root `make fmt`; `git diff --check`                                             | Passed.                                                                                                                                                          |
+| Root `make ci`                                                                  | Blocked in unchanged `inbox_client`: 1 passed, 7 failed at socket creation with `Operation not permitted`.                                                       |
+| `services/offers`: `make fmt`, `make ci`                                        | Formatting/all-target clippy passed; 80 tests passed, 4 existing HTTP publisher socket tests failed with `Operation not permitted`, 32 PostgreSQL tests ignored. |
+| Offers portable retry, explicitly excluding those four socket tests             | 80 passed, 32 ignored, 4 filtered. The seven aggregate fact tests passed, as did four portable identity tests; the six identity PostgreSQL tests compiled.       |
+| `services/retailer_sourcing`: `make fmt`, `make ci`                             | Formatting/all-target clippy passed; full CI stopped in existing `export_offer_sources` socket fixtures with `Operation not permitted`.                          |
+| Sourcing export-focused / outbox-focused tests                                  | 19 passed / 5 passed; 13 / 10 database/live tests ignored respectively.                                                                                          |
+| Sourcing main binary, excluding its two existing publisher socket tests         | 128 passed, 74 ignored, 2 filtered.                                                                                                                              |
+| `services/customer_facing`: `make fmt`, `make ci`                               | Passed: 38 tests; 34 PostgreSQL tests ignored.                                                                                                                   |
+| `apps/customers`: `make fmt`, `make ci`                                         | Passed: 32 tests, including HTTP fixtures. This records that command's result; it does not establish live server socket access.                                  |
+| `make test-postgres` in all three services; sourcing `make test-object-storage` | Could not run: `DATABASE_URL_TEST` is absent.                                                                                                                    |
 
 The portable offers retry uses these exact exclusions after the unfiltered
 failure (no tests were disabled in source):

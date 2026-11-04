@@ -34,16 +34,16 @@ One missing success/storage-failure pacing assertion was added during review.
 `make fmt` ran before CI in affected folders and from the root. Formatting and
 strict all-target Clippy checks pass in each affected Rust crate.
 
-| Scope | Command/check | Actual result |
-| --- | --- | --- |
-| Root | `make fmt` then `make ci` | Format passes. CI stops at unchanged `lib/inbox_client`: 1 passed, 7 failed at local socket creation with `EPERM`. |
-| `lib/retailer_sauce` | `make fmt`, `make ci` | Pass; 17 tests. |
-| `services/offers` | `make fmt`, `make ci` | Format/Clippy pass; 86 tests pass, 35 PostgreSQL tests ignored, 4 existing HTTP publisher tests fail at socket bind with `EPERM`. |
-| `services/offers` | Repeat tests excluding those exact 4 socket tests | Pass; 86 passed, 35 ignored, 4 filtered. Final PostgreSQL test edit also passes all-target Clippy. |
-| `services/customer_facing` | `make fmt`, `make ci` | Pass; 41 tests, 37 PostgreSQL tests ignored. |
-| `apps/customers` | `make fmt`, `make ci` | Format/Clippy pass; 28 tests pass, 6 existing HTTP-fixture tests fail at listener bind with `EPERM`. No filtered rerun was claimed. |
-| `services/retailer_sourcing` | `make fmt`, `make ci`, `cargo test --no-fail-fast` | Format/Clippy pass. Full tests fail only in 8 existing socket fixtures across binaries/integration; main binary has 135 passed and 77 ignored before the final additional test. |
-| `services/retailer_sourcing` | Repeat tests excluding those exact 8 socket tests | Pass; 147 total tests, 77 ignored, 8 filtered. |
+| Scope                        | Command/check                                                   | Actual result                                                                                                                                                                         |
+| ---------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root                         | `make fmt` then `make ci`                                       | Format passes. CI stops at unchanged `lib/inbox_client`: 1 passed, 7 failed at local socket creation with `EPERM`.                                                                    |
+| `lib/retailer_sauce`         | `make fmt`, `make ci`                                           | Pass; 17 tests.                                                                                                                                                                       |
+| `services/offers`            | `make fmt`, `make ci`                                           | Format/Clippy pass; 86 tests pass, 35 PostgreSQL tests ignored, 4 existing HTTP publisher tests fail at socket bind with `EPERM`.                                                     |
+| `services/offers`            | Repeat tests excluding those exact 4 socket tests               | Pass; 86 passed, 35 ignored, 4 filtered. Final PostgreSQL test edit also passes all-target Clippy.                                                                                    |
+| `services/customer_facing`   | `make fmt`, `make ci`                                           | Pass; 41 tests, 37 PostgreSQL tests ignored.                                                                                                                                          |
+| `apps/customers`             | `make fmt`, `make ci`                                           | Format/Clippy pass; 28 tests pass, 6 existing HTTP-fixture tests fail at listener bind with `EPERM`. No filtered rerun was claimed.                                                   |
+| `services/retailer_sourcing` | `make fmt`, `make ci`, `cargo test --no-fail-fast`              | Format/Clippy pass. Full tests fail only in 8 existing socket fixtures across binaries/integration; main binary has 135 passed and 77 ignored before the final additional test.       |
+| `services/retailer_sourcing` | Repeat tests excluding those exact 8 socket tests               | Pass; 147 total tests, 77 ignored, 8 filtered.                                                                                                                                        |
 | `services/retailer_sourcing` | Final ordering test, scoped fmt/lint and download-handler tests | Pass; 7 handler tests, including the newly added success/storage-failure case. This adds one distinct passing test to the earlier 147; the full suite was not unnecessarily repeated. |
 
 New portable coverage includes content guards, exact text preservation,
@@ -98,16 +98,16 @@ with **no new advisories**. The cached audit is not a freshly fetched database.
 
 Identical advisory ID/package/version sets:
 
-| Package | Version | Advisory IDs |
-| --- | --- | --- |
-| rustls | 0.23.45 | RUSTSEC-2026-0346, 0347, 0348, 0349 |
-| rustls-webpki | 0.103.15 | RUSTSEC-2026-0382 |
-| zip | 8.6.0 | RUSTSEC-2026-0367, 0368, 0369 |
-| fxhash | 0.2.1 | RUSTSEC-2025-0057 |
-| kuchiki | 0.8.1 | RUSTSEC-2023-0019 |
-| unsafe-libyaml | 0.2.11 | RUSTSEC-2024-0449 |
-| rand | 0.7.3 | RUSTSEC-2026-0097 |
-| tokio | 1.53.2 | RUSTSEC-2026-0386 |
+| Package        | Version  | Advisory IDs                        |
+| -------------- | -------- | ----------------------------------- |
+| rustls         | 0.23.45  | RUSTSEC-2026-0346, 0347, 0348, 0349 |
+| rustls-webpki  | 0.103.15 | RUSTSEC-2026-0382                   |
+| zip            | 8.6.0    | RUSTSEC-2026-0367, 0368, 0369       |
+| fxhash         | 0.2.1    | RUSTSEC-2025-0057                   |
+| kuchiki        | 0.8.1    | RUSTSEC-2023-0019                   |
+| unsafe-libyaml | 0.2.11   | RUSTSEC-2024-0449                   |
+| rand           | 0.7.3    | RUSTSEC-2026-0097                   |
+| tokio          | 1.53.2   | RUSTSEC-2026-0386                   |
 
 ## Local evidence
 

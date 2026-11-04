@@ -38,21 +38,21 @@ reset. No other service's tables or database are needed.
 
 ## Routes and manual queue processing
 
-| Method and path | Behavior |
-| --- | --- |
-| `GET /api/health` | `200`, text `ok`; does not probe PostgreSQL |
-| `GET /api/reporting/database-tables` | Authenticated table storage and estimated row counts |
-| `GET /api/reporting/entry-statuses` | Authenticated exact inbox/command/event/outbox counts by status |
-| `GET /api/offers` | Paginated offers, with `limit` and `offset` query parameters |
-| `POST /api/inbox` | Store a message and return `202`, `{"message_id":"<uuid>"}` |
-| `POST /api/inbox/run` | Convert one batch of due inbox messages into queued commands |
-| `POST /api/commands/run` | Execute one batch of due commands |
-| `POST /api/events/run` | Dispatch one batch of due events |
-| `POST /api/outbox/run` | `503`, `outbox publisher is not configured`; rows remain untouched |
-| `GET /api/openapi.json` | OpenAPI description |
-| `GET /api/docs/` | Swagger UI |
-| `GET /graphql`, `POST /graphql` | GraphQL `health` and paginated `offers` queries |
-| `GET /graphql/ide` | GraphiQL in debug builds, `404` in release |
+| Method and path                      | Behavior                                                           |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `GET /api/health`                    | `200`, text `ok`; does not probe PostgreSQL                        |
+| `GET /api/reporting/database-tables` | Authenticated table storage and estimated row counts               |
+| `GET /api/reporting/entry-statuses`  | Authenticated exact inbox/command/event/outbox counts by status    |
+| `GET /api/offers`                    | Paginated offers, with `limit` and `offset` query parameters       |
+| `POST /api/inbox`                    | Store a message and return `202`, `{"message_id":"<uuid>"}`        |
+| `POST /api/inbox/run`                | Convert one batch of due inbox messages into queued commands       |
+| `POST /api/commands/run`             | Execute one batch of due commands                                  |
+| `POST /api/events/run`               | Dispatch one batch of due events                                   |
+| `POST /api/outbox/run`               | `503`, `outbox publisher is not configured`; rows remain untouched |
+| `GET /api/openapi.json`              | OpenAPI description                                                |
+| `GET /api/docs/`                     | Swagger UI                                                         |
+| `GET /graphql`, `POST /graphql`      | GraphQL `health` and paginated `offers` queries                    |
+| `GET /graphql/ide`                   | GraphiQL in debug builds, `404` in release                         |
 
 Submit the agreed Mulac envelope directly; no upstream service is required:
 
@@ -81,17 +81,17 @@ FROM offers WHERE id = '0191d6c4-8f5e-7a3b-9c1d-2e3f4a5b6c7e';
 
 Use the same envelope with a new message UUID for each distinct update:
 
-| Exact routing key | Payload |
-| --- | --- |
-| `OfferCreated` | `id`, `retailer_code`, `title`, `price`, `url`, `created_at`, ordered `images` (missing in legacy messages means `[]`) |
-| `OfferTitleChanged` | `{"id":"<offer UUID>","title":"New title"}` |
-| `OfferPriceChangedEvent` | `{"id":"<offer UUID>","price":{"amount":0,"currency":"EUR"}}` |
-| `OfferPricingChanged` | `{"id":"<offer UUID>","pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"AUD"}}}` |
-| `OfferAvailabilityChanged` | `{"id":"<offer UUID>","availability":"in_stock"}` |
-| `OfferItemConditionChanged` | `{"id":"<offer UUID>","item_condition":"new"}` |
-| `OfferContentsChanged` | `{"id":"<offer UUID>","content":[{"language":"en","title":"USB charger","description":null}],"language":"en"}` |
-| `OfferContentChanged` (legacy) | `{"id":"<offer UUID>","content":{"description":"<p>Source description</p>"}}` |
-| `OfferImageAdded` | `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}` |
+| Exact routing key              | Payload                                                                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `OfferCreated`                 | `id`, `retailer_code`, `title`, `price`, `url`, `created_at`, ordered `images` (missing in legacy messages means `[]`)    |
+| `OfferTitleChanged`            | `{"id":"<offer UUID>","title":"New title"}`                                                                               |
+| `OfferPriceChangedEvent`       | `{"id":"<offer UUID>","price":{"amount":0,"currency":"EUR"}}`                                                             |
+| `OfferPricingChanged`          | `{"id":"<offer UUID>","pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"AUD"}}}` |
+| `OfferAvailabilityChanged`     | `{"id":"<offer UUID>","availability":"in_stock"}`                                                                         |
+| `OfferItemConditionChanged`    | `{"id":"<offer UUID>","item_condition":"new"}`                                                                            |
+| `OfferContentsChanged`         | `{"id":"<offer UUID>","content":[{"language":"en","title":"USB charger","description":null}],"language":"en"}`            |
+| `OfferContentChanged` (legacy) | `{"id":"<offer UUID>","content":{"description":"<p>Source description</p>"}}`                                             |
+| `OfferImageAdded`              | `{"id":"<offer UUID>","image_url":"https://shop.example/front.jpg","position":0}`                                         |
 
 Payloads must be JSON objects without an event wrapper or JSON string encoding.
 The price event's `Event` suffix is required. Retailer enum values such as

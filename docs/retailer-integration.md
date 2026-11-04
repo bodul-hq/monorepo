@@ -71,16 +71,16 @@ done without real pages.
 `retailer_sourcing` runs one feature slice per step. Each slice handles one
 command and emits one event, and the next slice reacts to that event:
 
-| #   | Command              | What it does                                  | Retailer hook it calls                                  |
-| --- | -------------------- | --------------------------------------------- | ------------------------------------------------------- |
+| #   | Command              | What it does                                  | Retailer hook it calls                 |
+| --- | -------------------- | --------------------------------------------- | -------------------------------------- |
 | 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted` |
-| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted`                  |
-| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                                         |
-| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                                    |
-| 5   | `DownloadOfferPage`  | Downloads the product page                    | none                                                    |
-| 6   | `ExtractOfferPage`   | Pulls the data islands out of the HTML        | `architecture`                                          |
-| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                                             |
-| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                                         |
+| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted` |
+| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                        |
+| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                   |
+| 5   | `DownloadOfferPage`  | Downloads the product page                    | none                                   |
+| 6   | `ExtractOfferPage`   | Pulls the data islands out of the HTML        | `architecture`                         |
+| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                            |
+| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                        |
 
 The same hooks run offline in the development tools (section 5, step 10), on
 files in the data folder.
@@ -179,7 +179,7 @@ middle one the prelude name the registry calls.
 | ------------------------------------------------------ | ------------------------------- | ---------------------------------------------- |
 | `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                                |
 | `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap     |
-| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service       |
+| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service     |
 | `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                     |
 | `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`             |
 | `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<bodul_shared::NormalizedData, String>` |
