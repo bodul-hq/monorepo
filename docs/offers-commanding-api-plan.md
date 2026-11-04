@@ -31,23 +31,23 @@ Current code is cited by path and item name.
 
 Current state:
 
-| Location | Current state |
-| --- | --- |
-| `libs/commanding` (`mulac-commanding`) | `CommandConsumer::consume(&ReservableCommandSpec) -> Result<usize, Vec<CommandError>>`, reservation, retry and dead-lettering |
-| `libs/commanding_api` | Skeleton: empty `[dependencies]`, placeholder test, README saying it has no code yet |
-| `libs/inbox_api` | `RunRequest` and `RunResponse`, with `InboxApiError` as the error type |
-| `libs/mulac_poem` | `InboxAdapter`, plus Poem wrappers `RunRequest` and `RunResponse` around the `inbox_api` types; schema twins in `src/types.rs` |
-| `libs/mulac_axum` | `InboxAdapter`, `RunInbox`, `InboxRunResponse`, `InboxHttpError`; optional Utoipa twins in `src/schema.rs` |
-| `kernel` (`mulac-kernel`) | `PersistentKernelHandle::command_consumer() -> Arc<CommandConsumer>` |
+| Location                               | Current state                                                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `libs/commanding` (`mulac-commanding`) | `CommandConsumer::consume(&ReservableCommandSpec) -> Result<usize, Vec<CommandError>>`, reservation, retry and dead-lettering  |
+| `libs/commanding_api`                  | Skeleton: empty `[dependencies]`, placeholder test, README saying it has no code yet                                           |
+| `libs/inbox_api`                       | `RunRequest` and `RunResponse`, with `InboxApiError` as the error type                                                         |
+| `libs/mulac_poem`                      | `InboxAdapter`, plus Poem wrappers `RunRequest` and `RunResponse` around the `inbox_api` types; schema twins in `src/types.rs` |
+| `libs/mulac_axum`                      | `InboxAdapter`, `RunInbox`, `InboxRunResponse`, `InboxHttpError`; optional Utoipa twins in `src/schema.rs`                     |
+| `kernel` (`mulac-kernel`)              | `PersistentKernelHandle::command_consumer() -> Arc<CommandConsumer>`                                                           |
 
 Target state:
 
-| Location | Responsibility |
-| --- | --- |
-| `libs/commanding_api` | Its own run types, commanding run operation, typed errors, optional Tokio execution, test fixtures |
-| `libs/mulac_poem` | Private `commanding` module behind the opt-in `commanding` feature, with a Poem `CommandingAdapter` |
-| `libs/mulac_axum` | Private `commanding` module behind the opt-in `commanding` feature, with an Axum `CommandingAdapter`, extractor, response and error types |
-| `libs/inbox_api` | Unchanged |
+| Location              | Responsibility                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `libs/commanding_api` | Its own run types, commanding run operation, typed errors, optional Tokio execution, test fixtures                                        |
+| `libs/mulac_poem`     | Private `commanding` module behind the opt-in `commanding` feature, with a Poem `CommandingAdapter`                                       |
+| `libs/mulac_axum`     | Private `commanding` module behind the opt-in `commanding` feature, with an Axum `CommandingAdapter`, extractor, response and error types |
+| `libs/inbox_api`      | Unchanged                                                                                                                                 |
 
 Keep reservation, dispatch, retry backoff, and the six-attempt limit in
 `mulac-commanding`. `commanding_api` does not construct a dispatcher or
@@ -131,23 +131,23 @@ Current behavior lives in `services/offers/src/orchestration/api.rs`:
 Before extraction, extend the characterization tests where the table marks
 gaps.
 
-| Case | Required behavior | Current evidence |
-| --- | --- | --- |
-| Valid limit, work processed | `200`, `{"processed":N,"errors":[]}` | `postgres_tests.rs`: `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox` |
-| No eligible work | `200`, `{"processed":0,"errors":[]}` | Same test (`run_queue(&client, "commands", 10, 0)`) |
-| Batch limit | Processes at most `limit` commands | Same test (`run_queue(&client, "commands", 1, 1)`) |
-| Limit bounds | `1` and `1000` accepted | `main.rs`: `queue_routes_validate_requests_and_report_failures` |
-| Invalid limit | `400` for `{}`, `0`, `1001`, `-1`, `1.5`, `"1"` and malformed JSON `{` | Same test |
-| `{"limit":null}`, `{"limit":1.0}`, `[]` | `400` | Gap: only tested for `/inbox/run` (`inbox_api.rs` tests); add for commands |
-| Unknown fields | `{"limit":1,"extra":true}` accepted | Gap: only tested for `/inbox/run`; add |
-| Missing or `text/plain` content type | `415` | Gap: only tested for inbox routes (`inbox_routes_require_json_content_type`); add |
-| Reservation or storage failure | `200`, `{"processed":null,"errors":[...]}`, one or more `CommandError` strings, e.g. `reservation error: ...` | `main.rs`: `queue_routes_validate_requests_and_report_failures` (unreachable test pool) |
-| Handler failure | `200`, `processed: null`; error text is the `CommandError` display, e.g. `no handler registered for command type '...'`; the row is rescheduled with backoff and becomes dead after six attempts | Gap: add a PostgreSQL test |
-| Partial batch failure | Successful commands stay completed; `processed` is `null` | Gap: add a PostgreSQL test |
-| Blocking-task failure | `500`, text `queue processing task failed` | Gap: not reachable in offers today; cover in Mulac with a panicking double, then in offers through adapter injection |
-| Stage isolation | Commands run neither consumes inbox rows nor dispatches events; resulting events stay queued | `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox`, `inbox_submission_processes_offer_through_all_http_stages` |
-| OpenAPI | Request schema `RunRequest` (`limit` with `minimum` 1, `maximum` 1000), response schema `RunResponse`, only a `200` response, route registered under `/api` | `openapi_spec_matches_routes` checks the path and the `RunRequest` bounds; add `$ref` assertions for `/commands/run` |
-| Authentication | None | README, "queue APIs" section |
+| Case                                    | Required behavior                                                                                                                                                                                | Current evidence                                                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Valid limit, work processed             | `200`, `{"processed":N,"errors":[]}`                                                                                                                                                             | `postgres_tests.rs`: `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox`                                        |
+| No eligible work                        | `200`, `{"processed":0,"errors":[]}`                                                                                                                                                             | Same test (`run_queue(&client, "commands", 10, 0)`)                                                                             |
+| Batch limit                             | Processes at most `limit` commands                                                                                                                                                               | Same test (`run_queue(&client, "commands", 1, 1)`)                                                                              |
+| Limit bounds                            | `1` and `1000` accepted                                                                                                                                                                          | `main.rs`: `queue_routes_validate_requests_and_report_failures`                                                                 |
+| Invalid limit                           | `400` for `{}`, `0`, `1001`, `-1`, `1.5`, `"1"` and malformed JSON `{`                                                                                                                           | Same test                                                                                                                       |
+| `{"limit":null}`, `{"limit":1.0}`, `[]` | `400`                                                                                                                                                                                            | Gap: only tested for `/inbox/run` (`inbox_api.rs` tests); add for commands                                                      |
+| Unknown fields                          | `{"limit":1,"extra":true}` accepted                                                                                                                                                              | Gap: only tested for `/inbox/run`; add                                                                                          |
+| Missing or `text/plain` content type    | `415`                                                                                                                                                                                            | Gap: only tested for inbox routes (`inbox_routes_require_json_content_type`); add                                               |
+| Reservation or storage failure          | `200`, `{"processed":null,"errors":[...]}`, one or more `CommandError` strings, e.g. `reservation error: ...`                                                                                    | `main.rs`: `queue_routes_validate_requests_and_report_failures` (unreachable test pool)                                         |
+| Handler failure                         | `200`, `processed: null`; error text is the `CommandError` display, e.g. `no handler registered for command type '...'`; the row is rescheduled with backoff and becomes dead after six attempts | Gap: add a PostgreSQL test                                                                                                      |
+| Partial batch failure                   | Successful commands stay completed; `processed` is `null`                                                                                                                                        | Gap: add a PostgreSQL test                                                                                                      |
+| Blocking-task failure                   | `500`, text `queue processing task failed`                                                                                                                                                       | Gap: not reachable in offers today; cover in Mulac with a panicking double, then in offers through adapter injection            |
+| Stage isolation                         | Commands run neither consumes inbox rows nor dispatches events; resulting events stay queued                                                                                                     | `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox`, `inbox_submission_processes_offer_through_all_http_stages` |
+| OpenAPI                                 | Request schema `RunRequest` (`limit` with `minimum` 1, `maximum` 1000), response schema `RunResponse`, only a `200` response, route registered under `/api`                                      | `openapi_spec_matches_routes` checks the path and the `RunRequest` bounds; add `$ref` assertions for `/commands/run`            |
+| Authentication                          | None                                                                                                                                                                                             | README, "queue APIs" section                                                                                                    |
 
 Preserve the batch error strings. Batch responses expose `CommandError`
 messages today; sanitizing them would be a separate behavior change. The
@@ -165,10 +165,10 @@ frameworks.
 `commanding_api` defines its own framework-free run types. It does not reuse
 the `inbox_api` types and does not depend on `inbox_api`.
 
-| Proposed type | Copied from | Behavior |
-| --- | --- | --- |
-| `RunCommandsRequest` | `inbox_api::io::RunRequest` | `limit: usize`; `MIN_LIMIT = 1`, `MAX_LIMIT = 1000`; `from_json` and `validate`; unknown fields ignored |
-| `RunCommandsResponse` | `inbox_api::io::RunResponse` | `processed: Option<usize>`, `errors: Vec<String>`; `from_result` with the same `Ok`/`Err` mapping |
+| Proposed type         | Copied from                  | Behavior                                                                                                |
+| --------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `RunCommandsRequest`  | `inbox_api::io::RunRequest`  | `limit: usize`; `MIN_LIMIT = 1`, `MAX_LIMIT = 1000`; `from_json` and `validate`; unknown fields ignored |
+| `RunCommandsResponse` | `inbox_api::io::RunResponse` | `processed: Option<usize>`, `errors: Vec<String>`; `from_result` with the same `Ok`/`Err` mapping       |
 
 The copies keep the exact error strings: `limit must be between 1 and 1000`,
 and the Serde message for malformed requests. Build them in named helpers
@@ -216,14 +216,14 @@ duplicate check is intentional.
 
 Introduce these public concepts in `commanding_api::io`:
 
-| Proposed type | Purpose |
-| --- | --- |
-| `RunCommandsRequest`, `RunCommandsResponse` | Run contract (section 3) |
-| `CommandingService` | Synchronous `run(RunCommandsRequest) -> Result<RunCommandsResponse, CommandingApiError>` over an `Arc<CommandConsumer>` |
-| `AsyncCommandingService` | Optional Tokio wrapper (feature `tokio`) |
-| `CommandingApiError` | `MalformedRequest(String)` and `LimitOutOfRange { limit, min, max }` (client errors); `RunTaskFailed(cause)` (server error, displays `queue processing task failed`) |
-| `CommandingApiError::is_client_error` | Mirrors `InboxApiError::is_client_error` for status mapping |
-| `testing` module (feature `testing`) | Run fixtures and port-based doubles |
+| Proposed type                               | Purpose                                                                                                                                                              |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RunCommandsRequest`, `RunCommandsResponse` | Run contract (section 3)                                                                                                                                             |
+| `CommandingService`                         | Synchronous `run(RunCommandsRequest) -> Result<RunCommandsResponse, CommandingApiError>` over an `Arc<CommandConsumer>`                                              |
+| `AsyncCommandingService`                    | Optional Tokio wrapper (feature `tokio`)                                                                                                                             |
+| `CommandingApiError`                        | `MalformedRequest(String)` and `LimitOutOfRange { limit, min, max }` (client errors); `RunTaskFailed(cause)` (server error, displays `queue processing task failed`) |
+| `CommandingApiError::is_client_error`       | Mirrors `InboxApiError::is_client_error` for status mapping                                                                                                          |
+| `testing` module (feature `testing`)        | Run fixtures and port-based doubles                                                                                                                                  |
 
 Implement `CommandingService::run` in this order:
 
@@ -266,14 +266,14 @@ obtain the consumer through `PersistentKernelHandle::command_consumer()`.
 
 ### Feature and Diesel audit
 
-| Crate | Features today | Diesel reached through |
-| --- | --- | --- |
-| `mulac-eventing` | `default = ["diesel"]` | Own optional `diesel`, `mulac_diesel` |
-| `mulac-commanding` | `default = ["diesel"]`; `diesel = ["dep:diesel", "dep:mulac_diesel", "eventing/diesel"]` | Depends on eventing with `default-features = false` |
-| `mulac-inbox` | `default = ["diesel"]`; `amqp` implies `diesel` | Forwards `commanding/diesel` |
-| `inbox_api` | `default = ["diesel"]`, `tokio`, `testing` | Depends on inbox and commanding with `default-features = false` |
-| `mulac_poem`, `mulac_axum` | `default = ["diesel"]` forwarding `inbox_api/diesel` | Workspace `inbox_api` has `default-features = false` |
-| `mulac-kernel` | `inbox` with `features = ["diesel"]` | Enables `commanding/diesel` by unification |
+| Crate                      | Features today                                                                           | Diesel reached through                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `mulac-eventing`           | `default = ["diesel"]`                                                                   | Own optional `diesel`, `mulac_diesel`                           |
+| `mulac-commanding`         | `default = ["diesel"]`; `diesel = ["dep:diesel", "dep:mulac_diesel", "eventing/diesel"]` | Depends on eventing with `default-features = false`             |
+| `mulac-inbox`              | `default = ["diesel"]`; `amqp` implies `diesel`                                          | Forwards `commanding/diesel`                                    |
+| `inbox_api`                | `default = ["diesel"]`, `tokio`, `testing`                                               | Depends on inbox and commanding with `default-features = false` |
+| `mulac_poem`, `mulac_axum` | `default = ["diesel"]` forwarding `inbox_api/diesel`                                     | Workspace `inbox_api` has `default-features = false`            |
+| `mulac-kernel`             | `inbox` with `features = ["diesel"]`                                                     | Enables `commanding/diesel` by unification                      |
 
 Verified with `cargo tree --offline --locked -e normal`: `mulac_poem`,
 `mulac_axum` and `mulac-commanding` built with `--no-default-features`
@@ -349,12 +349,12 @@ single `200` response.
 `mulac_axum` gains a private `commanding` module behind the `commanding`
 feature, re-exported through `io` (proposed names):
 
-| Type | Purpose |
-| --- | --- |
-| `CommandingAdapter` | Cloneable router state over `AsyncCommandingService`, with `run` |
-| `RunCommands` | Extractor wrapping `RunCommandsRequest`; enforces `limit` from `1` to `1000` |
-| `CommandsRunResponse` | `200 OK` with `RunCommandsResponse` |
-| `CommandingHttpError` | Plain-text rejection and failure responses |
+| Type                  | Purpose                                                                      |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `CommandingAdapter`   | Cloneable router state over `AsyncCommandingService`, with `run`             |
+| `RunCommands`         | Extractor wrapping `RunCommandsRequest`; enforces `limit` from `1` to `1000` |
+| `CommandsRunResponse` | `200 OK` with `RunCommandsResponse`                                          |
+| `CommandingHttpError` | Plain-text rejection and failure responses                                   |
 
 - Reuse the private `json_body` helper and the
   `JsonRejection::JsonDataError` to `400` normalization from
@@ -395,15 +395,15 @@ proposed Axum API fits a real router.
 
 ## 8. Integrate offers
 
-| File | Change |
-| --- | --- |
-| `Cargo.toml` | Enable `features = ["commanding"]` on `mulac_poem`; add `commanding_api` next to `inbox_api`; add it with `features = ["testing"]` under `[dev-dependencies]`. Before this stage merges, move all Mulac dependencies from local `path` to `git = "https://github.com/nulllabsdev/mulac", branch = "wip/inbox-api"` |
-| New `src/orchestration/commanding_api.rs` | Proposed `CommandingApi` with only the `/commands/run` declaration and delegation |
-| `src/orchestration/api.rs` | Remove `QueueApi::run_commands` and the `ReservableCommandSpec` import; keep `QueueApi::run` and `err_queue_task_failed`, which `/events/run` and `/outbox/run` still use |
-| `src/orchestration/mod.rs` | Declare `pub mod commanding_api;` and `pub use commanding_api::CommandingApi;`; update the module doc comment |
-| `src/main.rs` | Add `commanding: CommandingAdapter` to `AppState`, built in `start_mulac` from `kernel.command_consumer()`; register `CommandingApi::new(state.commanding)` in the `OpenApiService` tuple; extend tests |
-| `src/postgres_tests.rs` | Keep `run_queue`-based assertions; add the handler-failure and partial-failure cases from section 2 |
-| `README.md` | State that Mulac owns `/commands/run` behavior; update "commands and events use the kernel's consumers directly" and the paragraph on reused `RunRequest`/`RunResponse` |
+| File                                      | Change                                                                                                                                                                                                                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Cargo.toml`                              | Enable `features = ["commanding"]` on `mulac_poem`; add `commanding_api` next to `inbox_api`; add it with `features = ["testing"]` under `[dev-dependencies]`. Before this stage merges, move all Mulac dependencies from local `path` to `git = "https://github.com/nulllabsdev/mulac", branch = "wip/inbox-api"` |
+| New `src/orchestration/commanding_api.rs` | Proposed `CommandingApi` with only the `/commands/run` declaration and delegation                                                                                                                                                                                                                                  |
+| `src/orchestration/api.rs`                | Remove `QueueApi::run_commands` and the `ReservableCommandSpec` import; keep `QueueApi::run` and `err_queue_task_failed`, which `/events/run` and `/outbox/run` still use                                                                                                                                          |
+| `src/orchestration/mod.rs`                | Declare `pub mod commanding_api;` and `pub use commanding_api::CommandingApi;`; update the module doc comment                                                                                                                                                                                                      |
+| `src/main.rs`                             | Add `commanding: CommandingAdapter` to `AppState`, built in `start_mulac` from `kernel.command_consumer()`; register `CommandingApi::new(state.commanding)` in the `OpenApiService` tuple; extend tests                                                                                                            |
+| `src/postgres_tests.rs`                   | Keep `run_queue`-based assertions; add the handler-failure and partial-failure cases from section 2                                                                                                                                                                                                                |
+| `README.md`                               | State that Mulac owns `/commands/run` behavior; update "commands and events use the kernel's consumers directly" and the paragraph on reused `RunRequest`/`RunResponse`                                                                                                                                            |
 
 Keep the same `PersistentKernelHandle` consumer, so commands executed over
 HTTP still go through the kernel's dispatcher and record events without
@@ -435,15 +435,15 @@ Poem and Axum tests run it through `/commands/run` with the `commanding`
 feature. A change to either behavior or error text in one crate then fails
 that crate's tests.
 
-| Test layer | Coverage |
-| --- | --- |
-| `commanding_api` contract | The shared run-request table with its expected error strings, plus `from_result` shapes |
-| `commanding_api` operations | Empty batch, success count, reservation failure, handler failure, two errors when marking a command failed also fails, direct-caller validation |
-| Tokio wrapper | Blocking execution; panic becomes `queue processing task failed` with `source()` |
-| Poem HTTP (`commanding`) | Statuses, bodies, `415`, malformed JSON, schema names and bounds, one `RunRequest` schema with inbox and commanding routes mounted together, the shared run-request table |
-| Axum HTTP (`commanding`) | Same contract, `422` normalized to `400`, `413`/`415` preserved, router state; `utoipa` schema names |
-| PostgreSQL (offers) | Stage isolation, batch limit, handler failure rescheduling and dead-lettering, partial batches |
-| Offers integration | Inbox, then commands, then events, then offer projections (`inbox_submission_processes_offer_through_all_http_stages`) |
+| Test layer                  | Coverage                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `commanding_api` contract   | The shared run-request table with its expected error strings, plus `from_result` shapes                                                                                   |
+| `commanding_api` operations | Empty batch, success count, reservation failure, handler failure, two errors when marking a command failed also fails, direct-caller validation                           |
+| Tokio wrapper               | Blocking execution; panic becomes `queue processing task failed` with `source()`                                                                                          |
+| Poem HTTP (`commanding`)    | Statuses, bodies, `415`, malformed JSON, schema names and bounds, one `RunRequest` schema with inbox and commanding routes mounted together, the shared run-request table |
+| Axum HTTP (`commanding`)    | Same contract, `422` normalized to `400`, `413`/`415` preserved, router state; `utoipa` schema names                                                                      |
+| PostgreSQL (offers)         | Stage isolation, batch limit, handler failure rescheduling and dead-lettering, partial batches                                                                            |
+| Offers integration          | Inbox, then commands, then events, then offer projections (`inbox_submission_processes_offer_through_all_http_stages`)                                                    |
 
 Test doubles: build `CommandConsumer` from `CommandConsumerRepository` with
 in-memory `CommandReservePort` and `CommandProcessPort` implementations, and
@@ -456,18 +456,18 @@ abstraction.
 Delivery order across the three plans: commanding, then eventing, then
 outbox. Commanding lands first, so it sets the shared patterns.
 
-| Shared item | Owner and dependency |
-| --- | --- |
-| Mulac ADR-010 for the commanding, eventing and outbox HTTP APIs | Written in full in this plan's first stage, covering all three (section 11); the later plans implement it without new ADRs unless a decision changes |
-| Mulac `wip/inbox-api` branch | Each Mulac stage is pushed there before the matching offers stage, which depends on that branch by `git`, merges |
-| `mulac_poem::io::{RunRequest, RunResponse}` and the `mulac_axum` twins | Stay the only schema owners, outside every component feature; all three plans convert into their own types |
-| Shared private JSON-body helper in `mulac_axum` | Moved by this plan; reused by eventing and outbox |
-| Per-feature CI checks in Mulac's `Makefile` | Pattern introduced by this plan for `commanding`; eventing and outbox add `eventing` and `outbox` entries |
+| Shared item                                                                                     | Owner and dependency                                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mulac ADR-010 for the commanding, eventing and outbox HTTP APIs                                 | Written in full in this plan's first stage, covering all three (section 11); the later plans implement it without new ADRs unless a decision changes                             |
+| Mulac `wip/inbox-api` branch                                                                    | Each Mulac stage is pushed there before the matching offers stage, which depends on that branch by `git`, merges                                                                 |
+| `mulac_poem::io::{RunRequest, RunResponse}` and the `mulac_axum` twins                          | Stay the only schema owners, outside every component feature; all three plans convert into their own types                                                                       |
+| Shared private JSON-body helper in `mulac_axum`                                                 | Moved by this plan; reused by eventing and outbox                                                                                                                                |
+| Per-feature CI checks in Mulac's `Makefile`                                                     | Pattern introduced by this plan for `commanding`; eventing and outbox add `eventing` and `outbox` entries                                                                        |
 | `services/offers/src/orchestration/api.rs` `QueueApi`, `QueueApi::run`, `err_queue_task_failed` | This plan removes only `run_commands`; eventing removes `run_events`; outbox, which owns the only `503` (`outbox publisher is not configured`), deletes the remaining `QueueApi` |
-| `QueueApi::new(outbox, kernel)` in `src/main.rs` | Its arguments shrink as methods move; avoid parallel edits |
-| `AppState` and the `OpenApiService` tuple in `src/main.rs` | Each plan adds one field and one API; merge sequentially |
-| `mulac_poem` features enabled in offers' `Cargo.toml` | This plan adds `commanding`; the others append `eventing` and `outbox` |
-| `queue_routes_validate_requests_and_report_failures` | Iterates over all four queues; keep it as the cross-queue regression test throughout |
+| `QueueApi::new(outbox, kernel)` in `src/main.rs`                                                | Its arguments shrink as methods move; avoid parallel edits                                                                                                                       |
+| `AppState` and the `OpenApiService` tuple in `src/main.rs`                                      | Each plan adds one field and one API; merge sequentially                                                                                                                         |
+| `mulac_poem` features enabled in offers' `Cargo.toml`                                           | This plan adds `commanding`; the others append `eventing` and `outbox`                                                                                                           |
+| `queue_routes_validate_requests_and_report_failures`                                            | Iterates over all four queues; keep it as the cross-queue regression test throughout                                                                                             |
 
 ## 11. Update documentation, CI, and packaging
 

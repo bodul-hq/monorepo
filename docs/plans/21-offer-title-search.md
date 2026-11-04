@@ -48,11 +48,11 @@ search has not been added to the service or app.
 
 ## Proposed API contract
 
-| Surface | Request |
-| --- | --- |
-| REST | `GET /api/offers/search?q=charger&limit=30&offset=0` |
-| GraphQL | `searchOffers(q: String!, limit: Int! = 30, offset: Int! = 0): OfferPage!` |
-| Customers | `GET /search?q=charger&offset=0`, using a fixed upstream limit of 30 |
+| Surface   | Request                                                                    |
+| --------- | -------------------------------------------------------------------------- |
+| REST      | `GET /api/offers/search?q=charger&limit=30&offset=0`                       |
+| GraphQL   | `searchOffers(q: String!, limit: Int! = 30, offset: Int! = 0): OfferPage!` |
+| Customers | `GET /search?q=charger&offset=0`, using a fixed upstream limit of 30       |
 
 Use the same query validation and search implementation for REST and GraphQL.
 Reject NUL and non-whitespace control characters before normalization. Trim
@@ -181,16 +181,16 @@ page route, reusable rendering and header form. Keep homepage browsing intact.
 
 Expected implementation touch points:
 
-| Component | Change |
-| --- | --- |
-| `services/customer_facing/src/offer_read.rs` | Extend `Repository` with search, add `Offers::search`, share pagination validation and record/page mapping, and add the OpenAPI route. Ensure the response documentation distinguishes browse and relevance ordering. |
-| `services/customer_facing/src/main.rs` | Add `Query::search_offers`, using the same read service and errors as REST. |
-| `services/customer_facing/migrations/` | Add a new title GIN index migration after the existing scrape-time, localization and identifier migrations; leave accepted migrations unchanged. |
-| `services/customer_facing/src/offer_read/tests.rs` | Update repository doubles; cover input, defaults, REST/GraphQL parity and sanitized failures. Keep PostgreSQL relevance assertions in the database suite. |
-| `services/customer_facing/src/postgres_tests.rs` and `src/postgres_tests/` | Register search tests and document/check the extension prerequisite for all migrations run in isolated schemas. |
-| `apps/customers/src/offers.rs` and `src/offers/tests.rs` | Add a search endpoint/method while sharing transport and response validation with `fetch`; preserve configured URL prefixes. |
-| `apps/customers/src/main.rs`, `src/page.rs`, `src/style.css` and `src/page/tests.rs` | Register the route; parameterize the header, page metadata, headings and pagination URLs; reuse cards; test the form and every route state. |
-| `bruno/customer_facing/` and READMEs | Add REST/GraphQL search examples and document extension setup and query semantics. |
+| Component                                                                            | Change                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `services/customer_facing/src/offer_read.rs`                                         | Extend `Repository` with search, add `Offers::search`, share pagination validation and record/page mapping, and add the OpenAPI route. Ensure the response documentation distinguishes browse and relevance ordering. |
+| `services/customer_facing/src/main.rs`                                               | Add `Query::search_offers`, using the same read service and errors as REST.                                                                                                                                           |
+| `services/customer_facing/migrations/`                                               | Add a new title GIN index migration after the existing scrape-time, localization and identifier migrations; leave accepted migrations unchanged.                                                                      |
+| `services/customer_facing/src/offer_read/tests.rs`                                   | Update repository doubles; cover input, defaults, REST/GraphQL parity and sanitized failures. Keep PostgreSQL relevance assertions in the database suite.                                                             |
+| `services/customer_facing/src/postgres_tests.rs` and `src/postgres_tests/`           | Register search tests and document/check the extension prerequisite for all migrations run in isolated schemas.                                                                                                       |
+| `apps/customers/src/offers.rs` and `src/offers/tests.rs`                             | Add a search endpoint/method while sharing transport and response validation with `fetch`; preserve configured URL prefixes.                                                                                          |
+| `apps/customers/src/main.rs`, `src/page.rs`, `src/style.css` and `src/page/tests.rs` | Register the route; parameterize the header, page metadata, headings and pagination URLs; reuse cards; test the form and every route state.                                                                           |
+| `bruno/customer_facing/` and READMEs                                                 | Add REST/GraphQL search examples and document extension setup and query semantics.                                                                                                                                    |
 
 Use the existing Diesel, Poem, async-graphql and reqwest dependencies; no new
 Cargo dependency is expected. Keep service and app query normalization aligned
@@ -304,13 +304,13 @@ The production SQL shape was measured with `EXPLAIN (ANALYZE, BUFFERS)` against
 50,000 synthetic offers in an isolated schema, with threshold 0.5 and the same
 three-second timeout. All five predicates used the lower-title GIN index:
 
-| Query | Fixture match | Execution time |
-| --- | --- | ---: |
-| Quasar | Selective, 100 candidates | 1.265 ms |
-| power | Common, 24,900 candidates | 129.137 ms |
-| chargre | Typo, 100 candidates | 0.897 ms |
-| p | One character, 24,900 candidates | 99.534 ms |
-| po | Two characters, 24,900 candidates | 102.419 ms |
+| Query   | Fixture match                     | Execution time |
+| ------- | --------------------------------- | -------------: |
+| Quasar  | Selective, 100 candidates         |       1.265 ms |
+| power   | Common, 24,900 candidates         |     129.137 ms |
+| chargre | Typo, 100 candidates              |       0.897 ms |
+| p       | One character, 24,900 candidates  |      99.534 ms |
+| po      | Two characters, 24,900 candidates |     102.419 ms |
 
 These are local fixture measurements, not production latency guarantees.
 No dependencies or lockfiles changed; no audit was required.

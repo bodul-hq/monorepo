@@ -46,13 +46,13 @@ Declare dependencies reused by offers and customer facing in
 `services/Cargo.toml`, then use workspace inheritance in both service manifests.
 Resolve paths relative to the services workspace:
 
-| Dependency | Local source | Needed features |
-| --- | --- | --- |
-| `kernel`, package `mulac-kernel` | `../../mulac/kernel` | Existing default features |
-| `inbox_api` | `../../mulac/libs/inbox_api` | Default `diesel` |
-| `commanding_api` | `../../mulac/libs/commanding_api` | Tokio support through the Poem adapter |
-| `eventing_api` | `../../mulac/libs/eventing_api` | Tokio support through the Poem adapter |
-| `mulac_poem` | `../../mulac/libs/mulac_poem` | Default `diesel`, plus `commanding`, `eventing`, and `outbox` |
+| Dependency                       | Local source                      | Needed features                                               |
+| -------------------------------- | --------------------------------- | ------------------------------------------------------------- |
+| `kernel`, package `mulac-kernel` | `../../mulac/kernel`              | Existing default features                                     |
+| `inbox_api`                      | `../../mulac/libs/inbox_api`      | Default `diesel`                                              |
+| `commanding_api`                 | `../../mulac/libs/commanding_api` | Tokio support through the Poem adapter                        |
+| `eventing_api`                   | `../../mulac/libs/eventing_api`   | Tokio support through the Poem adapter                        |
+| `mulac_poem`                     | `../../mulac/libs/mulac_poem`     | Default `diesel`, plus `commanding`, `eventing`, and `outbox` |
 
 The available feature names are defined in
 [Mulac's Poem manifest](../../../mulac/libs/mulac_poem/Cargo.toml). Add
@@ -131,14 +131,14 @@ startup so tests can inject state without opening a port. Split monitoring and
 orchestration declarations into small modules as needed. Keep one
 `OpenApiService` containing all endpoint declarations.
 
-| Method and path | Behavior |
-| --- | --- |
-| `GET /api/health` | Existing `200`, text `ok` |
-| `POST /api/inbox` | Mulac `SubmitInboxRequest`; durable acceptance returns `202` and `message_id` |
-| `POST /api/inbox/run` | Queue commands from up to `limit` due inbox messages |
-| `POST /api/commands/run` | Execute up to `limit` due commands |
-| `POST /api/events/run` | Dispatch up to `limit` due events |
-| `POST /api/outbox/run` | When included, valid requests return `503` while delivery is unconfigured |
+| Method and path          | Behavior                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `GET /api/health`        | Existing `200`, text `ok`                                                     |
+| `POST /api/inbox`        | Mulac `SubmitInboxRequest`; durable acceptance returns `202` and `message_id` |
+| `POST /api/inbox/run`    | Queue commands from up to `limit` due inbox messages                          |
+| `POST /api/commands/run` | Execute up to `limit` due commands                                            |
+| `POST /api/events/run`   | Dispatch up to `limit` due events                                             |
+| `POST /api/outbox/run`   | When included, valid requests return `503` while delivery is unconfigured     |
 
 All runners accept the shared `RunRequest` with required integer `limit` from
 1 through 1000 and return Mulac's `RunResponse`. Full success reports

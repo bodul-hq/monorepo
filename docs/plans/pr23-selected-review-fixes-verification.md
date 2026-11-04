@@ -11,12 +11,12 @@ No dependency declarations or lockfiles changed, so no audit was run.
 Ran `make fmt`, followed by `make ci`, in all four changed crates.
 Formatting and clippy passed for each.
 
-| Crate | Test outcome |
-| --- | --- |
-| Customer Facing | CI passed: 41 passed, 39 PostgreSQL tests ignored |
-| Offers | 86 passed, 37 ignored; four existing publisher HTTP tests failed while binding sockets with `Operation not permitted` |
-| Retailer Sourcing | CI stopped in `export_offer_sources`: six passed and one existing HTTP fixture test failed while binding a socket |
-| Development | Library and preceding binary tests passed; main binary: 21 passed, seven HTTP client tests failed while binding sockets |
+| Crate             | Test outcome                                                                                                            |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Customer Facing   | CI passed: 41 passed, 39 PostgreSQL tests ignored                                                                       |
+| Offers            | 86 passed, 37 ignored; four existing publisher HTTP tests failed while binding sockets with `Operation not permitted`   |
+| Retailer Sourcing | CI stopped in `export_offer_sources`: six passed and one existing HTTP fixture test failed while binding a socket       |
+| Development       | Library and preceding binary tests passed; main binary: 21 passed, seven HTTP client tests failed while binding sockets |
 
 Development's passing tests include all 14 dashboard rendering tests, the
 explicitly supplied icon after a display-label change, scoped compact queues,

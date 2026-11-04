@@ -60,17 +60,17 @@ raw markup and must be revised to assert the new plain-text behavior.
 
 ## Acceptance examples and tests
 
-| Input | Display text |
-| --- | --- |
-| `<b>USB charger</b>` | `USB charger` |
-| `USB<b>-C</b> charger` | `USB-C charger` |
-| `<p>Fast</p><p>charger</p>` | `Fast charger` |
-| `Fast<br>charger` | `Fast charger` |
-| `A &amp; B&nbsp;charger` | `A & B charger` |
-| `Charger<!-- note --><script>alert(1)</script>` | `Charger` |
-| `<b></b>` or only excluded content | `Untitled offer` |
-| `2 < 3` | `2 < 3` |
-| `&lt;b&gt;literal&lt;/b&gt;` | `<b>literal</b>` as escaped text |
+| Input                                           | Display text                     |
+| ----------------------------------------------- | -------------------------------- |
+| `<b>USB charger</b>`                            | `USB charger`                    |
+| `USB<b>-C</b> charger`                          | `USB-C charger`                  |
+| `<p>Fast</p><p>charger</p>`                     | `Fast charger`                   |
+| `Fast<br>charger`                               | `Fast charger`                   |
+| `A &amp; B&nbsp;charger`                        | `A & B charger`                  |
+| `Charger<!-- note --><script>alert(1)</script>` | `Charger`                        |
+| `<b></b>` or only excluded content              | `Untitled offer`                 |
+| `2 < 3`                                         | `2 < 3`                          |
+| `&lt;b&gt;literal&lt;/b&gt;`                    | `<b>literal</b>` as escaped text |
 
 Also cover nested and unclosed tags, attributes containing `>`, numeric and
 double-encoded character references, style/template content, quotes, Unicode,

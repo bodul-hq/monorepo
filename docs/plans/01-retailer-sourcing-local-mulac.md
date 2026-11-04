@@ -41,17 +41,17 @@ service or start queue workers.
 Adopt Mulac's shared validation and error responses for the two queue routes.
 This deliberately changes some error contracts:
 
-| Case | Current retailer sourcing | Planned behavior |
-| --- | --- | --- |
-| Successful run | `200`, `{ "processed": N, "errors": [] }` | Same |
-| One or more consumer failures | `200`, null `processed`, error messages | Same; successful items remain completed |
-| Limit `0` or above `1000` | `400`, JSON `{ "error": ... }` | `400`, Mulac plain-text validation error |
-| Missing, negative, fractional, null, or wrongly typed limit | Axum typed-JSON rejection, normally `422` | `400`, Mulac validation error |
-| Malformed JSON | `400` | `400` |
-| Missing or non-JSON content type | `415` | `415` |
-| Oversized request | Axum body-limit rejection | Preserve body-limit rejection, `413` |
-| Blocking task failure | `500`, JSON containing join error | `500`, sanitized Mulac text `queue processing task failed` |
-| Valid request without a database | `503`, existing JSON error | Same application-owned `503` response |
+| Case                                                        | Current retailer sourcing                 | Planned behavior                                           |
+| ----------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------- |
+| Successful run                                              | `200`, `{ "processed": N, "errors": [] }` | Same                                                       |
+| One or more consumer failures                               | `200`, null `processed`, error messages   | Same; successful items remain completed                    |
+| Limit `0` or above `1000`                                   | `400`, JSON `{ "error": ... }`            | `400`, Mulac plain-text validation error                   |
+| Missing, negative, fractional, null, or wrongly typed limit | Axum typed-JSON rejection, normally `422` | `400`, Mulac validation error                              |
+| Malformed JSON                                              | `400`                                     | `400`                                                      |
+| Missing or non-JSON content type                            | `415`                                     | `415`                                                      |
+| Oversized request                                           | Axum body-limit rejection                 | Preserve body-limit rejection, `413`                       |
+| Blocking task failure                                       | `500`, JSON containing join error         | `500`, sanitized Mulac text `queue processing task failed` |
+| Valid request without a database                            | `503`, existing JSON error                | Same application-owned `503` response                      |
 
 Validate requests before checking whether the bus is configured. Unknown fields
 remain accepted. Document these changes in the service README and ensure Bruno

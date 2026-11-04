@@ -54,15 +54,15 @@ observed status groups and sort each array numerically by status. Counts are
 exact nonnegative `u64` values converted from PostgreSQL `COUNT(*)` with checked
 conversion. Retain the raw status code alongside its label:
 
-| Code | Text |
-| --- | --- |
-| 0 | `received` |
-| 2 | `reserved` |
-| 4 | `failed` |
-| 5 | `completed` |
-| 7 | `dead` |
-| 8 | `archive` |
-| Any other integer | `unknown` |
+| Code              | Text        |
+| ----------------- | ----------- |
+| 0                 | `received`  |
+| 2                 | `reserved`  |
+| 4                 | `failed`    |
+| 5                 | `completed` |
+| 7                 | `dead`      |
+| 8                 | `archive`   |
+| Any other integer | `unknown`   |
 
 These codes are verified in all four Mulac assembly domain enums. Unknown
 codes remain visible rather than failing or being silently dropped.

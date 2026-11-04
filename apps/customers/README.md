@@ -53,20 +53,20 @@ receives one “Was …; now …” description including both ISO currency code
 Legacy responses may omit `was_price` and retain the original price display.
 
 | Currency | Example display |
-| --- | --- |
-| USD | `$1,234.56` |
-| EUR | `1.234,56 €` |
-| CAD | `CA$1,234.56` |
-| AUD | `A$1,234.56` |
-| GBP | `£1,234.56` |
-| JPY | `¥1,234` |
-| KRW | `₩1,234` |
-| HKD | `HK$1,234.56` |
-| PLN | `1 234,56 zł` |
-| SEK | `1 234,56 kr` |
-| VND | `1.234 ₫` |
-| NZD | `NZ$1,234.56` |
-| INR | `₹1,23,456.78` |
+| -------- | --------------- |
+| USD      | `$1,234.56`     |
+| EUR      | `1.234,56 €`    |
+| CAD      | `CA$1,234.56`   |
+| AUD      | `A$1,234.56`    |
+| GBP      | `£1,234.56`     |
+| JPY      | `¥1,234`        |
+| KRW      | `₩1,234`        |
+| HKD      | `HK$1,234.56`   |
+| PLN      | `1 234,56 zł`   |
+| SEK      | `1 234,56 kr`   |
+| VND      | `1.234 ₫`       |
+| NZD      | `NZ$1,234.56`   |
+| INR      | `₹1,23,456.78`  |
 
 Suffix spacing and PLN/SEK group separators use U+00A0 nonbreaking spaces.
 Fractional digits are retained even for whole amounts; JPY, KRW and VND have

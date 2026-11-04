@@ -23,15 +23,15 @@ The implementation targets the Mulac checkout that offers references:
 
 ### Current state
 
-| Location | Today |
-| --- | --- |
-| `services/offers/src/orchestration/api.rs` | `QueueApi::run_outbox` returns `503` when `outbox` is `None`. Otherwise it runs `OutboxConsumer::publish_batch(&ReservableOutboxSpec::new(request.limit))` through `QueueApi::run` (`spawn_blocking`) and converts the result with `RunResponse::from_result` |
-| `services/offers/src/orchestration/mod.rs` | `outbox_consumer(pool, publisher)` builds `OutboxConsumerStorage`, `OutboxConsumerRepository` and `OutboxConsumer` |
-| `services/offers/src/orchestration/rabbitmq.rs` | `RabbitMqPublisher` implements `OutboxPublisherPort` with lapin. `from_env` reads `AMQP_URL` and `OUTBOX_EXCHANGE` |
-| `services/offers/src/main.rs` | `AppState.outbox: Option<Arc<OutboxConsumer>>` is set only when `RabbitMqPublisher::from_env()` returns `Some` |
-| `services/offers/src/orchestration/inbox_api.rs` | The finished inbox example: two endpoint declarations that delegate to `mulac_poem::io::InboxAdapter` |
-| `mulac/libs/outbox_api` | Empty skeleton: no dependencies, only a placeholder test |
-| `mulac/libs/outbox` (`mulac-outbox`) | `OutboxConsumer`, `ReservableOutboxSpec` (default `max_attempts` 6), `consumer_repository(pool)` behind `diesel`, `AmqpPublisher` behind `amqp` |
+| Location                                         | Today                                                                                                                                                                                                                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `services/offers/src/orchestration/api.rs`       | `QueueApi::run_outbox` returns `503` when `outbox` is `None`. Otherwise it runs `OutboxConsumer::publish_batch(&ReservableOutboxSpec::new(request.limit))` through `QueueApi::run` (`spawn_blocking`) and converts the result with `RunResponse::from_result` |
+| `services/offers/src/orchestration/mod.rs`       | `outbox_consumer(pool, publisher)` builds `OutboxConsumerStorage`, `OutboxConsumerRepository` and `OutboxConsumer`                                                                                                                                            |
+| `services/offers/src/orchestration/rabbitmq.rs`  | `RabbitMqPublisher` implements `OutboxPublisherPort` with lapin. `from_env` reads `AMQP_URL` and `OUTBOX_EXCHANGE`                                                                                                                                            |
+| `services/offers/src/main.rs`                    | `AppState.outbox: Option<Arc<OutboxConsumer>>` is set only when `RabbitMqPublisher::from_env()` returns `Some`                                                                                                                                                |
+| `services/offers/src/orchestration/inbox_api.rs` | The finished inbox example: two endpoint declarations that delegate to `mulac_poem::io::InboxAdapter`                                                                                                                                                         |
+| `mulac/libs/outbox_api`                          | Empty skeleton: no dependencies, only a placeholder test                                                                                                                                                                                                      |
+| `mulac/libs/outbox` (`mulac-outbox`)             | `OutboxConsumer`, `ReservableOutboxSpec` (default `max_attempts` 6), `consumer_repository(pool)` behind `diesel`, `AmqpPublisher` behind `amqp`                                                                                                               |
 
 `QueueApi::run_outbox` already uses `mulac_poem::io::RunRequest` and
 `RunResponse`, so the request parsing and the OpenAPI schemas already belong
@@ -40,11 +40,11 @@ assembly, the blocking-task wrapper, result conversion and error construction.
 
 ## 1. Establish the crate boundaries
 
-| Location | Responsibility |
-| --- | --- |
-| `libs/outbox_api` (existing skeleton) | Framework-free batch contract for the outbox, `OutboxApiError`, a synchronous service, an optional Tokio wrapper, PostgreSQL assembly, test fixtures |
-| `libs/mulac_poem`, proposed `outbox` module and feature | Poem `OutboxAdapter`, response and error conversion. Reuses the existing `RunRequest` and `RunResponse` wrappers |
-| `libs/mulac_axum`, proposed `outbox` module and feature | Axum extractor, `OutboxAdapter`, `IntoResponse` conversions, optional Utoipa schemas |
+| Location                                                | Responsibility                                                                                                                                       |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `libs/outbox_api` (existing skeleton)                   | Framework-free batch contract for the outbox, `OutboxApiError`, a synchronous service, an optional Tokio wrapper, PostgreSQL assembly, test fixtures |
+| `libs/mulac_poem`, proposed `outbox` module and feature | Poem `OutboxAdapter`, response and error conversion. Reuses the existing `RunRequest` and `RunResponse` wrappers                                     |
+| `libs/mulac_axum`, proposed `outbox` module and feature | Axum extractor, `OutboxAdapter`, `IntoResponse` conversions, optional Utoipa schemas                                                                 |
 
 Reservation, publication, completion, retry scheduling and dead-lettering stay
 in `mulac-outbox`. Broker transports stay outside `outbox_api`; see section 4.
@@ -104,22 +104,22 @@ the decision.
 These are the current behaviors. Extend characterization tests where the last
 column says "add" before changing any code.
 
-| Case | Current behavior | Source | Coverage |
-| --- | --- | --- | --- |
-| Missing, `0`, `1001`, `-1`, `1.5`, `"1"` limit | `400` | `main.rs` `queue_routes_validate_requests_and_report_failures` | Covered (loops all four queues) |
-| Malformed JSON `{` | `400` | same test | Covered |
-| `limit` `null` or `1.0`; unknown fields | `400`; unknown fields ignored | `inbox_api.rs` `inbox_run_accepts_limit_bounds_and_unknown_fields` (same `RunRequest` type) | Add for `/outbox/run` |
-| Missing or `text/plain` content type | `415` | `inbox_api.rs` `inbox_routes_require_json_content_type` (same type) | Add for `/outbox/run` |
-| Invalid body while unconfigured | `400`, because body parsing runs before the handler | `main.rs` queue test (outbox unconfigured) | Covered |
-| Valid body, publisher not configured | `503`, plain text `outbox publisher is not configured` | `api.rs` `err_outbox_not_configured`; asserted in `main.rs` | Covered |
-| Unconfigured run leaves rows untouched | No reservation or attempt change | `postgres_tests.rs` `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox` | Covered |
-| Limit bounds `1` and `1000` | Accepted | `main.rs` queue test (returns `503` when unconfigured) | Add for a configured adapter |
-| Successful batch | `200`, `{"processed":N,"errors":[]}`, including `N=0` | `postgres_tests.rs` `outbox_delivery_completes_only_confirmed_items_and_retries_failures` via `run_queue` | Covered |
-| Reservation or storage failure | `200`, `{"processed":null,"errors":[…]}` | `api.rs` test `configured_outbox_reports_storage_failure` | Covered |
-| Publication failure | `200`, `processed:null`, one error per item; row `attempts=1`, unreserved, scheduled later | `postgres_tests.rs` outbox delivery test | Covered |
-| Partial batch | Confirmed items stay completed; failed items use Mulac's retry schedule | `OutboxConsumer::publish_batch` in `libs/outbox/src/outbox_consumer.rs` | Add an HTTP-level partial case |
-| Blocking-task failure | `500`, `queue processing task failed` | `api.rs` `err_queue_task_failed` | Add (panicking consumer or publisher) |
-| OpenAPI | `/outbox/run` uses `#/components/schemas/RunRequest` (`limit` minimum 1, maximum 1000) and `RunResponse` | `main.rs` `openapi_spec_matches_routes`; `mulac_poem/src/types.rs` | Extend to assert the `/outbox/run` `$ref`s and the `200` response |
+| Case                                           | Current behavior                                                                                         | Source                                                                                                    | Coverage                                                          |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Missing, `0`, `1001`, `-1`, `1.5`, `"1"` limit | `400`                                                                                                    | `main.rs` `queue_routes_validate_requests_and_report_failures`                                            | Covered (loops all four queues)                                   |
+| Malformed JSON `{`                             | `400`                                                                                                    | same test                                                                                                 | Covered                                                           |
+| `limit` `null` or `1.0`; unknown fields        | `400`; unknown fields ignored                                                                            | `inbox_api.rs` `inbox_run_accepts_limit_bounds_and_unknown_fields` (same `RunRequest` type)               | Add for `/outbox/run`                                             |
+| Missing or `text/plain` content type           | `415`                                                                                                    | `inbox_api.rs` `inbox_routes_require_json_content_type` (same type)                                       | Add for `/outbox/run`                                             |
+| Invalid body while unconfigured                | `400`, because body parsing runs before the handler                                                      | `main.rs` queue test (outbox unconfigured)                                                                | Covered                                                           |
+| Valid body, publisher not configured           | `503`, plain text `outbox publisher is not configured`                                                   | `api.rs` `err_outbox_not_configured`; asserted in `main.rs`                                               | Covered                                                           |
+| Unconfigured run leaves rows untouched         | No reservation or attempt change                                                                         | `postgres_tests.rs` `queue_endpoints_process_one_stage_and_preserve_unavailable_outbox`                   | Covered                                                           |
+| Limit bounds `1` and `1000`                    | Accepted                                                                                                 | `main.rs` queue test (returns `503` when unconfigured)                                                    | Add for a configured adapter                                      |
+| Successful batch                               | `200`, `{"processed":N,"errors":[]}`, including `N=0`                                                    | `postgres_tests.rs` `outbox_delivery_completes_only_confirmed_items_and_retries_failures` via `run_queue` | Covered                                                           |
+| Reservation or storage failure                 | `200`, `{"processed":null,"errors":[…]}`                                                                 | `api.rs` test `configured_outbox_reports_storage_failure`                                                 | Covered                                                           |
+| Publication failure                            | `200`, `processed:null`, one error per item; row `attempts=1`, unreserved, scheduled later               | `postgres_tests.rs` outbox delivery test                                                                  | Covered                                                           |
+| Partial batch                                  | Confirmed items stay completed; failed items use Mulac's retry schedule                                  | `OutboxConsumer::publish_batch` in `libs/outbox/src/outbox_consumer.rs`                                   | Add an HTTP-level partial case                                    |
+| Blocking-task failure                          | `500`, `queue processing task failed`                                                                    | `api.rs` `err_queue_task_failed`                                                                          | Add (panicking consumer or publisher)                             |
+| OpenAPI                                        | `/outbox/run` uses `#/components/schemas/RunRequest` (`limit` minimum 1, maximum 1000) and `RunResponse` | `main.rs` `openapi_spec_matches_routes`; `mulac_poem/src/types.rs`                                        | Extend to assert the `/outbox/run` `$ref`s and the `200` response |
 
 Error strings inside `errors` come from `OutboxError`'s `Display`
 (`libs/outbox/src/assembly/application.rs`), for example
@@ -145,13 +145,13 @@ anyway.
 
 Proposed public items in `outbox_api::io`:
 
-| Proposed type | Purpose |
-| --- | --- |
-| `RunOutboxRequest` | Serde batch request `{ limit }`, with `MIN_LIMIT = 1`, `MAX_LIMIT = 1000`, `from_json` and `validate` |
-| `RunOutboxResponse` | `processed: Option<usize>`, `errors: Vec<String>`, `from_result` |
-| `OutboxApiError` | Typed malformed-request, limit, not-configured and task failures |
-| `OutboxService` | Synchronous `run` |
-| `AsyncOutboxService` | Optional Tokio wrapper (feature `tokio`), including the unconfigured state |
+| Proposed type        | Purpose                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `RunOutboxRequest`   | Serde batch request `{ limit }`, with `MIN_LIMIT = 1`, `MAX_LIMIT = 1000`, `from_json` and `validate` |
+| `RunOutboxResponse`  | `processed: Option<usize>`, `errors: Vec<String>`, `from_result`                                      |
+| `OutboxApiError`     | Typed malformed-request, limit, not-configured and task failures                                      |
+| `OutboxService`      | Synchronous `run`                                                                                     |
+| `AsyncOutboxService` | Optional Tokio wrapper (feature `tokio`), including the unconfigured state                            |
 
 ### Request and response types: shared HTTP names, per-crate Rust types
 
@@ -281,14 +281,14 @@ is `mulac_diesel::DbPool`, the same r2d2 pool type as offers'
 
 ### Publisher and transport ownership
 
-| Concern | Owner |
-| --- | --- |
-| `OutboxPublisherPort`, `OutboundMessageEnvelope`, `OutboxError` | `mulac-outbox` (unchanged) |
-| Reservation, completion, retry and dead-letter state | `mulac-outbox` (unchanged) |
-| HTTP contract, unconfigured state, blocking wrapper | `outbox_api` and adapters (new) |
-| `AMQP_URL`/`OUTBOX_EXCHANGE` parsing and validation, broker topology | Offers, permanently |
-| Strict confirmed publication: connection reuse, timeouts, reconnect | Offers' `RabbitMqPublisher` during the API extraction; proposed `ConfirmedAmqpPublisher` in `mulac-outbox` afterwards (section 10) |
-| Generic `AmqpPublisher` | `mulac-outbox` feature `amqp` (unchanged, optional) |
+| Concern                                                              | Owner                                                                                                                              |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `OutboxPublisherPort`, `OutboundMessageEnvelope`, `OutboxError`      | `mulac-outbox` (unchanged)                                                                                                         |
+| Reservation, completion, retry and dead-letter state                 | `mulac-outbox` (unchanged)                                                                                                         |
+| HTTP contract, unconfigured state, blocking wrapper                  | `outbox_api` and adapters (new)                                                                                                    |
+| `AMQP_URL`/`OUTBOX_EXCHANGE` parsing and validation, broker topology | Offers, permanently                                                                                                                |
+| Strict confirmed publication: connection reuse, timeouts, reconnect  | Offers' `RabbitMqPublisher` during the API extraction; proposed `ConfirmedAmqpPublisher` in `mulac-outbox` afterwards (section 10) |
+| Generic `AmqpPublisher`                                              | `mulac-outbox` feature `amqp` (unchanged, optional)                                                                                |
 
 `outbox_api` and the adapters accept any `Arc<dyn OutboxPublisherPort>`. They
 neither enable nor forward `mulac-outbox/amqp`, so lapin is never pulled in
@@ -313,11 +313,11 @@ leaves `AmqpPublisher` unchanged.
 
 Proposed `outbox_api` features, mirroring `inbox_api`:
 
-| Feature | Default | Enables |
-| --- | --- | --- |
-| `diesel` | yes | `mulac-outbox/diesel`, `OutboxService::from_postgres` |
-| `tokio` | no | `AsyncOutboxService` |
-| `testing` | no | `io::testing` fixtures and port-based doubles |
+| Feature   | Default | Enables                                               |
+| --------- | ------- | ----------------------------------------------------- |
+| `diesel`  | yes     | `mulac-outbox/diesel`, `OutboxService::from_postgres` |
+| `tokio`   | no      | `AsyncOutboxService`                                  |
+| `testing` | no      | `io::testing` fixtures and port-based doubles         |
 
 Audit results and required changes:
 
@@ -405,17 +405,17 @@ Utoipa test that asserts `/outbox/run` references the shared names.
 
 ## 7. Integrate offers
 
-| File | Change |
-| --- | --- |
-| `Cargo.toml` | Add `outbox_api`. Enable `features = ["outbox"]` on `mulac_poem`. Add `outbox_api` `testing` to dev-dependencies. Keep `lapin`, `url` and `outbox` for the publisher. Before merge, every Mulac dependency uses the git branch source; see "Mulac dependency source" below |
-| `src/orchestration/api.rs` | Delete the file. By the time this plan lands, `run_outbox` is the last `QueueApi` method; `QueueApi`, `QueueApi::run`, `err_queue_task_failed` and `err_outbox_not_configured` go with it. Move the `configured_outbox_reports_storage_failure` test to `outbox_api.rs` |
-| New `src/orchestration/outbox_api.rs` | `OutboxApi { adapter: OutboxAdapter }` with one declaration. Holds the moved storage-failure test and new characterization tests |
-| `src/orchestration/mod.rs` | Remove `outbox_consumer`, `pub mod api` and `pub use api::QueueApi`. Add `pub mod outbox_api` and `pub use outbox_api::OutboxApi`. Update the module doc comment |
-| `src/main.rs` | `AppState.outbox: OutboxAdapter`, set to `OutboxAdapter::unconfigured()` in `start_mulac` and to `OutboxAdapter::new(OutboxService::from_postgres(pool.clone(), Arc::new(publisher)))` when `RabbitMqPublisher::from_env()` returns `Some`. Replace `QueueApi` with `OutboxApi` in the API tuple and drop the `QueueApi` import |
-| `src/postgres_tests.rs` | Replace `crate::orchestration::outbox_consumer(...)` with the adapter constructor. Keep every persistence and retry assertion |
-| `src/orchestration/rabbitmq.rs` | No change in this stage; section 10 replaces it |
-| `README.md` | Update the queue table note and "`AppState` owns the inbox adapter and optional outbox consumer". Describe Mulac's ownership of `/outbox/run` |
-| `bruno/offers/run-outbox.bru` | No change; the contract is unchanged |
+| File                                  | Change                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cargo.toml`                          | Add `outbox_api`. Enable `features = ["outbox"]` on `mulac_poem`. Add `outbox_api` `testing` to dev-dependencies. Keep `lapin`, `url` and `outbox` for the publisher. Before merge, every Mulac dependency uses the git branch source; see "Mulac dependency source" below                                                      |
+| `src/orchestration/api.rs`            | Delete the file. By the time this plan lands, `run_outbox` is the last `QueueApi` method; `QueueApi`, `QueueApi::run`, `err_queue_task_failed` and `err_outbox_not_configured` go with it. Move the `configured_outbox_reports_storage_failure` test to `outbox_api.rs`                                                         |
+| New `src/orchestration/outbox_api.rs` | `OutboxApi { adapter: OutboxAdapter }` with one declaration. Holds the moved storage-failure test and new characterization tests                                                                                                                                                                                                |
+| `src/orchestration/mod.rs`            | Remove `outbox_consumer`, `pub mod api` and `pub use api::QueueApi`. Add `pub mod outbox_api` and `pub use outbox_api::OutboxApi`. Update the module doc comment                                                                                                                                                                |
+| `src/main.rs`                         | `AppState.outbox: OutboxAdapter`, set to `OutboxAdapter::unconfigured()` in `start_mulac` and to `OutboxAdapter::new(OutboxService::from_postgres(pool.clone(), Arc::new(publisher)))` when `RabbitMqPublisher::from_env()` returns `Some`. Replace `QueueApi` with `OutboxApi` in the API tuple and drop the `QueueApi` import |
+| `src/postgres_tests.rs`               | Replace `crate::orchestration::outbox_consumer(...)` with the adapter constructor. Keep every persistence and retry assertion                                                                                                                                                                                                   |
+| `src/orchestration/rabbitmq.rs`       | No change in this stage; section 10 replaces it                                                                                                                                                                                                                                                                                 |
+| `README.md`                           | Update the queue table note and "`AppState` owns the inbox adapter and optional outbox consumer". Describe Mulac's ownership of `/outbox/run`                                                                                                                                                                                   |
+| `bruno/offers/run-outbox.bru`         | No change; the contract is unchanged                                                                                                                                                                                                                                                                                            |
 
 Keep `main.rs`'s `queue_routes_validate_requests_and_report_failures` and
 `openapi_spec_matches_routes` as they are. They are the cross-endpoint
@@ -468,15 +468,15 @@ last.
 
 ## 8. Build a shared verification suite
 
-| Test layer | Coverage |
-| --- | --- |
-| Shared contract | The shared run-request fixture table (section 3), run against `RunOutboxRequest`, including expected error strings |
-| Shared operations | Empty batch (`processed: 0`), reservation failure, per-item publish failures, partial batch, `MissingReservation`, conversion to dead |
-| Tokio wrapper | Runs on the blocking pool with a current runtime handle; sanitized `JoinError`; unconfigured state never calls the consumer |
-| Poem HTTP | Statuses `200`/`400`/`415`/`503`/`500`, response shapes, OpenAPI `$ref`s, and a single registration of `RunRequest` together with `InboxAdapter` |
-| Axum HTTP | The same cases, `422` normalized to `400`, `413` kept, state and router composition, Utoipa names |
-| PostgreSQL (`mulac-outbox`) | Existing `libs/outbox/tests/diesel_storage.rs` and `lifecycle.rs` stay as they are |
-| Offers integration | Existing outbox tests in `postgres_tests.rs` plus `make test-rabbitmq` |
+| Test layer                  | Coverage                                                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Shared contract             | The shared run-request fixture table (section 3), run against `RunOutboxRequest`, including expected error strings                               |
+| Shared operations           | Empty batch (`processed: 0`), reservation failure, per-item publish failures, partial batch, `MissingReservation`, conversion to dead            |
+| Tokio wrapper               | Runs on the blocking pool with a current runtime handle; sanitized `JoinError`; unconfigured state never calls the consumer                      |
+| Poem HTTP                   | Statuses `200`/`400`/`415`/`503`/`500`, response shapes, OpenAPI `$ref`s, and a single registration of `RunRequest` together with `InboxAdapter` |
+| Axum HTTP                   | The same cases, `422` normalized to `400`, `413` kept, state and router composition, Utoipa names                                                |
+| PostgreSQL (`mulac-outbox`) | Existing `libs/outbox/tests/diesel_storage.rs` and `lifecycle.rs` stay as they are                                                               |
+| Offers integration          | Existing outbox tests in `postgres_tests.rs` plus `make test-rabbitmq`                                                                           |
 
 Proposed `outbox_api::io::testing` (feature `testing`): a recording publisher,
 a failing reservation service, a panicking service and a configurable per-item
@@ -534,16 +534,16 @@ Before porting, pin `RabbitMqPublisher`'s semantics with offers tests in
 `preserves_metadata_and_requests_persistent_delivery` and the ignored
 `rabbitmq_confirms_delivery_rejects_unroutable_and_recovers`:
 
-| Semantics | Current behavior |
-| --- | --- |
-| Persistent delivery | `delivery_mode(2)` |
-| Mandatory routing | `BasicPublishOptions { mandatory: true }`; `Confirmation::Ack(Some(_))` gives `routing error: RabbitMQ returned an unroutable message` |
-| Confirms required | `confirm_select` once per connection. `Nack` gives `publish error: RabbitMQ negatively acknowledged publication`; `NotRequested` gives `publish error: RabbitMQ did not confirm publication` |
-| Timeout | 10 seconds around connect and publish, giving `transport error: RabbitMQ publication timed out` |
-| Reconnect | Lazy connection behind a `tokio::sync::Mutex`, reused on success, dropped after any failure |
-| Runtime | Requires `Handle::try_current()`; otherwise `transport error: RabbitMQ publication requires the application runtime` |
-| Properties | `message_id`, optional `correlation_id`, content type defaulting to `application/json`, and headers `event_id`, `event_type`, optional `causation_id` and `source` |
-| Transport errors | `transport error: RabbitMQ connection or publication failed`, with no lapin diagnostics |
+| Semantics           | Current behavior                                                                                                                                                                             |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Persistent delivery | `delivery_mode(2)`                                                                                                                                                                           |
+| Mandatory routing   | `BasicPublishOptions { mandatory: true }`; `Confirmation::Ack(Some(_))` gives `routing error: RabbitMQ returned an unroutable message`                                                       |
+| Confirms required   | `confirm_select` once per connection. `Nack` gives `publish error: RabbitMQ negatively acknowledged publication`; `NotRequested` gives `publish error: RabbitMQ did not confirm publication` |
+| Timeout             | 10 seconds around connect and publish, giving `transport error: RabbitMQ publication timed out`                                                                                              |
+| Reconnect           | Lazy connection behind a `tokio::sync::Mutex`, reused on success, dropped after any failure                                                                                                  |
+| Runtime             | Requires `Handle::try_current()`; otherwise `transport error: RabbitMQ publication requires the application runtime`                                                                         |
+| Properties          | `message_id`, optional `correlation_id`, content type defaulting to `application/json`, and headers `event_id`, `event_type`, optional `causation_id` and `source`                           |
+| Transport errors    | `transport error: RabbitMQ connection or publication failed`, with no lapin diagnostics                                                                                                      |
 
 Add the missing unit cases: `Ack(Some(_))` mapping, the exact error strings,
 and omitted optional headers. The ignored broker test already covers

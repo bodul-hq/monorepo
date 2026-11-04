@@ -66,13 +66,13 @@ projection → REST lookup**
 
 ## REST and startup
 
-| Endpoint | Behavior |
-| --- | --- |
-| `POST /api/offers/import` | Validate page data, enqueue an import, return `202` with its command ID. |
-| `GET /api/offers/{id}` | Return the projected offer, including its ID and sequence, or `404`. |
-| `GET /api/offers?retailer_code=…&url=…` | Look up a projected offer by its identity; both parameters are required. |
-| `POST /api/commands/run` | Process eligible commands using the existing sourcing-style batch request/report. |
-| `POST /api/events/run` | Process eligible events and update projections using the same batch interface. |
+| Endpoint                                | Behavior                                                                          |
+| --------------------------------------- | --------------------------------------------------------------------------------- |
+| `POST /api/offers/import`               | Validate page data, enqueue an import, return `202` with its command ID.          |
+| `GET /api/offers/{id}`                  | Return the projected offer, including its ID and sequence, or `404`.              |
+| `GET /api/offers?retailer_code=…&url=…` | Look up a projected offer by its identity; both parameters are required.          |
+| `POST /api/commands/run`                | Process eligible commands using the existing sourcing-style batch request/report. |
+| `POST /api/events/run`                  | Process eligible events and update projections using the same batch interface.    |
 
 - Reject empty titles, invalid retailer codes or URLs, unsupported currencies,
   negative prices, and discount percentages outside `0–100`. Imports replace

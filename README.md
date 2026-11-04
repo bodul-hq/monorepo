@@ -17,24 +17,24 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 
 ### lib
 
-| Crate                     | Purpose                                                                     |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `shared`                  | Shared liveness response and exact image URL validation |
-| `object_storage_client`   | Async object storage client using REST or GraphQL                           |
-| `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery      |
-| `money`                   | Money handling                                                              |
-| `everyday`                | Common business, date/time, country, and geographic value types             |
-| `everyday_infra`          | Serialization and chrono adapters for everyday value types                  |
-| `retailer_sauce`          | Retailer integrations                                                       |
-| `retailer_data_extractor` | Extracting data from retailers                                              |
-| `retailers_anker`         | Integration for the Anker retailer                                          |
-| `retailers_mi`            | Integration for the Mi retailer                                             |
-| `retailers_minisforum`    | Integration for the Minisforum retailer                                     |
-| `retailers_ugreen`        | Integration for the Ugreen retailer                                         |
-| `retailers_wip`           | Integration for the WIP retailer                                            |
-| `sitemap`                 | Parsing sitemap XML and building a crawl's sitemap tree                     |
-| `testimony`               | Event sourcing abstractions, aggregate repositories, and query dispatch     |
-| `testimony_infra`         | In-memory and PostgreSQL event stores for testimony                         |
+| Crate                     | Purpose                                                                 |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `shared`                  | Shared liveness response and exact image URL validation                 |
+| `object_storage_client`   | Async object storage client using REST or GraphQL                       |
+| `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery  |
+| `money`                   | Money handling                                                          |
+| `everyday`                | Common business, date/time, country, and geographic value types         |
+| `everyday_infra`          | Serialization and chrono adapters for everyday value types              |
+| `retailer_sauce`          | Retailer integrations                                                   |
+| `retailer_data_extractor` | Extracting data from retailers                                          |
+| `retailers_anker`         | Integration for the Anker retailer                                      |
+| `retailers_mi`            | Integration for the Mi retailer                                         |
+| `retailers_minisforum`    | Integration for the Minisforum retailer                                 |
+| `retailers_ugreen`        | Integration for the Ugreen retailer                                     |
+| `retailers_wip`           | Integration for the WIP retailer                                        |
+| `sitemap`                 | Parsing sitemap XML and building a crawl's sitemap tree                 |
+| `testimony`               | Event sourcing abstractions, aggregate repositories, and query dispatch |
+| `testimony_infra`         | In-memory and PostgreSQL event stores for testimony                     |
 
 Each crate has its own README. To add a retailer storefront, or finish one,
 follow the [retailer integration playbook](docs/retailer-integration.md).
@@ -141,24 +141,24 @@ Run targets from the root to cover every workspace, from a workspace folder
 (`lib`, `services`, `apps`) to cover its crates, or from a crate folder to cover
 that crate.
 
-| Target         | What it does                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------ |
-| `ci`           | `fmt-check`, `lint` and `test`; run it before finishing a change                                 |
-| `test`         | `cargo test`                                                                                     |
-| `fmt`          | `cargo fmt`                                                                                      |
-| `fmt-check`    | `cargo fmt --check`                                                                              |
-| `lint`         | `cargo clippy --all-targets -- -D warnings`                                                      |
-| `clippy`       | `cargo clippy`                                                                                   |
-| `check`        | `cargo check`                                                                                    |
-| `build`        | `cargo build`                                                                                    |
-| `release`      | `cargo build --release`                                                                          |
-| `fix`          | `cargo fix`                                                                                      |
-| `clean`        | `cargo clean`                                                                                    |
-| `audit`        | `cargo audit`, once per workspace                                                                |
-| `doc`          | `cargo doc --no-deps` (lib crates only)                                                          |
-| `serve`        | `cargo run` (service and app crates only)                                                        |
-| `migrate`      | Apply pending migrations using `DATABASE_URL` (`retailer_sourcing`, `object_storage`, `offers`, and `customer_facing`)         |
-| `migrate-redo` | Revert and reapply every migration, deleting the data (`retailer_sourcing`, `object_storage`, and `offers`) |
+| Target         | What it does                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ci`           | `fmt-check`, `lint` and `test`; run it before finishing a change                                                       |
+| `test`         | `cargo test`                                                                                                           |
+| `fmt`          | `cargo fmt`                                                                                                            |
+| `fmt-check`    | `cargo fmt --check`                                                                                                    |
+| `lint`         | `cargo clippy --all-targets -- -D warnings`                                                                            |
+| `clippy`       | `cargo clippy`                                                                                                         |
+| `check`        | `cargo check`                                                                                                          |
+| `build`        | `cargo build`                                                                                                          |
+| `release`      | `cargo build --release`                                                                                                |
+| `fix`          | `cargo fix`                                                                                                            |
+| `clean`        | `cargo clean`                                                                                                          |
+| `audit`        | `cargo audit`, once per workspace                                                                                      |
+| `doc`          | `cargo doc --no-deps` (lib crates only)                                                                                |
+| `serve`        | `cargo run` (service and app crates only)                                                                              |
+| `migrate`      | Apply pending migrations using `DATABASE_URL` (`retailer_sourcing`, `object_storage`, `offers`, and `customer_facing`) |
+| `migrate-redo` | Revert and reapply every migration, deleting the data (`retailer_sourcing`, `object_storage`, and `offers`)            |
 
 `object_storage`, `retailer_sourcing`, `offers`, and `customer_facing` also provide `make test-postgres`,
 which uses `DATABASE_URL_TEST`, testing each case in an
@@ -258,7 +258,7 @@ per collection:
 | ------------------------- | ------------------- | --------------------------- |
 | `objectStorageBaseUrl`    | `object_storage`    | `http://172.28.100.43:3000` |
 | `retailerSourcingBaseUrl` | `retailer_sourcing` | `http://172.28.100.40:3000` |
-| `customerFacingBaseUrl` | `customer_facing` | `http://localhost:3003` |
+| `customerFacingBaseUrl`   | `customer_facing`   | `http://localhost:3003`     |
 
 The object storage and retailer sourcing addresses are containers from
 `compose-apps.yaml`. The customer-facing default points at a local server on

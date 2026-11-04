@@ -10,12 +10,12 @@ remain readable and migrations refuse to invent mappings.
 
 Version matrix:
 
-| Contract | New writer | Historical support |
-| --- | --- | --- |
-| Source export | 9 | 1–8, including legacy-label regeneration |
-| OfferCreated | 10 | 1–8 legacy content and 9 list content/label regions |
-| OfferLocalizationChanged | 2 | 1 legacy-label regions |
-| Customer-facing HTTP | Existing routes with region code | Legacy labels accepted by customers; optional label retained for historical values |
+| Contract                 | New writer                       | Historical support                                                                 |
+| ------------------------ | -------------------------------- | ---------------------------------------------------------------------------------- |
+| Source export            | 9                                | 1–8, including legacy-label regeneration                                           |
+| OfferCreated             | 10                               | 1–8 legacy content and 9 list content/label regions                                |
+| OfferLocalizationChanged | 2                                | 1 legacy-label regions                                                             |
+| Customer-facing HTTP     | Existing routes with region code | Legacy labels accepted by customers; optional label retained for historical values |
 
 No Cargo dependencies or lockfiles changed; audit is not required. Projection
 migrations perform preflight before writes and do not touch event/outbox stores.

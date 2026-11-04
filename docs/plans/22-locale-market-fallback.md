@@ -188,23 +188,23 @@ Freeze these expectations in portable tests. Rules beyond the confirmed
 locale fallback and all-new-observation language reduction remain proposed
 edge-case policy as identified above:
 
-| Applicable evidence | Expected market | Expected language |
-| --- | --- | --- |
-| No explicit market; document `it-IT` | Country `IT` | `it` |
-| No explicit market; case variant `IT-it` | Country `IT` | `it` |
-| No document language; standalone Shopify locale `it-IT` | Country `IT` | `it` |
-| Document `it-IT`; Shopify locale `en-US` | Country `IT` | `it` |
-| No explicit market; `zh-Hant-TW` / `sl-SI-rozaj` | Country `TW` / `SI` | `zh` / `sl` |
-| No explicit market; `en-UK` | Country `GB` | `en` |
-| No explicit market; `it` or `zh-Hant` | Unknown | `it` / `zh` |
-| No explicit market; `es-419`, `en-001`, `en-EU`, `en-ZZ` | Unknown | `es` / `en` / `en` / `en` |
-| No explicit market; `en-u-rg-itzzzz` | Unknown | `en` |
-| Explicit country `CA`; document `en-US` | Country `CA` | `en` |
-| Explicit regional market `Europe`; document `it-IT` | Region `Europe` | `it` |
-| Conflicting/dynamic/invalid explicit market; document `it-IT` | Unknown | `it` |
-| No explicit market; equal-scope `en-US` and `en-GB` | Unknown | Unknown |
-| No explicit market; `und-IT` | Country `IT` | `und` (undetermined; proposed) |
-| Only payment/widget/default/alternate locale evidence | Unknown | Unknown |
+| Applicable evidence                                           | Expected market     | Expected language              |
+| ------------------------------------------------------------- | ------------------- | ------------------------------ |
+| No explicit market; document `it-IT`                          | Country `IT`        | `it`                           |
+| No explicit market; case variant `IT-it`                      | Country `IT`        | `it`                           |
+| No document language; standalone Shopify locale `it-IT`       | Country `IT`        | `it`                           |
+| Document `it-IT`; Shopify locale `en-US`                      | Country `IT`        | `it`                           |
+| No explicit market; `zh-Hant-TW` / `sl-SI-rozaj`              | Country `TW` / `SI` | `zh` / `sl`                    |
+| No explicit market; `en-UK`                                   | Country `GB`        | `en`                           |
+| No explicit market; `it` or `zh-Hant`                         | Unknown             | `it` / `zh`                    |
+| No explicit market; `es-419`, `en-001`, `en-EU`, `en-ZZ`      | Unknown             | `es` / `en` / `en` / `en`      |
+| No explicit market; `en-u-rg-itzzzz`                          | Unknown             | `en`                           |
+| Explicit country `CA`; document `en-US`                       | Country `CA`        | `en`                           |
+| Explicit regional market `Europe`; document `it-IT`           | Region `Europe`     | `it`                           |
+| Conflicting/dynamic/invalid explicit market; document `it-IT` | Unknown             | `it`                           |
+| No explicit market; equal-scope `en-US` and `en-GB`           | Unknown             | Unknown                        |
+| No explicit market; `und-IT`                                  | Country `IT`        | `und` (undetermined; proposed) |
+| Only payment/widget/default/alternate locale evidence         | Unknown             | Unknown                        |
 
 - Test complete-tag parsing, equivalent casing, invalid/blank/oversized/control
   strings, underscores, unsupported grammar, script/variant/private-use tags,

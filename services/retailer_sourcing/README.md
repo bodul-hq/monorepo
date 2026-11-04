@@ -27,17 +27,17 @@ POST /api/sitemap-retrievals
                                               └─▶ structuralize_offer reaction ──▶ StructuralizeOffer ──▶ structuralize_offer handler ──▶ OfferWasStructuralized
 ```
 
-| Step | Command              | Handler does                                                                                                                                                                                                                               | Event                                                    | Reaction that follows                                                 |
-| ---- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------- |
-| 1    | `RetrieveSitemap`    | Fetches the retailer's root sitemaps and every child sitemap and uploads the files to object storage, with references in `sitemaps_raw`. A file that can't be fetched or parsed is skipped with a warning. Fails without a sitemap config. | `SitemapRetrieved`                                       | `process_sitemap`: queue `ProcessSitemap`                             |
-| 2    | `ProcessSitemap`     | Parses the stored files into one sitemap tree, stores it in `sitemaps_processed`.                                                                                                                                                          | `SitemapProcessed`                                       | `consolidate_sitemap`: queue `ConsolidateSitemap`                     |
-| 3    | `ConsolidateSitemap` | Sorts every URL of the tree into product, catalog, content, not interested and unknown, using the retailer's link rules; stores the groups in `sitemaps_consolidated`.                                                                     | `SitemapConsolidated`                                    | `discover_offers`: queue `DiscoverOffers`, unless it found 0 products |
-| 4    | `DiscoverOffers`     | Reads the product URLs and gives each its own `offer_id`. Writes nothing.                                                                                                                                                                  | `OfferDiscovered`, one per URL                           | `download_offer_page`: queue one `DownloadOfferPage` per offer        |
-| 5    | `DownloadOfferPage`  | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. Waits six seconds before each download attempt. A failed download fails the command for retry.                                                                        | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                        |
-| 6    | `ExtractOfferPage`   | Extracts the offer's page from `offer_details_raw` into JSON with the retailer's architecture and stores it in `offer_details_extracted`.                                                                                                  | `OfferPageWasExtracted`                                  | `normalize_offer`: queue `NormalizeOffer`                             |
-| 7    | `NormalizeOffer`     | Normalizes the extracted JSON with the retailer's normalizer and stores it in `offer_details_normalized`. When the retailer produces no document for the page, stores nothing.                                                             | `OfferWasNormalized`; none when there is no document     | `structuralize_offer`: queue `StructuralizeOffer`                     |
-| 8    | `StructuralizeOffer` | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | `processing_for_export`: queue `ProcessOfferForExport`                                                              |
-| 9 | `ProcessOfferForExport` | Prepares a pinned immutable export of priced variations, recording missing-price exclusions. | `OfferExportWasPrepared` | `record_export_messages` listener: records one outbox message per entry |
+| Step | Command                 | Handler does                                                                                                                                                                                                                               | Event                                                    | Reaction that follows                                                   |
+| ---- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 1    | `RetrieveSitemap`       | Fetches the retailer's root sitemaps and every child sitemap and uploads the files to object storage, with references in `sitemaps_raw`. A file that can't be fetched or parsed is skipped with a warning. Fails without a sitemap config. | `SitemapRetrieved`                                       | `process_sitemap`: queue `ProcessSitemap`                               |
+| 2    | `ProcessSitemap`        | Parses the stored files into one sitemap tree, stores it in `sitemaps_processed`.                                                                                                                                                          | `SitemapProcessed`                                       | `consolidate_sitemap`: queue `ConsolidateSitemap`                       |
+| 3    | `ConsolidateSitemap`    | Sorts every URL of the tree into product, catalog, content, not interested and unknown, using the retailer's link rules; stores the groups in `sitemaps_consolidated`.                                                                     | `SitemapConsolidated`                                    | `discover_offers`: queue `DiscoverOffers`, unless it found 0 products   |
+| 4    | `DiscoverOffers`        | Reads the product URLs and gives each its own `offer_id`. Writes nothing.                                                                                                                                                                  | `OfferDiscovered`, one per URL                           | `download_offer_page`: queue one `DownloadOfferPage` per offer          |
+| 5    | `DownloadOfferPage`     | Downloads the page and stores it in `offer_details_raw` under the `offer_id`, with its retailer code. Waits six seconds before each download attempt. A failed download fails the command for retry.                                       | `OfferPageWasDownloaded`; none when the download failed  | `extract_offer_page`: queue `ExtractOfferPage`                          |
+| 6    | `ExtractOfferPage`      | Extracts the offer's page from `offer_details_raw` into JSON with the retailer's architecture and stores it in `offer_details_extracted`.                                                                                                  | `OfferPageWasExtracted`                                  | `normalize_offer`: queue `NormalizeOffer`                               |
+| 7    | `NormalizeOffer`        | Normalizes the extracted JSON with the retailer's normalizer and stores it in `offer_details_normalized`. When the retailer produces no document for the page, stores nothing.                                                             | `OfferWasNormalized`; none when there is no document     | `structuralize_offer`: queue `StructuralizeOffer`                       |
+| 8    | `StructuralizeOffer`    | Structuralizes the normalized document with the retailer's structuralizer and stores it in `offer_details_structuralized`. When the retailer produces no document, stores nothing.                                                         | `OfferWasStructuralized`; none when there is no document | `processing_for_export`: queue `ProcessOfferForExport`                  |
+| 9    | `ProcessOfferForExport` | Prepares a pinned immutable export of priced variations, recording missing-price exclusions.                                                                                                                                               | `OfferExportWasPrepared`                                 | `record_export_messages` listener: records one outbox message per entry |
 
 Steps 6 to 8 fail the command when the input row is missing, when the retailer
 has no such step, or when the step fails, including a retailer whose step is
@@ -238,14 +238,14 @@ Both runners require a JSON object with an integer `limit` from 1 through 1000;
 unknown fields are ignored. They now use Mulac's shared validation and error
 contract:
 
-| Response | Meaning |
-| --- | --- |
-| `200`, JSON `RunResponse` | Batch finished. Reservation, storage, handler, and subscriber failures appear in `errors`; successful items remain committed. |
-| `400`, plain text | Invalid JSON or limit, including missing, null, negative, fractional, or wrongly typed values. |
-| `413`, plain text | Body exceeds Axum's configured size limit. |
-| `415`, plain text | Missing or non-JSON content type. |
-| `500`, plain text `queue processing task failed` | The blocking task failed; internal panic/join details are hidden. |
-| `503`, JSON `{ "error": "the command bus is not running; start the service with DATABASE_URL" }` | A valid request reached an unconfigured bus. |
+| Response                                                                                         | Meaning                                                                                                                       |
+| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `200`, JSON `RunResponse`                                                                        | Batch finished. Reservation, storage, handler, and subscriber failures appear in `errors`; successful items remain committed. |
+| `400`, plain text                                                                                | Invalid JSON or limit, including missing, null, negative, fractional, or wrongly typed values.                                |
+| `413`, plain text                                                                                | Body exceeds Axum's configured size limit.                                                                                    |
+| `415`, plain text                                                                                | Missing or non-JSON content type.                                                                                             |
+| `500`, plain text `queue processing task failed`                                                 | The blocking task failed; internal panic/join details are hidden.                                                             |
+| `503`, JSON `{ "error": "the command bus is not running; start the service with DATABASE_URL" }` | A valid request reached an unconfigured bus.                                                                                  |
 
 Request validation runs before the unavailable-bus check. This changes the old
 JSON range-error body to plain text and typed-JSON `422` errors to `400`.
@@ -691,15 +691,15 @@ The listener checks that the snapshot and event agree on export UUID, source
 and schema version `1`. It then records one row in `outbox_entries` per
 export entry, all in one transaction:
 
-| Column / metadata | Value |
-| --- | --- |
-| `id`, `meta.message_id` | The entry's stable UUID |
-| `payload` | The entry's `ImportOfferDetails` payload, unwrapped |
-| `meta.routing_key` | `offers` |
-| `meta.event_type` | `OfferExportWasPrepared` |
-| `meta.event_id`, `correlation_id`, `causation_id`, `source` | The event envelope's values |
-| `meta.content_type` | `application/json` |
-| `status` | `0` (received) |
+| Column / metadata                                           | Value                                               |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| `id`, `meta.message_id`                                     | The entry's stable UUID                             |
+| `payload`                                                   | The entry's `ImportOfferDetails` payload, unwrapped |
+| `meta.routing_key`                                          | `offers`                                            |
+| `meta.event_type`                                           | `OfferExportWasPrepared`                            |
+| `meta.event_id`, `correlation_id`, `causation_id`, `source` | The event envelope's values                         |
+| `meta.content_type`                                         | `application/json`                                  |
+| `status`                                                    | `0` (received)                                      |
 
 Exclusions produce no messages. An empty or wholly excluded export succeeds
 with none. Recording reads PostgreSQL and object storage only. It works while

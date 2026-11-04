@@ -65,17 +65,17 @@ concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
 other services’ reports.
 
-| Environment variable      | Default                                                   |
-| ------------------------- | --------------------------------------------------------- |
-| `RETAILER_SOURCING_URL`   | `http://172.28.100.40:3000`                               |
-| `RETAILER_SOURCING_TOKEN` | Repository development bearer token for retailer sourcing |
-| `OBJECT_STORAGE_URL`      | `http://172.28.100.43:3000`                               |
-| `OBJECT_STORAGE_TOKEN`    | Repository development bearer token for object storage    |
-| `OFFERS_URL` | `http://172.28.100.41:3000` |
-| `OFFERS_TOKEN` | `offers-development-token`; match Offers `OFFERS_REPORTING_TOKEN` |
-| `CUSTOMER_FACING_URL` | `http://172.28.100.42:3000` |
-| `CUSTOMER_FACING_TOKEN` | `customer-facing-development-token`; match Customer Facing `CUSTOMER_FACING_REPORTING_TOKEN` |
-| `PORT`                    | `3000`                                                    |
+| Environment variable      | Default                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `RETAILER_SOURCING_URL`   | `http://172.28.100.40:3000`                                                                  |
+| `RETAILER_SOURCING_TOKEN` | Repository development bearer token for retailer sourcing                                    |
+| `OBJECT_STORAGE_URL`      | `http://172.28.100.43:3000`                                                                  |
+| `OBJECT_STORAGE_TOKEN`    | Repository development bearer token for object storage                                       |
+| `OFFERS_URL`              | `http://172.28.100.41:3000`                                                                  |
+| `OFFERS_TOKEN`            | `offers-development-token`; match Offers `OFFERS_REPORTING_TOKEN`                            |
+| `CUSTOMER_FACING_URL`     | `http://172.28.100.42:3000`                                                                  |
+| `CUSTOMER_FACING_TOKEN`   | `customer-facing-development-token`; match Customer Facing `CUSTOMER_FACING_REPORTING_TOKEN` |
+| `PORT`                    | `3000`                                                                                       |
 
 Export overrides in the shell before starting the app. The existing CLI tools
 retain their own defaults. The dashboard uses the app's existing access model

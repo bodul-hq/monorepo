@@ -18,11 +18,11 @@ The implementation steps describe the recommended choices below. These choices
 are proposals, not accepted requirements; revise the dependent steps after the
 user answers.
 
-| Question | Recommended interpretation | Other interpretations offered |
-| --- | --- | --- |
-| Which structuralized variations become exports? | Export each priced variation; record a reason for every variation skipped because its price is missing. | Include missing-price variations and extend the offers contract; select a representative variation; forward the whole structuralized document. |
-| What is `offer_export`? | A persisted immutable export snapshot, with an event referencing it. | An event carrying the complete export payload; a DTO persisted only in existing event/outbox rows. |
-| How should existing events without a pinned source be handled? | Require fresh structuralization so each export has an unambiguous source. | Explicitly catch up from the current snapshot; support both as named operator actions. |
+| Question                                                       | Recommended interpretation                                                                              | Other interpretations offered                                                                                                                  |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Which structuralized variations become exports?                | Export each priced variation; record a reason for every variation skipped because its price is missing. | Include missing-price variations and extend the offers contract; select a representative variation; forward the whole structuralized document. |
+| What is `offer_export`?                                        | A persisted immutable export snapshot, with an event referencing it.                                    | An event carrying the complete export payload; a DTO persisted only in existing event/outbox rows.                                             |
+| How should existing events without a pinned source be handled? | Require fresh structuralization so each export has an unambiguous source.                               | Explicitly catch up from the current snapshot; support both as named operator actions.                                                         |
 
 Selecting missing-price exports or whole-document forwarding changes the
 existing offers import contract and the dependency assessment. Do not silently

@@ -31,26 +31,26 @@ images keep their existing flat fields and source choices.
 identity or a unique SKU. An unscoped single offer supplies stock or condition
 only when the product has one variant.
 
-| Storefronts | Comparison price | Availability | Item condition | Description |
-| --- | --- | --- | --- | --- |
-| Anker AU, COM, EU, FR, NZ, PL, VN | Record compare-at | Matched offer; record purchase flag otherwise | Matched offer only | Primary product |
-| Anker CA, DE, UK | Record compare-at | Single-variant offer; record purchase flag otherwise | Unknown | Primary product |
-| Anker Japan | Record compare-at | Offer pinned to variant ID; record purchase flag without an offer | Unknown | Primary product |
-| Anker Italy, Nordics | Record compare-at | Record purchase flag | Unknown | Primary product |
-| Minisforum AU, CA, EU, FR, HK, JP, UK | Record compare-at | Matched theme offer; record purchase flag without an offer | Unknown | Primary product |
-| Minisforum KR | Selected variant compare-at only | Matched offer, or unknown without one | Unknown | Primary product |
-| Minisforum RU | Record compare-at | Record purchase flag | Unknown | Unknown |
-| Minisforum US | Record compare-at | Single-variant aggregate offer; record purchase flag otherwise | Single-variant aggregate offer only | Primary product |
-| Ugreen CA | Record compare-at | Unique matched offer; record purchase flag otherwise | Unique matched offer only | Primary product |
-| Ugreen COM | Unknown | Unknown | Unknown | Unknown |
-| Ugreen DE | Selected variant compare-at only | Selected cart/picker flag only | Unknown | Unknown |
-| Ugreen EU, FR | Normalized variant compare-at, including selected automatic-discount comparison | Matched offer stock | Unknown | Unknown |
-| Ugreen IN | Record compare-at | Matched theme offer; record purchase flag for older normalized documents | Unknown | Primary product |
-| Ugreen JP | Normalized variant compare-at | Matched offer stock | Unknown | Primary product |
-| Ugreen KR, NL, UK, US | Selected compare-at and scoped list/strikethrough specifications | Matched selling offer | Matched selling offer when stated | Primary product |
-| Ugreen NAS, NAS EU, NAS FR, NAS IT, NAS UK | Record compare-at | Record purchase flag | Unknown | Unknown |
-| Ugreen NAS AU, NAS CA, NAS DE, NAS ES | Normalized variant compare-at | Picker/cart purchase flag | Unknown | Unknown |
-| Ugreen NAS JP | Unknown | Matched offer stock | Unknown | Primary product |
+| Storefronts                                | Comparison price                                                                | Availability                                                             | Item condition                      | Description     |
+| ------------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------- | --------------- |
+| Anker AU, COM, EU, FR, NZ, PL, VN          | Record compare-at                                                               | Matched offer; record purchase flag otherwise                            | Matched offer only                  | Primary product |
+| Anker CA, DE, UK                           | Record compare-at                                                               | Single-variant offer; record purchase flag otherwise                     | Unknown                             | Primary product |
+| Anker Japan                                | Record compare-at                                                               | Offer pinned to variant ID; record purchase flag without an offer        | Unknown                             | Primary product |
+| Anker Italy, Nordics                       | Record compare-at                                                               | Record purchase flag                                                     | Unknown                             | Primary product |
+| Minisforum AU, CA, EU, FR, HK, JP, UK      | Record compare-at                                                               | Matched theme offer; record purchase flag without an offer               | Unknown                             | Primary product |
+| Minisforum KR                              | Selected variant compare-at only                                                | Matched offer, or unknown without one                                    | Unknown                             | Primary product |
+| Minisforum RU                              | Record compare-at                                                               | Record purchase flag                                                     | Unknown                             | Unknown         |
+| Minisforum US                              | Record compare-at                                                               | Single-variant aggregate offer; record purchase flag otherwise           | Single-variant aggregate offer only | Primary product |
+| Ugreen CA                                  | Record compare-at                                                               | Unique matched offer; record purchase flag otherwise                     | Unique matched offer only           | Primary product |
+| Ugreen COM                                 | Unknown                                                                         | Unknown                                                                  | Unknown                             | Unknown         |
+| Ugreen DE                                  | Selected variant compare-at only                                                | Selected cart/picker flag only                                           | Unknown                             | Unknown         |
+| Ugreen EU, FR                              | Normalized variant compare-at, including selected automatic-discount comparison | Matched offer stock                                                      | Unknown                             | Unknown         |
+| Ugreen IN                                  | Record compare-at                                                               | Matched theme offer; record purchase flag for older normalized documents | Unknown                             | Primary product |
+| Ugreen JP                                  | Normalized variant compare-at                                                   | Matched offer stock                                                      | Unknown                             | Primary product |
+| Ugreen KR, NL, UK, US                      | Selected compare-at and scoped list/strikethrough specifications                | Matched selling offer                                                    | Matched selling offer when stated   | Primary product |
+| Ugreen NAS, NAS EU, NAS FR, NAS IT, NAS UK | Record compare-at                                                               | Record purchase flag                                                     | Unknown                             | Unknown         |
+| Ugreen NAS AU, NAS CA, NAS DE, NAS ES      | Normalized variant compare-at                                                   | Picker/cart purchase flag                                                | Unknown                             | Unknown         |
+| Ugreen NAS JP                              | Unknown                                                                         | Matched offer stock                                                      | Unknown                             | Primary product |
 
 Other publisher, review, feed, and SEO islands excluded by the existing source
 selection rules remain excluded. Their product summaries or condition labels
@@ -110,52 +110,52 @@ its shared guard.
 Each row covers one successful source page. The fact columns count nonnull
 variation fields; subtract from the variation count to obtain null counts.
 
-| Storefront | Variations | was_price | Availability | Item condition | Description |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| ankerau | 3 | 0 | 3 | 1 | 3 |
-| ankerca | 1 | 0 | 1 | 0 | 1 |
-| ankercom | 2 | 1 | 2 | 1 | 2 |
-| ankerde | 1 | 0 | 1 | 0 | 1 |
-| ankereu | 1 | 0 | 1 | 1 | 1 |
-| ankerfr | 1 | 0 | 1 | 1 | 0 |
-| ankeritalycom | 3 | 0 | 3 | 0 | 3 |
-| ankerjapancom | 1 | 0 | 1 | 0 | 1 |
-| ankernordicscom | 1 | 0 | 1 | 0 | 1 |
-| ankernz | 2 | 0 | 2 | 1 | 2 |
-| ankerpl | 1 | 0 | 1 | 1 | 1 |
-| ankeruk | 3 | 0 | 3 | 0 | 3 |
-| ankervn | 5 | 0 | 5 | 1 | 5 |
-| minisforumau | 1 | 0 | 1 | 0 | 1 |
-| minisforumca | 1 | 0 | 1 | 0 | 0 |
-| minisforumeu | 5 | 5 | 5 | 0 | 5 |
-| minisforumfr | 7 | 0 | 7 | 0 | 0 |
-| minisforumhk | 3 | 2 | 3 | 0 | 3 |
-| minisforumjp | 4 | 3 | 4 | 0 | 4 |
-| minisforumkr | 1 | 0 | 1 | 0 | 0 |
-| minisforumru | 4 | 0 | 4 | 0 | 0 |
-| minisforumuk | 2 | 2 | 2 | 0 | 2 |
-| minisforumus | 1 | 0 | 1 | 1 | 1 |
-| ugreenca | 2 | 2 | 2 | 2 | 2 |
-| ugreencom | 1 | 0 | 0 | 0 | 0 |
-| ugreende | 1 | 1 | 1 | 0 | 0 |
-| ugreeneu | 3 | 1 | 3 | 0 | 0 |
-| ugreenfr | 1 | 0 | 1 | 0 | 0 |
-| ugreenin | 1 | 0 | 1 | 0 | 1 |
-| ugreenjp | 1 | 0 | 1 | 0 | 1 |
-| ugreenkr | 1 | 0 | 1 | 0 | 1 |
-| ugreennas | 3 | 3 | 3 | 0 | 0 |
-| ugreennasau | 1 | 0 | 1 | 0 | 0 |
-| ugreennasca | 1 | 1 | 1 | 0 | 0 |
-| ugreennasde | 2 | 2 | 2 | 0 | 0 |
-| ugreennases | 1 | 0 | 1 | 0 | 0 |
-| ugreennaseu | 1 | 1 | 1 | 0 | 0 |
-| ugreennasfr | 1 | 0 | 1 | 0 | 0 |
-| ugreennasit | 1 | 0 | 1 | 0 | 0 |
-| ugreennasjp | 1 | 0 | 1 | 0 | 1 |
-| ugreennasuk | 2 | 2 | 2 | 0 | 0 |
-| ugreennl | 1 | 1 | 1 | 0 | 1 |
-| ugreenuk | 1 | 0 | 1 | 0 | 1 |
-| ugreenus | 1 | 0 | 1 | 0 | 1 |
+| Storefront      | Variations | was_price | Availability | Item condition | Description |
+| --------------- | ---------: | --------: | -----------: | -------------: | ----------: |
+| ankerau         |          3 |         0 |            3 |              1 |           3 |
+| ankerca         |          1 |         0 |            1 |              0 |           1 |
+| ankercom        |          2 |         1 |            2 |              1 |           2 |
+| ankerde         |          1 |         0 |            1 |              0 |           1 |
+| ankereu         |          1 |         0 |            1 |              1 |           1 |
+| ankerfr         |          1 |         0 |            1 |              1 |           0 |
+| ankeritalycom   |          3 |         0 |            3 |              0 |           3 |
+| ankerjapancom   |          1 |         0 |            1 |              0 |           1 |
+| ankernordicscom |          1 |         0 |            1 |              0 |           1 |
+| ankernz         |          2 |         0 |            2 |              1 |           2 |
+| ankerpl         |          1 |         0 |            1 |              1 |           1 |
+| ankeruk         |          3 |         0 |            3 |              0 |           3 |
+| ankervn         |          5 |         0 |            5 |              1 |           5 |
+| minisforumau    |          1 |         0 |            1 |              0 |           1 |
+| minisforumca    |          1 |         0 |            1 |              0 |           0 |
+| minisforumeu    |          5 |         5 |            5 |              0 |           5 |
+| minisforumfr    |          7 |         0 |            7 |              0 |           0 |
+| minisforumhk    |          3 |         2 |            3 |              0 |           3 |
+| minisforumjp    |          4 |         3 |            4 |              0 |           4 |
+| minisforumkr    |          1 |         0 |            1 |              0 |           0 |
+| minisforumru    |          4 |         0 |            4 |              0 |           0 |
+| minisforumuk    |          2 |         2 |            2 |              0 |           2 |
+| minisforumus    |          1 |         0 |            1 |              1 |           1 |
+| ugreenca        |          2 |         2 |            2 |              2 |           2 |
+| ugreencom       |          1 |         0 |            0 |              0 |           0 |
+| ugreende        |          1 |         1 |            1 |              0 |           0 |
+| ugreeneu        |          3 |         1 |            3 |              0 |           0 |
+| ugreenfr        |          1 |         0 |            1 |              0 |           0 |
+| ugreenin        |          1 |         0 |            1 |              0 |           1 |
+| ugreenjp        |          1 |         0 |            1 |              0 |           1 |
+| ugreenkr        |          1 |         0 |            1 |              0 |           1 |
+| ugreennas       |          3 |         3 |            3 |              0 |           0 |
+| ugreennasau     |          1 |         0 |            1 |              0 |           0 |
+| ugreennasca     |          1 |         1 |            1 |              0 |           0 |
+| ugreennasde     |          2 |         2 |            2 |              0 |           0 |
+| ugreennases     |          1 |         0 |            1 |              0 |           0 |
+| ugreennaseu     |          1 |         1 |            1 |              0 |           0 |
+| ugreennasfr     |          1 |         0 |            1 |              0 |           0 |
+| ugreennasit     |          1 |         0 |            1 |              0 |           0 |
+| ugreennasjp     |          1 |         0 |            1 |              0 |           1 |
+| ugreennasuk     |          2 |         2 |            2 |              0 |           0 |
+| ugreennl        |          1 |         1 |            1 |              0 |           1 |
+| ugreenuk        |          1 |         0 |            1 |              0 |           1 |
+| ugreenus        |          1 |         0 |            1 |              0 |           1 |
 
 The interrupted full-corpus scan also completed entire storefronts before it
 was stopped; the broad family regression suites provide the remaining
@@ -164,11 +164,11 @@ facade acceptance run, and no full-corpus success is claimed.
 
 Known unrelated source-schema failures observed in the longer scan:
 
-| Storefront / source file | Failure |
-| --- | --- |
-| `ankercom/products-a2628.html` | The strict Next.js source model does not recognize `filterPrice`. |
+| Storefront / source file                        | Failure                                                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `ankercom/products-a2628.html`                  | The strict Next.js source model does not recognize `filterPrice`.                                                               |
 | `ugreennasca/products-worry-free-purchase.html` | A floating-point source value fails under the facade's `arbitrary_precision` JSON feature before purchase-protection exclusion. |
-| `ugreennasau/products-worry-free-purchase.html` | The same floating-point source parsing issue. |
+| `ugreennasau/products-worry-free-purchase.html` | The same floating-point source parsing issue.                                                                                   |
 
 No source HTML or saved extraction/normalization files were changed. Portable
 and established family checks passed: 577 Anker tests, 468 Minisforum tests,
