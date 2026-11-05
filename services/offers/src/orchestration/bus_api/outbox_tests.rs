@@ -1,6 +1,6 @@
-use mulac_poem::io::OutboxAdapter;
-use outbox::io::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
-use outbox_api::io::{OutboxService, testing};
+use outbox::prelude::poem::OutboxAdapter;
+use outbox::prelude::{AsyncOutboxService, testing};
+use outbox::prelude::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
 use poem::{http::StatusCode, test::TestClient};
 use serde_json::{Value, json};
 use std::sync::Arc;
@@ -20,7 +20,7 @@ fn client_with(outbox: OutboxAdapter) -> TestClient<poem::Route> {
 
 #[tokio::test]
 async fn configured_outbox_reports_storage_failure() {
-    let client = client_with(OutboxAdapter::new(OutboxService::from_postgres(
+    let client = client_with(OutboxAdapter::new(AsyncOutboxService::from_postgres(
         crate::test_pool(),
         Arc::new(UnusedPublisher),
     )));
@@ -35,10 +35,7 @@ async fn configured_outbox_reports_storage_failure() {
         assert!(body["processed"].is_null());
         let errors = body["errors"].as_array().unwrap();
         assert_eq!(errors.len(), 1);
-        assert!(
-            errors[0].as_str().unwrap().starts_with("storage error: "),
-            "{errors:?}"
-        );
+        crate::tests::assert_error_id(errors[0].as_str().unwrap());
     }
 }
 
@@ -122,16 +119,14 @@ async fn outbox_run_publishes_the_shared_run_schemas() {
 
 #[tokio::test]
 async fn outbox_run_keeps_published_items_of_a_partial_batch() {
-    let (service, outcomes) = testing::partially_failing_service();
+    let (service, outcomes) = testing::partially_failing_consumer();
     let response = client_with(OutboxAdapter::new(service))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":5}))
         .send()
         .await;
     response.assert_status_is_ok();
-    response
-        .assert_json(json!({"processed":null,"errors":["transport error: broker unavailable"]}))
-        .await;
+    crate::tests::assert_batch_response(response, 1).await;
     assert_eq!(
         *outcomes.lock().unwrap(),
         vec!["completed", "failed", "completed"]
@@ -140,17 +135,17 @@ async fn outbox_run_keeps_published_items_of_a_partial_batch() {
 
 #[tokio::test]
 async fn outbox_run_sanitizes_blocking_task_failures() {
-    let response = client_with(OutboxAdapter::new(testing::panicking_service()))
+    let response = client_with(OutboxAdapter::new(testing::panicking_consumer()))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":1}))
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    response.assert_text("queue processing task failed").await;
+    crate::tests::assert_error_response(response).await;
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn outbox_run_reports_customer_facing_publisher_errors_verbatim() {
+async fn outbox_run_reports_distinct_ids_for_customer_facing_publisher_errors() {
     // Mulac's test rows are not routed to customer_facing, so each fails
     // before any request is sent.
     let publisher = crate::orchestration::customer_facing_publisher::CustomerFacingPublisher::new(
@@ -158,17 +153,12 @@ async fn outbox_run_reports_customer_facing_publisher_errors_verbatim() {
         tokio::runtime::Handle::current(),
     )
     .unwrap();
-    let service = testing::publisher_service(2, Arc::new(publisher));
+    let service = testing::publisher_consumer(2, Arc::new(publisher));
     let response = client_with(OutboxAdapter::new(service))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":5}))
         .send()
         .await;
     response.assert_status_is_ok();
-    response
-        .assert_json(json!({"processed":null,"errors":[
-            "routing error: outbox message destination must be customer_facing",
-            "routing error: outbox message destination must be customer_facing",
-        ]}))
-        .await;
+    crate::tests::assert_batch_response(response, 2).await;
 }

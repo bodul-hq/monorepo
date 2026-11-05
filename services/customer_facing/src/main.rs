@@ -116,6 +116,12 @@ fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16>
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
+        )
+        .with_writer(std::io::stderr)
+        .init();
     let port = parse_port(std::env::var("PORT"))?;
     let token = match std::env::var("CUSTOMER_FACING_REPORTING_TOKEN") {
         Ok(token) => token,
@@ -158,6 +164,33 @@ fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'stati
 
 #[cfg(test)]
 mod tests {
+    pub(crate) fn assert_error_id(error: &str) {
+        let id = uuid::Uuid::parse_str(error).expect("error response must contain only a UUID");
+        assert_eq!(id.get_version_num(), 7);
+    }
+
+    pub(crate) fn assert_batch_errors(body: &serde_json::Value, count: usize) {
+        assert!(body["processed"].is_null(), "{body}");
+        let errors = body["errors"].as_array().expect("batch errors array");
+        assert_eq!(errors.len(), count, "{body}");
+        let mut ids = std::collections::HashSet::new();
+        for error in errors {
+            let error = error.as_str().expect("error ID string");
+            assert_error_id(error);
+            assert!(ids.insert(error), "each failure must have its own ID");
+        }
+    }
+
+    pub(crate) async fn assert_error_response(response: poem::test::TestResponse) {
+        let body = response.0.into_body().into_string().await.unwrap();
+        assert_error_id(&body);
+    }
+
+    pub(crate) async fn assert_batch_response(response: poem::test::TestResponse, count: usize) {
+        let body = response.json().await.value().deserialize();
+        assert_batch_errors(&body, count);
+    }
+
     use std::{env::VarError, io::ErrorKind};
 
     use poem::{http::StatusCode, test::TestClient};

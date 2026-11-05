@@ -2,7 +2,7 @@ use super::projection::{
     advance, apply, created, envelope, offer, projection_counts, replay_inbox, submit,
 };
 use super::*;
-use commanding::io::ErasedCommandHandler;
+use commanding::prelude::ErasedCommandHandler;
 
 #[tokio::test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]

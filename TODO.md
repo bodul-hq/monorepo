@@ -113,3 +113,9 @@ Gate cleanup on resetting or retiring event stores, queues, projections, stored 
 ## Published Mulac dependencies
 
 [x] Replace Mulac path dependencies with published null-labs-hq registry crates across monorepo workspaces.
+[x] Update all Mulac dependencies and their lockfile entries to 0.5.0, including API migration ([ADR 43](docs/adr/0043-mulac-0-5-integration.md)).
+
+Validation: formatting and workspace lint pass; 281 portable tests pass. Twelve
+socket-dependent tests and live startup/health checks are blocked by the sandbox;
+PostgreSQL tests require a test database. The cached audit finds no new advisories
+(nine existing vulnerabilities); refreshing the advisory database requires network access.

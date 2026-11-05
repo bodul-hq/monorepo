@@ -1,5 +1,5 @@
-use commanding_api::io::testing;
-use mulac_poem::io::CommandingAdapter;
+use commanding::prelude::poem::CommandingAdapter;
+use commanding::prelude::testing;
 use poem::{http::StatusCode, test::TestClient};
 use serde_json::{Value, json};
 
@@ -18,12 +18,7 @@ async fn commands_run_validates_the_shared_run_request_table() {
         assert!(body["processed"].is_null());
         let errors = body["errors"].as_array().unwrap();
         assert_eq!(errors.len(), 1);
-        assert!(
-            errors[0]
-                .as_str()
-                .unwrap()
-                .starts_with("reservation error: ")
-        );
+        crate::tests::assert_error_id(errors[0].as_str().unwrap());
     }
     for body in testing::invalid_run_requests() {
         let response = client
@@ -102,7 +97,7 @@ async fn commands_run_publishes_the_shared_run_schemas() {
 #[tokio::test]
 async fn commands_run_sanitizes_blocking_task_failures() {
     let (kernel, mut state) = crate::start_mulac(crate::test_pool()).unwrap();
-    state.commanding = CommandingAdapter::new(testing::panicking_service());
+    state.commanding = CommandingAdapter::new(testing::panicking_consumer());
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     let response = client
         .post("/api/commands/run")
@@ -110,6 +105,6 @@ async fn commands_run_sanitizes_blocking_task_failures() {
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    response.assert_text("queue processing task failed").await;
+    crate::tests::assert_error_response(response).await;
     kernel.shutdown();
 }

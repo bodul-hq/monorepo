@@ -7,7 +7,7 @@ pub(crate) mod tests;
 use std::{sync::Arc, time::Duration};
 
 use diesel::{PgConnection, RunQueryDsl};
-use kernel::io::DbPool;
+use kernel::prelude::DbPool;
 
 pub use api::{DEFAULT_REPORTING_TOKEN, ReportingApi};
 pub use store::{DatabaseTables, EntryStatuses};

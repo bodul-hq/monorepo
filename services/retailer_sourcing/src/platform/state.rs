@@ -1,7 +1,7 @@
 //! What the HTTP routes share.
 
 use axum::extract::FromRef;
-use mulac_axum::io::OutboxAdapter;
+use outbox::prelude::axum::OutboxAdapter;
 
 use super::bus::BusHandle;
 use super::db::DbPool;

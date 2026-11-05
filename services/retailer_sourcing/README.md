@@ -96,7 +96,7 @@ through events.
 
 ## Running it
 
-The services workspace resolves Mulac 0.4.1 from the `null-labs-hq` registry
+The services workspace resolves Mulac 0.5.0 from the `null-labs-hq` registry
 configured in the repository. No sibling checkout is needed. The committed
 lockfile records package checksums. See [ADR 42](../../docs/adr/0042-published-mulac-crates.md).
 
@@ -126,7 +126,7 @@ for one batch. Missing database or destination configuration returns `503`
 without reserving rows; invalid requests return `400` first. The endpoint uses
 Mulac's shared schemas, JSON content-type validation, and sanitized task errors.
 Full success returns `{"processed":N,"errors":[]}`; item/storage failures use
-`200` with null `processed` and error messages. Successful items remain committed.
+`200` with null `processed` and error IDs. Successful items remain committed.
 
 The publisher posts each outbox payload as a JSON object to `/api/inbox` with
 `routing_key: "ImportOfferDetails"`. Outbox metadata must contain destination
@@ -231,8 +231,13 @@ runs (with workers enabled, wait for each command stage instead of calling
 10. `outbox/run` (needs `OFFERS_URL`): delivers the recorded messages to offers' inbox.
 
 Run responses look like `{"processed": 3, "errors": []}`. When something fails,
-`processed` is `null` and `errors` lists the failures; failed commands are
+`processed` is `null` and `errors` lists one UUID per failure; failed commands are
 retried on a later run.
+
+Mulac 0.5 returns UUID error IDs for queue batch failures and internal HTTP
+failures. Search server logs for `error_id` to find the underlying diagnostic.
+Malformed bodies also receive error IDs; semantic validation messages remain
+readable. See [ADR 43](../../docs/adr/0043-mulac-0-5-integration.md).
 
 Both runners require a JSON object with an integer `limit` from 1 through 1000;
 unknown fields are ignored. They now use Mulac's shared validation and error
@@ -244,7 +249,7 @@ contract:
 | `400`, plain text                                                                                | Invalid JSON or limit, including missing, null, negative, fractional, or wrongly typed values.                                |
 | `413`, plain text                                                                                | Body exceeds Axum's configured size limit.                                                                                    |
 | `415`, plain text                                                                                | Missing or non-JSON content type.                                                                                             |
-| `500`, plain text `queue processing task failed`                                                 | The blocking task failed; internal panic/join details are hidden.                                                             |
+| `500`, plain text error UUID                                                 | The blocking task failed; internal panic/join details are hidden.                                                             |
 | `503`, JSON `{ "error": "the command bus is not running; start the service with DATABASE_URL" }` | A valid request reached an unconfigured bus.                                                                                  |
 
 Request validation runs before the unavailable-bus check. This changes the old
@@ -724,7 +729,8 @@ schedule:
 
 They appear in `/api/events/run` `errors`, with `status = 4` (failed, retry
 scheduled with backoff) and incremented `attempts` in `event_entries`. At the
-sixth failed attempt the event becomes dead (`status = 7`). Fix the cause, then
+sixth failed attempt the event remains failed (`status = 4`) but is no longer
+eligible for automatic retry. Fix the cause, then
 set `status = 0, attempts = 0, scheduled_at = now()` on it and run events again.
 
 Observe recorded messages and their delivery state with:
@@ -737,8 +743,9 @@ ORDER BY received_at;
 ```
 
 Status `0` is received, `2` reserved, `4` failed (retry scheduled), `5`
-completed (offers' inbox returned `202`) and `7` dead (six attempts used). A
-dead or failed row needs the underlying error fixed. It can then be
+completed (offers' inbox returned `202`) and `7` dead (legacy/manual state).
+Exhausted rows remain failed at six attempts. A dead or failed row needs the
+underlying error fixed. It can then be
 rescheduled by setting `status = 0, attempts = 0, scheduled_at = now()`. Rows
 left `reserved` by an interrupted run have no automatic sweeper. After
 confirming no run is in progress, release them with
@@ -812,7 +819,7 @@ them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+legacy metadata can omit it. Published Mulac 0.5.0 provides the optional-sequence
 API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),

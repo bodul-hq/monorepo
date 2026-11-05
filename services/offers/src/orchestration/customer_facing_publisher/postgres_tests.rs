@@ -7,9 +7,10 @@ use std::sync::{
 };
 
 use diesel::{RunQueryDsl, connection::SimpleConnection};
-use inbox_api::io::InboxService;
-use mulac_poem::io::{InboxAdapter, OutboxAdapter};
-use outbox_api::io::OutboxService;
+use inbox::prelude::AsyncInboxService;
+use inbox::prelude::poem::InboxAdapter;
+use outbox::prelude::AsyncOutboxService;
+use outbox::prelude::poem::OutboxAdapter;
 use poem::{Endpoint, EndpointExt, IntoResponse, Route, http::StatusCode, test::TestClient};
 use poem_openapi::OpenApiService;
 use serde_json::{Value, json};
@@ -36,7 +37,7 @@ fn rows(pool: &DbPool, table: &str) -> Value {
 
 /// A Mulac inbox over its own schema, as customer-facing serves it.
 fn inbox_endpoint(pool: &DbPool) -> impl Endpoint + 'static {
-    let adapter = InboxAdapter::new(InboxService::from_postgres(pool.clone()));
+    let adapter = InboxAdapter::new(AsyncInboxService::from_postgres(pool.clone()));
     let api = OpenApiService::new(InboxApi::new(adapter), "Receiver", "1").server("/api");
     Route::new().nest("/api", api)
 }
@@ -59,7 +60,7 @@ fn sender(url: &str) -> Sender {
     let (schema, pool) = inbox_test_database();
     let (kernel, mut state) = crate::start_mulac(pool.clone()).unwrap();
     let publisher = CustomerFacingPublisher::new(url, Handle::current()).unwrap();
-    state.outbox = OutboxAdapter::new(OutboxService::from_postgres(
+    state.outbox = OutboxAdapter::new(AsyncOutboxService::from_postgres(
         pool.clone(),
         Arc::new(publisher),
     ));
@@ -235,9 +236,8 @@ async fn postgres_partial_batch_keeps_deliveries_and_fails_invalid_rows_visibly(
 
     let report = run_outbox(&sender, 10).await;
 
-    assert!(report["processed"].is_null(), "{report}");
-    let errors = report["errors"].to_string();
-    assert_eq!(report["errors"].as_array().unwrap().len(), 2, "{errors}");
+    crate::tests::assert_batch_errors(&report, 2);
+    let errors = rows(&sender.pool, "outbox_entries").to_string();
     assert!(errors.contains("event type must be"), "{errors}");
     assert!(
         errors.contains("valid customer-facing inbox submission"),
@@ -260,7 +260,7 @@ async fn postgres_partial_batch_keeps_deliveries_and_fails_invalid_rows_visibly(
 
 #[tokio::test(flavor = "multi_thread")]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
-async fn postgres_failed_completion_needs_recovery_and_redelivers_one_inbox_row() {
+async fn postgres_failed_completion_schedules_retry_and_redelivers_one_inbox_row() {
     let (_receiver_schema, receiver_pool) = inbox_test_database();
     let receiver = serve(inbox_endpoint(&receiver_pool));
     let sender = sender(&receiver.url);
@@ -275,8 +275,8 @@ async fn postgres_failed_completion_needs_recovery_and_redelivers_one_inbox_row(
         .unwrap();
 
     assert!(run_outbox(&sender, 1).await["processed"].is_null());
-    // Accepted, but the row is left reserved: a stale reservation.
-    assert_eq!(rows(&sender.pool, "outbox_entries")[0]["status"], 2);
+    // Acceptance succeeded; failed completion schedules a retry.
+    assert_eq!(rows(&sender.pool, "outbox_entries")[0]["status"], 4);
     assert_eq!(
         rows(&receiver_pool, "inbox_entries")
             .as_array()
@@ -289,14 +289,14 @@ async fn postgres_failed_completion_needs_recovery_and_redelivers_one_inbox_row(
         json!({"processed": 0, "errors": []})
     );
 
-    // Operator recovery after fixing the underlying storage problem.
+    // Fix storage and make the scheduled retry due now.
     sender
         .pool
         .get()
         .unwrap()
         .batch_execute(
             "ALTER TABLE outbox_entries DROP CONSTRAINT prevent_completion;
-             UPDATE outbox_entries SET status = 0, reservation_id = NULL, reserved_at = NULL, scheduled_at = now() WHERE status = 2",
+             UPDATE outbox_entries SET scheduled_at = now() WHERE status = 4",
         )
         .unwrap();
     let accepted = rows(&receiver_pool, "inbox_entries");
@@ -329,10 +329,7 @@ async fn postgres_lost_acceptance_response_retries_the_same_message() {
     let message_id = record(&sender.pool, OFFER_CREATED_EVENT, &offer_created());
 
     let report = run_outbox(&sender, 1).await;
-    assert_eq!(
-        report["errors"],
-        json!(["transport error: customer-facing inbox did not return durable acceptance"])
-    );
+    crate::tests::assert_batch_errors(&report, 1);
     let failed = rows(&sender.pool, "outbox_entries");
     assert_eq!(failed[0]["status"], 4);
     let accepted = rows(&receiver_pool, "inbox_entries");

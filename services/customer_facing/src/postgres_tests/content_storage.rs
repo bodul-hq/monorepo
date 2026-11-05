@@ -234,7 +234,7 @@ fn envelope_constraints_and_selected_url_uniqueness_reject_invalid_changes() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 fn snapshots_preserve_urls_and_legacy_language_moves_carry_selected_url() {
-    use commanding::io::ErasedCommandHandler;
+    use commanding::prelude::ErasedCommandHandler;
     let (_schema, pool) = database(true);
     insert(&pool, 1, content(1, "Charger", None));
     let projection = crate::offer_projection::Projection(pool.clone());

@@ -1,7 +1,10 @@
-use commanding_api::io::testing as commanding;
-use eventing_api::io::testing as eventing;
-use inbox_api::io::testing as inbox;
-use mulac_poem::io::{CommandingAdapter, EventingAdapter, InboxAdapter, OutboxAdapter};
+use ::commanding::prelude::poem::CommandingAdapter;
+use ::commanding::prelude::testing as commanding;
+use ::eventing::prelude::poem::EventingAdapter;
+use ::eventing::prelude::testing as eventing;
+use ::inbox::prelude::poem::InboxAdapter;
+use ::inbox::prelude::testing as inbox;
+use outbox::prelude::poem::OutboxAdapter;
 use poem::{http::StatusCode, test::TestClient};
 use serde_json::{Value, json};
 
@@ -11,9 +14,9 @@ pub fn state() -> AppState {
     AppState {
         reporting: crate::reporting::tests::empty(),
         offers: crate::offer_read::tests::offers(Vec::new()),
-        inbox: InboxAdapter::new(inbox::recording_service().0),
-        commands: CommandingAdapter::new(commanding::empty_service()),
-        events: EventingAdapter::new(eventing::empty_service()),
+        inbox: InboxAdapter::new(inbox::recording_parts().0),
+        commands: CommandingAdapter::new(commanding::empty_consumer()),
+        events: EventingAdapter::new(eventing::empty_consumer()),
         outbox: OutboxAdapter::unconfigured(),
     }
 }
@@ -55,8 +58,8 @@ async fn runners_validate_requests_and_preserve_empty_batch_contracts() {
 #[tokio::test]
 async fn command_and_event_batches_stop_at_the_requested_limit() {
     let mut state = state();
-    state.commands = CommandingAdapter::new(commanding::queued_service(3));
-    state.events = EventingAdapter::new(eventing::queued_service(3));
+    state.commands = CommandingAdapter::new(commanding::queued_consumer(3));
+    state.events = EventingAdapter::new(eventing::queued_consumer(3));
     let client = client(state);
     for queue in ["commands", "events"] {
         for processed in [2, 1, 0] {
@@ -105,7 +108,7 @@ async fn all_queue_routes_require_well_formed_json() {
 
 #[tokio::test]
 async fn inbox_validates_envelopes_and_returns_the_durably_stored_id() {
-    let (service, store) = inbox::recording_service();
+    let (service, store) = inbox::recording_parts();
     let mut state = state();
     state.inbox = InboxAdapter::new(service);
     let client = client(state);
@@ -128,13 +131,7 @@ async fn inbox_validates_envelopes_and_returns_the_durably_stored_id() {
 
 #[tokio::test]
 async fn inbox_submission_sanitizes_storage_and_task_failures() {
-    for (service, expected) in [
-        (
-            inbox::failing_storage_service(),
-            "inbox message could not be stored",
-        ),
-        (inbox::panicking_service(), "inbox submission task failed"),
-    ] {
+    for service in [inbox::failing_storage_parts(), inbox::panicking_parts()] {
         let mut state = state();
         state.inbox = InboxAdapter::new(service);
         let response = client(state)
@@ -145,41 +142,35 @@ async fn inbox_submission_sanitizes_storage_and_task_failures() {
             .send()
             .await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-        response.assert_text(expected).await;
+        crate::tests::assert_error_response(response).await;
     }
 }
 
 #[tokio::test]
 async fn runner_storage_failures_are_batch_reports() {
     let mut state = state();
-    state.inbox = InboxAdapter::new(inbox::failing_storage_service());
-    state.commands = CommandingAdapter::new(commanding::failing_reservation_service());
-    state.events = EventingAdapter::new(eventing::failing_reservation_service());
+    state.inbox = InboxAdapter::new(inbox::failing_storage_parts());
+    state.commands = CommandingAdapter::new(commanding::failing_reservation_consumer());
+    state.events = EventingAdapter::new(eventing::failing_reservation_consumer());
     let client = client(state);
-    for (queue, error) in [
-        ("inbox", inbox::RESERVATION_FAILURE),
-        ("commands", commanding::RESERVATION_FAILURE),
-        ("events", eventing::RESERVATION_FAILURE),
-    ] {
+    for queue in ["inbox", "commands", "events"] {
         let response = client
             .post(format!("/api/{queue}/run"))
             .body_json(&json!({"limit":1}))
             .send()
             .await;
         response.assert_status_is_ok();
-        response
-            .assert_json(json!({"processed":null,"errors":[error]}))
-            .await;
+        crate::tests::assert_batch_response(response, 1).await;
     }
 }
 
 #[tokio::test]
 async fn task_panics_are_sanitized_for_every_runner() {
     let mut state = state();
-    state.inbox = InboxAdapter::new(inbox::panicking_service());
-    state.commands = CommandingAdapter::new(commanding::panicking_service());
-    state.events = EventingAdapter::new(eventing::panicking_service());
-    state.outbox = OutboxAdapter::new(outbox_api::io::testing::panicking_service());
+    state.inbox = InboxAdapter::new(inbox::panicking_parts());
+    state.commands = CommandingAdapter::new(commanding::panicking_consumer());
+    state.events = EventingAdapter::new(eventing::panicking_consumer());
+    state.outbox = OutboxAdapter::new(outbox::prelude::testing::panicking_consumer());
     let client = client(state);
     for queue in ["inbox", "commands", "events", "outbox"] {
         let response = client
@@ -188,13 +179,13 @@ async fn task_panics_are_sanitized_for_every_runner() {
             .send()
             .await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-        response.assert_text("queue processing task failed").await;
+        crate::tests::assert_error_response(response).await;
     }
 }
 
 #[tokio::test]
 async fn event_partial_failures_retain_successful_items() {
-    let (service, completed) = eventing::partially_failing_service();
+    let (service, completed) = eventing::partially_failing_consumer();
     let mut state = state();
     state.events = EventingAdapter::new(service);
     let response = client(state)
@@ -203,9 +194,7 @@ async fn event_partial_failures_retain_successful_items() {
         .send()
         .await;
     response.assert_status_is_ok();
-    response
-        .assert_json(json!({"processed":null,"errors":[eventing::SUBSCRIBER_FAILURE]}))
-        .await;
+    crate::tests::assert_batch_response(response, 1).await;
     assert_eq!(*completed.lock().unwrap(), 2);
 }
 

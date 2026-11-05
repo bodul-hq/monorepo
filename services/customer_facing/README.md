@@ -9,7 +9,7 @@ messages are generated.
 ## Setup and startup
 
 Use the repository's pinned Rust toolchain, GNU Make, libpq, and PostgreSQL 16
-or later. Mulac 0.4.1 is resolved from the configured `null-labs-hq` Cargo registry.
+or later. Mulac 0.5.0 is resolved from the configured `null-labs-hq` Cargo registry.
 See [ADR 42](../../docs/adr/0042-published-mulac-crates.md) for dependency resolution.
 
 Configure this service's own UTF8 development database and a separate test
@@ -125,10 +125,17 @@ source metadata is absent. Inbox validation still rejects missing or blank sourc
 
 Every runner requires an integer `limit` between 1 and 1000. Successful batches
 return `{"processed":N,"errors":[]}`. Batch failures, including reservation or
-storage failures, return `200` with null `processed` and error messages.
+storage failures, return `200` with null `processed` and error IDs.
 Successful items in a partially failed batch remain completed. Inspect
 `status`, `attempts`, `scheduled_at` and `extra_info` in the corresponding
 queue; retries use Mulac's backoff and six-attempt default.
+
+Mulac 0.5 returns UUID error IDs for queue batch failures and internal HTTP
+failures. Search server logs for `error_id` to find the underlying diagnostic.
+Malformed bodies also receive error IDs; semantic validation messages remain
+readable. See [ADR 43](../../docs/adr/0043-mulac-0-5-integration.md).
+The service logs warnings and errors to stderr by default; set `RUST_LOG`
+to change the tracing filter.
 
 Invalid inputs return `400`, missing/non-JSON content types return `415`, and
 inbox storage or blocking-task failures return sanitized `500` responses.
@@ -218,7 +225,7 @@ Mulac backoff, up to six attempts. Exhaustion requires operator intervention;
 reposting an already stored inbox ID alone does not requeue it.
 
 There is no sweep HTTP endpoint or automatic sweeper. Mulac exposes
-`commanding::io::CommandSweeper` with `CommandConsumerStorage` and
+`commanding::prelude::CommandSweeper` with `DieselPgCommandRepository` and
 `StaleCommandSpec`, plus the inbox `ReservationSweeper`. Its current sweep
 releases reservations into failed status without resetting attempts. Rows at
 six attempts remain ineligible even if a sweep leaves status `4`.
@@ -384,7 +391,7 @@ creation history uses `OfferCreated.v9` with localized content.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+legacy metadata can omit it. Published Mulac 0.5.0 provides the optional-sequence
 API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),

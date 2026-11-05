@@ -111,9 +111,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    response
-        .assert_text("inbox message could not be stored")
-        .await;
+    crate::tests::assert_error_response(response).await;
     kernel.shutdown();
 }
 
@@ -708,7 +706,7 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
     assert_eq!(inbox_test_snapshot(&pool, sql), original);
 
     // Rejected envelopes must not insert messages.
-    for body in inbox_api::io::testing::invalid_submissions() {
+    for body in inbox::prelude::testing::invalid_submissions() {
         client
             .post("/api/inbox")
             .body_json(&body)
@@ -768,9 +766,7 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
         .unwrap();
     let response = client.post("/api/inbox").body_json(&input).send().await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    response
-        .assert_text("inbox message could not be stored")
-        .await;
+    crate::tests::assert_error_response(response).await;
     kernel.shutdown();
 }
 
@@ -982,7 +978,7 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
         .unwrap();
 
     use diesel::RunQueryDsl;
-    use outbox::io::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
+    use outbox::prelude::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
     use std::sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
@@ -1003,8 +999,8 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
     }
     let publisher = Arc::new(Publisher(AtomicBool::new(false)));
     let (kernel, mut state) = crate::start_mulac(pool.clone()).unwrap();
-    state.outbox = mulac_poem::io::OutboxAdapter::new(
-        outbox_api::io::OutboxService::from_postgres(pool.clone(), publisher.clone()),
+    state.outbox = outbox::prelude::poem::OutboxAdapter::new(
+        outbox::prelude::AsyncOutboxService::from_postgres(pool.clone(), publisher.clone()),
     );
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
     use kernel::EventSubscriberPort;
@@ -1097,21 +1093,31 @@ fn command_snapshot(pool: &DbPool, id: Uuid) -> Value {
     .data
 }
 
-async fn run_commands_expecting_errors(client: &TestClient<poem::Route>, errors: Value) {
+async fn run_commands_expecting_errors(
+    client: &TestClient<poem::Route>,
+    pool: &DbPool,
+    errors: Value,
+) {
     let response = client
         .post("/api/commands/run")
         .body_json(&json!({"limit":10}))
         .send()
         .await;
     response.assert_status_is_ok();
-    response
-        .assert_json(json!({"processed":null,"errors":errors}))
-        .await;
+    crate::tests::assert_batch_response(response, errors.as_array().unwrap().len()).await;
+    let history = inbox_test_snapshot(
+        pool,
+        "SELECT jsonb_agg(extra_info) AS data FROM command_entries WHERE status = 4",
+    )
+    .to_string();
+    for error in errors.as_array().unwrap() {
+        assert!(history.contains(error.as_str().unwrap()), "{history}");
+    }
 }
 
 #[tokio::test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
-async fn commands_run_reschedules_failed_commands_until_dead() {
+async fn commands_run_stops_retrying_after_six_failures() {
     let (_schema, pool) = inbox_test_database();
     let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
     let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
@@ -1119,7 +1125,7 @@ async fn commands_run_reschedules_failed_commands_until_dead() {
     insert_command(&pool, id, "unregistered", "{}");
     let not_found = json!(["no handler registered for command type 'unregistered'"]);
 
-    run_commands_expecting_errors(&client, not_found.clone()).await;
+    run_commands_expecting_errors(&client, &pool, not_found.clone()).await;
     assert_eq!(
         command_snapshot(&pool, id),
         json!({"status":4, "attempts":1, "reserved":false, "scheduled_later":true, "processed":false})
@@ -1132,14 +1138,14 @@ async fn commands_run_reschedules_failed_commands_until_dead() {
             .unwrap()
             .batch_execute("UPDATE command_entries SET scheduled_at = NOW()")
             .unwrap();
-        run_commands_expecting_errors(&client, not_found.clone()).await;
-        let status = if attempts == 6 { 7 } else { 4 };
+        run_commands_expecting_errors(&client, &pool, not_found.clone()).await;
+        let status = 4;
         assert_eq!(
             command_snapshot(&pool, id),
             json!({"status":status, "attempts":attempts, "reserved":false, "scheduled_later":true, "processed":false})
         );
     }
-    // Dead commands are never reserved again.
+    // Exhausted commands stay failed and are never reserved again.
     pool.get()
         .unwrap()
         .batch_execute("UPDATE command_entries SET scheduled_at = NOW()")
@@ -1189,6 +1195,7 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
 
     run_commands_expecting_errors(
         &client,
+        &pool,
         json!(["no handler registered for command type 'unregistered'"]),
     )
     .await;
@@ -1259,11 +1266,7 @@ async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events()
         .send()
         .await;
     response.assert_status_is_ok();
-    response
-        .assert_json(json!({"processed":null,"errors":[
-            "subscriber execution error: event metadata is required for customer-facing outbox delivery"
-        ]}))
-        .await;
+    crate::tests::assert_batch_response(response, 1).await;
     assert_eq!(
         event_snapshot(&pool, failing),
         json!({"status":4, "attempts":1, "reserved":false, "scheduled_later":true, "processed":false})

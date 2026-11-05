@@ -41,6 +41,13 @@ reservations, scheduling, retry backoff, and the default six-attempt limit;
 these routes do not reset failed or reserved rows. These operational routes
 have no authentication, matching the direct import route.
 
+Mulac 0.5 returns UUID error IDs for queue batch failures and internal HTTP
+failures. Search server logs for `error_id` to find the underlying diagnostic.
+Malformed bodies also receive error IDs; semantic validation messages remain
+readable. See [ADR 43](../../docs/adr/0043-mulac-0-5-integration.md).
+The service logs warnings and errors to stderr by default; set `RUST_LOG`
+to change the tracing filter.
+
 To process stored inbound work, call inbox, then commands, then events.
 Inbox metadata's `routing_key` names the command type, and its payload contains
 the serialized command. The inbox route processes database rows; it does not
@@ -58,30 +65,29 @@ The command, event and outbox runner APIs are grouped in
 `src/orchestration/bus_api.rs`, with their route tests in `bus_api/`.
 
 Mulac owns `/api/commands/run` behavior. `CommandingApi` only declares the route
-and delegates to `mulac_poem::io::CommandingAdapter`
-(feature `commanding`). The shared `commanding_api` crate validates the limit
+and delegates to `commanding::prelude::poem::CommandingAdapter`
+(feature `poem`). The `commanding` crate validates the limit
 and runs one batch through the kernel's command consumer, so commands executed
 over HTTP still record their events without dispatching them. A failed command
-is reported as its `CommandError` text, for example
-`no handler registered for command type '…'`, and is retried with backoff
-until it becomes dead after six attempts. See Mulac's ADR-010.
+is reported by a UUID error ID and is retried with backoff
+up to six attempts. Exhausted commands remain failed and require operator recovery.
 
 Mulac also owns `/api/events/run` behavior. `EventingApi` only declares the route
-and delegates to `mulac_poem::io::EventingAdapter`
-(feature `eventing`). The shared `eventing_api` crate validates the limit and
+and delegates to `eventing::prelude::poem::EventingAdapter`
+(feature `poem`). The `eventing` crate validates the limit and
 dispatches one batch through the kernel's event consumer. The projectors and
 the `customer_facing` subscriber stay registered with the kernel in
 `start_mulac`, so the route dispatches to exactly the subscribers registered
-there. A subscriber failure is reported as its `EventError` text, for example
-`subscriber execution error: event metadata is required for customer-facing outbox delivery`,
-and the event is retried with backoff until it becomes dead after six
-attempts. Events of a type without subscribers complete and are counted.
+there. A subscriber failure is reported by a UUID error ID, and the event is
+retried with backoff up to six attempts. Exhausted events remain failed and
+require operator recovery. Events of a type without subscribers complete and
+are counted.
 
 Mulac also owns `/api/outbox/run` behavior. `OutboxApi` only declares the route
-and delegates to `mulac_poem::io::OutboxAdapter`
-(feature `outbox`). The shared `outbox_api` crate validates the limit and
+and delegates to `outbox::prelude::poem::OutboxAdapter`
+(feature `poem`). The `outbox` crate validates the limit and
 publishes one batch through an outbox consumer that
-`OutboxService::from_postgres` builds from the pool and
+`AsyncOutboxService::from_postgres` builds from the pool and
 `CustomerFacingPublisher` (`src/orchestration/customer_facing_publisher.rs`).
 Without `CUSTOMER_FACING_URL`, `start_mulac` leaves the adapter
 `unconfigured()`, so valid requests return `503`
@@ -113,9 +119,9 @@ the queue run routes, and does not start processing or read from a broker.
 
 Mulac owns both inbox routes' behavior. `src/orchestration/inbox_api.rs` only
 declares `POST /inbox` and `POST /inbox/run` and delegates to
-`mulac_poem::io::InboxAdapter`. The shared `inbox_api` crate validates
-requests and runs storage and processing; `InboxService::from_postgres` builds
-the recorder and a consumer that only queues commands. Every queue route,
+`inbox::prelude::poem::InboxAdapter`. The `inbox` crate validates
+requests and runs storage and processing; `AsyncInboxService::from_postgres` builds
+a shared repository and a consumer that only queues commands. Every queue route,
 including `/commands/run` and `/events/run` through `CommandingAdapter` and
 `EventingAdapter`, uses the adapter's
 `RunRequest` and `RunResponse` types, so the OpenAPI schema names are
@@ -181,11 +187,13 @@ the acknowledgement body. Redirects and client retries are disabled. Errors
 name the failure, never the URL, credentials or response body.
 
 Failed rows (`status = 4`) are retried by later runs with Mulac's backoff, and
-the same message ID and payload are sent. After six attempts a row is dead
-(`status = 7`). Fix the cause, then reschedule it with
-`status = 0, attempts = 0, scheduled_at = now()`. A failed completion write
-after acceptance leaves the row reserved (`status = 2`), and no sweeper
-releases it. Once no run is in progress and the cause is fixed, release it
+the same message ID and payload are sent. After six attempts a row remains
+failed (`status = 4`) and is no longer eligible for automatic retry. Fix the
+cause, then reschedule it with `status = 0, attempts = 0, scheduled_at = now()`.
+A failed completion write after acceptance attempts to mark the row failed
+and schedule a retry. If that failure write also fails, the row can remain
+reserved (`status = 2`), and no automatic sweeper releases it. Once no run is
+in progress and the cause is fixed, release it
 with `status = 0, reservation_id = NULL, reserved_at = NULL`. Never reset the
 database to recover.
 
@@ -558,7 +566,7 @@ them. New creation history uses `OfferCreated.v5` with v1–v4 readers retained.
 Localization-only and identifier-only changes have their own domain events.
 
 Offers preserves each Testimony revision in Mulac event and outbox metadata;
-legacy metadata can omit it. Published Mulac 0.4.1 provides the optional-sequence
+legacy metadata can omit it. Published Mulac 0.5.0 provides the optional-sequence
 API. This does not change HTTP inbox metadata or add
 source-order guarantees. See the [verification walkthrough](../../docs/offer-facts-walkthrough.md)
 and ADRs [27](../../docs/adr/0027-offer-revision-metadata.md),

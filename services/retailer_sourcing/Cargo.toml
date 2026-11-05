@@ -10,20 +10,18 @@ async-graphql-axum = "7.2.1"
 axum.workspace = true
 bodul_shared.workspace = true
 chrono.workspace = true
-commanding_api.workspace = true
+commanding = { workspace = true, features = ["axum-openapi"] }
 diesel.workspace = true
 diesel_migrations.workspace = true
-eventing_api.workspace = true
+eventing = { workspace = true, features = ["axum-openapi"] }
 fastrand = "2.5"
 flate2 = "1"
-inbox_api.workspace = true
+inbox = { workspace = true, features = ["axum-openapi"] }
 inbox_client.workspace = true
 kernel.workspace = true
 money.workspace = true
-mulac_axum = { version = "0.4.1", registry = "null-labs-hq", features = ["commanding", "eventing", "outbox", "utoipa"] }
 object_storage_client = { path = "../../lib/object_storage_client" }
-outbox.workspace = true
-outbox_api.workspace = true
+outbox = { workspace = true, features = ["axum-openapi"] }
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
@@ -46,8 +44,9 @@ utoipa-swagger-ui.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
-commanding_api = { workspace = true, features = ["testing"] }
-eventing_api = { workspace = true, features = ["testing"] }
+commanding = { workspace = true, features = ["api-testing"] }
+eventing = { workspace = true, features = ["api-testing"] }
 http-body-util.workspace = true
-outbox_api = { workspace = true, features = ["testing"] }
+inbox = { workspace = true, features = ["api-testing"] }
+outbox = { workspace = true, features = ["api-testing"] }
 tower.workspace = true

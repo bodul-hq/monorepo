@@ -1,7 +1,9 @@
 //! Command, event and outbox runner endpoints delegate to Mulac's Poem adapters.
 //! Subscribers and publishers remain configured by the application.
 
-use mulac_poem::io::{CommandingAdapter, EventingAdapter, OutboxAdapter, RunRequest, RunResponse};
+use commanding::prelude::poem::{CommandingAdapter, RunRequest, RunResponse};
+use eventing::prelude::poem::EventingAdapter;
+use outbox::prelude::poem::OutboxAdapter;
 use poem::Result;
 use poem_openapi::{OpenApi, payload::Json};
 

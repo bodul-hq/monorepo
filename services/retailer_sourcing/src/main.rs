@@ -155,11 +155,11 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
 
     let db = platform.db.clone();
     let outbox = publisher.map(|publisher| {
-        let service = outbox_api::io::OutboxService::from_postgres(
+        let service = outbox::prelude::AsyncOutboxService::from_postgres(
             db.clone(),
             std::sync::Arc::new(publisher),
         );
-        mulac_axum::io::OutboxAdapter::new(service)
+        outbox::prelude::axum::OutboxAdapter::new(service)
     });
     let object_storage = platform.object_storage.clone();
     let bus = bus.start(platform.db).map_err(io::Error::other)?;
@@ -232,6 +232,23 @@ fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
 
 #[cfg(test)]
 mod tests {
+    pub(crate) fn assert_error_id(error: &str) {
+        let id = uuid::Uuid::parse_str(error).expect("error response must contain only a UUID");
+        assert_eq!(id.get_version_num(), 7);
+    }
+
+    pub(crate) fn assert_batch_errors(body: &serde_json::Value, count: usize) {
+        assert!(body["processed"].is_null(), "{body}");
+        let errors = body["errors"].as_array().expect("batch errors array");
+        assert_eq!(errors.len(), count, "{body}");
+        let mut ids = std::collections::HashSet::new();
+        for error in errors {
+            let error = error.as_str().expect("error ID string");
+            assert_error_id(error);
+            assert!(ids.insert(error), "each failure must have its own ID");
+        }
+    }
+
     use std::{env::VarError, io::ErrorKind};
 
     use axum::{

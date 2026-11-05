@@ -8,15 +8,14 @@ async-graphql.workspace = true
 async-graphql-poem.workspace = true
 bodul_shared.workspace = true
 chrono.workspace = true
-commanding.workspace = true
-commanding_api.workspace = true
+commanding = { workspace = true, features = ["poem"] }
 diesel.workspace = true
 diesel_migrations.workspace = true
-eventing_api.workspace = true
-inbox_api.workspace = true
+eventing = { workspace = true, features = ["poem"] }
+inbox = { workspace = true, features = ["poem"] }
 kernel.workspace = true
 money.workspace = true
-mulac_poem.workspace = true
+outbox = { workspace = true, features = ["poem"] }
 poem.workspace = true
 poem-openapi.workspace = true
 retailer_sauce.workspace = true
@@ -24,12 +23,13 @@ serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
 tokio.workspace = true
+tracing-subscriber.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
-commanding_api = { workspace = true, features = ["testing"] }
-eventing_api = { workspace = true, features = ["testing"] }
-inbox_api = { workspace = true, features = ["testing"] }
-outbox_api = { workspace = true, features = ["testing"] }
+commanding = { workspace = true, features = ["api-testing"] }
+eventing = { workspace = true, features = ["api-testing"] }
+inbox = { workspace = true, features = ["api-testing"] }
+outbox = { workspace = true, features = ["api-testing"] }
 poem = { workspace = true, features = ["test"] }
 url.workspace = true

@@ -6,16 +6,16 @@ use std::sync::Arc;
 
 use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
-use commanding::io::{CommandError, ErasedCommandHandler, NewCommandEnvelope};
+use commanding::prelude::{CommandError, ErasedCommandHandler, NewCommandEnvelope};
 use diesel::{
     Connection, PgConnection, RunQueryDsl,
     sql_types::{BigInt, Jsonb, Text, Timestamptz, Uuid as SqlUuid},
 };
 use kernel::{
     NewEventEnvelope,
-    io::{
-        CommandConsumer, CommandConsumerRepository, CommandConsumerStorage, CommandDispatcher,
-        DbPool, EventGateway, EventRecorder, EventRecorderRepository, EventStoreStorage,
+    prelude::{
+        CommandConsumer, CommandDispatcher, DbPool, DieselPgCommandRepository,
+        DieselPgEventRepository, EventGateway,
     },
 };
 use money::Money;
@@ -480,13 +480,11 @@ impl ErasedCommandHandler for Projection {
     }
 }
 
-pub fn consumer(pool: DbPool) -> Arc<CommandConsumer> {
-    let storage = Arc::new(CommandConsumerStorage::new(pool.clone()));
-    let events = EventGateway::two_phased(Arc::new(EventRecorder::new(Arc::new(
-        EventRecorderRepository::new(Arc::new(EventStoreStorage::new(pool.clone()))),
-    ))));
+pub fn consumer(pool: DbPool) -> Arc<CommandConsumer<DieselPgCommandRepository>> {
+    let commands = Arc::new(DieselPgCommandRepository::new(pool.clone()));
+    let events = EventGateway::two_phased(Arc::new(DieselPgEventRepository::new(pool.clone())));
     Arc::new(CommandConsumer::new(
-        CommandConsumerRepository::new(storage.clone(), storage),
+        commands,
         Arc::new(CommandDispatcher::new(
             Arc::new(Projection(pool)),
             Arc::new(events),

@@ -9,10 +9,10 @@ use crate::platform::{
 use axum::response::IntoResponse;
 use axum::{Router, extract::State, routing::post};
 use diesel::{RunQueryDsl, connection::SimpleConnection, sql_types};
-use inbox_api::io::InboxService;
-use mulac_axum::io::{InboxAdapter, SubmitInbox};
-use outbox::io::{OutboundMessageEnvelope, OutboxStatus};
-use outbox_api::io::OutboxService;
+use inbox::prelude::AsyncInboxService;
+use inbox::prelude::axum::{InboxAdapter, SubmitInbox};
+use outbox::prelude::AsyncOutboxService;
+use outbox::prelude::{OutboundMessageEnvelope, OutboxStatus};
 use serde_json::{Value, json};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -35,7 +35,7 @@ fn snapshot(db: &Database) -> Value {
 
 pub(crate) fn state(db: &Database, url: &str) -> AppState {
     let publisher = OffersPublisher::new(url, tokio::runtime::Handle::current()).unwrap();
-    let service = OutboxService::from_postgres(db.pool.clone(), Arc::new(publisher));
+    let service = AsyncOutboxService::from_postgres(db.pool.clone(), Arc::new(publisher));
     AppState {
         outbox: Some(OutboxAdapter::new(service)),
         ..Default::default()
@@ -43,7 +43,7 @@ pub(crate) fn state(db: &Database, url: &str) -> AppState {
 }
 
 pub(crate) async fn inbox(db: &Database) -> crate::platform::offers_publisher::tests::TestServer {
-    let adapter = InboxAdapter::new(InboxService::from_postgres(db.pool.clone()));
+    let adapter = InboxAdapter::new(AsyncInboxService::from_postgres(db.pool.clone()));
     let app = Router::new()
         .route(
             "/api/inbox",
@@ -163,9 +163,9 @@ async fn lost_completion_can_redeliver_without_duplicate_inbox_rows() {
     let app_state = state(&db, &server.url);
     let result = run(app_state.clone(), json!({"limit":1})).await.1;
     assert!(result["processed"].is_null());
-    assert_eq!(snapshot(&db)[0]["status"], OutboxStatus::Reserved as i32);
-    // Simulate explicit operator recovery of a stale reservation after fixing storage.
-    db.pool.get().unwrap().batch_execute("ALTER TABLE outbox_entries DROP CONSTRAINT prevent_completion; UPDATE outbox_entries SET status=0,reservation_id=NULL,reserved_at=NULL,scheduled_at=now()").unwrap();
+    assert_eq!(snapshot(&db)[0]["status"], OutboxStatus::Failed as i32);
+    // Fix storage and make the scheduled retry due now.
+    db.pool.get().unwrap().batch_execute("ALTER TABLE outbox_entries DROP CONSTRAINT prevent_completion; UPDATE outbox_entries SET scheduled_at=now() WHERE status=4").unwrap();
     assert_eq!(
         run(app_state, json!({"limit":1})).await.1,
         json!({"processed":1,"errors":[]})
@@ -184,7 +184,7 @@ async fn lost_completion_can_redeliver_without_duplicate_inbox_rows() {
 async fn a_lost_acceptance_response_retries_the_same_inbox_message() {
     let db = Database::new();
     let receiver = Database::new();
-    let adapter = InboxAdapter::new(InboxService::from_postgres(receiver.pool.clone()));
+    let adapter = InboxAdapter::new(AsyncInboxService::from_postgres(receiver.pool.clone()));
     let first = Arc::new(AtomicBool::new(true));
     let app = Router::new().route(
         "/api/inbox",

@@ -17,7 +17,7 @@ use diesel::{
 use diesel_migrations::MigrationHarness;
 use kernel::{
     ApplicationEvent, CommandError, CommandHandlerPort, EventError, EventSubscriberPort,
-    KernelConfig, NewEventEnvelope, io::DbPool,
+    KernelConfig, NewEventEnvelope, prelude::DbPool,
 };
 use poem::{http::StatusCode, test::TestClient};
 use serde::{Deserialize, Serialize};
@@ -295,12 +295,7 @@ async fn batch_limits_and_unknown_command_retries_are_durable() {
     assert_eq!(counts(&pool), json!({"inbox":2,"commands":1,"events":0}));
     let failed = run(&client, "commands", 1).await;
     assert!(failed["processed"].is_null());
-    assert!(
-        failed["errors"][0]
-            .as_str()
-            .unwrap()
-            .contains("UnknownDevelopmentProbe")
-    );
+    crate::tests::assert_batch_errors(&failed, 1);
     let retry = snapshot(
         &pool,
         "SELECT jsonb_build_object(
@@ -361,9 +356,7 @@ async fn unconfigured_outbox_and_health_do_not_touch_queue_rows() {
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    response
-        .assert_text("inbox message could not be stored")
-        .await;
+    crate::tests::assert_error_response(response).await;
     let health = client.get("/api/health").send().await;
     health.assert_status_is_ok();
     health.assert_text("ok").await;

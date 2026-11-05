@@ -1,5 +1,7 @@
 use super::*;
-use commanding::io::{ErasedCommandHandler, NewCommand, NewCommandEnvelope, NewCommandMetadata};
+use commanding::prelude::{
+    ErasedCommandHandler, NewCommand, NewCommandEnvelope, NewCommandMetadata,
+};
 
 pub(super) fn created(id: Uuid) -> Value {
     json!({
@@ -189,12 +191,7 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
     let failed = run(&client, "commands", 100).await;
     assert!(failed["processed"].is_null());
     assert_eq!(failed["errors"].as_array().unwrap().len(), 2);
-    assert!(
-        failed["errors"][0]
-            .as_str()
-            .unwrap()
-            .contains("offer has not been created")
-    );
+    crate::tests::assert_batch_errors(&failed, 2);
     assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
     assert_eq!(
         snapshot(

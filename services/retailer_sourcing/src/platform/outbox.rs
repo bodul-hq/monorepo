@@ -7,7 +7,7 @@
 
 use diesel::prelude::*;
 use diesel::sql_types::{Array, Integer, Jsonb, Text, Uuid as SqlUuid};
-use outbox::io::{OutboxEntryMetadata, OutboxStatus};
+use outbox::prelude::{OutboxEntryMetadata, OutboxStatus};
 use uuid::Uuid;
 
 use super::bus::EventContext;
