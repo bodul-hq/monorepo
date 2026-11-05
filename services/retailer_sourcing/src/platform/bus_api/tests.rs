@@ -4,12 +4,13 @@ use axum::Router;
 use axum::body::Body;
 use axum::extract::DefaultBodyLimit;
 use axum::http::{Request, StatusCode, header};
-use commanding_api::io::{CommandingService, testing as commands};
+use commanding::prelude::axum::CommandingAdapter;
+use commanding::prelude::{AsyncCommandingService, testing as commands};
 use diesel::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use eventing_api::io::{EventingService, testing as events};
+use eventing::prelude::axum::EventingAdapter;
+use eventing::prelude::{AsyncEventingService, testing as events};
 use http_body_util::BodyExt;
-use mulac_axum::io::{CommandingAdapter, EventingAdapter};
 use serde_json::{Value, json};
 use tower::ServiceExt;
 
@@ -19,7 +20,10 @@ use crate::platform::state::AppState;
 
 const PATHS: [&str; 2] = ["/api/commands/run", "/api/events/run"];
 
-fn configured(commands: CommandingService, events: EventingService) -> Router {
+fn configured(
+    commands: impl Into<AsyncCommandingService>,
+    events: impl Into<AsyncEventingService>,
+) -> Router {
     let pool = DbPool::builder()
         .max_size(1)
         .min_idle(Some(0))
@@ -65,7 +69,7 @@ pub(super) async fn run(app: &Router, path: &str, limit: usize) -> Value {
 
 #[tokio::test]
 async fn adapters_validate_before_checking_configuration() {
-    let available = configured(commands::empty_service(), events::empty_service());
+    let available = configured(commands::empty_consumer(), events::empty_consumer());
     let unavailable = crate::app(AppState::default());
     for path in PATHS {
         for app in [&available, &unavailable] {
@@ -132,7 +136,7 @@ async fn adapters_preserve_body_rejections() {
 
 #[tokio::test]
 async fn each_adapter_processes_only_its_requested_batch() {
-    let app = configured(commands::queued_service(3), events::queued_service(3));
+    let app = configured(commands::queued_consumer(3), events::queued_consumer(3));
     for path in PATHS {
         for processed in [2, 1, 0] {
             assert_eq!(
@@ -146,38 +150,26 @@ async fn each_adapter_processes_only_its_requested_batch() {
 #[tokio::test]
 async fn consumer_errors_remain_batch_results() {
     let app = configured(
-        commands::failing_reservation_service(),
-        events::failing_reservation_service(),
+        commands::failing_reservation_consumer(),
+        events::failing_reservation_consumer(),
     );
-    for (path, expected) in PATHS
-        .into_iter()
-        .zip([commands::RESERVATION_FAILURE, events::RESERVATION_FAILURE])
-    {
-        assert_eq!(
-            run(&app, path, 1).await,
-            json!({"processed":null,"errors":[expected]})
-        );
+    for path in PATHS {
+        crate::tests::assert_batch_errors(&run(&app, path, 1).await, 1);
     }
-    let (event_service, completed) = events::partially_failing_service();
-    let app = configured(commands::failing_handler_service(), event_service);
-    assert_eq!(
-        run(&app, PATHS[0], 1).await,
-        json!({"processed":null,"errors":[commands::HANDLER_FAILURE]})
-    );
-    assert_eq!(
-        run(&app, PATHS[1], 10).await,
-        json!({"processed":null,"errors":[events::SUBSCRIBER_FAILURE]})
-    );
+    let (event_service, completed) = events::partially_failing_consumer();
+    let app = configured(commands::failing_handler_consumer(), event_service);
+    crate::tests::assert_batch_errors(&run(&app, PATHS[0], 1).await, 1);
+    crate::tests::assert_batch_errors(&run(&app, PATHS[1], 10).await, 1);
     assert_eq!(*completed.lock().unwrap(), 2);
 }
 
 #[tokio::test]
 async fn adapter_task_failures_are_sanitized() {
-    let app = configured(commands::panicking_service(), events::panicking_service());
+    let app = configured(commands::panicking_consumer(), events::panicking_consumer());
     for path in PATHS {
         let (status, text) = send(&app, path, Some("application/json"), r#"{"limit":1}"#).await;
         assert_eq!(status, StatusCode::INTERNAL_SERVER_ERROR);
-        assert_eq!(text, "queue processing task failed");
+        crate::tests::assert_error_id(&text);
     }
 }
 

@@ -125,10 +125,11 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
-- Mulac 0.4.1 packages from the `null-labs-hq` Cargo registry at
+- Mulac 0.5.0 packages from the `null-labs-hq` Cargo registry at
   `https://null-labs-hq.github.io/crates/`, configured in `.cargo/config.toml`.
   The services lockfile pins resolved versions and checksums; no sibling Mulac
-  checkout is required. See [ADR 42](docs/adr/0042-published-mulac-crates.md).
+  checkout is required. See [ADR 42](docs/adr/0042-published-mulac-crates.md)
+  and the [0.5 integration changes](docs/adr/0043-mulac-0-5-integration.md).
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
 - PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.

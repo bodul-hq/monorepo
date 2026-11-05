@@ -425,9 +425,8 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
     );
 
     let report = run_events(&server, &app);
-    assert!(report["processed"].is_null(), "{report}");
-    let errors = report["errors"].to_string();
-    assert_eq!(report["errors"].as_array().unwrap().len(), 5, "{errors}");
+    crate::tests::assert_batch_errors(&report, 5);
+    let errors = event_rows(&db).to_string();
     for expected in [
         "is not completed",
         "does not match",

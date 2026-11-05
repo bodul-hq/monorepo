@@ -1,7 +1,7 @@
 use super::*;
 use axum::http::StatusCode;
 use axum::{Json, Router, routing::post};
-use outbox::io::OutboxEntryMetadata;
+use outbox::prelude::OutboxEntryMetadata;
 use serde_json::{Value, json};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;

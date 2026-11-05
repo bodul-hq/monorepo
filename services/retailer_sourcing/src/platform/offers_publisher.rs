@@ -2,9 +2,9 @@
 
 use std::{env::VarError, io};
 
-use inbox_api::io::SubmitInboxRequest;
+use inbox::prelude::SubmitInboxRequest;
 use inbox_client::{ConfigError, InboxClient, SubmitError};
-use outbox::io::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
+use outbox::prelude::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
 use tokio::runtime::Handle;
 
 const DESTINATION: &str = "offers";

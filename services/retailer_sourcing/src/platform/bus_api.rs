@@ -4,10 +4,9 @@ use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use mulac_axum::io::{
-    CommandsRunResponse, EventsRunResponse, OutboxAdapter, OutboxHttpError, OutboxRunResponse,
-    RunCommands, RunEvents, RunOutbox,
-};
+use commanding::prelude::axum::{CommandsRunResponse, RunCommands};
+use eventing::prelude::axum::{EventsRunResponse, RunEvents};
+use outbox::prelude::axum::{OutboxAdapter, OutboxHttpError, OutboxRunResponse, RunOutbox};
 use serde::Serialize;
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;

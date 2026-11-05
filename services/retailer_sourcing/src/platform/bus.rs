@@ -11,14 +11,15 @@ use std::fmt::Display;
 use std::sync::Arc;
 use std::time::Instant;
 
-use commanding_api::io::CommandingService;
-use eventing_api::io::EventingService;
-use kernel::io::{CommandGateway, NewCommand, NewCommandEnvelope, NewCommandMetadata};
+use commanding::prelude::AsyncCommandingService;
+use commanding::prelude::axum::CommandingAdapter;
+use eventing::prelude::AsyncEventingService;
+use eventing::prelude::axum::EventingAdapter;
+use kernel::prelude::{CommandGateway, NewCommand, NewCommandEnvelope, NewCommandMetadata};
 use kernel::{
     ApplicationEvent, CommandError, CommandHandlerPort, EventError, EventSubscriberPort,
     KernelBuilder, KernelConfig, KernelError, NewEventEnvelope, PersistentKernelHandle,
 };
-use mulac_axum::io::{CommandingAdapter, EventingAdapter};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use uuid::Uuid;
@@ -137,8 +138,10 @@ impl Bus {
             dispatcher: Dispatcher {
                 gateway: handle.state().command_gateway(),
             },
-            commands: CommandingAdapter::new(CommandingService::new(handle.command_consumer())),
-            events: EventingAdapter::new(EventingService::new(handle.event_consumer())),
+            commands: CommandingAdapter::new(AsyncCommandingService::new(
+                handle.command_consumer(),
+            )),
+            events: EventingAdapter::new(AsyncEventingService::new(handle.event_consumer())),
             kernel: Arc::new(handle),
         })
     }
@@ -163,7 +166,7 @@ impl BusHandle {
     pub fn start_command_workers(&self, count: usize) -> CommandWorkers {
         let handles = (0..count)
             .map(|_| {
-                tokio::spawn(kernel::io::run_command_worker(
+                tokio::spawn(kernel::prelude::run_command_worker(
                     self.kernel.command_consumer(),
                     self.kernel.child_token(),
                 ))

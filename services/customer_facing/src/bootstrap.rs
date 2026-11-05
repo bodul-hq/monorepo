@@ -4,7 +4,7 @@ use std::{env::VarError, io, time::Duration};
 
 use diesel::{PgConnection, RunQueryDsl, r2d2::ConnectionManager};
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use kernel::io::DbPool;
+use kernel::prelude::DbPool;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 

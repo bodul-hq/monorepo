@@ -9,7 +9,7 @@ use diesel::{
     connection::SimpleConnection,
     sql_types::{BigInt, Text, Timestamptz, Uuid as SqlUuid},
 };
-use kernel::io::DbPool;
+use kernel::prelude::DbPool;
 use poem_openapi::{
     ApiResponse, Object, OpenApi,
     param::Query,

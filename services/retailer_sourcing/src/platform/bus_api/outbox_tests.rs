@@ -4,7 +4,7 @@ use axum::{
     http::{Request, StatusCode},
 };
 use http_body_util::BodyExt;
-use outbox_api::io::testing;
+use outbox::prelude::testing;
 use serde_json::{Value, json};
 use tower::ServiceExt;
 
@@ -78,22 +78,22 @@ async fn validates_before_reporting_missing_publisher() {
 async fn delegates_batch_results_and_sanitizes_panics() {
     for (service, status, result) in [
         (
-            testing::empty_service(),
+            testing::empty_consumer(),
             StatusCode::OK,
             json!({"processed":0,"errors":[]}),
         ),
         (
-            testing::queued_service(3),
+            testing::queued_consumer(3),
             StatusCode::OK,
             json!({"processed":2,"errors":[]}),
         ),
         (
-            testing::failing_reservation_service(),
+            testing::failing_reservation_consumer(),
             StatusCode::OK,
             json!({"processed":null,"errors":[testing::RESERVATION_FAILURE]}),
         ),
         (
-            testing::panicking_service(),
+            testing::panicking_consumer(),
             StatusCode::INTERNAL_SERVER_ERROR,
             json!("queue processing task failed"),
         ),
@@ -102,7 +102,15 @@ async fn delegates_batch_results_and_sanitizes_panics() {
             outbox: Some(OutboxAdapter::new(service)),
             ..Default::default()
         };
-        assert_eq!(run(state, json!({"limit":2})).await, (status, result));
+        let (actual_status, body) = run(state, json!({"limit":2})).await;
+        assert_eq!(actual_status, status);
+        if status == StatusCode::INTERNAL_SERVER_ERROR {
+            crate::tests::assert_error_id(body.as_str().unwrap());
+        } else if result["processed"].is_null() {
+            crate::tests::assert_batch_errors(&body, 1);
+        } else {
+            assert_eq!(body, result);
+        }
     }
 }
 

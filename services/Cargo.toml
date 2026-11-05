@@ -13,19 +13,16 @@ async-graphql-poem = "7.2.1"
 axum = "0.8.9"
 bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
 chrono = { version = "0.4", features = ["serde"] }
-commanding = { version = "0.4.1", registry = "null-labs-hq", package = "mulac-commanding" }
-commanding_api = { version = "0.4.1", registry = "null-labs-hq", package = "mulac_commanding_api" }
+commanding = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-commanding" }
 diesel = { version = "2", features = ["chrono", "postgres", "r2d2", "serde_json", "uuid"] }
 diesel_migrations = "2"
-eventing_api = { version = "0.4.1", registry = "null-labs-hq", package = "mulac_eventing_api" }
+eventing = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-eventing" }
 http-body-util = "0.1.5"
-inbox_api = { version = "0.4.1", registry = "null-labs-hq", package = "mulac_inbox_api" }
+inbox = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-inbox" }
 inbox_client = { path = "../lib/inbox_client" }
-kernel = { version = "0.4.1", registry = "null-labs-hq", package = "mulac-kernel" }
+kernel = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-kernel" }
 money = { path = "../lib/money" }
-mulac_poem = { version = "0.4.1", registry = "null-labs-hq", features = ["commanding", "eventing", "outbox"] }
-outbox = { version = "0.4.1", registry = "null-labs-hq", package = "mulac-outbox" }
-outbox_api = { version = "0.4.1", registry = "null-labs-hq", package = "mulac_outbox_api" }
+outbox = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-outbox" }
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
 retailer_sauce = { path = "../lib/retailer_sauce" }

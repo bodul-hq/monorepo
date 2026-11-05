@@ -55,3 +55,5 @@ Decision, Consequences) and give it the next number.
 - [ADR 40: Canonical regional market codes](0040-region-market-codes.md)
 
 - [ADR 42: Published Mulac crates](0042-published-mulac-crates.md)
+
+- [ADR 43: Mulac 0.5 integration](0043-mulac-0-5-integration.md)

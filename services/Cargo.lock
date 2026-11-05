@@ -579,12 +579,10 @@ dependencies = [
  "diesel_migrations",
  "money",
  "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
  "mulac-kernel",
- "mulac_commanding_api",
- "mulac_eventing_api",
- "mulac_inbox_api",
- "mulac_outbox_api",
- "mulac_poem",
+ "mulac-outbox",
  "poem",
  "poem-openapi",
  "retailer_sauce",
@@ -592,6 +590,7 @@ dependencies = [
  "serde_json",
  "shared",
  "tokio",
+ "tracing-subscriber",
  "url",
  "uuid",
 ]
@@ -1890,56 +1889,74 @@ dependencies = [
 
 [[package]]
 name = "mulac-commanding"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "da7817e99a716b5e5e368cb95cba889c2ef46a1cb8fd8f18f9d216b84a22efa5"
+checksum = "6a5c21c0ba1c9855cc09cc21594bd686028072a1348636bd4a8a9b4fe62c8206"
 dependencies = [
+ "axum",
  "chrono",
  "diesel",
  "mulac-eventing",
  "mulac_diesel",
+ "mulac_http",
+ "poem",
+ "poem-openapi",
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
+ "utoipa",
  "uuid",
 ]
 
 [[package]]
 name = "mulac-eventing"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "a6f27abbc024d71ba522cfd3a3e9a576e05c6cc3e845ecf9aeb0e5c4972d944c"
+checksum = "593a2bbe8dde9f1e7046de80a083720578b3a6bae514610731b44211d549b7f6"
 dependencies = [
+ "axum",
  "chrono",
  "diesel",
  "mulac_diesel",
+ "mulac_http",
+ "poem",
+ "poem-openapi",
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
+ "utoipa",
  "uuid",
 ]
 
 [[package]]
 name = "mulac-inbox"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "79816fce79256155e8422f0902da7bd7109a9b133db4b28c1277d7769f915bdc"
+checksum = "cea3f6082115be56a87d293b4253edfb500b97ee69ff7eb7baf91b587e2b099e"
 dependencies = [
+ "axum",
  "chrono",
  "diesel",
  "mulac-commanding",
  "mulac_diesel",
+ "mulac_http",
+ "poem",
+ "poem-openapi",
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
+ "utoipa",
  "uuid",
 ]
 
 [[package]]
 name = "mulac-kernel"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "b25d7f4c260b229044dee87b7b1dc09f5edb6837e086a03ba4c0f559b60c7dad"
+checksum = "0092299fdb1bc418a1612f055c85bd297f377de71a9a1a369c4cae7235d163f1"
 dependencies = [
  "mulac-commanding",
  "mulac-eventing",
@@ -1956,116 +1973,47 @@ dependencies = [
 
 [[package]]
 name = "mulac-outbox"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "efecdb7d2d3c0b0cfc700db1e9eea926dc21b38c5786834153f972514333dfc5"
+checksum = "e20cb0176890ed7c19f16d8aecb26371feb8b3fbe0301e645f665fc4ae4f7e9d"
 dependencies = [
+ "axum",
  "chrono",
  "diesel",
  "mulac_diesel",
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "mulac_axum"
-version = "0.4.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "8b6087af71cc082d1846ef407874c060412bc4fcad70cbde523c1229feb5264b"
-dependencies = [
- "axum",
- "mulac_commanding_api",
- "mulac_eventing_api",
- "mulac_inbox_api",
- "mulac_outbox_api",
- "serde_json",
- "utoipa",
-]
-
-[[package]]
-name = "mulac_commanding_api"
-version = "0.4.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "3709888ee631c53d7f995e326bf332abbbdba94c75651eed15d11d35ed20cfc1"
-dependencies = [
- "mulac-commanding",
- "mulac-eventing",
+ "mulac_http",
+ "poem",
+ "poem-openapi",
  "serde",
  "serde_json",
  "thiserror",
  "tokio",
+ "utoipa",
  "uuid",
 ]
 
 [[package]]
 name = "mulac_diesel"
-version = "0.4.1"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "f39c935695c85511c0affa7040b11a4c49de1e4f45803240344d81cc6d89702c"
+checksum = "83576993df6c3187a71486f48875354b6a5388c2585fa3febe909edaba8a1c28"
 dependencies = [
  "diesel",
 ]
 
 [[package]]
-name = "mulac_eventing_api"
-version = "0.4.1"
+name = "mulac_http"
+version = "0.5.0"
 source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "a02258588825b7f723a00d283d66327b432be9566525314498224f914bb2462a"
+checksum = "ae2c4bd7c038150726229280591d725e3b91d459c857b8a395e5e66c187c30de"
 dependencies = [
- "mulac-eventing",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "mulac_inbox_api"
-version = "0.4.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "36fe617cce21e4a8fd160b08e8eacf08a373c2147d29fb930814cc5a5dc5d3fe"
-dependencies = [
- "mulac-commanding",
- "mulac-inbox",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "mulac_outbox_api"
-version = "0.4.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "ad5ca15b7c7a43175085bda3cda4756a90d54a30ceca04471d42363f25b5f519"
-dependencies = [
- "chrono",
- "mulac-outbox",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "mulac_poem"
-version = "0.4.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "0260108598fb65a96f88c2e7383be9f163ed3b34abea634d67bd4414bf5d56be"
-dependencies = [
- "mulac_commanding_api",
- "mulac_eventing_api",
- "mulac_inbox_api",
- "mulac_outbox_api",
- "poem",
+ "axum",
  "poem-openapi",
  "serde",
  "serde_json",
+ "tracing",
+ "utoipa",
+ "uuid",
 ]
 
 [[package]]
@@ -2203,13 +2151,11 @@ dependencies = [
  "diesel_migrations",
  "inbox_client",
  "money",
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
  "mulac-kernel",
  "mulac-outbox",
- "mulac_commanding_api",
- "mulac_eventing_api",
- "mulac_inbox_api",
- "mulac_outbox_api",
- "mulac_poem",
  "poem",
  "poem-openapi",
  "retailer_sauce",
@@ -2220,6 +2166,7 @@ dependencies = [
  "testimony_infra",
  "thiserror",
  "tokio",
+ "tracing-subscriber",
  "url",
  "uuid",
 ]
@@ -3051,13 +2998,11 @@ dependencies = [
  "http-body-util",
  "inbox_client",
  "money",
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
  "mulac-kernel",
  "mulac-outbox",
- "mulac_axum",
- "mulac_commanding_api",
- "mulac_eventing_api",
- "mulac_inbox_api",
- "mulac_outbox_api",
  "object_storage_client",
  "percent-encoding",
  "reqwest",

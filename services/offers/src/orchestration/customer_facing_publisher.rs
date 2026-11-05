@@ -4,9 +4,9 @@
 
 use std::{env, io};
 
-use inbox_api::io::SubmitInboxRequest;
+use inbox::prelude::SubmitInboxRequest;
 use inbox_client::{ConfigError, InboxClient, SubmitError};
-use outbox::io::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
+use outbox::prelude::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
 use serde_json::Value;
 use tokio::runtime::Handle;
 
@@ -221,7 +221,7 @@ fn err_transport(message: &str) -> OutboxError {
 
 #[cfg(test)]
 pub(crate) mod testing {
-    use outbox::io::{OutboundMessageEnvelope, OutboxEntryMetadata};
+    use outbox::prelude::{OutboundMessageEnvelope, OutboxEntryMetadata};
     use poem::{Endpoint, Server, listener::TcpAcceptor};
     use serde_json::{Value, json};
     use uuid::Uuid;

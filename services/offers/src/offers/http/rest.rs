@@ -1,5 +1,5 @@
-use inbox_api::io as inbox;
-use mulac_poem::io::{InboxAdapter, InboxSubmission, SubmitInboxRequest};
+use ::inbox::prelude as inbox;
+use ::inbox::prelude::poem::{InboxAdapter, InboxSubmission, SubmitInboxRequest};
 use poem::{Error, Result, http::StatusCode};
 use poem_openapi::{OpenApi, payload::Json};
 
