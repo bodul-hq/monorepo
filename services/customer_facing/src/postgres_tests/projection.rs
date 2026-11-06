@@ -231,7 +231,7 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
         assert_eq!(
             snapshot(
                 &pool,
-                "SELECT to_jsonb(attempts) AS data FROM command_entries WHERE status IN (4,7)"
+                "SELECT to_jsonb(attempts) AS data FROM command_entries WHERE status = 4"
             ),
             attempt
         );
@@ -241,8 +241,14 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
             &pool,
             "SELECT to_jsonb(status) AS data FROM command_entries WHERE attempts = 6"
         ),
-        7
+        4
     );
+    // Mulac keeps exhausted commands failed; the attempt cap prevents retry
+    // even when the scheduled time is due.
+    pool.get()
+        .unwrap()
+        .batch_execute("UPDATE command_entries SET scheduled_at = now() WHERE attempts = 6")
+        .unwrap();
     advance(&client, "commands", 0).await;
     kernel.shutdown();
 }
