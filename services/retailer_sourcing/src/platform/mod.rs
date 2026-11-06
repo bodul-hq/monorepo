@@ -23,6 +23,7 @@ pub(crate) mod test_objects;
 pub struct Platform {
     pub db: db::DbPool,
     pub http: http::Client,
+    pub offer_http: http::OfferClient,
     pub object_storage: object_storage::ObjectStorage,
 }
 
@@ -32,10 +33,12 @@ impl Platform {
     pub fn connect(
         database_url: &str,
         object_storage: object_storage::ObjectStorage,
+        offer_http: http::OfferClient,
     ) -> Result<Self, db::DbError> {
         Ok(Self {
             db: db::connect(database_url)?,
             http: http::Client,
+            offer_http,
             object_storage,
         })
     }

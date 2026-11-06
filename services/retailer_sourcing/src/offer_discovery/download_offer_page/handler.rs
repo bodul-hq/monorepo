@@ -23,7 +23,7 @@ pub trait FetchOfferPage: Send + Sync + 'static {
     fn fetch(&self, url: &str) -> Result<String, FetchError>;
 }
 
-impl FetchOfferPage for http::Client {
+impl FetchOfferPage for http::OfferClient {
     fn fetch(&self, url: &str) -> Result<String, FetchError> {
         self.get(url)
     }
