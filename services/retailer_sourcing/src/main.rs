@@ -220,7 +220,8 @@ async fn main() -> IoResult<()> {
     let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await?;
     let signal = shutdown_signal()?;
     let workers = match &bus {
-        Some(bus) => bus.start_command_workers(command_workers),
+        // Some(bus) => bus.start_command_workers(command_workers),
+        Some(bus) => bus.start_command_workers(0),
         None => {
             tracing_info!(
                 configured_command_workers = command_workers,
