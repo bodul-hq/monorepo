@@ -103,6 +103,7 @@ fn app(db: &Database, server: &Server) -> axum::Router {
     let platform = Platform {
         db: db.pool.clone(),
         http: http::Client,
+        offer_http: Default::default(),
         object_storage: server.client(),
     };
     let mut bus = Bus::default();

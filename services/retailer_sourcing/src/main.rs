@@ -139,11 +139,13 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
     let object_storage =
         platform::object_storage::ObjectStorage::from_env(tokio::runtime::Handle::current())
             .map_err(io::Error::other)?;
-    let platform =
-        tokio::task::spawn_blocking(move || Platform::connect(&database_url, object_storage))
-            .await
-            .map_err(io::Error::other)?
-            .map_err(io::Error::other)?;
+    let offer_http = platform::http::OfferClient::configured()?;
+    let platform = tokio::task::spawn_blocking(move || {
+        Platform::connect(&database_url, object_storage, offer_http)
+    })
+    .await
+    .map_err(io::Error::other)?
+    .map_err(io::Error::other)?;
 
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);

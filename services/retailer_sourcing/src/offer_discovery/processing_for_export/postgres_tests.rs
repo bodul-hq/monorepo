@@ -279,6 +279,7 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
     let platform = Platform {
         db: db.pool.clone(),
         http: crate::platform::http::Client,
+        offer_http: Default::default(),
         object_storage: server.client(),
     };
     let event = OfferWasStructuralized {
