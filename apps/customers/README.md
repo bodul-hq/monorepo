@@ -4,6 +4,9 @@ Poem app showing 30 offers per page from customer-facing, newest first, with
 Previous/Next links. It renders HTML and local responsive CSS without JavaScript,
 external fonts, browser API calls or frontend build tools.
 
+Nordic offers support NOK/DKK with two decimal places and ISK with zero.
+Their visible prices include the currency code to distinguish the currencies.
+
 ## Run
 
 Start customer-facing with its own database, then run:

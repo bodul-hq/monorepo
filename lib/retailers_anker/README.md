@@ -2,6 +2,23 @@
 
 Integration for the Anker retailer.
 
+The former Nordic integration now has five active market codes: `ankerse`
+(Sweden), `ankerno` (Norway), `ankerfi` (Finland), `ankeris` (Iceland), and
+`ankerdk` (Denmark). They share the Nordic sitemap and product URLs, but fetch
+country-specific Storefront API prices in SEK, NOK, EUR, ISK and DKK.
+The Swedish market here is the existing Nordic store, not `anker.com/se`.
+`ankernordicscom` remains available for historical records and queued work.
+
+For these five codes, `retailer_data_extractor::extract_for` reads the downloaded
+API JSON directly. Sourcing uses `offer_request_for` to build the country query;
+configure `ANKER_NORDICS_STOREFRONT_TOKEN` with the site's public browser
+Storefront token. Raw offline exports can retain `.html` filenames but contain
+JSON. HTML alone is rejected because it carries Swedish-default prices.
+Market, currency, handle, GraphQL errors and incomplete responses are checked
+before storage. Products needing more than 250 variants/images fail explicitly.
+See [ADR 47](../../docs/adr/0047-nordic-retailer-markets.md) for compatibility
+and rollout. `nordic/fixtures` preserves real market-specific responses.
+
 Each storefront has an offer details pipeline in `offer_details/v1`:
 
 - `architecture()` extracts the page's data islands: the `ld+json` scripts

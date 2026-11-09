@@ -26,7 +26,7 @@ This document is written so an agent can carry it out end to end.
 
 | Input               | Where to find it                                                             | ankerau                                  |
 | ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------- |
-| Retailer slug       | `RetailerCode` in `bodul_shared` (see below)                                 | `ankerau` (`RetailerCode::AnkerAu`)      |
+| Retailer slug       | `RetailerCode` in `shared` (see below)                                 | `ankerau` (`RetailerCode::AnkerAu`)      |
 | Crate               | `lib/retailers_<brand>/`                                                     | `lib/retailers_anker/`                   |
 | Storefront folder   | `lib/retailers_<brand>/src/<slug>/`                                          | `lib/retailers_anker/src/ankerau/`       |
 | Platform            | Page source of a product page                                                | Next.js Pages Router (Shopify behind it) |
@@ -34,11 +34,12 @@ This document is written so an agent can carry it out end to end.
 | Saved product pages | `../data/<slug>/offer_details/sources/*.html`, next to the monorepo checkout | `../data/ankerau/offer_details/sources/` |
 | Saved sitemaps      | `../data/<slug>/sitemaps/sources/<retrieval id>/`                            | `../data/ankerau/sitemaps/sources/`      |
 
-**Retailer slug.** `RetailerCode` is an enum in the `bodul_shared` crate,
-published to the `null-labs-hq` registry (source under
-`~/.cargo/registry/src/*/bodul_shared-*/src/retailer.rs`). The slug is the
-variant's name in lowercase: `AnkerJapanCom` is `ankerjapancom`.
-`RetailerCode::try_from("ankerau")` parses it.
+**Retailer slug.** `RetailerCode` lives in `lib/shared/src/retailer.rs`.
+The slug is the variant's name in lowercase: `AnkerJapanCom` is
+`ankerjapancom`. `RetailerCode::try_from("ankerau")` parses it. Add new
+variants, parser arms and active `RETAILERS` / `RetailerCode::ALL` entries
+in this local crate and test their wire/slug round trips. See
+[ADR 48](adr/0048-local-retailer-shared-types.md).
 
 **Starting point.** Find out which case applies:
 
@@ -47,9 +48,8 @@ variant's name in lowercase: `AnkerJapanCom` is `ankerjapancom`.
   case. Fill in the bodies, and skip step 3's registry work for functions that
   are already wired.
 - **B. The storefront is new.** There's no folder. If `RetailerCode` already
-  has the variant, start at step 2. If it doesn't, stop and ask: adding a
-  variant means releasing a new `bodul_shared` version and updating every
-  workspace that depends on it, which is outside this repository.
+  has the variant, start at step 2. If it does not, add the local
+  variant and lookup/list entries described above before wiring the storefront.
 
 **Saved pages and sitemaps.** The data folder is not part of this repository.
 Each `<slug>/` in it is its own git repository. If the pages or sitemaps are
@@ -77,13 +77,20 @@ command and emits one event, and the next slice reacts to that event:
 | 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted` |
 | 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                        |
 | 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                   |
-| 5   | `DownloadOfferPage`  | Downloads the product page                    | none                                   |
-| 6   | `ExtractOfferPage`   | Pulls the data islands out of the HTML        | `architecture`                         |
+| 5   | `DownloadOfferPage`  | Downloads and validates the source            | `offer_request_for`, `validate_offer_download` |
+| 6   | `ExtractOfferPage`   | Extracts the downloaded source                | `extract_for` (normally uses `architecture`) |
 | 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                            |
 | 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                        |
 
 The same hooks run offline in the development tools (section 5, step 10), on
 files in the data folder.
+
+The five Nordic Anker markets use country-context Storefront JSON rather than
+HTML. Their facade path validates and extracts that JSON directly; an HTML
+architecture is not used to obtain market prices. Raw exports still use `.html`
+filenames. For these markets, follow the source contract and fixtures in
+[`retailers_anker`](../lib/retailers_anker/README.md) and
+[ADR 47](adr/0047-nordic-retailer-markets.md), then run the same offline stages.
 
 ### How a call reaches the storefront
 
@@ -114,7 +121,7 @@ once its crate's registry has an arm for it.
 
 | Crate                     | What a storefront uses from it                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bodul_shared`            | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
+| `shared`            | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
 | `html_extractor`          | `Architecture`, `collection`, `particle`, `trash`, `Attr`; `Backend` in tests; its `serde_json`                                                                     |
 | `retailer_sauce`          | `shopify::shopify_from_location`, `structuralized::StructuralizedData`, `availability::Availability`, `item_condition::ItemCondition`, `identifier::{Gtin, Sku, …}` |
 | `money` (`lib/money`)     | `Money::from_raw(amount, currency)`, stored as minor units                                                                                                          |
@@ -182,7 +189,7 @@ middle one the prelude name the registry calls.
 | `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service     |
 | `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                     |
 | `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`             |
-| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<bodul_shared::NormalizedData, String>` |
+| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<shared::NormalizedData, String>` |
 | `offer_details::v1::structuralize(json: &str)`         | `offer_detail_structuralize_v1` | `Result<StructuralizedData, String>`           |
 
 The registry functions wrap each in `Option`, `None` meaning "not my
@@ -484,7 +491,7 @@ storefront names mapped to plain ones, metadata the system doesn't need dropped.
 ankerau, `offer_details/v1/mod.rs`:
 
 ```rust
-pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
     let raw: AnkerAuRawDocument = serde_json::from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = AnkerAuNormalizedDocument::from_raw(raw)
@@ -492,7 +499,7 @@ pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
 
     let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(bodul_shared::NormalizedData::just_document_json(
+    Ok(shared::NormalizedData::just_document_json(
         document_json,
     ))
 }
@@ -656,7 +663,7 @@ What success looks like:
   produce.
 - Update the root `README.md` only if crates were added or removed.
 
-**Check:** `make ci` in `lib/` (see section 7 for known failures).
+**Check:** `make ci` in `lib/` passes.
 
 ## 6. Conventions
 
@@ -679,13 +686,6 @@ What success looks like:
 
 Don't copy these:
 
-- Eight Anker sitemap tests fail today, so `make ci` in `lib/` fails until
-  they're fixed. Make sure your storefront's tests are not among them:
-  - `unmatched_source_falls_back_to_path` in `ankerau`, `ankerca`, `ankerde`,
-    `ankernz`, `ankerpl` and `ankervn`. Its comment says an unmatched source
-    skips the region guard, but the code checks the guard first.
-  - `ankereu::sitemap::v1::tests::classifies_normal_sitemap_urls`
-  - `ankerfr::sitemap::v1::tests::classifies_grouped_sitemap_examples`
 - `ankerau/offer_details/v1/structuralize.rs.bak` is a leftover older version.
   Ignore it.
 - Stub storefronts return `Some(todo!())` from the registry, so calling them
@@ -711,6 +711,5 @@ Don't copy these:
 - [ ] `make process-offer-details RETAILERS=<slug>` reports no failures.
 - [ ] Sitemap tools give a non-empty tree, more than 0 products, and every
       `unknown` URL is handled or explained.
-- [ ] `make fmt` leaves no changes and `make ci` in `lib/` passes apart from
-      the known Anker sitemap failures.
+- [ ] `make fmt` leaves no changes and `make ci` in `lib/` passes.
 - [ ] Crate README updated if needed.

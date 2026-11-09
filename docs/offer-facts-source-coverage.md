@@ -1,5 +1,12 @@
 # Offer facts source coverage
 
+Nordic country integrations (`ankerse`, `ankerno`, `ankerfi`, `ankeris`,
+`ankerdk`) now use market-context Storefront API responses for variant prices,
+comparison prices, availability, identifiers, images and descriptions.
+Condition remains unknown. Historical `ankernordicscom` HTML counts below
+have not been reassigned to the new countries; see
+[ADR 47](adr/0047-nordic-retailer-markets.md).
+
 The 44 completed retailer structuralizers emit `was_price`, `availability`,
 `item_condition`, and `content: {description}` for every variation. An absent
 source fact is explicit `null`; it does not mean unavailable or new. Anker KR

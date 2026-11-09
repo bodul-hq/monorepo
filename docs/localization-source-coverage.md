@@ -1,5 +1,10 @@
 # Source-backed localization coverage
 
+The Nordic HTML results below remain historical. The five new country codes
+use the Storefront API's returned localization; portable market-specific
+fixtures and isolation tests live in `lib/retailers_anker/src/nordic`.
+See [ADR 47](adr/0047-nordic-retailer-markets.md).
+
 Surveyed the saved corpus on 2026-10-26 through the shared extraction,
 normalization and structuralization facade. No corpus files were modified.
 All values come from `html[lang]`, or standalone top-level `Shopify.country`

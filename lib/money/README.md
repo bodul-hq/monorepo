@@ -7,6 +7,8 @@ Money handling.
   to the nearest minor unit.
 - `Currency`: the supported ISO 4217 currencies and their minor-unit exponents.
   INR uses two decimal places (paise), like the other currencies with hundredths.
+  Nordic markets use SEK, NOK and DKK with two decimal places, EUR for Finland,
+  and ISK with zero decimal places.
 
 `Money::parse` and `Money::from_major` are signatures only, and panic with
 `todo!()`.

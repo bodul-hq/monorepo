@@ -35,6 +35,9 @@ pub fn architecture_for(retailer_code: RetailerCode) -> Result<Architecture, std
 ///
 /// Returns an error when no architecture is registered or the page can't be parsed.
 pub fn extract_for(retailer_code: RetailerCode, html: &str) -> Result<String, String> {
+    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+        return market.extract(html);
+    }
     let architecture = architecture_for(retailer_code).map_err(|e| e.to_string())?;
     let extracted = Backend::Scraper
         .extract(html, &architecture)
@@ -50,6 +53,9 @@ pub fn normalize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<NormalizedData, String>> {
+    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+        return Some(market.normalize(json));
+    }
     let (json, evidence) = match localization::split(json) {
         Ok(value) => value,
         Err(error) => return Some(Err(error)),
@@ -72,6 +78,9 @@ pub fn structuralize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<StructuralizedData, String>> {
+    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+        return Some(market.structuralize(json));
+    }
     let (json, evidence) = match localization::split(json) {
         Ok(value) => value,
         Err(error) => return Some(Err(error)),
@@ -141,10 +150,125 @@ pub fn offer_download_url(retailer_code: RetailerCode, url: &str) -> &str {
     retailers_ugreen::prelude::offer_download_url(retailer_code, url)
 }
 
+/// A retailer's source request. A body means a JSON POST; otherwise use GET.
+/// Nordic markets use the public Storefront API while retaining the product URL
+/// as the discovery identity and storing the response verbatim for replay.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OfferRequest {
+    pub url: String,
+    pub json_body: Option<String>,
+}
+
+pub fn offer_request_for(retailer: RetailerCode, url: &str) -> Result<OfferRequest, String> {
+    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer) {
+        return Ok(OfferRequest {
+            url: retailers_anker::prelude::NORDIC_ENDPOINT.into(),
+            json_body: Some(market.request(url)?),
+        });
+    }
+    Ok(OfferRequest {
+        url: offer_download_url(retailer, url).into(),
+        json_body: None,
+    })
+}
+
+/// Reject partial, wrong-market and wrong-product responses before storage so
+/// download retries fetch new source data rather than repeatedly parsing errors.
+pub fn validate_offer_download(
+    retailer: RetailerCode,
+    url: &str,
+    body: &str,
+) -> Result<(), String> {
+    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer) {
+        market.validate_download(url, body)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use html_extractor::serde_json;
+
+    #[test]
+    fn nordic_country_hooks_and_source_requests_are_reachable() {
+        for (code, country, fixture) in [
+            (
+                RetailerCode::AnkerSe,
+                "SE",
+                include_str!("../../retailers_anker/src/nordic/fixtures/se.json"),
+            ),
+            (
+                RetailerCode::AnkerNo,
+                "NO",
+                include_str!("../../retailers_anker/src/nordic/fixtures/no.json"),
+            ),
+            (
+                RetailerCode::AnkerFi,
+                "FI",
+                include_str!("../../retailers_anker/src/nordic/fixtures/fi.json"),
+            ),
+            (
+                RetailerCode::AnkerIs,
+                "IS",
+                include_str!("../../retailers_anker/src/nordic/fixtures/is.json"),
+            ),
+            (
+                RetailerCode::AnkerDk,
+                "DK",
+                include_str!("../../retailers_anker/src/nordic/fixtures/dk.json"),
+            ),
+        ] {
+            let url = "https://www.ankernordics.com/products/t90r0121";
+            assert!(architecture_for(code).is_ok());
+            assert_eq!(
+                sitemap_config_for(&code).unwrap().sitemap_url,
+                ["https://www.ankernordics.com/sitemap.xml"]
+            );
+            assert_eq!(
+                sitemap_greylisted_for(code, "https://www.ankernordics.com/sitemap-0.xml"),
+                Some(true)
+            );
+            assert_eq!(sitemap_pause_for(code), Some(Duration::from_secs(1)));
+            assert_eq!(
+                classify_link_for(code, url, "main", 0),
+                Some(LinkKind::Product)
+            );
+            let request = offer_request_for(code, url).unwrap();
+            let request: serde_json::Value =
+                serde_json::from_str(request.json_body.as_deref().unwrap()).unwrap();
+            assert_eq!(request["variables"]["country"], country);
+            validate_offer_download(code, url, fixture).unwrap();
+            let extracted = extract_for(code, fixture).unwrap();
+            let normalized = normalize_for(code, &extracted)
+                .unwrap()
+                .unwrap()
+                .document_json
+                .unwrap();
+            let structuralized = structuralize_for(code, &normalized)
+                .unwrap()
+                .unwrap()
+                .document_json
+                .unwrap();
+            let value: serde_json::Value = serde_json::from_str(&structuralized).unwrap();
+            assert_eq!(
+                value["variations"][0]["localization"]["target_market"]["code"],
+                country
+            );
+            assert_eq!(RetailerCode::from_str(&code.as_str()).unwrap(), code);
+            assert_eq!(
+                serde_json::from_str::<RetailerCode>(&serde_json::to_string(&code).unwrap())
+                    .unwrap(),
+                code
+            );
+        }
+        assert_eq!(
+            RetailerCode::from_str("ankernordicscom").unwrap(),
+            RetailerCode::AnkerNordicsCom
+        );
+        assert!(!RetailerCode::ALL.contains(&RetailerCode::AnkerNordicsCom));
+        assert!(architecture_for(RetailerCode::AnkerNordicsCom).is_ok());
+    }
 
     #[test]
     fn extracts_a_page_with_the_retailers_architecture() {
