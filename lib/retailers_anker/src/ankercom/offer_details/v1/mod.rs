@@ -29,10 +29,10 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
     let document = serde_json::from_str(json).map_err(|e| e.to_string())?;
     if crate::shared::is_other_storefront(&document, "us") {
-        return Ok(bodul_shared::NormalizedData::just_document_json(None));
+        return Ok(shared::NormalizedData::just_document_json(None));
     }
     let raw: raw::AnkerComRawDocument =
         serde_json::from_value(document).map_err(|e| e.to_string())?;
@@ -42,9 +42,7 @@ pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
 
     let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(bodul_shared::NormalizedData::just_document_json(
-        document_json,
-    ))
+    Ok(shared::NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {

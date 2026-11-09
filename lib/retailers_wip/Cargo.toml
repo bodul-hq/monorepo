@@ -5,7 +5,7 @@ edition = "2024"
 publish = ["null-labs-hq"]
 
 [dependencies]
-bodul_shared.workspace = true
 html-extractor.workspace = true
 retailer_sauce.workspace = true
 serde.workspace = true
+shared.workspace = true

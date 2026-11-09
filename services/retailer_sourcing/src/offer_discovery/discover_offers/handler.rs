@@ -57,7 +57,7 @@ impl<S: Store> Handle for Handler<S> {
 
 #[cfg(test)]
 mod tests {
-    use bodul_shared::retailer::RetailerCode;
+    use shared::retailer::RetailerCode;
 
     use super::*;
 

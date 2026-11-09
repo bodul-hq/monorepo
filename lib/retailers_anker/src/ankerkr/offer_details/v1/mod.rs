@@ -13,8 +13,8 @@ pub fn architecture() -> Architecture {
 }
 
 /// A valid empty extraction succeeds without producing a normalized document.
-pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
     serde_json::from_str::<raw::AnkerKrRawDocument>(json)
-        .map(|_| bodul_shared::NormalizedData::just_document_json(None))
+        .map(|_| shared::NormalizedData::just_document_json(None))
         .map_err(|error| error.to_string())
 }

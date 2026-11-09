@@ -69,7 +69,7 @@ pub(crate) mod tests {
         let entity = RetailerOfferIdentifiers {
             identifiers: Default::default(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             url: "https://example.com/Charger?color=red#details".to_owned(),
         };
         repository.insert(&entity).unwrap();

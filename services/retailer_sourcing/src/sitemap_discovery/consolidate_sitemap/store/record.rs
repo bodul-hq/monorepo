@@ -2,10 +2,10 @@
 
 use crate::platform::db::Json;
 use crate::platform::object_storage::ObjectStorageMetadata;
-use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use super::super::super::schema::{sitemaps_consolidated, sitemaps_processed};
@@ -44,8 +44,8 @@ pub(super) struct References {
 
 // Preserve the existing lowercase database representation of retailer codes.
 mod retailer_code {
-    use bodul_shared::retailer::RetailerCode;
     use serde::{Deserialize, Deserializer, Serializer};
+    use shared::retailer::RetailerCode;
 
     pub fn serialize<S: Serializer>(code: &RetailerCode, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&code.as_str())

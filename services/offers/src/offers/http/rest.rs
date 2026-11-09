@@ -44,9 +44,9 @@ mod model {
 }
 
 mod conversion {
-    use bodul_shared::retailer::RetailerCode;
     use money::Currency;
     use serde_json::json;
+    use shared::retailer::RetailerCode;
 
     use super::{IMPORT_SOURCE, ImportOfferRequest, inbox};
     use crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND;
@@ -204,11 +204,11 @@ fn err_invalid_import_request(message: String) -> Error {
 
 #[cfg(test)]
 mod tests {
-    use bodul_shared::retailer::RetailerCode;
     use money::{Currency, Money};
     use poem_openapi::types::ParseFromJSON;
     use retailer_sauce::observation::Observation;
     use serde_json::json;
+    use shared::retailer::RetailerCode;
 
     use super::*;
     use crate::offers::command::{CREATE_FROM_OFFER_DETAILS_COMMAND, ImportOfferDetailsCommand};

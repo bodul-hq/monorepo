@@ -1,7 +1,7 @@
-use bodul_shared::retailer::RetailerCode;
 use money::Money;
 use retailer_sauce::observation::Observation;
 use serde::{Deserialize, Serialize};
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use crate::platform::object_storage::{ObjectStorageMetadata, OfferStorageMetadata};

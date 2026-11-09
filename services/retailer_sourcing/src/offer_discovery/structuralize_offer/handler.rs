@@ -1,6 +1,6 @@
 use crate::platform::object_storage::OfferStorageMetadata;
-use bodul_shared::retailer::RetailerCode;
 use serde_json::Value;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use super::command::StructuralizeOffer;

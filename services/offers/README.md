@@ -387,7 +387,7 @@ code, URL, title, price amount and currency; old price and discount are set to
 null. Identical snapshots create no history event. Prices are nonnegative
 `i64` minor units in the supplied currency. Supported currencies are defined by
 `money::Currency`: USD, EUR, CAD, AUD, GBP, JPY, KRW, HKD, PLN, SEK, VND, NZD, INR.
-Retailer codes use `bodul_shared::retailer::RetailerCode` slugs, such as
+Retailer codes use `shared::retailer::RetailerCode` slugs, such as
 `ankerau`; unsupported codes are rejected. Titles must contain non-whitespace
 text.
 

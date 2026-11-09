@@ -18,12 +18,12 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
 
-use bodul_shared::retailer::RetailerCode;
 use diesel::prelude::*;
 use diesel::sql_types::{Jsonb, Nullable, Text, Uuid as SqlUuid};
 use percent_encoding::percent_decode_str;
 use reqwest::Url;
 use serde_json::Value;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 /// Each retailer's most recently processed crawl, with its consolidated content if it has one.

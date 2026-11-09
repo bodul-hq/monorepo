@@ -134,7 +134,7 @@ pub(crate) mod tests {
                 "https://shop.example/B".into(),
             ],
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             url: "https://example.com/Charger?color=red#details".to_owned(),
             title: "Charger".to_owned(),
             price: money::Money::new(1999, money::Currency::AUD),

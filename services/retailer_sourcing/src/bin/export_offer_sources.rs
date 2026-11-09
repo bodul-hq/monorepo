@@ -13,12 +13,12 @@ use std::panic;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
 
-use bodul_shared::link::LinkKind;
-use bodul_shared::retailer::RetailerCode;
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Jsonb, Text, Uuid as SqlUuid};
 use percent_encoding::percent_decode_str;
 use reqwest::Url;
+use shared::link::LinkKind;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 /// Pages read per query, to keep only a few bodies in memory at once.

@@ -29,7 +29,7 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
     let raw: raw::AnkerVnRawDocument = serde_json::from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = AnkerVnNormalizedDocument::from_raw(raw)
@@ -37,9 +37,7 @@ pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
 
     let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(bodul_shared::NormalizedData::just_document_json(
-        document_json,
-    ))
+    Ok(shared::NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {

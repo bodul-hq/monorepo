@@ -97,7 +97,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
     assert_eq!(event.price, money::Money::new(1999, money::Currency::AUD));
     assert_eq!(
         event.retailer_code,
-        bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap()
+        shared::retailer::RetailerCode::from_str("ankerau").unwrap()
     );
 
     // Inbox storage failures hide database diagnostics.
@@ -240,8 +240,8 @@ async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
 fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
     use crate::infra::repository::PostgresRetailerOfferIdentifiersRepository;
     use crate::offers::handler::RetailerOfferIdentifiersRepository;
-    use bodul_shared::retailer::RetailerCode;
     use diesel::{QueryableByName, RunQueryDsl, sql_types::Text};
+    use shared::retailer::RetailerCode;
 
     #[derive(QueryableByName)]
     struct Identity {
@@ -787,7 +787,7 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
         localization: None,
         scraped_at: None,
         images: Vec::new(),
-        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: shared::retailer::RetailerCode::AnkerAu,
         title: "USB charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
         url: "https://example.com/Charger?q=red#details".into(),
@@ -875,7 +875,7 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
             localization: None,
             scraped_at: None,
             images: Vec::new(),
-            retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: shared::retailer::RetailerCode::AnkerAu,
             title: "Charger".into(),
             price: money::Money::new(1999, money::Currency::AUD),
             url: format!("https://example.com/charger/{number}"),
@@ -1178,7 +1178,7 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
         localization: None,
         scraped_at: None,
         images: Vec::new(),
-        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
         price: money::Money::new(1999, money::Currency::AUD),
         url: "https://example.com/charger".into(),
@@ -1307,7 +1307,7 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::now_v7().to_string()),
-            retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: shared::retailer::RetailerCode::AnkerAu,
             title: "Charger".into(),
             price: money::Money::new(1999, money::Currency::AUD),
             url: "https://shop.example/charger".into(),
@@ -1454,7 +1454,7 @@ fn creation_projection_rolls_back_parent_and_images_together() {
         localization: Default::default(),
         scraped_at: None,
         id: RetailerOfferId::new(Uuid::now_v7().to_string()),
-        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: shared::retailer::RetailerCode::AnkerAu,
         title: "Charger".into(),
         url: "https://shop.example/atomic".into(),
         price: money::Money::new(1999, money::Currency::AUD),

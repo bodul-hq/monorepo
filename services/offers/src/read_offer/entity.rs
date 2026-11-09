@@ -1,6 +1,6 @@
-use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
 use money::Money;
+use shared::retailer::RetailerCode;
 
 use crate::offers::retailer_offer_id::RetailerOfferId;
 

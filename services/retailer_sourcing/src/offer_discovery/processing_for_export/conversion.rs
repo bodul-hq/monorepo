@@ -226,8 +226,8 @@ impl Variation {
 pub(super) mod tests {
     use super::*;
     use crate::platform::object_storage::OfferStorageMetadata;
-    use bodul_shared::retailer::RetailerCode;
     use serde_json::{Value, json};
+    use shared::retailer::RetailerCode;
 
     pub(crate) const ANKER: &str =
         include_str!("../../../tests/fixtures/offer_export/ankerau.json");

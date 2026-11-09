@@ -3,8 +3,8 @@
 
 use std::path::Path;
 
-use bodul_shared::prelude::RetailerCode;
 use retailer_data_extractor::normalize_for;
+use shared::prelude::RetailerCode;
 
 #[test]
 fn reported_storefronts_normalize_the_saved_extractions() {

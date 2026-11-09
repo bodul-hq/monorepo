@@ -2,10 +2,10 @@
 
 use std::time::Duration;
 
-use bodul_shared::SitemapConfig;
-use bodul_shared::link::LinkKind;
-use bodul_shared::prelude::{NormalizedData, RetailerCode};
 use html_extractor::io::Architecture;
+use shared::SitemapConfig;
+use shared::link::LinkKind;
+use shared::prelude::{NormalizedData, RetailerCode};
 
 pub fn architecture_for(_retailer: RetailerCode) -> Option<Architecture> {
     None

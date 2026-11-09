@@ -9,8 +9,8 @@
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
 
-use bodul_shared::link::LinkKind;
-use bodul_shared::retailer::RetailerCode;
+use shared::link::LinkKind;
+use shared::retailer::RetailerCode;
 use sitemap::{GroupedLinks, SitemapDocument, SitemapUrl};
 
 fn main() {

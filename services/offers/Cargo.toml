@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 async-graphql.workspace = true
 async-graphql-poem.workspace = true
-bodul_shared.workspace = true
 chrono.workspace = true
 commanding = { workspace = true, features = ["poem"] }
 diesel.workspace = true

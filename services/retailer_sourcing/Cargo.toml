@@ -8,7 +8,6 @@ default-run = "retailer_sourcing"
 async-graphql.workspace = true
 async-graphql-axum = "7.2.1"
 axum.workspace = true
-bodul_shared.workspace = true
 chrono.workspace = true
 commanding = { workspace = true, features = ["axum-openapi"] }
 diesel.workspace = true

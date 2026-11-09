@@ -291,7 +291,7 @@ mod tests {
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: bodul_shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),
             price: money::Money::new(1999, money::Currency::AUD),
             url: "https://example.com/Charger?q=red#details".to_owned(),

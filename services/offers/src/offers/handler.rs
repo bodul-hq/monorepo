@@ -3,8 +3,8 @@ use crate::offers::command::ImportOfferDetailsCommand;
 use crate::offers::event::{RetailerOfferEvent, SequencedOfferEvent};
 use crate::offers::retailer_offer_id::RetailerOfferId;
 use crate::read_offers_identifiers::entity::RetailerOfferIdentifiers;
-use bodul_shared::prelude::RetailerCode;
 use money::Money;
+use shared::prelude::RetailerCode;
 use testimony::prelude::{
     EventPublisher, EventSourcedRepository, EventStore, NoOpEventPublisher, RepositoryError,
 };
@@ -188,13 +188,13 @@ pub trait RetailerOfferIdentifiersRepository {
     fn insert(
         &self,
         id: &RetailerOfferId,
-        retailer_code: bodul_shared::retailer::RetailerCode,
+        retailer_code: shared::retailer::RetailerCode,
         url: &str,
     ) -> Result<(), RetailerOfferIdentifiersError>;
 
     fn find(
         &self,
-        retailer_code: bodul_shared::retailer::RetailerCode,
+        retailer_code: shared::retailer::RetailerCode,
         url: &str,
     ) -> Result<Option<RetailerOfferIdentifiers>, RetailerOfferIdentifiersError>;
 }

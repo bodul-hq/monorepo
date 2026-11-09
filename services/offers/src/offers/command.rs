@@ -1,8 +1,8 @@
-use bodul_shared::retailer::RetailerCode;
 use kernel::ApplicationCommand;
 use money::Money;
 use retailer_sauce::observation::Observation;
 use serde::{Deserialize, Serialize};
+use shared::retailer::RetailerCode;
 
 pub enum ProductOfferCommand {
     ImportOfferDetails(ImportOfferDetailsCommand),

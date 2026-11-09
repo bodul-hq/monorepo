@@ -1,6 +1,6 @@
 use crate::platform::object_storage::Stored;
-use bodul_shared::link::LinkKind;
-use bodul_shared::retailer::RetailerCode;
+use shared::link::LinkKind;
+use shared::retailer::RetailerCode;
 use sitemap::{GroupedLinks, SitemapUrl};
 use uuid::Uuid;
 

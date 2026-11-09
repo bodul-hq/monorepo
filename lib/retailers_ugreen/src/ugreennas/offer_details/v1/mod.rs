@@ -58,11 +58,11 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
     let raw = serde_json::from_str(json).map_err(|e| e.to_string())?;
     let document =
         normalized::UgreenNasNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
-    Ok(bodul_shared::NormalizedData::just_document_json(
+    Ok(shared::NormalizedData::just_document_json(
         serde_json::to_string(&document).map_err(|e| e.to_string())?,
     ))
 }

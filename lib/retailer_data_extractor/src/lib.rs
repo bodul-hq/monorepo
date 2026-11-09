@@ -3,13 +3,13 @@ mod pretty;
 
 use std::time::Duration;
 
-use bodul_shared::link::LinkKind;
-/// Retailer identifier accepted by [`architecture_for`].
-use bodul_shared::prelude::RetailerCode;
-use bodul_shared::{NormalizedData, SitemapConfig};
 use html_extractor::Backend;
 use html_extractor::io::Architecture;
 use retailer_sauce::structuralized::StructuralizedData;
+use shared::link::LinkKind;
+/// Retailer identifier accepted by [`architecture_for`].
+use shared::prelude::RetailerCode;
+use shared::{NormalizedData, SitemapConfig};
 
 pub use pretty::pretty_json;
 

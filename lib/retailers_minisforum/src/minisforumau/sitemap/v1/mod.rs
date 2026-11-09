@@ -1,8 +1,8 @@
 //! Version 1 of the sitemap.
 
-use bodul_shared::SitemapConfig;
-use bodul_shared::link::LinkKind;
 use retailer_sauce::shopify::shopify_from_location;
+use shared::SitemapConfig;
+use shared::link::LinkKind;
 use std::time::Duration;
 
 const BASE: &str = "https://au.minisforum.com/";

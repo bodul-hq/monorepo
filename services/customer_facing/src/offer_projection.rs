@@ -4,7 +4,6 @@
 use crate::identifier::Identifier;
 use std::sync::Arc;
 
-use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
 use commanding::prelude::{CommandError, ErasedCommandHandler, NewCommandEnvelope};
 use diesel::{
@@ -24,6 +23,7 @@ use retailer_sauce::{
     structuralized::content::Content,
 };
 use serde::Deserialize;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 mod content;
