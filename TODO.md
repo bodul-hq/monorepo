@@ -1,6 +1,10 @@
 
 GOAL:
 
+- [x] Import `bodul_shared` 0.1.1 into `lib/shared` ([plan](docs/localize-shared-plan.md)).
+- [>] Migrate all monorepo consumers to local `shared` and validate.
+- [>] Write the implementation report and improvement review.
+
 
 
 Status follows the [TODO workflow](AGENTS.md#todo-workflow):

@@ -19,7 +19,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 
 | Crate                     | Purpose                                                                 |
 | ------------------------- | ----------------------------------------------------------------------- |
-| `shared`                  | Shared liveness response and exact image URL validation                 |
+| `shared`                  | Shared retailer/extraction types, liveness, and image URL validation                 |
 | `object_storage_client`   | Async object storage client using REST or GraphQL                       |
 | `inbox_client`            | Blocking HTTP client for a durable inbox, used by HTTP outbox delivery  |
 | `money`                   | Money handling                                                          |
