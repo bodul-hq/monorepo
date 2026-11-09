@@ -15,7 +15,7 @@ pub fn on(event: &OfferPageWasDownloaded) -> Option<ExtractOfferPage> {
 
 #[cfg(test)]
 mod tests {
-    use bodul_shared::retailer::RetailerCode;
+    use shared::retailer::RetailerCode;
     use uuid::Uuid;
 
     use super::*;

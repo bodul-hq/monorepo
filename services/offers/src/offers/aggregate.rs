@@ -1,8 +1,8 @@
 use super::command::OfferObservation;
-use bodul_shared::prelude::RetailerCode;
 use chrono::Utc;
 use money::Money;
 use retailer_sauce::offer_content;
+use shared::prelude::RetailerCode;
 use testimony::prelude::{Aggregate, EventEnvelope};
 
 use super::retailer_offer_id::RetailerOfferId;
@@ -578,8 +578,8 @@ mod tests {
     use crate::offers::command::ImportOfferDetailsCommand;
     use crate::offers::event::{OfferPriceChangedEvent, OfferTitleChangedEvent};
     use crate::offers::retailer_offer_id::RetailerOfferId;
-    use bodul_shared::retailer::RetailerCode;
     use money::{Currency, Money};
+    use shared::retailer::RetailerCode;
 
     pub(super) fn aggregate() -> RetailerOfferAggregate {
         RetailerOfferAggregate::create(

@@ -20,7 +20,6 @@ members = [
 ]
 
 [workspace.dependencies]
-bodul_shared = { version = "0.1.1", registry = "null-labs-hq" }
 chrono = { version = "0.4.45", default-features = false, features = ["std", "serde"] }
 everyday = { path = "everyday" }
 html-extractor = { version = "0.3.3-dev.2", registry = "null-labs-hq" }
@@ -28,5 +27,6 @@ money = { path = "money" }
 retailer_sauce = { path = "retailer_sauce" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
+shared = { path = "shared" }
 thiserror = "2.0.20"
 url = "2.5.8"

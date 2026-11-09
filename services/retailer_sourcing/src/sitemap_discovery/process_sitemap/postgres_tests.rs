@@ -6,11 +6,11 @@ use crate::platform::object_storage::{
     ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET,
 };
 use crate::platform::test_db::{Database, json_query};
-use bodul_shared::retailer::RetailerCode;
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
 use serde_json::json;
+use shared::retailer::RetailerCode;
 use sitemap::SitemapDocument;
 use uuid::Uuid;
 

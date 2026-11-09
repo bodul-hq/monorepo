@@ -1,6 +1,6 @@
 //! Domain values used by sitemap processing.
-use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
+use shared::retailer::RetailerCode;
 use sitemap::{ROOT_SITEMAP_SOURCE, SitemapDocument};
 use uuid::Uuid;
 

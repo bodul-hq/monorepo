@@ -112,7 +112,7 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
 
 #[cfg(test)]
 mod tests {
-    use bodul_shared::retailer::RetailerCode;
+    use shared::retailer::RetailerCode;
     use std::sync::Mutex;
     use uuid::Uuid;
 

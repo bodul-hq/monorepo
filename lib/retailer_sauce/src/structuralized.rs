@@ -14,7 +14,7 @@ use serde::Serialize;
 
 /// What one call to a retailer's structuralizer hands back.
 ///
-/// A deliberate mirror of `bodul_shared::NormalizedData`, and `None` means the same thing it does
+/// A deliberate mirror of `shared::NormalizedData`, and `None` means the same thing it does
 /// there: this retailer is claimed by a family, but has no structuralized document yet, so the
 /// stage writes no file and does not fail. Its two offer lists are not mirrored - no stage reads
 /// them.

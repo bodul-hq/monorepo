@@ -11,8 +11,8 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process, thread};
 
-use bodul_shared::retailer::RetailerCode;
 use retailer_data_extractor::pretty_json;
+use shared::retailer::RetailerCode;
 
 /// Error messages are cut to this many characters before they are grouped.
 const ERROR_KEY_LEN: usize = 120;

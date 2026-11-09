@@ -6,9 +6,9 @@
 //! retailer is a folder name such as `ankerau`. With none given, every retailer
 //! folder with extracted pages is processed.
 
-use bodul_shared::retailer::RetailerCode;
 use development::offer_details::{self, Stage};
 use retailer_data_extractor::normalize_for;
+use shared::retailer::RetailerCode;
 
 fn main() {
     offer_details::main(&Stage {

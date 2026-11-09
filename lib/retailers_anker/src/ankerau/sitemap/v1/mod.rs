@@ -1,8 +1,8 @@
 //! Version 1 of the sitemap.
 
 use crate::anker_from_location;
-use bodul_shared::SitemapConfig;
-use bodul_shared::link::LinkKind;
+use shared::SitemapConfig;
+use shared::link::LinkKind;
 use std::time::Duration;
 
 // NOTE: URLs synthesized from anker_de shapes; the ankerau grouped-sitemap data is empty.

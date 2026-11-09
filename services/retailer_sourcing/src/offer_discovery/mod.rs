@@ -30,7 +30,7 @@ mod structuralize_offer;
 use std::any::Any;
 use std::panic::{self, AssertUnwindSafe};
 
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 
 /// The retailer registry: how each retailer's offer data is extracted,
 /// normalized and structuralized.

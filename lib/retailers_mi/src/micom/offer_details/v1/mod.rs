@@ -6,6 +6,6 @@ pub fn architecture() -> Architecture {
     todo!()
 }
 
-pub fn normalize(_json: &str) -> Result<bodul_shared::NormalizedData, String> {
+pub fn normalize(_json: &str) -> Result<shared::NormalizedData, String> {
     todo!()
 }

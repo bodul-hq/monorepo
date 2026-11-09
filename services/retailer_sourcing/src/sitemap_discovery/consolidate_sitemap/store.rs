@@ -1,8 +1,8 @@
 mod record;
 
-use bodul_shared::retailer::RetailerCodeConversionError;
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
+use shared::retailer::RetailerCodeConversionError;
 use uuid::Uuid;
 
 use self::record::{ConsolidatedSitemapPgRecord, ProcessedSitemapPgRecord};

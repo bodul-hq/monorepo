@@ -17,9 +17,9 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process, thread};
 
-use bodul_shared::prelude::RetailerCode;
 use html_extractor::serde_json::{self, Value};
 use retailer_data_extractor::{extract_for, normalize_for, pretty_json, structuralize_for};
+use shared::prelude::RetailerCode;
 
 const STAGES: [&str; 3] = ["extracted", "normalized", "structurized"];
 

@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 
 use super::super::Retailers;
 use super::command::RetrieveSitemap;

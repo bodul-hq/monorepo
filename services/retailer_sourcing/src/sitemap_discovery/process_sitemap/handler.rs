@@ -1,5 +1,5 @@
 use crate::platform::object_storage::Stored;
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 use sitemap::{BuildError, build_tree};

@@ -1,5 +1,4 @@
 use crate::read_offers_identifiers::entity::RetailerOfferIdentifiers;
-use bodul_shared::retailer::RetailerCode;
 use diesel::{
     OptionalExtension, RunQueryDsl,
     sql_types::{Nullable, Text, Uuid as SqlUuid},
@@ -8,6 +7,7 @@ use retailer_sauce::identifier::{
     ExternalIdentifiers, Gtin, ProductIdentifiers, ShopifyHandle, ShopifyProductGid,
     ShopifyProductVariationGid, Sku,
 };
+use shared::retailer::RetailerCode;
 use testimony_infra::prelude::DbPool;
 use uuid::Uuid;
 

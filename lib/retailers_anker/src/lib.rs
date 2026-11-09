@@ -13,7 +13,7 @@ mod ankerpl;
 mod ankeruk;
 mod ankervn;
 
-use bodul_shared::link::LinkKind;
+use shared::link::LinkKind;
 
 /// Classifies Anker storefront URL paths. Most Anker stores use Shopify-style
 /// plural paths; Korea also uses singular `/product/` paths.

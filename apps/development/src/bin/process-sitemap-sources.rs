@@ -15,7 +15,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
 
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 use sitemap::{RawSitemapDocument, SitemapDocument, build_tree_with, file_name};
 
 fn main() {

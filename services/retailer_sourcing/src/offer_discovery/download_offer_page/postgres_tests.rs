@@ -4,8 +4,8 @@ use super::store::PgStore;
 use crate::platform::object_storage::{ObjectStorage, OfferStorageMetadata, RAW_OFFERS_BUCKET};
 use crate::platform::test_db::{Database, json_query};
 use crate::platform::test_objects::Server;
-use bodul_shared::retailer::RetailerCode;
 use diesel::connection::SimpleConnection;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 const ROW: &str = "SELECT to_jsonb(o) AS value FROM offer_details_raw o";

@@ -1,5 +1,5 @@
 //! Retired product URLs verified against the regional storefronts on 2026-10-26.
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 
 /// Resolve known retired handles for downloading, including commands already queued.
 /// All other URLs retain normal HTTP error/retry handling.

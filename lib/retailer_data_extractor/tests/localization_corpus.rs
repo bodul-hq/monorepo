@@ -1,6 +1,6 @@
 //! Read-only survey; never writes the user's retailer corpus.
-use bodul_shared::prelude::RetailerCode;
 use retailer_data_extractor::{extract_for, normalize_for, structuralize_for};
+use shared::prelude::RetailerCode;
 use std::{collections::BTreeMap, path::PathBuf};
 
 #[test]

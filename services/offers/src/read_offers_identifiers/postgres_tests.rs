@@ -193,7 +193,7 @@ fn identity_repositories_preserve_exact_values_replace_nulls_and_keep_url_matchi
     let entity = RetailerOfferIdentifiers {
         identifiers: identifiers.clone(),
         id: RetailerOfferId::new(Uuid::new_v4().to_string()),
-        retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: shared::retailer::RetailerCode::AnkerAu,
         url: "https://example.com/Charger?q=Red#details".into(),
     };
     writer.insert(&entity).unwrap();

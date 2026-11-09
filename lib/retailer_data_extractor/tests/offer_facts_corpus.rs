@@ -1,10 +1,10 @@
 //! Read-only coverage of the canonical offer facts on saved storefront pages.
-use bodul_shared::prelude::RetailerCode;
 use retailer_data_extractor::{extract_for, normalize_for, structuralize_for};
 use retailer_sauce::{
     availability::Availability, item_condition::ItemCondition, structuralized::content::Content,
 };
 use serde_json::Value;
+use shared::prelude::RetailerCode;
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicUsize, Ordering},

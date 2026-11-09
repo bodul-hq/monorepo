@@ -1,5 +1,5 @@
 //! A downloaded offer page, independent of its database row.
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]

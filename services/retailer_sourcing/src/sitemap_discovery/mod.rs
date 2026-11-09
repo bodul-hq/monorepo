@@ -20,9 +20,9 @@ mod consolidate_sitemap;
 mod process_sitemap;
 mod retrieve_sitemap;
 
-use bodul_shared::SitemapConfig;
-use bodul_shared::link::LinkKind;
-use bodul_shared::retailer::RetailerCode;
+use shared::SitemapConfig;
+use shared::link::LinkKind;
+use shared::retailer::RetailerCode;
 
 /// The retailer registry: each retailer's root sitemaps and link rules.
 #[derive(Debug, Clone, Copy, Default)]

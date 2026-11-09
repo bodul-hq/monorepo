@@ -1,7 +1,7 @@
-use bodul_shared::retailer::RetailerCode;
 use chrono::{DateTime, Utc};
 use kernel::ApplicationEvent;
 use money::Money;
+use shared::retailer::RetailerCode;
 use testimony::prelude::HasAggregateId;
 
 use super::retailer_offer_id::RetailerOfferId;

@@ -67,7 +67,7 @@ mod tests {
         let entity = RetailerOfferIdentifiers {
             identifiers: initial.clone(),
             id: id.clone(),
-            retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: shared::retailer::RetailerCode::AnkerAu,
             url: "https://example.com/Exact?Variant=001".into(),
         };
         repository.insert(&entity).unwrap();

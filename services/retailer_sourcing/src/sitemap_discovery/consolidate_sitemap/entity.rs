@@ -1,6 +1,6 @@
 //! Domain values used by consolidation, independent of PostgreSQL storage.
 
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 use sitemap::{GroupedLinks, SitemapDocument};
 use uuid::Uuid;
 

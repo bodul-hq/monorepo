@@ -1,4 +1,4 @@
-use bodul_shared::retailer::RetailerCode;
+use shared::retailer::RetailerCode;
 
 use crate::offers::retailer_offer_id::RetailerOfferId;
 

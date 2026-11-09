@@ -1,7 +1,7 @@
 //! Sorts a sitemap tree's URLs by kind of page.
 
-use bodul_shared::link::LinkKind;
 use serde::{Deserialize, Serialize};
+use shared::link::LinkKind;
 
 use crate::{ROOT_SITEMAP_SOURCE, SitemapDocument, SitemapUrl};
 

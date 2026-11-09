@@ -4,8 +4,8 @@ use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use bodul_shared::retailer::RetailerCode;
 use serde::{Deserialize, Serialize};
+use shared::retailer::RetailerCode;
 use utoipa::ToSchema;
 use uuid::Uuid;
 

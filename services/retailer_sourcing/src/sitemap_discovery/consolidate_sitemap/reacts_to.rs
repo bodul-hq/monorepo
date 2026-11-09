@@ -10,7 +10,7 @@ pub fn on(event: &SitemapProcessed) -> Option<ConsolidateSitemap> {
 
 #[cfg(test)]
 mod tests {
-    use bodul_shared::retailer::RetailerCode;
+    use shared::retailer::RetailerCode;
     use uuid::Uuid;
 
     use super::*;

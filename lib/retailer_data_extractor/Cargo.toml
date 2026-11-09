@@ -5,7 +5,6 @@ edition = "2024"
 publish = ["null-labs-hq"]
 
 [dependencies]
-bodul_shared.workspace = true
 html-extractor.workspace = true
 retailer_sauce.workspace = true
 retailers_anker = { path = "../retailers_anker" }
@@ -17,6 +16,7 @@ retailers_wip = { path = "../retailers_wip" }
 scraper = { version = "0.27.0", default-features = false }
 serde.workspace = true
 serde_json.workspace = true
+shared.workspace = true
 
 [dev-dependencies]
 # Match the JSON feature enabled by object-storage clients in apps and services.

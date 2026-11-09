@@ -3,9 +3,9 @@
 
 use std::path::Path;
 
-use bodul_shared::prelude::RetailerCode;
 use html_extractor::serde_json::{self, Value};
 use retailer_data_extractor::structuralize_for;
+use shared::prelude::RetailerCode;
 
 #[test]
 fn reported_storefronts_structuralize_every_saved_normalized_document() {

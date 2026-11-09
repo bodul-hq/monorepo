@@ -126,18 +126,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
-name = "bodul_shared"
-version = "0.1.1"
-source = "sparse+https://null-labs-hq.github.io/crates/"
-checksum = "10192019c3cee94b7cd4c8cc57e79c4cec86f1f11a506e163e9990faa5988544"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1795,7 +1783,6 @@ dependencies = [
 name = "retailer_data_extractor"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "html-extractor",
  "retailer_sauce",
  "retailers_anker",
@@ -1806,18 +1793,19 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
+ "shared",
 ]
 
 [[package]]
 name = "retailer_sauce"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "everyday",
  "html-extractor",
  "icu_locale_core",
  "serde",
  "serde_json",
+ "shared",
  "thiserror",
 ]
 
@@ -1825,13 +1813,13 @@ dependencies = [
 name = "retailers_anker"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "chrono",
  "html-extractor",
  "money",
  "retailer_sauce",
  "serde",
  "serde_json",
+ "shared",
  "thiserror",
 ]
 
@@ -1839,22 +1827,22 @@ dependencies = [
 name = "retailers_mi"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "html-extractor",
  "retailer_sauce",
  "serde",
+ "shared",
 ]
 
 [[package]]
 name = "retailers_minisforum"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "html-extractor",
  "money",
  "retailer_sauce",
  "serde",
  "serde_json",
+ "shared",
  "thiserror",
 ]
 
@@ -1862,12 +1850,12 @@ dependencies = [
 name = "retailers_ugreen"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "html-extractor",
  "money",
  "retailer_sauce",
  "serde",
  "serde_json",
+ "shared",
  "thiserror",
 ]
 
@@ -1875,10 +1863,10 @@ dependencies = [
 name = "retailers_wip"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "html-extractor",
  "retailer_sauce",
  "serde",
+ "shared",
 ]
 
 [[package]]
@@ -2247,12 +2235,12 @@ checksum = "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256"
 name = "sitemap"
 version = "0.1.0"
 dependencies = [
- "bodul_shared",
  "chrono",
  "percent-encoding",
  "quick-xml",
  "serde",
  "serde_json",
+ "shared",
  "strum",
  "thiserror",
  "url",

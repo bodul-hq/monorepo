@@ -161,7 +161,7 @@ mod tests {
                 localization: None,
                 scraped_at: None,
                 images: None,
-                retailer_code: bodul_shared::retailer::RetailerCode::AnkerAu,
+                retailer_code: shared::retailer::RetailerCode::AnkerAu,
                 title: "USB charger".into(),
                 price: serde_json::from_value::<Money>(
                     json!({"amount": amount, "currency": "AUD"}),

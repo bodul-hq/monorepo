@@ -75,7 +75,7 @@ fn stored_count(count: usize) -> Result<i32, StoreError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bodul_shared::retailer::RetailerCode;
+    use shared::retailer::RetailerCode;
     use sitemap::SitemapDocument;
 
     #[test]
