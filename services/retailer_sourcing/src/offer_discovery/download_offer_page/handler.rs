@@ -21,11 +21,21 @@ pub trait Store: Send + Sync + 'static {
 /// Fetches the body of one offer page.
 pub trait FetchOfferPage: Send + Sync + 'static {
     fn fetch(&self, url: &str) -> Result<String, FetchError>;
+
+    fn post_json(&self, _url: &str, _body: &str) -> Result<String, FetchError> {
+        Err(FetchError {
+            message: "this fetcher does not support JSON POST requests".into(),
+        })
+    }
 }
 
 impl FetchOfferPage for http::OfferClient {
     fn fetch(&self, url: &str) -> Result<String, FetchError> {
         self.get(url)
+    }
+
+    fn post_json(&self, url: &str, body: &str) -> Result<String, FetchError> {
+        http::OfferClient::post_json(self, url, body)
     }
 }
 
@@ -68,18 +78,32 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
         command: DownloadOfferPage,
         sleep: impl FnOnce(Duration),
     ) -> Result<Vec<OfferPageWasDownloaded>, DownloadOfferPageError> {
-        let download_url =
-            retailer_data_extractor::offer_download_url(command.retailer_code, &command.url);
+        let request =
+            retailer_data_extractor::offer_request_for(command.retailer_code, &command.url)
+                .map_err(|message| DownloadOfferPageError::Fetch {
+                    url: command.url.clone(),
+                    error: FetchError { message },
+                })?;
         // Pacing is per handler invocation; concurrent workers may still fetch together.
         sleep(DOWNLOAD_OFFER_PAGE_DELAY);
         // A failed download fails the command, so it is retried later.
-        let body =
-            self.fetcher
-                .fetch(download_url)
-                .map_err(|error| DownloadOfferPageError::Fetch {
-                    url: download_url.to_owned(),
-                    error,
-                })?;
+        let fetched = match request.json_body.as_deref() {
+            Some(body) => self.fetcher.post_json(&request.url, body),
+            None => self.fetcher.fetch(&request.url),
+        };
+        let body = fetched.map_err(|error| DownloadOfferPageError::Fetch {
+            url: request.url,
+            error,
+        })?;
+        retailer_data_extractor::validate_offer_download(
+            command.retailer_code,
+            &command.url,
+            &body,
+        )
+        .map_err(|message| DownloadOfferPageError::Fetch {
+            url: command.url.clone(),
+            error: FetchError { message },
+        })?;
 
         let scraped_at =
             chrono::DateTime::from_timestamp_micros(chrono::Utc::now().timestamp_micros());
@@ -119,6 +143,49 @@ mod tests {
     use super::*;
 
     const URL: &str = "https://shop.test/products/a";
+
+    #[test]
+    fn nordic_download_posts_country_context_and_keeps_product_identity() {
+        struct NordicSource {
+            wrong_market: bool,
+        }
+        impl FetchOfferPage for NordicSource {
+            fn fetch(&self, _: &str) -> Result<String, FetchError> {
+                panic!("Nordic prices require POST")
+            }
+            fn post_json(&self, url: &str, body: &str) -> Result<String, FetchError> {
+                assert_eq!(
+                    url,
+                    "https://ankerneu.myshopify.com/api/2026-10/graphql.json"
+                );
+                let body: serde_json::Value = serde_json::from_str(body).unwrap();
+                assert_eq!(body["variables"]["country"], "FI");
+                assert_eq!(body["variables"]["handle"], "t90r0121");
+                Ok(if self.wrong_market {
+                    include_str!("../../../../../lib/retailers_anker/src/nordic/fixtures/se.json")
+                } else {
+                    include_str!("../../../../../lib/retailers_anker/src/nordic/fixtures/fi.json")
+                }
+                .into())
+            }
+        }
+        let mut command = command();
+        command.retailer_code = RetailerCode::AnkerFi;
+        command.url = "https://www.ankernordics.com/products/t90r0121".into();
+        for wrong_market in [false, true] {
+            let handler = Handler::new(FakeStore::default(), NordicSource { wrong_market });
+            let result = handler.handle_with_sleep(command.clone(), |_| {});
+            if wrong_market {
+                assert!(result.is_err());
+                assert!(handler.store.log.lock().unwrap().is_empty());
+            } else {
+                let events = result.unwrap();
+                assert_eq!(events[0].url, command.url);
+                assert_eq!(events[0].retailer_code, RetailerCode::AnkerFi);
+                assert_eq!(events[0].offer_id, command.offer_id);
+            }
+        }
+    }
 
     #[derive(Default)]
     struct FakeStore {

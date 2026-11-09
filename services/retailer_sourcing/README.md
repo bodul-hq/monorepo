@@ -1,5 +1,20 @@
 # retailer_sourcing
 
+Anker's Nordic markets use `ankerse`, `ankerno`, `ankerfi`, `ankeris` and
+`ankerdk`. Set `ANKER_NORDICS_STOREFRONT_TOKEN` to the public Storefront token
+used by the Anker Nordics browser application. It can be supplied through the
+environment or `.env`; shell values take precedence. Do not use a Shopify
+Admin/private token. Missing configuration fails only Nordic downloads, rather
+than accepting the incomplete anonymous catalog.
+
+Those downloads use country-context JSON POST requests and store the raw API
+response. Other retailers still download HTML with GET. Market/currency and
+product identity checks run before storage, so wrong-market and partial
+responses retry as download failures. Deploy readers with the new retailer
+codes and NOK/DKK/ISK currency support before starting country crawls.
+The old Nordic code remains readable; no historical data is reassigned.
+See [ADR 47](../../docs/adr/0047-nordic-retailer-markets.md).
+
 Finds what retailers sell. It crawls each retailer's sitemaps, sorts the page
 URLs into products, catalogs and other content, records every product URL as an
 offer, downloads the offer pages, and reads the offer data out of them: it

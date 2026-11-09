@@ -1,4 +1,9 @@
 //! Looks up each retailer in this crate by its `RetailerCode`.
+use crate::ankerdk;
+use crate::ankerfi;
+use crate::ankeris;
+use crate::ankerno;
+use crate::ankerse;
 
 use crate::ankerau;
 use crate::ankerca;
@@ -24,6 +29,11 @@ use shared::prelude::{NormalizedData, RetailerCode};
 
 pub fn architecture_for(retailer: RetailerCode) -> Option<Architecture> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::offer_detail_architecture_v1()),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::offer_detail_architecture_v1()),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::offer_detail_architecture_v1()),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::offer_detail_architecture_v1()),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::offer_detail_architecture_v1()),
         RetailerCode::AnkerAu => Some(ankerau::prelude::offer_detail_architecture_v1()),
         RetailerCode::AnkerCa => Some(ankerca::prelude::offer_detail_architecture_v1()),
         RetailerCode::AnkerCom => Some(ankercom::prelude::offer_detail_architecture_v1()),
@@ -46,6 +56,11 @@ pub fn architecture_for(retailer: RetailerCode) -> Option<Architecture> {
 
 pub fn normalize_for(retailer: RetailerCode, json: &str) -> Option<Result<NormalizedData, String>> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::offer_detail_normalize_v1(json)),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::offer_detail_normalize_v1(json)),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::offer_detail_normalize_v1(json)),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::offer_detail_normalize_v1(json)),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::offer_detail_normalize_v1(json)),
         RetailerCode::AnkerAu => Some(ankerau::prelude::offer_detail_normalize_v1(json)),
         RetailerCode::AnkerCa => Some(ankerca::prelude::offer_detail_normalize_v1(json)),
         RetailerCode::AnkerCom => Some(ankercom::prelude::offer_detail_normalize_v1(json)),
@@ -77,6 +92,11 @@ pub fn structuralize_for(
     json: &str,
 ) -> Option<Result<StructuralizedData, String>> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::offer_detail_structuralize_v1(json)),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::offer_detail_structuralize_v1(json)),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::offer_detail_structuralize_v1(json)),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::offer_detail_structuralize_v1(json)),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::offer_detail_structuralize_v1(json)),
         RetailerCode::AnkerAu => Some(ankerau::prelude::offer_detail_structuralize_v1(json)),
         RetailerCode::AnkerCa => Some(ankerca::prelude::offer_detail_structuralize_v1(json)),
         RetailerCode::AnkerCom => Some(ankercom::prelude::offer_detail_structuralize_v1(json)),
@@ -103,6 +123,11 @@ pub fn structuralize_for(
 
 pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::sitemap_config_v1()),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::sitemap_config_v1()),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::sitemap_config_v1()),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::sitemap_config_v1()),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::sitemap_config_v1()),
         RetailerCode::AnkerAu => Some(ankerau::prelude::sitemap_config_v1()),
         RetailerCode::AnkerCa => Some(ankerca::prelude::sitemap_config_v1()),
         RetailerCode::AnkerCom => Some(ankercom::prelude::sitemap_config_v1()),
@@ -123,6 +148,11 @@ pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
 
 pub fn sitemap_pause_for(retailer: RetailerCode) -> Option<Duration> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::sitemap_pause_v1()),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::sitemap_pause_v1()),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::sitemap_pause_v1()),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::sitemap_pause_v1()),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::sitemap_pause_v1()),
         RetailerCode::AnkerAu => Some(ankerau::prelude::sitemap_pause_v1()),
         RetailerCode::AnkerCa => Some(ankerca::prelude::sitemap_pause_v1()),
         RetailerCode::AnkerCom => Some(ankercom::prelude::sitemap_pause_v1()),
@@ -143,6 +173,11 @@ pub fn sitemap_pause_for(retailer: RetailerCode) -> Option<Duration> {
 
 pub fn sitemap_greylisted_for(retailer: RetailerCode, url: &str) -> Option<bool> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::sitemap_greylisted_v1(url)),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::sitemap_greylisted_v1(url)),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::sitemap_greylisted_v1(url)),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::sitemap_greylisted_v1(url)),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::sitemap_greylisted_v1(url)),
         RetailerCode::AnkerAu => Some(ankerau::prelude::sitemap_greylisted_v1(url)),
         RetailerCode::AnkerCa => Some(ankerca::prelude::sitemap_greylisted_v1(url)),
         RetailerCode::AnkerCom => Some(ankercom::prelude::sitemap_greylisted_v1(url)),
@@ -168,6 +203,11 @@ pub fn classify_link_for(
     image_count: usize,
 ) -> Option<LinkKind> {
     match retailer {
+        RetailerCode::AnkerDk => Some(ankerdk::prelude::classify_link_v1(url, source, image_count)),
+        RetailerCode::AnkerFi => Some(ankerfi::prelude::classify_link_v1(url, source, image_count)),
+        RetailerCode::AnkerIs => Some(ankeris::prelude::classify_link_v1(url, source, image_count)),
+        RetailerCode::AnkerNo => Some(ankerno::prelude::classify_link_v1(url, source, image_count)),
+        RetailerCode::AnkerSe => Some(ankerse::prelude::classify_link_v1(url, source, image_count)),
         RetailerCode::AnkerAu => Some(ankerau::prelude::classify_link_v1(url, source, image_count)),
         RetailerCode::AnkerCa => Some(ankerca::prelude::classify_link_v1(url, source, image_count)),
         RetailerCode::AnkerCom => Some(ankercom::prelude::classify_link_v1(

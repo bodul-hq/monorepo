@@ -1,3 +1,6 @@
+//! Retailer identity definitions, adapted from bodul_shared 0.1.1.
+//! Original copyright/license: ../LICENSE-MIT.
+
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
@@ -44,7 +47,13 @@ pub enum RetailerCode {
     AnkerJapanCom,
     AnkerKr,
     AnkerItalyCom,
+    /// Historical Nordic records only; new work uses a country-specific code.
     AnkerNordicsCom,
+    AnkerSe,
+    AnkerNo,
+    AnkerFi,
+    AnkerIs,
+    AnkerDk,
     AnkerUk,
     AnkerCa,
     AnkerEu,
@@ -96,7 +105,11 @@ pub const RETAILERS: &[(&str, RetailerCode)] = &[
     ("AnkerJapanCom", RetailerCode::AnkerJapanCom),
     ("AnkerKr", RetailerCode::AnkerKr),
     ("AnkerItalyCom", RetailerCode::AnkerItalyCom),
-    ("AnkerNordicsCom", RetailerCode::AnkerNordicsCom),
+    ("AnkerSe", RetailerCode::AnkerSe),
+    ("AnkerNo", RetailerCode::AnkerNo),
+    ("AnkerFi", RetailerCode::AnkerFi),
+    ("AnkerIs", RetailerCode::AnkerIs),
+    ("AnkerDk", RetailerCode::AnkerDk),
     ("AnkerUk", RetailerCode::AnkerUk),
     ("AnkerCa", RetailerCode::AnkerCa),
     ("AnkerEu", RetailerCode::AnkerEu),
@@ -166,6 +179,11 @@ impl TryFrom<&str> for RetailerCode {
             "ankerkr" => Ok(Self::AnkerKr),
             "ankeritalycom" => Ok(Self::AnkerItalyCom),
             "ankernordicscom" => Ok(Self::AnkerNordicsCom),
+            "ankerse" => Ok(Self::AnkerSe),
+            "ankerno" => Ok(Self::AnkerNo),
+            "ankerfi" => Ok(Self::AnkerFi),
+            "ankeris" => Ok(Self::AnkerIs),
+            "ankerdk" => Ok(Self::AnkerDk),
             "ankeruk" => Ok(Self::AnkerUk),
             "ankerca" => Ok(Self::AnkerCa),
             "ankereu" => Ok(Self::AnkerEu),
@@ -190,6 +208,13 @@ impl TryFrom<String> for RetailerCode {
     }
 }
 
+impl std::str::FromStr for RetailerCode {
+    type Err = String;
+    fn from_str(slug: &str) -> Result<Self, Self::Err> {
+        Self::try_from(slug).map_err(|error| error.to_string())
+    }
+}
+
 impl From<RetailerCode> for String {
     fn from(retailer_code: RetailerCode) -> Self {
         format!("{retailer_code:?}").to_lowercase()
@@ -197,13 +222,17 @@ impl From<RetailerCode> for String {
 }
 
 impl RetailerCode {
-    /// Every known retailer code.
-    pub const ALL: [RetailerCode; 46] = [
+    /// Active retailer codes. Historical AnkerNordicsCom remains readable.
+    pub const ALL: [RetailerCode; 50] = [
         RetailerCode::AnkerCom,
         RetailerCode::AnkerJapanCom,
         RetailerCode::AnkerKr,
         RetailerCode::AnkerItalyCom,
-        RetailerCode::AnkerNordicsCom,
+        RetailerCode::AnkerSe,
+        RetailerCode::AnkerNo,
+        RetailerCode::AnkerFi,
+        RetailerCode::AnkerIs,
+        RetailerCode::AnkerDk,
         RetailerCode::AnkerUk,
         RetailerCode::AnkerCa,
         RetailerCode::AnkerEu,
@@ -259,10 +288,10 @@ impl RetailerCode {
         self.into()
     }
 
-    // Preserve the existing inherent API and its String error type for callers.
+    // Retain the existing inherent API for callers without FromStr in scope.
     #[allow(clippy::should_implement_trait)]
     pub fn from_str(slug: &str) -> Result<RetailerCode, String> {
-        Self::try_from(slug).map_err(|error| error.to_string())
+        slug.parse()
     }
 
     pub fn as_str(self) -> String {
@@ -272,6 +301,39 @@ impl RetailerCode {
 #[cfg(test)]
 mod tests {
     use super::code_for_name;
+
+    #[test]
+    fn nordic_codes_round_trip_and_replace_the_legacy_active_entry() {
+        for (code, slug, wire) in [
+            (RetailerCode::AnkerSe, "ankerse", "AnkerSe"),
+            (RetailerCode::AnkerNo, "ankerno", "AnkerNo"),
+            (RetailerCode::AnkerFi, "ankerfi", "AnkerFi"),
+            (RetailerCode::AnkerIs, "ankeris", "AnkerIs"),
+            (RetailerCode::AnkerDk, "ankerdk", "AnkerDk"),
+        ] {
+            assert_eq!(RetailerCode::try_from(slug).unwrap(), code);
+            assert_eq!(code_for_name(wire), Some(code));
+            assert_eq!(code.as_str(), slug);
+            assert_eq!(serde_json::to_value(code).unwrap(), wire);
+            assert_eq!(
+                serde_json::from_value::<RetailerCode>(serde_json::json!(wire)).unwrap(),
+                code
+            );
+            assert_eq!(RetailerCode::ALL.iter().filter(|v| **v == code).count(), 1);
+            assert_eq!(
+                super::RETAILERS.iter().filter(|(_, v)| *v == code).count(),
+                1
+            );
+        }
+        let legacy = RetailerCode::AnkerNordicsCom;
+        assert_eq!(RetailerCode::try_from("ankernordicscom").unwrap(), legacy);
+        assert_eq!(
+            serde_json::from_value::<RetailerCode>(serde_json::json!("AnkerNordicsCom")).unwrap(),
+            legacy
+        );
+        assert!(!RetailerCode::ALL.contains(&legacy));
+        assert!(!super::RETAILERS.iter().any(|(_, code)| *code == legacy));
+    }
 
     #[test]
     fn resolves_a_code_from_a_lowercase_directory_name() {

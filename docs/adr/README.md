@@ -63,3 +63,7 @@ Decision, Consequences) and give it the next number.
 - [45: Hardcoded offer proxies](0045-hardcoded-offer-proxies.md)
 
 - [46: Local shared library](0046-local-shared-library.md)
+
+- [47: Separate Nordic Anker markets](0047-nordic-retailer-markets.md)
+
+- [48: Local ownership of retailer shared types](0048-local-retailer-shared-types.md)

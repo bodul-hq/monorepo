@@ -125,6 +125,10 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
+- Nordic Anker market downloads require the site's public browser Storefront
+  token in `ANKER_NORDICS_STOREFRONT_TOKEN`; see
+  [the sourcing setup](services/retailer_sourcing/README.md) and
+  [ADR 47](docs/adr/0047-nordic-retailer-markets.md).
 - Mulac 0.5.0 packages from the `null-labs-hq` Cargo registry at
   `https://null-labs-hq.github.io/crates/`, configured in `.cargo/config.toml`.
   The services lockfile pins resolved versions and checksums; no sibling Mulac

@@ -25,6 +25,14 @@ fn every_currency_has_an_explicit_display_convention() {
         ),
         (Currency::VND, 1234, "1.234\u{a0}₫", "1234 VND"),
         (Currency::NZD, 123456, "NZ$1,234.56", "1234.56 NZD"),
+        (
+            Currency::NOK,
+            123456,
+            "1\u{a0}234,56\u{a0}NOK",
+            "1234.56 NOK",
+        ),
+        (Currency::DKK, 123456, "1.234,56\u{a0}DKK", "1234.56 DKK"),
+        (Currency::ISK, 12990, "12.990\u{a0}ISK", "12990 ISK"),
         (Currency::INR, 12345678, "₹1,23,456.78", "123456.78 INR"),
     ] {
         let result = format_price(&Price {

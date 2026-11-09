@@ -1,7 +1,7 @@
 //! Supported currencies (TS001 §2.2).
 
 /// The currencies supported by this library. Most have a minor-unit exponent of
-/// `2` (100 minor units = 1 major unit); `JPY`, `KRW` and `VND` are zero-decimal
+/// `2` (100 minor units = 1 major unit); `JPY`, `KRW`, `ISK` and `VND` are zero-decimal
 /// and their minor unit *is* the major one (TS001 §2.2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Currency {
@@ -25,6 +25,12 @@ pub enum Currency {
     PLN,
     /// Swedish Krona (ISO 752).
     SEK,
+    /// Norwegian Krone (ISO 578).
+    NOK,
+    /// Icelandic Krona (ISO 352), a zero-decimal currency.
+    ISK,
+    /// Danish Krone (ISO 208).
+    DKK,
     /// Vietnamese Dong (ISO 704).
     VND,
     /// New Zealand Dollar (ISO 554).
@@ -36,10 +42,10 @@ pub enum Currency {
 impl Currency {
     /// Number of fractional (minor-unit) digits for this currency — the source of
     /// truth for fraction handling in parsing and formatting (TS001 §2.1/§2.2).
-    /// `0` for the zero-decimal `JPY`, `KRW` and `VND`; `2` for every other.
+    /// `0` for the zero-decimal `JPY`, `KRW`, `ISK` and `VND`; `2` for every other.
     pub fn exponent(self) -> u8 {
         match self {
-            Currency::JPY | Currency::KRW | Currency::VND => 0,
+            Currency::JPY | Currency::KRW | Currency::ISK | Currency::VND => 0,
             Currency::USD
             | Currency::EUR
             | Currency::CAD
@@ -48,6 +54,8 @@ impl Currency {
             | Currency::HKD
             | Currency::PLN
             | Currency::SEK
+            | Currency::NOK
+            | Currency::DKK
             | Currency::NZD
             | Currency::INR => 2,
         }
@@ -66,6 +74,9 @@ impl Currency {
             Currency::HKD => "HKD",
             Currency::PLN => "PLN",
             Currency::SEK => "SEK",
+            Currency::NOK => "NOK",
+            Currency::ISK => "ISK",
+            Currency::DKK => "DKK",
             Currency::VND => "VND",
             Currency::NZD => "NZD",
             Currency::INR => "INR",
@@ -89,6 +100,9 @@ impl std::str::FromStr for Currency {
             "HKD" => Ok(Currency::HKD),
             "PLN" => Ok(Currency::PLN),
             "SEK" => Ok(Currency::SEK),
+            "NOK" => Ok(Currency::NOK),
+            "ISK" => Ok(Currency::ISK),
+            "DKK" => Ok(Currency::DKK),
             "VND" => Ok(Currency::VND),
             "NZD" => Ok(Currency::NZD),
             "INR" => Ok(Currency::INR),

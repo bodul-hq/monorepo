@@ -61,6 +61,10 @@ Deployed: `shopify_production/main`\ Theme ID: `132311777441`\ Theme-store ID:
 
 ### ankernordicscom
 
+Historical HTML integration. New work uses `ankerse`, `ankerno`, `ankerfi`,
+`ankeris` and `ankerdk`, with shared Nordic sitemaps and country-context
+Storefront API offer responses. See [ADR 47](adr/0047-nordic-retailer-markets.md).
+
 ### ankernz
 
 ### ankerpl

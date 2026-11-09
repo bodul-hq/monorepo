@@ -19,7 +19,16 @@ endif
 ifneq ($(origin COMMAND_WORKERS),undefined)
 retailer_sourcing_command_workers := $(value COMMAND_WORKERS)
 endif
+ifneq ($(origin ANKER_NORDICS_STOREFRONT_TOKEN),undefined)
+retailer_sourcing_nordic_token := $(value ANKER_NORDICS_STOREFRONT_TOKEN)
+endif
 include $(wildcard .env)
+ifneq ($(origin retailer_sourcing_nordic_token),undefined)
+ANKER_NORDICS_STOREFRONT_TOKEN := $(retailer_sourcing_nordic_token)
+endif
+ifneq ($(origin ANKER_NORDICS_STOREFRONT_TOKEN),undefined)
+export ANKER_NORDICS_STOREFRONT_TOKEN
+endif
 ifneq ($(origin retailer_sourcing_command_workers),undefined)
 COMMAND_WORKERS := $(retailer_sourcing_command_workers)
 endif

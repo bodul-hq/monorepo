@@ -2,16 +2,22 @@ mod ankerau;
 mod ankerca;
 mod ankercom;
 mod ankerde;
+mod ankerdk;
 mod ankereu;
+mod ankerfi;
 mod ankerfr;
+mod ankeris;
 mod ankeritalycom;
 mod ankerjapancom;
 mod ankerkr;
+mod ankerno;
 mod ankernordicscom;
 mod ankernz;
 mod ankerpl;
+mod ankerse;
 mod ankeruk;
 mod ankervn;
+mod nordic;
 
 use ::shared::link::LinkKind;
 
