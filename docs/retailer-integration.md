@@ -26,7 +26,7 @@ This document is written so an agent can carry it out end to end.
 
 | Input               | Where to find it                                                             | ankerau                                  |
 | ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------- |
-| Retailer slug       | `RetailerCode` in `shared` (see below)                                 | `ankerau` (`RetailerCode::AnkerAu`)      |
+| Retailer slug       | `RetailerCode` in `shared` (see below)                                       | `ankerau` (`RetailerCode::AnkerAu`)      |
 | Crate               | `lib/retailers_<brand>/`                                                     | `lib/retailers_anker/`                   |
 | Storefront folder   | `lib/retailers_<brand>/src/<slug>/`                                          | `lib/retailers_anker/src/ankerau/`       |
 | Platform            | Page source of a product page                                                | Next.js Pages Router (Shopify behind it) |
@@ -71,16 +71,16 @@ done without real pages.
 `retailer_sourcing` runs one feature slice per step. Each slice handles one
 command and emits one event, and the next slice reacts to that event:
 
-| #   | Command              | What it does                                  | Retailer hook it calls                 |
-| --- | -------------------- | --------------------------------------------- | -------------------------------------- |
-| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted` |
-| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted` |
-| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                        |
-| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                   |
+| #   | Command              | What it does                                  | Retailer hook it calls                         |
+| --- | -------------------- | --------------------------------------------- | ---------------------------------------------- |
+| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted`         |
+| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted`         |
+| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                                |
+| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                           |
 | 5   | `DownloadOfferPage`  | Downloads and validates the source            | `offer_request_for`, `validate_offer_download` |
-| 6   | `ExtractOfferPage`   | Extracts the downloaded source                | `extract_for` (normally uses `architecture`) |
-| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                            |
-| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                        |
+| 6   | `ExtractOfferPage`   | Extracts the downloaded source                | `extract_for` (normally uses `architecture`)   |
+| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                                    |
+| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                                |
 
 The same hooks run offline in the development tools (section 5, step 10), on
 files in the data folder.
@@ -121,7 +121,7 @@ once its crate's registry has an arm for it.
 
 | Crate                     | What a storefront uses from it                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared`            | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
+| `shared`                  | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
 | `html_extractor`          | `Architecture`, `collection`, `particle`, `trash`, `Attr`; `Backend` in tests; its `serde_json`                                                                     |
 | `retailer_sauce`          | `shopify::shopify_from_location`, `structuralized::StructuralizedData`, `availability::Availability`, `item_condition::ItemCondition`, `identifier::{Gtin, Sku, …}` |
 | `money` (`lib/money`)     | `Money::from_raw(amount, currency)`, stored as minor units                                                                                                          |
@@ -182,15 +182,15 @@ Rules:
 Every storefront implements these in `v1`. The left column is the `v1` name, the
 middle one the prelude name the registry calls.
 
-| `v1` function                                          | Prelude name                    | Returns                                        |
-| ------------------------------------------------------ | ------------------------------- | ---------------------------------------------- |
-| `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                                |
-| `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap     |
-| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service     |
-| `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                     |
-| `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`             |
-| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<shared::NormalizedData, String>` |
-| `offer_details::v1::structuralize(json: &str)`         | `offer_detail_structuralize_v1` | `Result<StructuralizedData, String>`           |
+| `v1` function                                          | Prelude name                    | Returns                                    |
+| ------------------------------------------------------ | ------------------------------- | ------------------------------------------ |
+| `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                            |
+| `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap |
+| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service |
+| `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                 |
+| `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`         |
+| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<shared::NormalizedData, String>`   |
+| `offer_details::v1::structuralize(json: &str)`         | `offer_detail_structuralize_v1` | `Result<StructuralizedData, String>`       |
 
 The registry functions wrap each in `Option`, `None` meaning "not my
 storefront". See `lib/retailers_anker/src/registry.rs`.
@@ -713,3 +713,17 @@ Don't copy these:
       `unknown` URL is handled or explained.
 - [ ] `make fmt` leaves no changes and `make ci` in `lib/` passes.
 - [ ] Crate README updated if needed.
+
+## GraphQL initial fills
+
+Each supported retailer owns `initial_fill/v1` and `offer_details/v2/raw.rs` in
+its existing brand crate. Queries, schema snapshots, token discovery, market
+parsing, validation and pagination must be local to that retailer. Do not import
+another retailer's integration or raw types, even when their Shopify origins
+match. Keep source fixtures and regression tests beside the implementation.
+
+Register the local `InitialFillIntegration` in the brand's `initial_fill`
+registry. The facade supplies that integration to the sourcing service through
+neutral HTTP and durable contracts. Preserve command/event and artifact formats
+when modifying existing behavior. Run the retailer crate CI and the extractor's
+`initial_fill_isolation` test. See [ADR 61](adr/0061-independent-retailer-graphql-integrations.md).
