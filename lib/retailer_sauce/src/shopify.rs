@@ -1,3 +1,6 @@
+pub mod initial_fill;
+pub mod markets;
+
 use shared::link::LinkKind;
 
 /// Classifies Shopify storefront URLs by their path conventions, ignoring case.

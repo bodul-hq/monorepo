@@ -9,6 +9,7 @@ everyday.workspace = true
 html-extractor.workspace = true
 icu_locale_core = { version = "2.3.0", features = ["alloc"] }
 serde.workspace = true
+serde_json.workspace = true
 shared.workspace = true
 thiserror.workspace = true
 

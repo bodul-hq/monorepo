@@ -2,6 +2,21 @@
 
 Extracting data from retailers.
 
+`initial_fill_process(retailer_code)` returns an `InitialFillProcess` with a
+public `steps: Vec<Step>` field. Anker, Minisforum, and Ugreen retailers return
+`AcquireStorefrontToken`, `ProductCatalogIdentifiers`, and `OfferDetails`, in
+that order, except Anker Korea. Configured tokenless Italy/Japan initial fills
+return only `ProductCatalogIdentifiers` and `OfferDetails`. MiCom and Anker Korea
+remain unimplemented and panic when called. Every retailer code has an explicit match arm.
+
+The executable initial-fill facade exposes `initial_fill_config_for`,
+`initial_fill_request_for`, and `initial_fill_validate_response_for`.
+All 17 active Anker storefronts except Korea have configuration. The retired
+Nordic aggregate is unsupported. Each store uses its configured local language;
+Canada stays CA/EN/CAD. Other brands remain scaffolds.
+`inspect_storefront_html` extracts inline public Storefront tokens and returns
+referenced script URLs for the service to fetch. No HTTP runs in this crate.
+
 Looks up each retailer across the `retailers_*` crates by its `RetailerCode`:
 
 - `architecture_for` and `extract_for`: the offer page's extraction
