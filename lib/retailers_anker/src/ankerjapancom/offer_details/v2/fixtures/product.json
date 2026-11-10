@@ -1,0 +1,353 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "カテゴリーなし"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMjg1NzQ3NjMxNjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNzA0NDk2NzIzNTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "修正必要製品",
+          "id": "gid://shopify/Collection/270449672353",
+          "image": null,
+          "onlineStoreUrl": "https://www.ankerjapan.com/collections/%E4%BF%AE%E6%AD%A3%E5%BF%85%E8%A6%81%E8%A3%BD%E5%93%81",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "修正必要製品",
+          "updatedAt": "2026-11-07T12:10:36Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDgxNTgyMDIwMTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "対象カテゴリー Power Appliance Nebula ルール 備品・付属品の単品での注文不可 製品と付属品のまとめ買いの場合は注文可能",
+          "descriptionHtml": "<ul data-stringify-type=\"unordered-list\" data-list-tree=\"true\" class=\"p-rich_text_list p-rich_text_list__bullet p-rich_text_list--nested\" data-indent=\"0\" data-border=\"1\" data-border-radius-bottom-cap=\"0\">\n<li data-stringify-indent=\"0\" data-stringify-border=\"1\">対象カテゴリー\n<ul data-stringify-type=\"unordered-list\" data-list-tree=\"true\" class=\"p-rich_text_list p-rich_text_list__bullet p-rich_text_list--nested\" data-indent=\"1\" data-border=\"0\" data-border-radius-top-cap=\"0\" data-border-radius-bottom-cap=\"0\">\n<li data-stringify-indent=\"1\" data-stringify-border=\"1\">Power</li>\n<li data-stringify-indent=\"1\" data-stringify-border=\"1\">Appliance</li>\n<li data-stringify-indent=\"1\" data-stringify-border=\"1\">Nebula</li>\n</ul>\n</li>\n<li data-stringify-indent=\"0\" data-stringify-border=\"1\">ルール\n<ul data-stringify-type=\"unordered-list\" data-list-tree=\"true\" class=\"p-rich_text_list p-rich_text_list__bullet p-rich_text_list--nested\" data-indent=\"1\" data-border=\"0\" data-border-radius-top-cap=\"0\">\n<li data-stringify-indent=\"1\" data-stringify-border=\"1\">備品・付属品の単品での注文不可</li>\n<li data-stringify-indent=\"1\" data-stringify-border=\"1\">製品と付属品のまとめ買いの場合は注文可能</li>\n</ul>\n</li>\n</ul>",
+          "handle": "store-fba-shipping",
+          "id": "gid://shopify/Collection/308158202017",
+          "image": null,
+          "onlineStoreUrl": "https://www.ankerjapan.com/collections/store-fba-shipping",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "【Store FBA配送対象製品】 備品・付属品の単品での注文不可・製品と付属品のまとめ買いの場合は注文可能",
+          "updatedAt": "2026-11-07T13:28:43Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY1OTQyMjUzMTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "sale-exclude",
+          "id": "gid://shopify/Collection/316594225313",
+          "image": null,
+          "onlineStoreUrl": "https://www.ankerjapan.com/collections/sale-exclude",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "セール対象外",
+          "updatedAt": "2026-11-07T13:28:43Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjM0NzU5OTY4MzMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "販売価格¥100,000以下の対象製品",
+          "descriptionHtml": "<p>販売価格¥100,000以下の対象製品</p>",
+          "handle": "milekuji-s",
+          "id": "gid://shopify/Collection/323475996833",
+          "image": null,
+          "onlineStoreUrl": "https://www.ankerjapan.com/collections/milekuji-s",
+          "seo": {
+            "__typename": "SEO",
+            "description": "マイルくじS賞対象製品一覧",
+            "title": "マイルくじS賞対象製品 - Anker Japan公式オンラインストア"
+          },
+          "title": "マイルくじS賞対象製品",
+          "updatedAt": "2026-11-07T13:28:43Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjg1NzQ3NjMxNjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "no-eufymake",
+          "id": "gid://shopify/Collection/328574763169",
+          "image": null,
+          "onlineStoreUrl": "https://www.ankerjapan.com/collections/no-eufymake",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "EufyMake以外",
+          "updatedAt": "2026-11-07T13:28:43Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "createdAt": "2026-07-02T11:21:49Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 428,
+    "id": "gid://shopify/ProductImage/44258221490337",
+    "thumbhash": "+/cFBwC3qXeIeHePdHV3OJiIeXn4R3YP",
+    "url": "https://cdn.shopify.com/s/files/1/0508/4381/2001/files/A24V4011.png?v=1782991634",
+    "width": 428
+  },
+  "handle": "a24v4-cp",
+  "id": "gid://shopify/Product/8575224217761",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NDI1ODIyMTQ5MDMzNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDI1ODIyMTQ5MDMzNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 428,
+          "id": "gid://shopify/ProductImage/44258221490337",
+          "thumbhash": "+/cFBwC3qXeIeHePdHV3OJiIeXn4R3YP",
+          "url": "https://cdn.shopify.com/s/files/1/0508/4381/2001/files/A24V4011.png?v=1782991634",
+          "width": 428
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNzExMjczNTY2MjI0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzExMjczNTY2MjI0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/37112735662241",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 428,
+            "id": "gid://shopify/ImageSource/37112735662241",
+            "thumbhash": "+/cFBwC3qXeIeHePdHV3OJiIeXn4R3YP",
+            "url": "https://cdn.shopify.com/s/files/1/0508/4381/2001/files/A24V4011.png?v=1782991634",
+            "width": 428
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 428,
+            "id": "gid://shopify/ImageSource/37112735662241",
+            "thumbhash": "+/cFBwC3qXeIeHePdHV3OJiIeXn4R3YP",
+            "url": "https://cdn.shopify.com/s/files/1/0508/4381/2001/files/A24V4011.png?v=1782991634",
+            "width": 428
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://www.ankerjapan.com/products/a24v4-cp",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10866201788577",
+      "name": "カラー",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/5526970532001",
+          "name": "ブラック",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "productType": "PowerHouse",
+  "publishedAt": "2026-07-02T11:39:49Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Anker SOLIX MC4 2-Port Solar Charging ConnectorならAnker (アンカー) Japan 公式オンラインストア。",
+    "title": "【プレゼント用】Anker SOLIX MC4 2-Port Solar Charging Connector | 充電ケーブルの製品情報"
+  },
+  "tags": [
+    "Appify:DisableFromSearchResults",
+    "present",
+    "test"
+  ],
+  "title": "【プレゼント用】Anker SOLIX MC4 2-Port Solar Charging Connector",
+  "updatedAt": "2026-11-01T22:46:56Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjYzOTIyNjg4MDE2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjYzOTIyNjg4MDE2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46639226880161",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 428,
+            "id": "gid://shopify/ProductImage/44258221490337",
+            "thumbhash": "+/cFBwC3qXeIeHePdHV3OJiIeXn4R3YP",
+            "url": "https://cdn.shopify.com/s/files/1/0508/4381/2001/files/A24V4011.png?v=1782991634",
+            "width": 428
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "0.0",
+            "currencyCode": "JPY"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "カラー",
+              "value": "ブラック"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A24V4011-CP",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "ブラック",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker"
+}

@@ -1,0 +1,1349 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Bez kategorii"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2Njk5OTUwNzM5MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTMxMTU4MjIyNzAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "小充所有产品",
+          "id": "gid://shopify/Collection/293115822270",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/%E5%B0%8F%E5%85%85%E6%89%80%E6%9C%89%E4%BA%A7%E5%93%81",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All products of chargers",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTM0ODg3NTQ4NzgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products-2",
+          "id": "gid://shopify/Collection/293488754878",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Pełna oferta Anker – poznaj wszystkie akcesoria: od szybkich ładowarek po trwałe kable. Sprawdzona jakość w oficjalnym sklepie Anker Polska. Kup teraz!",
+            "title": "Wszystkie produkty "
+          },
+          "title": "All-products-2 - Anker Polska",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDY4NDYxMDU3OTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "home-charging",
+          "id": "gid://shopify/Collection/306846105790",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/home-charging",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Ładowanie w domu Anker – sprawdzona jakość technologii Anker. Kup teraz w oficjalnym sklepie Anker Polska.",
+            "title": "Ładowanie w Domu Anker"
+          },
+          "title": "Ładowanie w Domu Anker",
+          "updatedAt": "2026-11-07T12:25:07Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDY5OTQ2NDMxMzQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best-seller",
+          "id": "gid://shopify/Collection/306994643134",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/best-seller",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Bestsellery Anker – sprawdzona jakość technologii Anker. Kup teraz w oficjalnym sklepie Anker Polska.",
+            "title": "Bestseller Anker"
+          },
+          "title": "Bestseller Anker",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NjYxMDY3NTc0OTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "All products except Solix",
+          "descriptionHtml": "<p>All products except Solix</p>",
+          "handle": "all-products-except-solix",
+          "id": "gid://shopify/Collection/666106757496",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/all-products-except-solix",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Przenośna stacja zasilania Anker – wszystkie produkty (bez SOLIX). Niezawodna energia na kemping i wyjazdy. Anker Polska.",
+            "title": null
+          },
+          "title": "Wszystkie produkty (bez SOLIX) - Anker Polska",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NjcwMTczMTQ2ODAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "docking-stations-for-mac",
+          "id": "gid://shopify/Collection/667017314680",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/docking-stations-for-mac",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Stacje dokujące do MacBooka Anker ułatwiają podłączanie monitorów, ładowanie urządzeń i szybki transfer danych. Sprawdź rozwiązania dla Maca.",
+            "title": null
+          },
+          "title": "Stacje dokujące do MacBooka",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njc2Njc3MjY3MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "super-fast-chargers-for-samsung",
+          "id": "gid://shopify/Collection/667667726712",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/super-fast-chargers-for-samsung",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Odkryj superszybkie ładowarki do Samsunga Anker: kompaktowe modele USB-C do 240 W z inteligentnym ładowaniem i zabezpieczeniami ActiveShield™.",
+            "title": "Superszybkie ładowarki do Samsung"
+          },
+          "title": "Anker: superszybkie ładowarki do Samsung",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njc2NjgxODU0NjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-charger",
+          "id": "gid://shopify/Collection/667668185464",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/usb-c-charger",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Ładowarka USB-C Anker: szybkie ładowanie do 250W, obsługa wielu urządzeń i inteligentne wyświetlacze do telefonów i laptopów",
+            "title": "Ładowarka USB-C Anker do telefonu i laptopa"
+          },
+          "title": "Ładowarka USB-C Anker do telefonu i laptopa",
+          "updatedAt": "2026-11-07T13:33:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njg3NDkzOTgzOTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Kup stacje dokujące Thunderbolt Anker i zyskaj pełną łączność, szybkie ładowanie i obsługę wielu monitorów porządek na biurku i wyższą produktywność.",
+          "descriptionHtml": "<p class=\"MsoNormal\"><span>Kup</span><span>&nbsp;stacje dokujące Thunderbolt </span><span>Anker i zyskaj pełną łączność, szybkie ładowanie i obsługę wielu monitorów porządek na biurku i wyższą produktywność.</span><span></span></p>",
+          "handle": "thunderbolt-docking-station",
+          "id": "gid://shopify/Collection/668749398392",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/thunderbolt-docking-station",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Stacje dokujące Thunderbolt – sprawdzona jakość technologii Anker. Kup teraz w oficjalnym sklepie Anker Polska.",
+            "title": null
+          },
+          "title": "Stacje dokujące Thunderbolt - Anker Polska",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NjkxMjgwMzI2MzIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Wybierz adaptery USB-C do HDMI Anker i ciesz się obrazem do 8K, szeroką kompatybilnością oraz prostą obsługą plug-and-play na każdym ekranie każdego dnia.",
+          "descriptionHtml": "<p class=\"MsoNormal\"><span>Wybierz </span><span>adaptery USB-C do HDMI</span><span>&nbsp;Anker i ciesz się obrazem do 8K, szeroką kompatybilnością oraz prostą obsługą plug-and-play na każdym ekranie każdego dnia.</span><span></span></p>",
+          "handle": "usb-c-to-hdmi-adapter",
+          "id": "gid://shopify/Collection/669128032632",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/usb-c-to-hdmi-adapter",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Adaptery USB-C do HDMI Anker – ulepsz jakość obrazu. Szybka i niezawodna łączność. Kompatybilny z USB-C. Anker Polska.",
+            "title": "Adaptery USB-C do HDMI Anker"
+          },
+          "title": "Adaptery USB-C do HDMI Anker",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njk3NTI1OTA3MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Kup bezprzewodowe ładowarki do Samsung Galaxy Anker i ładuj swoje urządzenie szybciej dzięki mocy Qi2 15 W, wersjom w formie stojaka lub podkładki oraz zaawansowanej kontroli temperatury.",
+          "descriptionHtml": "<p class=\"MsoNormal\"><span>Kup bezprzewodowe ładowarki do Samsung Galaxy Anker i ładuj swoje urządzenie szybciej dzięki mocy Qi2 15 W, wersjom w formie stojaka lub podkładki oraz zaawansowanej kontroli temperatury.</span><span></span></p>",
+          "handle": "wireless-charger-for-samsung-galaxy",
+          "id": "gid://shopify/Collection/669752590712",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/wireless-charger-for-samsung-galaxy",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Poznaj bezprzewodowe ładowarki Anker do Samsung Galaxy. Wydajne ładowanie, wygoda bez kabli, szeroka kompatybilność i większe bezpieczeństwo wielu urządzeń.",
+            "title": "Bezprzewodowe ładowarki do Samsung Galaxy"
+          },
+          "title": "Bezprzewodowe ładowarki do Samsung Galaxy",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njk3NTMyMTMzMDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Zyskaj niezawodne połączenie przewodowe dzięki adaptery USB-C do Ethernet Anker - szybkie transfery, kompaktowa konstrukcja, solidne wykonanie oraz wersje z hubem HDMI i ładowaniem PD.",
+          "descriptionHtml": "<p class=\"MsoNormal\"><span>Zyskaj niezawodne połączenie przewodowe dzięki </span><span>adaptery USB-C do Ethernet </span><span>Anker - szybkie transfery, kompaktowa konstrukcja, solidne wykonanie oraz wersje z hubem HDMI i ładowaniem PD.</span><span></span></p>",
+          "handle": "usb-c-to-ethernet-adapters",
+          "id": "gid://shopify/Collection/669753213304",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/usb-c-to-ethernet-adapters",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Korzystaj z szybkiego i niezawodnego Internetu dzięki adapterom USB-C do Ethernet Anker. Kompaktowe i typu plug-and-play, idealne do pracy, streamingu i podróży.",
+            "title": "Adaptery USB-C do Ethernet"
+          },
+          "title": "Adaptery USB-C do Ethernet",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njk3NTMyNDYwNzIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Rozszerz możliwości swojego Microsoft Surface dzięki stacjom dokującym Anker. Zyskaj łączność 14-w-1, obsługę dwóch monitorów 4K, do 160 W łącznej mocy ładowania, i wiele więcej.",
+          "descriptionHtml": "<p class=\"MsoNormal\"><span>Rozszerz możliwości swojego Microsoft Surface dzięki stacjom dokującym Anker. Zyskaj łączność 14-w-1, obsługę dwóch monitorów 4K, do 160 W łącznej mocy ładowania, i wiele więcej.</span><span></span></p>",
+          "handle": "docking-stations-for-microsoft-surface",
+          "id": "gid://shopify/Collection/669753246072",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/docking-stations-for-microsoft-surface",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Stacje dokujące Anker do Microsoft Surface umożliwiają podłączenie wielu urządzeń peryferyjnych i zwiększają produktywność. Zapewnij sobie swobodną łączność.",
+            "title": "Stacje dokujące do Microsoft Surface"
+          },
+          "title": "Stacje dokujące do Microsoft Surface",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njk5OTMwMDk1MjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-to-displayport",
+          "id": "gid://shopify/Collection/669993009528",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/usb-c-to-displayport",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Poznaj adaptery Anker USB-C do DisplayPort do podłączania ekranów wysokiej rozdzielczości, z szybkim przesyłaniem danych i niezawodnym działaniem.",
+            "title": "Adaptery USB-C do DisplayPort Anker"
+          },
+          "title": "Adaptery USB-C do DisplayPort Anker",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Njk5OTUwNzM5MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Power your home with Anker’s home-charging accessories. From fast wall chargers to multi-port hubs and smart power strips, these reliable solutions keep all your devices charged efficiently, safely, and ready for daily use.",
+          "descriptionHtml": "<p><meta charset=\"utf-8\">Power your home with Anker’s home-charging accessories. From fast wall chargers to multi-port hubs and smart power strips, these reliable solutions keep all your devices charged efficiently, safely, and ready for daily use.</p>",
+          "handle": "stay-at-home",
+          "id": "gid://shopify/Collection/669995073912",
+          "image": null,
+          "onlineStoreUrl": "https://eu.anker.com/pl/collections/stay-at-home",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Poznaj akcesoria Anker do domu: ładowarki sieciowe, listwy i stacje, które pomagają bezpiecznie i wydajnie ładować urządzenia.",
+            "title": "Ładowarki i akcesoria do domu Anker"
+          },
+          "title": "Ładowarki i akcesoria do domu Anker",
+          "updatedAt": "2026-11-07T12:25:06Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2024-01-02T10:58:32Z",
+  "description": "12-in-1 Docking Station and Monitor Stand: Equip your workstation with a 100W max USB-C upstream port (connect to laptop), 3 USB-A ports, 2 USB-C ports, SD/microSD card slots, a 4K HDMI port, a wireless charging pad, and an Ethernet port. All-in-One Workspace Organizer: Stand your monitor on top of the docking station, and use the space underneath to store your keyboard, mouse, and other peripherals when you're not using them. User-Friendly Design: By raising your monitor off the desk, you'll be able to sit up straight instead of slouching—promoting a healthier posture and a more comfortable work experience. Power Your Entire Workstation: With a 100W max USB-C upstream port to charge your laptop, 2 USB-C Power Delivery ports sharing 45W, 3 USB-A ports for smaller devices, and a wireless charging pad for your phone, you have more than enough options to keep your whole workspace powered up. What You Get: Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless), welcome guide, our worry-free 18-month warranty, and friendly customer service.",
+  "descriptionHtml": "<meta charset=\"utf-8\">\n<ul data-mce-fragment=\"1\">\n<li data-mce-fragment=\"1\">\n<div data-page-id=\"NqAJd6QbborVbKxWTOLc1dEwnMc\" data-docx-has-block-data=\"false\" data-mce-fragment=\"1\">\n<div class=\"ace-line ace-line old-record-id-Wos2dEAiooQoM6xkxV9cjuhtndh\" data-mce-fragment=\"1\">\n<div data-mce-fragment=\"1\">12-in-1 Docking Station and Monitor Stand: Equip your workstation with a 100W max USB-C upstream port (connect to laptop), 3 USB-A ports, 2 USB-C ports, SD/microSD card slots, a 4K HDMI port, a wireless charging pad, and an Ethernet port.</div>\n</div>\n</div>\n</li>\n<li data-mce-fragment=\"1\">All-in-One Workspace Organizer: Stand your monitor on top of the docking station, and use the space underneath to store your keyboard, mouse, and other peripherals when you're not using them.<br data-mce-fragment=\"1\">\n</li>\n<li data-mce-fragment=\"1\">User-Friendly Design: By raising your monitor off the desk, you'll be able to sit up straight instead of slouching—promoting a healthier posture and a more comfortable work experience.</li>\n<li data-mce-fragment=\"1\">Power Your Entire Workstation: With a 100W max USB-C upstream port to charge your laptop, 2 USB-C Power Delivery ports sharing 45W, 3 USB-A ports for smaller devices, and a wireless charging pad for your phone, you have more than enough options to keep your whole workspace powered up.</li>\n<li data-mce-fragment=\"1\">What You Get: Anker<span data-mce-fragment=\"1\"> </span><strong data-mce-fragment=\"1\">675</strong><span data-mce-fragment=\"1\"> </span>USB-C Docking Station (12-in-1, Monitor Stand, Wireless), welcome guide, our worry-free 18-month warranty, and friendly customer service.</li>\n</ul>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2000,
+    "id": "gid://shopify/ProductImage/34406429687998",
+    "thumbhash": "2veBBAAjMr1nqruQ0S+l/FKKdYZ2CKenCw==",
+    "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161",
+    "width": 1600
+  },
+  "handle": "a8377",
+  "id": "gid://shopify/Product/7861655175358",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDQwNjM5OTE0ODIyMiwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjQyOTY4Nzk5OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406429687998",
+          "thumbhash": "2veBBAAjMr1nqruQ0S+l/FKKdYZ2CKenCw==",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjM5OTI0NjUyNiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406399246526",
+          "thumbhash": "qvcJBQCIpwqIVleIi36GeXfzdjh/",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_3_d82106ee-0ba5-4b49-8158-09cebde47e77.jpg?v=1704256161",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjM5OTI3OTI5NCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406399279294",
+          "thumbhash": "MAgKFQLFeXl4t3i3eJsHqQOEMjA3",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_1_ba92231c-5736-4085-b473-fe259f3c2e8e.jpg?v=1704256161",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjM5OTIxMzc1OCwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406399213758",
+          "thumbhash": "7/cJDQIZeXyI98kXd3OnZ7mEkDwJ",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_5_5dbe3e2b-e87a-4fb2-8df1-a1d3bb857c4c.jpg?v=1704256161",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjM5OTE4MDk5MCwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406399180990",
+          "thumbhash": "r+cFDQKMp8OH9mQKhbaaRoyguQeZ",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_2_d2d2d768-aa32-4a75-8531-d9c96e7a89e8.jpg?v=1704256161",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQwNjM5OTE0ODIyMiwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/34406399148222",
+          "thumbhash": "pPcNBQB3l92I+GR3hnd4h3sokGcC",
+          "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_4_9fba6504-98d0-4698-bc41-9ec4ffd2c9c1.jpg?v=1704256161",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTUxNjM1MCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM5MTI2ODU0MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796391268542",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796391268542",
+            "thumbhash": "2veBBAAjMr1nqruQ0S+l/FKKdYZ2CKenCw==",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796391268542",
+            "thumbhash": "2veBBAAjMr1nqruQ0S+l/FKKdYZ2CKenCw==",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTU0OTExOCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796359549118",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359549118",
+            "thumbhash": "qvcJBQCIpwqIVleIi36GeXfzdjh/",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_3_d82106ee-0ba5-4b49-8158-09cebde47e77.jpg?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359549118",
+            "thumbhash": "qvcJBQCIpwqIVleIi36GeXfzdjh/",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_3_d82106ee-0ba5-4b49-8158-09cebde47e77.jpg?v=1704256161",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTYxNDY1NCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796359614654",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359614654",
+            "thumbhash": "MAgKFQLFeXl4t3i3eJsHqQOEMjA3",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_1_ba92231c-5736-4085-b473-fe259f3c2e8e.jpg?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359614654",
+            "thumbhash": "MAgKFQLFeXl4t3i3eJsHqQOEMjA3",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_1_ba92231c-5736-4085-b473-fe259f3c2e8e.jpg?v=1704256161",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTQ4MzU4MiwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796359483582",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359483582",
+            "thumbhash": "7/cJDQIZeXyI98kXd3OnZ7mEkDwJ",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_5_5dbe3e2b-e87a-4fb2-8df1-a1d3bb857c4c.jpg?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359483582",
+            "thumbhash": "7/cJDQIZeXyI98kXd3OnZ7mEkDwJ",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_5_5dbe3e2b-e87a-4fb2-8df1-a1d3bb857c4c.jpg?v=1704256161",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTU4MTg4NiwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796359581886",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359581886",
+            "thumbhash": "r+cFDQKMp8OH9mQKhbaaRoyguQeZ",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_2_d2d2d768-aa32-4a75-8531-d9c96e7a89e8.jpg?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359581886",
+            "thumbhash": "r+cFDQKMp8OH9mQKhbaaRoyguQeZ",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_2_d2d2d768-aa32-4a75-8531-d9c96e7a89e8.jpg?v=1704256161",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjc5NjM1OTUxNjM1MCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26796359516350",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359516350",
+            "thumbhash": "pPcNBQB3l92I+GR3hnd4h3sokGcC",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_4_9fba6504-98d0-4698-bc41-9ec4ffd2c9c1.jpg?v=1704256161",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26796359516350",
+            "thumbhash": "pPcNBQB3l92I+GR3hnd4h3sokGcC",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/ThisisProductImage_4_9fba6504-98d0-4698-bc41-9ec4ffd2c9c1.jpg?v=1704256161",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/35154962546878",
+      "key": "_order",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-04-15T08:19:45Z",
+      "value": "[\"aplusFullVideo__0\",\"aplusNavCarousel__1\",\"aplusNavCarousel__2\",\"aplusNavCarousel__3\",\"htmlContainer\",\"productDownloads\",\"seriesIntroduce\",\"brandInfo\",\"brandRecommends\",\"productRecommends\",\"reviews\",\"iconFixed\"]"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "{\"content\":\"\",\"status\":\"Deactive\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/35154962481342",
+      "key": "aplusFullImage__0",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-04-15T08:18:52Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0491/8460/4324/files/A8377_RC01_PC_V1.jpg?v=1673429813\",\"mobileImageUrl\":\"https://cdn.shopify.com/s/files/1/0491/8460/4324/files/A8377_RC01_APP_V1.jpg?v=1673429813\",\"headline\":\"\"}"
+    },
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/35154962677950",
+      "key": "brandInfo",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/35154962645182",
+      "key": "brandRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"HTML\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/35154962579646",
+      "key": "htmlContainer",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "multi_line_text_field",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "<div class=\"celwidget aplus-module premium-module-15-text aplus-premium\" data-csa-c-id=\"eacd8o-hpfj8z-9yxajl-qeaglh\" data-cel-widget=\"aplus-premium-module-15-text\">\n<div class=\"a-section a-spacing-none premium-aplus premium-aplus-module-15\">\n<div class=\"a-section a-spacing-none\">\n<div data-page-id=\"NqAJd6QbborVbKxWTOLc1dEwnMc\" data-docx-has-block-data=\"false\">\n<div class=\"ace-line ace-line old-record-id-NCYYd84u4oWoc8xOq8Xc7a7QnYe\">Model Number: A8377</div>\n<div class=\"ace-line ace-line old-record-id-I0ECdam0Ao4w66xA2E9cGJuvnJk\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-EmWKdmmgioWuSgxWCFwcGtYanbc\">Anker <strong>675</strong> USB-C Docking Station (12-in-1, Monitor Stand, Wireless)</div>\n<div class=\"ace-line ace-line old-record-id-XgucdYaIMookeoxY50WczI9EnUg\">Organize Your Workspace with Upgraded Comfort and Connectivity</div>\n<div class=\"ace-line ace-line old-record-id-QWUwdYIIioe6Kex2V41cfx2rnOh\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-Sa80dcQUkoEmOAxJrHjcp4QlnNj\"><strong>Expand Your Capabilities</strong></div>\n<div class=\"ace-line ace-line old-record-id-CIMSdsEScoO46CxUVgjcbDeankd\">Just connect your laptop to unlock high-speed charging, fast file transfer, 4K display, and more.</div>\n<div class=\"ace-line ace-line old-record-id-JOW0dwyGooaYSoxAxD1cZyp2nmc\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-Pia0dS6s6oqqGuxs9QgcErVLnbh\"><strong>Work in Comfort</strong></div>\n<div class=\"ace-line ace-line old-record-id-NWE4d28kaoY0Y8xegqVcoOxvnyc\">Thanks to the built-in stand, you can now keep your monitor at eye level so you won't have to slouch or strain your neck while you work.</div>\n<div class=\"ace-line ace-line old-record-id-IiUGdwu8ioMgq4xmSjvcnvD4nfe\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-SGK6dgWEsoKYCSxGuWZcjZSznFf\"><strong>Power All Your Devices</strong></div>\n<div class=\"ace-line ace-line old-record-id-BemIdwm4YoIQ0WxMHjqcB36snce\">Supports 100W max charging for your laptop, wireless charging for your phone, and fast USB-C charging for all your other workspace devices.</div>\n<div class=\"ace-line ace-line old-record-id-VOGQdWCmgoEws2xK6szc7fFenGh\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-DACqdkiWoocYAMx47TTc4fQ7nLg\"><strong>Keep Cables Out of the Way</strong></div>\n<div class=\"ace-line ace-line old-record-id-H0Ccd2Uk4oWSYAxGYhrci5osnGh\">A built-in cable management system on the underside of the monitor stand lets you keep cables tidy&mdash;and out of your way.</div>\n</div>\n</div>\n</div>\n</div>\n<p><button id=\"paste-helper-id\" style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\"></button></p>\n<p><button id=\"paste-helper-id\" style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\"></button></p>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "{\"content\":\"Downloads Section\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"20\"}",
+      "id": "gid://shopify/Metafield/35154962514110",
+      "key": "productDownloads",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-09-27T07:29:56Z",
+      "value": "{\"items\":[{\"_file_selector\":{},\"size\":2033185,\"file_name\":\"A8377_QSG.pdf\",\"uploaded_at\":\"2023-02-08\",\"url\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A8377_QSG.pdf?v=1675825131\",\"title\":\"A8377_QSG\",\"type\":\"QSG\"},{\"title\":\"A8377 DOC\",\"type\":\"declaration_of_conformity\",\"uploaded_at\":\"2024-09-27\",\"size\":0,\"file_name\":\"A8377.pdf\",\"description\":\"\",\"url\":\"https://cdn.shopify.com/s/files/1/0491/8460/4324/files/cable_DOC-A8364_A8365_A8366_A8370_A8371_A8373_A8377_A8380_A8381_A8382.pdf?v=1727170336\"}],\"title\":\"Downloads\",\"showTitle\":true}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/35154962710718",
+      "key": "productRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/35154962743486",
+      "key": "reviews",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/35154962612414",
+      "key": "seriesIntroduce",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-02T10:58:34Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/35130314227902",
+      "key": "badge",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2024-11-01T11:33:02Z",
+      "value": "<div style='display:none' class='jdgm-prev-badge' data-average-rating='4.80' data-number-of-reviews='5' data-number-of-questions='0'> <span class='jdgm-prev-badge__stars' data-score='4.80' tabindex='0' aria-label='4.80 stars' role='button'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <span class='jdgm-prev-badge__text'> 5 reviews </span> </div>"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-02T10:58:34Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/35130314260670",
+      "key": "widget",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2026-10-22T12:33:19Z",
+      "value": "<div class='jdgm-rev-widg' data-updated-at='2026-10-22T12:33:18Z' data-average-rating='4.80' data-number-of-reviews='5' data-number-of-questions='0' data-image-url='https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161'> <style class='jdgm-temp-hiding-style'>.jdgm-rev-widg{ display: none }</style> <div class='jdgm-rev-widg__header'> <h2 class='jdgm-rev-widg__title'>Customer Reviews</h2>  <div class='jdgm-rev-widg__summary'> <div class='jdgm-rev-widg__summary-stars'> <span class='jdgm-rev-widg__summary-stars-img' aria-label='Average rating is 4.80 stars' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> </div> <div class='jdgm-rev-widg__summary-text'>Based on 5 reviews</div> </div> <a style='display: none' href='#' class='jdgm-write-rev-link' role='button'>Write a review</a> <div class='jdgm-histogram jdgm-temp-hidden'>  <div class='jdgm-histogram__row' data-rating='5' data-frequency='4' data-percentage='80'>  <div class='jdgm-histogram__star' role='button' aria-label=\"80% (4) reviews with 5 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 80%;'> </div> </div> <div class='jdgm-histogram__percentage'>80%</div> <div class='jdgm-histogram__frequency'>(4)</div> </div>  <div class='jdgm-histogram__row' data-rating='4' data-frequency='1' data-percentage='20'>  <div class='jdgm-histogram__star' role='button' aria-label=\"20% (1) reviews with 4 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 20%;'> </div> </div> <div class='jdgm-histogram__percentage'>20%</div> <div class='jdgm-histogram__frequency'>(1)</div> </div>  <div class='jdgm-histogram__row' data-rating='3' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 3 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='2' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 2 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='1' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 1 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row jdgm-histogram__clear-filter' data-rating=null tabindex='0'></div> </div>     <div class='jdgm-rev-widg__sort-wrapper'></div> </div> <div class='jdgm-rev-widg__body'>  <div class='jdgm-rev-widg__reviews'><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='0e9424cd-1f7b-401a-b2d5-8f6d5cd793dc' data-review-language='' data-product-title='Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)' data-product-url='/products/a8377' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > D </div>  <span class='jdgm-rev__rating' data-score='5' tabindex='0' aria-label='5 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2024-11-01T11:26:38Z' data-content='2024-11-01 11:26:38 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>D.M.M.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>Outstanding!</b> <div class='jdgm-rev__body'><p>For now, Anker at it’s best!</p></div> <div class='jdgm-rev__pics'>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_via_store_invitation></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='384dfa67-3367-47ce-8d42-a3568cba58f7' data-review-language='' data-product-title='Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)' data-product-url='/products/a8377' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > R </div>  <span class='jdgm-rev__rating' data-score='5' tabindex='0' aria-label='5 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2024-11-01T09:24:51Z' data-content='2024-11-01 09:24:51 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>R.v.O.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>Excellent and smart product</b> <div class='jdgm-rev__body'><p>More than happy with my Anker 675 USB-C Docking station, seamless switching between MacBook, Dell laptops and HP laptop by just one cable. Future request - support for multiple screens.</p></div> <div class='jdgm-rev__pics'>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_via_store_invitation></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='8b00af63-c7c7-404d-b49c-0ad017b1bbef' data-review-language='' data-product-title='Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)' data-product-url='/products/a8377' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > V </div>  <span class='jdgm-rev__rating' data-score='5' tabindex='0' aria-label='5 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2024-07-09T06:44:53Z' data-content='2024-07-09 06:44:53 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>V.K.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>Even Better than expected</b> <div class='jdgm-rev__body'><p>For my work laptop I have an expensive \"professional\" docking station at the office. It can only support 2k 60hz SDR. What I didn't expect is that the Anker 675 immediately without any fiddling from my side enabled 2k 100Hz HDR. Wireless charging also worked on all of my devices. All in all - great experience and well worth it.</p></div> <div class='jdgm-rev__pics'>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_via_store_invitation></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='104d1fd8-b5d2-4490-9c3a-0d0384fa64a8' data-review-language='' data-product-title='Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)' data-product-url='/products/a8377' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > G </div>  <span class='jdgm-rev__rating' data-score='4' tabindex='0' aria-label='4 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2024-06-28T12:05:41Z' data-content='2024-06-28 12:05:41 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>G.B.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>USB C cable</b> <div class='jdgm-rev__body'><p>Oh, where do I even begin with this stunning piece of technology that set me back a mere 250 euros? Clearly, the manufacturer believes in the philosophy of minimalism, especially when it comes to the USB-C cable length. A whole meter of cable? How generous! So thoughtful!</p>\n\n<p>For 250 euros, you’d think they could spring for an extra bit of cord, but no, why spoil us with luxury? It’s a refreshing change from those extravagant, longer cables that just create a mess of options and flexibility. Who needs all that freedom anyway?</p>\n\n<p>Apart from this delightful cable situation, the device itself is...fine, I guess. It works as expected, which is probably the overall experience: sturdy, light, and looks nice!</p></div> <div class='jdgm-rev__pics'>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_from_store_visitor></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='f0b17335-9606-47d4-a666-15791445f814' data-review-language='' data-product-title='Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)' data-product-url='/products/a8377' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > A </div>  <span class='jdgm-rev__rating' data-score='5' tabindex='0' aria-label='5 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2024-05-09T07:32:22Z' data-content='2024-05-09 07:32:22 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>A.S.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>Awesome!</b> <div class='jdgm-rev__body'><p>Amazing product, fast shipping. Perfect transaction</p></div> <div class='jdgm-rev__pics'>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_via_store_invitation></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div></div> <div class='jdgm-paginate' data-per-page='5' data-url='https://api.judge.me/reviews/reviews_for_widget' style=\"display: none;\"></div>  </div> <div class='jdgm-rev-widg__paginate-spinner-wrapper'> <div class='jdgm-spinner'></div> </div> </div>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2025-01-20T10:37:56Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/179041451114872",
+      "key": "infos",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2025-01-20T10:37:56Z",
+      "value": "{\"key_features\":{\"list\":[{\"key\":\"12-in-1 Docking Station and Monitor Stand\",\"value\":\"Equip your workstation with a 100W max USB-C upstream port (connect to laptop), 3 USB-A ports, 2 USB-C ports, SD/microSD card slots, a 4K HDMI port, a wireless charging pad, and an Ethernet port.\"},{\"key\":\"All-in-One Workspace Organizer\",\"value\":\"Stand your monitor on top of the docking station, and use the space underneath to store your keyboard, mouse, and other peripherals when you're not using them.\"},{\"key\":\"User-Friendly Design\",\"value\":\"By raising your monitor off the desk, you'll be able to sit up straight instead of slouching—promoting a healthier posture and a more comfortable work experience.\"},{\"key\":\"Power Your Entire Workstation\",\"value\":\"With a 100W max USB-C upstream port to charge your laptop, 2 USB-C Power Delivery ports sharing 45W, 3 USB-A ports for smaller devices, and a wireless charging pad for your phone, you have more than enough options to keep your whole workspace powered up.\"},{\"key\":\"What You Get\",\"value\":\"Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless), welcome guide, our worry-free 18-month warranty, and friendly customer service.\"}]}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-01-03T03:46:02Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/35154962776254",
+      "key": "topbar",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-01-03T03:46:02Z",
+      "value": "{\"first\":{\"purchase\":\"Purchase\"},\"components\":{\"listingBanner\":\"Overview\",\"productSpecs\":\"Specs\",\"faq\":\"FAQ\",\"productRecommends\":\"Recommends\",\"reviews\":\"Reviews\"},\"last\":{}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": "https://eu.anker.com/pl/products/a8377",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10014642438334",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/1786344669374",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "249.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "249.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2024-01-02T10:58:32Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": "Anker 675 USB-C Docking Station (12-in-1, Monitor Stand, Wireless)"
+  },
+  "tags": [
+    "charger_bfcm_2024",
+    "charger_bts_2024",
+    "charger_fall_pd_2309",
+    "dockingstations",
+    "valentines"
+  ],
+  "title": "Anker <b>675</b> USB-C Docking Station (12-in-1, Monitor Stand, Wireless)",
+  "totalInventory": 0,
+  "updatedAt": "2026-10-22T12:36:10Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MzQxOTM2MzgzNjA5NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MzQxOTM2MzgzNjA5NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644119270",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/43419363836094",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ProductImage/34406429687998",
+            "thumbhash": "2veBBAAjMr1nqruQ0S+l/FKKdYZ2CKenCw==",
+            "url": "https://cdn.shopify.com/s/files/1/0595/4034/0926/files/A8377_TD01_V11_1.png?v=1704256161",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "249.99",
+            "currencyCode": "EUR"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A83773Z1",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 6.8013,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/43419363836094": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/43419363836094",
+      "metafields": [
+        null,
+        null,
+        {
+          "__typename": "Metafield",
+          "createdAt": "2024-11-20T06:27:27Z",
+          "description": null,
+          "id": "gid://shopify/Metafield/177894559711608",
+          "key": "data",
+          "list": false,
+          "namespace": "__discountCodeApp",
+          "reference": null,
+          "references": null,
+          "type": "json",
+          "updatedAt": "2024-12-08T23:05:24Z",
+          "value": "[]"
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

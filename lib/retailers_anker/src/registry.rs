@@ -241,3 +241,9 @@ pub fn classify_link_for(
         _ => None,
     }
 }
+
+pub fn initial_fill_config_for(
+    retailer: RetailerCode,
+) -> Option<retailer_sauce::shopify::initial_fill::StorefrontConfig> {
+    crate::initial_fill::config(retailer)
+}

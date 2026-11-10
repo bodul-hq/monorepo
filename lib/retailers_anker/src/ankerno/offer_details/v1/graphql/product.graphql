@@ -1,0 +1,22 @@
+query NordicProduct($handle: String!, $country: CountryCode!)
+@inContext(country: $country, language: EN) {
+  localization {
+    country { isoCode currency { isoCode } }
+    language { isoCode }
+  }
+  product(handle: $handle) {
+    id handle title descriptionHtml onlineStoreUrl
+    images(first: 250) {
+      nodes { url }
+      pageInfo { hasNextPage }
+    }
+    variants(first: 250) {
+      nodes {
+        id sku barcode availableForSale
+        price { amount currencyCode }
+        compareAtPrice { amount currencyCode }
+      }
+      pageInfo { hasNextPage }
+    }
+  }
+}
