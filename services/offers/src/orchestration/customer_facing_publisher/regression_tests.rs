@@ -160,7 +160,7 @@ fn rejects_unknown_types_and_malformed_event_fields() {
         ("id", json!("not-uuid")),
         ("id", json!(42)),
         ("title", json!(null)),
-        ("retailer_code", json!("ankerau")),
+        ("retailer_code", json!("AnkerAU")),
         ("price", json!({"amount":1.5,"currency":"AUD"})),
         ("price", json!({"amount":1,"currency":"unknown"})),
         ("created_at", json!("not-a-time")),

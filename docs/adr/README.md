@@ -67,3 +67,5 @@ Decision, Consequences) and give it the next number.
 - [47: Separate Nordic Anker markets](0047-nordic-retailer-markets.md)
 
 - [48: Local ownership of retailer shared types](0048-local-retailer-shared-types.md)
+
+- [49: Lowercase retailer serialization](0049-lowercase-retailer-serialization.md)

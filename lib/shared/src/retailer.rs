@@ -4,65 +4,117 @@
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum RetailerCode {
+    #[serde(alias = "MinisForumEu")]
     MinisForumEu,
+    #[serde(alias = "MinisForumUs")]
     MinisForumUs,
+    #[serde(alias = "MinisForumUk")]
     MinisForumUk,
+    #[serde(alias = "MinisForumFr")]
     MinisForumFr,
+    #[serde(alias = "MinisForumCa")]
     MinisForumCa,
+    #[serde(alias = "MinisForumAu")]
     MinisForumAu,
+    #[serde(alias = "MinisForumKr")]
     MinisForumKr,
+    #[serde(alias = "MinisForumJp")]
     MinisForumJp,
+    #[serde(alias = "MinisForumRu")]
     MinisForumRu,
+    #[serde(alias = "MinisForumHk")]
     MinisForumHk,
 
     // Xiaomi
+    #[serde(alias = "MiCom")]
     MiCom,
 
     // UGREEN
+    #[serde(alias = "UgreenCom")]
     UgreenCom,
+    #[serde(alias = "UgreenUs")]
     UgreenUs,
+    #[serde(alias = "UgreenCa")]
     UgreenCa,
+    #[serde(alias = "UgreenEu")]
     UgreenEu,
+    #[serde(alias = "UgreenDe")]
     UgreenDe,
+    #[serde(alias = "UgreenUk")]
     UgreenUk,
+    #[serde(alias = "UgreenFr")]
     UgreenFr,
+    #[serde(alias = "UgreenNl")]
     UgreenNl,
+    #[serde(alias = "UgreenJp")]
     UgreenJp,
+    #[serde(alias = "UgreenKr")]
     UgreenKr,
+    #[serde(alias = "UgreenIn")]
     UgreenIn,
+    #[serde(alias = "UgreenNas")]
     UgreenNas,
+    #[serde(alias = "UgreenNasCa")]
     UgreenNasCa,
+    #[serde(alias = "UgreenNasEu")]
     UgreenNasEu,
+    #[serde(alias = "UgreenNasDe")]
     UgreenNasDe,
+    #[serde(alias = "UgreenNasUk")]
     UgreenNasUk,
+    #[serde(alias = "UgreenNasFr")]
     UgreenNasFr,
+    #[serde(alias = "UgreenNasEs")]
     UgreenNasEs,
+    #[serde(alias = "UgreenNasIt")]
     UgreenNasIt,
+    #[serde(alias = "UgreenNasAu")]
     UgreenNasAu,
+    #[serde(alias = "UgreenNasJp")]
     UgreenNasJp,
 
     // Anker
+    #[serde(alias = "AnkerCom")]
     AnkerCom,
+    #[serde(alias = "AnkerJapanCom")]
     AnkerJapanCom,
+    #[serde(alias = "AnkerKr")]
     AnkerKr,
+    #[serde(alias = "AnkerItalyCom")]
     AnkerItalyCom,
     /// Historical Nordic records only; new work uses a country-specific code.
+    #[serde(alias = "AnkerNordicsCom")]
     AnkerNordicsCom,
+    #[serde(alias = "AnkerSe")]
     AnkerSe,
+    #[serde(alias = "AnkerNo")]
     AnkerNo,
+    #[serde(alias = "AnkerFi")]
     AnkerFi,
+    #[serde(alias = "AnkerIs")]
     AnkerIs,
+    #[serde(alias = "AnkerDk")]
     AnkerDk,
+    #[serde(alias = "AnkerUk")]
     AnkerUk,
+    #[serde(alias = "AnkerCa")]
     AnkerCa,
+    #[serde(alias = "AnkerEu")]
     AnkerEu,
+    #[serde(alias = "AnkerDe")]
     AnkerDe,
+    #[serde(alias = "AnkerFr")]
     AnkerFr,
+    #[serde(alias = "AnkerPl")]
     AnkerPl,
+    #[serde(alias = "AnkerAu")]
     AnkerAu,
+    #[serde(alias = "AnkerNz")]
     AnkerNz,
     // AnkerMy,
+    #[serde(alias = "AnkerVn")]
     AnkerVn,
 }
 
@@ -303,6 +355,44 @@ mod tests {
     use super::code_for_name;
 
     #[test]
+    fn serde_accepts_only_canonical_and_historical_spellings() {
+        for code in RetailerCode::ALL
+            .into_iter()
+            .chain([RetailerCode::AnkerNordicsCom])
+        {
+            let historical = format!("{code:?}");
+            let slug = code.as_str();
+            assert_eq!(serde_json::to_value(code).unwrap(), slug);
+            for spelling in [&historical, &slug] {
+                assert_eq!(
+                    serde_json::from_value::<RetailerCode>(serde_json::json!(spelling)).unwrap(),
+                    code
+                );
+            }
+            for invalid in [
+                slug.to_uppercase(),
+                format!("{}{}", &historical[..1], &slug[1..]),
+                format!(" {slug}"),
+                format!("{slug} "),
+            ] {
+                assert!(
+                    serde_json::from_value::<RetailerCode>(serde_json::json!(invalid)).is_err(),
+                    "{invalid}"
+                );
+            }
+            // Slug parsing remains lowercase-only, independently of Serde aliases.
+            assert!(RetailerCode::try_from(historical.as_str()).is_err());
+        }
+        for invalid in [
+            serde_json::json!("unknown"),
+            serde_json::json!(null),
+            serde_json::json!(42),
+        ] {
+            assert!(serde_json::from_value::<RetailerCode>(invalid).is_err());
+        }
+    }
+
+    #[test]
     fn nordic_codes_round_trip_and_replace_the_legacy_active_entry() {
         for (code, slug, wire) in [
             (RetailerCode::AnkerSe, "ankerse", "AnkerSe"),
@@ -314,7 +404,7 @@ mod tests {
             assert_eq!(RetailerCode::try_from(slug).unwrap(), code);
             assert_eq!(code_for_name(wire), Some(code));
             assert_eq!(code.as_str(), slug);
-            assert_eq!(serde_json::to_value(code).unwrap(), wire);
+            assert_eq!(serde_json::to_value(code).unwrap(), slug);
             assert_eq!(
                 serde_json::from_value::<RetailerCode>(serde_json::json!(wire)).unwrap(),
                 code

@@ -34,6 +34,10 @@ sitemap URLs; `NormalizedData` carries normalized JSON and related offer URLs.
 These APIs and their tests were imported from the resolved `bodul_shared` 0.1.1
 package in the `null-labs-hq` registry (package SHA-256
 `10192019c3cee94b7cd4c8cc57e79c4cec86f1f11a506e163e9990faa5988544`).
-The upstream [MIT notice](LICENSE-MIT) is retained. Serialization, retailer slugs,
-and link labels remain compatible, including the existing `not_intersted` label.
+The upstream [MIT notice](LICENSE-MIT) is retained. Retailer slugs and link labels remain compatible, including the existing
+`not_intersted` label. Serde now writes lowercase retailer slugs and reads both
+lowercase and exact historical variant spellings; other casing is invalid.
+This applies to every typed payload, export and API response. Deploy readers
+before producers; old binaries cannot read the new spelling. Stored bytes and
+opaque JSON are not rewritten. See [ADR 49](../../docs/adr/0049-lowercase-retailer-serialization.md).
 See [ADR 46](../../docs/adr/0046-local-shared-library.md) for local ownership.

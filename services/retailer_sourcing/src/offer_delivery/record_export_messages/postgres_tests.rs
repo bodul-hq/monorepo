@@ -518,7 +518,9 @@ fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_
         "SELECT jsonb_agg(to_jsonb(t) ORDER BY id) AS value FROM inbox_entries t",
     );
     assert_eq!(accepted.as_array().unwrap().len(), 2);
-    let fixture: Value = serde_json::from_str(IMPORT_FIXTURE).unwrap();
+    let mut fixture: Value = serde_json::from_str(IMPORT_FIXTURE).unwrap();
+    // Keep the historical fixture intact; newly serialized exports use slugs.
+    fixture["retailer_code"] = json!("ankerau");
     let first_entry = &export.entries[0];
     let row = accepted
         .as_array()

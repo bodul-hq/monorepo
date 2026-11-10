@@ -1,3 +1,8 @@
+- [x] Implement lowercase retailer serialization and shared/service compatibility tests
+  ([ADR 49](docs/adr/0049-lowercase-retailer-serialization.md)).
+- [.] Preserve and test initial-fill deterministic detail command IDs. This checkout
+  has no initial-fill/catalog event flow; awaiting its branch or commit.
+
 
 GOAL:
 Implement the split of Anker Nordics into Anker Sweden, Norway, Finland, Iceland

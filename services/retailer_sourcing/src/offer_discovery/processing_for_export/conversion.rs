@@ -223,6 +223,15 @@ impl Variation {
 }
 
 #[cfg(test)]
+fn canonical_fixture(json: &str) -> serde_json::Value {
+    let mut fixture: serde_json::Value = serde_json::from_str(json).unwrap();
+    // Keep historical fixture bytes intact; newly serialized typed exports canonicalize.
+    assert_eq!(fixture["retailer_code"], "AnkerAu");
+    fixture["retailer_code"] = serde_json::json!("ankerau");
+    fixture
+}
+
+#[cfg(test)]
 pub(super) mod tests {
     use super::*;
     use crate::platform::object_storage::OfferStorageMetadata;
@@ -254,10 +263,9 @@ pub(super) mod tests {
     #[test]
     fn preserves_priced_variations_and_matches_the_offers_contract_fixture() {
         let output = convert(source(), ANKER, 1).unwrap();
-        let expected: Value = serde_json::from_str(include_str!(
+        let expected = canonical_fixture(include_str!(
             "../../../tests/fixtures/offer_export/import_payload.json"
-        ))
-        .unwrap();
+        ));
         assert_eq!(
             serde_json::to_value(&output.entries[0].payload).unwrap(),
             expected
@@ -422,10 +430,9 @@ pub(super) mod tests {
     #[test]
     fn v2_matches_shared_import_fixture() {
         let output = convert(source(), ANKER, 2).unwrap();
-        let fixture: Value = serde_json::from_str(include_str!(
+        let fixture = canonical_fixture(include_str!(
             "../../../tests/fixtures/offer_export/import_payload_v2.json"
-        ))
-        .unwrap();
+        ));
         assert_eq!(
             serde_json::to_value(&output.entries[0].payload).unwrap(),
             fixture
@@ -500,10 +507,9 @@ mod extended_contract_tests {
         assert!(snapshot.valid_schema());
         assert_eq!(
             serde_json::to_value(&snapshot.entries[0].payload).unwrap(),
-            serde_json::from_str::<serde_json::Value>(include_str!(
+            canonical_fixture(include_str!(
                 "../../../tests/fixtures/offer_export/import_payload_v5.json"
             ))
-            .unwrap()
         );
         for version in [1, 2, 3, 4] {
             let mut source = source.clone();
@@ -576,7 +582,7 @@ mod facts_tests {
             let snapshot = convert(source.clone(), &document().to_string(), version).unwrap();
             assert!(snapshot.valid_schema());
             let payload = serde_json::to_value(&snapshot.entries[0].payload).unwrap();
-            assert_eq!(payload, serde_json::from_str::<Value>(fixture).unwrap());
+            assert_eq!(payload, canonical_fixture(fixture));
             let bytes = serde_json::to_vec(&snapshot).unwrap();
             let restored: OfferExport = serde_json::from_slice(&bytes).unwrap();
             assert_eq!(serde_json::to_vec(&restored).unwrap(), bytes);

@@ -59,7 +59,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
     assert_eq!(
         serde_json::from_str::<Value>(stored["payload"].as_str().unwrap()).unwrap(),
         json!({
-            "retailer_code":"AnkerAu", "title":"USB charger",
+            "retailer_code":"ankerau", "title":"USB charger",
             "price":{"amount":1999,"currency":"AUD"},
             "url":"https://example.com/charger?color=red", "images":[]
         })
