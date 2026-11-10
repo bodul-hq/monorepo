@@ -1,3 +1,4 @@
+mod initial_fill_process;
 mod localization;
 mod pretty;
 
@@ -11,7 +12,25 @@ use shared::link::LinkKind;
 use shared::prelude::RetailerCode;
 use shared::{NormalizedData, SitemapConfig};
 
+pub use initial_fill_process::{InitialFillProcess, Step, initial_fill_process};
 pub use pretty::pretty_json;
+
+/// Retailer-owned GraphQL integration; source interpretation stays behind this boundary.
+pub fn initial_fill_integration_for(
+    retailer: RetailerCode,
+) -> Option<&'static dyn retailer_sauce::initial_fill::InitialFillIntegration> {
+    retailers_anker::initial_fill::integration(retailer)
+        .or_else(|| retailers_minisforum::initial_fill::integration(retailer))
+        .or_else(|| retailers_ugreen::initial_fill::integration(retailer))
+}
+pub fn all_market_contexts(retailer: RetailerCode) -> bool {
+    initial_fill_integration_for(retailer).is_some_and(|i| i.all_market_contexts())
+}
+pub fn initial_fill_config_for(
+    retailer: RetailerCode,
+) -> Option<retailer_sauce::shopify::initial_fill::StorefrontConfig> {
+    initial_fill_integration_for(retailer).map(|i| i.config())
+}
 
 /// Returns the registered extraction architecture for a retailer.
 ///
@@ -162,7 +181,7 @@ pub struct OfferRequest {
 pub fn offer_request_for(retailer: RetailerCode, url: &str) -> Result<OfferRequest, String> {
     if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer) {
         return Ok(OfferRequest {
-            url: retailers_anker::prelude::NORDIC_ENDPOINT.into(),
+            url: market.endpoint().into(),
             json_body: Some(market.request(url)?),
         });
     }
@@ -196,27 +215,37 @@ mod tests {
             (
                 RetailerCode::AnkerSe,
                 "SE",
-                include_str!("../../retailers_anker/src/nordic/fixtures/se.json"),
+                include_str!(
+                    "../../retailers_anker/src/ankerse/offer_details/v1/graphql/response.json"
+                ),
             ),
             (
                 RetailerCode::AnkerNo,
                 "NO",
-                include_str!("../../retailers_anker/src/nordic/fixtures/no.json"),
+                include_str!(
+                    "../../retailers_anker/src/ankerno/offer_details/v1/graphql/response.json"
+                ),
             ),
             (
                 RetailerCode::AnkerFi,
                 "FI",
-                include_str!("../../retailers_anker/src/nordic/fixtures/fi.json"),
+                include_str!(
+                    "../../retailers_anker/src/ankerfi/offer_details/v1/graphql/response.json"
+                ),
             ),
             (
                 RetailerCode::AnkerIs,
                 "IS",
-                include_str!("../../retailers_anker/src/nordic/fixtures/is.json"),
+                include_str!(
+                    "../../retailers_anker/src/ankeris/offer_details/v1/graphql/response.json"
+                ),
             ),
             (
                 RetailerCode::AnkerDk,
                 "DK",
-                include_str!("../../retailers_anker/src/nordic/fixtures/dk.json"),
+                include_str!(
+                    "../../retailers_anker/src/ankerdk/offer_details/v1/graphql/response.json"
+                ),
             ),
         ] {
             let url = "https://www.ankernordics.com/products/t90r0121";
