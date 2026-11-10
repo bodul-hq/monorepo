@@ -2,7 +2,7 @@ use super::*;
 use serde_json::{Value, json};
 use std::io::{Read, Write};
 use std::net::TcpListener;
-use std::thread;
+use std::{process, thread};
 
 const OBJECT_ID: &str = "019a1234-5678-7000-8000-000000000001";
 const EXTERNAL_ID: &str = "019a1234-5678-7000-8000-000000000002";
@@ -50,8 +50,11 @@ fn fixture(path: &str, token: &str, status: u16, body: String) -> (String, threa
 
 fn source() -> Source {
     Source {
+        context: None,
         id: "source-id".into(),
-        url: "https://www.anker.com/au/products/a1256".into(),
+        location: Location::Html {
+            url: "https://www.anker.com/au/products/a1256".into(),
+        },
         retailer_code: "AnkerAu".into(),
         storage: Storage {
             content_size: BODY.len() as u64,
@@ -72,7 +75,7 @@ async fn downloads_metadata_then_payload_and_skips_older_copies() {
         "/api/development/offer-details/sources?limit=200&offset=200",
         "sourcing-token",
         200,
-        json!({"sources": [{"id":"source-id", "offer_id":"offer-id", "url":source().url,
+        json!({"sources": [{"id":"source-id", "offer_id":"offer-id", "url":"https://www.anker.com/au/products/a1256",
             "retailer_code":"AnkerAu", "storage":{"content_size":BODY.len(),
                 "object_storage_id":OBJECT_ID, "external_id":EXTERNAL_ID}}]})
         .to_string(),
@@ -150,4 +153,51 @@ async fn failed_or_mismatched_objects_do_not_write_files() {
         assert!(written.is_empty());
         assert!(!dir.exists());
     }
+}
+
+#[tokio::test]
+async fn dumps_graphql_v2_verbatim_and_skips_older_product_copies() {
+    let body = "{\n  \"schema_version\":1, \"product\":{\"id\":\"gid://shopify/Product/123\",\"title\":\"ž 🔎\"}, \"pages\":[]\n}";
+    let (sourcing, sourcing_thread) = fixture(
+        "/api/development/offer-details-v2/sources?limit=200&offset=0", "sourcing-token", 200,
+        json!({"sources":[{"id":"event-id","run_id":"run-id","product_id":"gid://shopify/Product/123", "retailer_code":"AnkerCa", "fetched_at":"2026-11-10T00:00:00Z", "storage":{
+            "object_storage_id":OBJECT_ID,"external_id":EXTERNAL_ID,"content_size":body.len()
+        }}]}).to_string(),
+    );
+    let mut object = record();
+    object["payload"] = json!(body);
+    let (storage, storage_thread) = fixture(
+        &format!("/api/buckets/{BUCKET}/records/{OBJECT_ID}"),
+        "storage-token",
+        200,
+        object.to_string(),
+    );
+    let pages = fetch_page(
+        &reqwest::Client::new(),
+        &format!("{sourcing}/api/development/offer-details-v2/sources"),
+        "sourcing-token",
+        0,
+    )
+    .await
+    .unwrap();
+    sourcing_thread.join().unwrap();
+    let objects = ObjectStorage::new(&storage, "storage-token", Transport::Rest).unwrap();
+    let dir = env::temp_dir().join(format!("dump-offers-v2-{}", process::id()));
+    let mut written = HashMap::new();
+    let Written::Newest(path) = write_source(&dir, &pages[0], &mut written, &objects)
+        .await
+        .unwrap()
+    else {
+        panic!("not written")
+    };
+    storage_thread.join().unwrap();
+    assert!(path.ends_with("ankerca/offer_details_v2/sources/123.json"));
+    assert_eq!(fs::read_to_string(&path).unwrap(), body);
+    assert!(matches!(
+        write_source(&dir, &pages[0], &mut written, &objects)
+            .await
+            .unwrap(),
+        Written::Older
+    ));
+    fs::remove_dir_all(dir).unwrap();
 }

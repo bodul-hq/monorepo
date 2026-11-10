@@ -52,3 +52,8 @@ export-sitemaps:
 
 wip:
 	git add . && git commit -m 'wip'
+
+.PHONY: dump-offer-details-v2
+# Download complete GraphQL artifacts into offer_details_v2/sources.
+dump-offer-details-v2:
+	$(MAKE) -C apps/development dump-offer-details-v2 DATA_DIR=$(abspath $(DATA_DIR))
