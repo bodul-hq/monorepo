@@ -117,7 +117,7 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handler<S, F, R> {
         let (documents, not_greylisted, errors) =
             crawl(&self.fetcher, &root_urls, greylisted, pause);
         for url in &not_greylisted {
-            tracing::info!(%retrieval_id, ?retailer_code, url, "sitemap file not greylisted, not downloaded");
+            tracing::info!(%retrieval_id, ?retailer_code, url=%http::safe_url(url), "sitemap file not greylisted, not downloaded");
         }
         for error in &errors {
             tracing::warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");

@@ -5,33 +5,33 @@ use std::collections::{HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 
 use super::handler::FetchSitemapBody;
-use crate::platform::http::FetchError;
+use crate::platform::http::{FetchError, safe_url};
 use sitemap::{ChildRef, MAX_SITEMAP_DEPTH, Parsed, RawSitemapDocument, SitemapParseError, parse};
 
 /// A problem with one sitemap file. The crawl skips that file and carries on.
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum CrawlError {
-    #[error("failed to fetch {url}: {source}")]
+    #[error("failed to fetch {}: {source}", safe_url(.url))]
     Fetch {
         url: String,
         #[source]
         source: FetchError,
     },
 
-    #[error("failed to parse {url}: {source}")]
+    #[error("failed to parse {}: {source}", safe_url(.url))]
     Parse {
         url: String,
         #[source]
         source: SitemapParseError,
     },
 
-    #[error("sitemap index contains a cycle at {url}")]
+    #[error("sitemap index contains a cycle at {}", safe_url(.url))]
     CyclicReference { url: String },
 
-    #[error("already fetched url {url}")]
+    #[error("already fetched url {}", safe_url(.url))]
     AlreadyFetched { url: String },
 
-    #[error("sitemap nesting exceeds the maximum depth of {max_depth} at {url}")]
+    #[error("sitemap nesting exceeds the maximum depth of {max_depth} at {}", safe_url(.url))]
     MaximumDepthExceeded { url: String, max_depth: usize },
 }
 
@@ -213,6 +213,20 @@ mod tests {
         )
     }
     const LEAF: &str = "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>";
+
+    #[test]
+    fn fetch_error_context_omits_url_credentials_and_query() {
+        let error = CrawlError::Fetch {
+            url: "https://user:password@example.com/sitemap?token=private#hidden".into(),
+            source: FetchError {
+                message: "sanitized HTTP failure".into(),
+            },
+        };
+        assert_eq!(
+            error.to_string(),
+            "failed to fetch https://example.com/sitemap: sanitized HTTP failure"
+        );
+    }
 
     #[test]
     fn pauses_only_between_attempts_in_breadth_first_order_even_after_failures() {

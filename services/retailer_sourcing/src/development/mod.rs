@@ -8,4 +8,5 @@
 pub mod prelude;
 
 mod offer_details;
+mod offer_details_v2;
 mod sitemaps;

@@ -41,7 +41,7 @@ impl FetchOfferPage for http::OfferClient {
 
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadOfferPageError {
-    #[error("offer page download failed for {url}: {error}")]
+    #[error("offer page download failed for {}: {error}", http::safe_url(.url))]
     Fetch { url: String, error: FetchError },
 
     #[error(transparent)]
@@ -118,7 +118,7 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
         tracing::info!(
             object_storage_id = %stored.object_storage_id,
             offer_id = %command.offer_id,
-            url = %command.url,
+            url = %http::safe_url(&command.url),
             bytes = entity.body.len(),
             "offer page downloaded"
         );
@@ -145,6 +145,20 @@ mod tests {
     const URL: &str = "https://shop.test/products/a";
 
     #[test]
+    fn fetch_error_context_omits_url_credentials_and_query() {
+        let error = DownloadOfferPageError::Fetch {
+            url: "https://user:password@example.com/offer?token=private#hidden".into(),
+            error: FetchError {
+                message: "sanitized HTTP failure".into(),
+            },
+        };
+        assert_eq!(
+            error.to_string(),
+            "offer page download failed for https://example.com/offer: sanitized HTTP failure"
+        );
+    }
+
+    #[test]
     fn nordic_download_posts_country_context_and_keeps_product_identity() {
         struct NordicSource {
             wrong_market: bool,
@@ -162,9 +176,9 @@ mod tests {
                 assert_eq!(body["variables"]["country"], "FI");
                 assert_eq!(body["variables"]["handle"], "t90r0121");
                 Ok(if self.wrong_market {
-                    include_str!("../../../../../lib/retailers_anker/src/nordic/fixtures/se.json")
+                    include_str!("../../../../../lib/retailers_anker/src/ankerse/offer_details/v1/graphql/response.json")
                 } else {
-                    include_str!("../../../../../lib/retailers_anker/src/nordic/fixtures/fi.json")
+                    include_str!("../../../../../lib/retailers_anker/src/ankerfi/offer_details/v1/graphql/response.json")
                 }
                 .into())
             }
