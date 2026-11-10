@@ -1,0 +1,253 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "미분류"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "KRW"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "KRW"
+    }
+  },
+  "createdAt": "2025-11-06T08:01:25Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2401,
+    "id": "gid://shopify/ProductImage/47269966053609",
+    "thumbhash": "2PeBBQA1fIKNdEoHZqpw+Rt4GFd4h3B7aA==",
+    "url": "https://cdn.shopify.com/s/files/1/0762/7092/8105/files/95127.png?v=1762416274",
+    "width": 2401
+  },
+  "handle": "dxp2800",
+  "id": "gid://shopify/Product/9107602276585",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NzI2OTk2NjA1MzYwOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzI2OTk2NjA1MzYwOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2401,
+          "id": "gid://shopify/ProductImage/47269966053609",
+          "thumbhash": "2PeBBQA1fIKNdEoHZqpw+Rt4GFd4h3B7aA==",
+          "url": "https://cdn.shopify.com/s/files/1/0762/7092/8105/files/95127.png?v=1762416274",
+          "width": 2401
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozODI1Njk4MjY1NTIwOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozODI1Njk4MjY1NTIwOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/38256982655209",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2401,
+            "id": "gid://shopify/ImageSource/38256982655209",
+            "thumbhash": "2PeBBQA1fIKNdEoHZqpw+Rt4GFd4h3B7aA==",
+            "url": "https://cdn.shopify.com/s/files/1/0762/7092/8105/files/95127.png?v=1762416274",
+            "width": 2401
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2401,
+            "id": "gid://shopify/ImageSource/38256982655209",
+            "thumbhash": "2PeBBQA1fIKNdEoHZqpw+Rt4GFd4h3B7aA==",
+            "url": "https://cdn.shopify.com/s/files/1/0762/7092/8105/files/95127.png?v=1762416274",
+            "width": 2401
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://kr.ugreen.com/products/dxp2800",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/11460734910697",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/3906734817513",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1.0",
+      "currencyCode": "KRW"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1.0",
+      "currencyCode": "KRW"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2025-11-06T08:08:10Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "DXP2800",
+  "updatedAt": "2025-11-07T08:19:54Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0OTMzODgzMDYxODg1NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0OTMzODgzMDYxODg1NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/49338830618857",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2401,
+            "id": "gid://shopify/ProductImage/47269966053609",
+            "thumbhash": "2PeBBQA1fIKNdEoHZqpw+Rt4GFd4h3B7aA==",
+            "url": "https://cdn.shopify.com/s/files/1/0762/7092/8105/files/95127.png?v=1762416274",
+            "width": 2401
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "1.0",
+            "currencyCode": "KRW"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": null,
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": false,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN-KR"
+}

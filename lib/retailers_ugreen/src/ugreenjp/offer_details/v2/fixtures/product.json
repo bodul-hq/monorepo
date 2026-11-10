@@ -1,0 +1,273 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "電力"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "電気製品関連用品・PC周辺機器"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "電子機器"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-5",
+    "name": "電源アダプター・充電器"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "createdAt": "2026-05-09T10:21:32Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/52890795278616",
+    "thumbhash": "ZfeFBQBGgm+Nd4R6qLtglwtWCIdnl3WJWA==",
+    "url": "https://cdn.shopify.com/s/files/1/0874/5887/3624/files/X865_95861.webp?v=1778490464",
+    "width": 1200
+  },
+  "handle": "nexode-air-65w-charger-slim",
+  "id": "gid://shopify/Product/10262606938392",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1Mjg5MDc5NTI3ODYxNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1Mjg5MDc5NTI3ODYxNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/52890795278616",
+          "thumbhash": "ZfeFBQBGgm+Nd4R6qLtglwtWCIdnl3WJWA==",
+          "url": "https://cdn.shopify.com/s/files/1/0874/5887/3624/files/X865_95861.webp?v=1778490464",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0Mzc5OTk4MjgwMTE3NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0Mzc5OTk4MjgwMTE3NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/43799982801176",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/43799982801176",
+            "thumbhash": "ZfeFBQBGgm+Nd4R6qLtglwtWCIdnl3WJWA==",
+            "url": "https://cdn.shopify.com/s/files/1/0874/5887/3624/files/X865_95861.webp?v=1778490464",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/43799982801176",
+            "thumbhash": "ZfeFBQBGgm+Nd4R6qLtglwtWCIdnl3WJWA==",
+            "url": "https://cdn.shopify.com/s/files/1/0874/5887/3624/files/X865_95861.webp?v=1778490464",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ugreen.jp/products/nexode-air-65w-charger-slim",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/12834403975448",
+      "name": "颜色",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/7174005063960",
+          "name": "Gray",
+          "swatch": {
+            "__typename": "ProductOptionValueSwatch",
+            "color": "#858694",
+            "image": null
+          }
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "5780.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "5780.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-05-09T10:22:21Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "UGREEN Nexode Air 65W急速充電器Slim",
+  "updatedAt": "2026-10-22T20:59:22Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MjA0Mzc4NDI5MDU4NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MjA0Mzc4NDI5MDU4NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/52043784290584",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/52890795278616",
+            "thumbhash": "ZfeFBQBGgm+Nd4R6qLtglwtWCIdnl3WJWA==",
+            "url": "https://cdn.shopify.com/s/files/1/0874/5887/3624/files/X865_95861.webp?v=1778490464",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "5780.0",
+            "currencyCode": "JPY"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "颜色",
+              "value": "Gray"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": null,
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Gray",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "株式会社ユーグリーン・ジャパン"
+}

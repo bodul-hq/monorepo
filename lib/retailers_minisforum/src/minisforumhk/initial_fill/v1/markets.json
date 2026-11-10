@@ -1,0 +1,48 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "HK",
+        "currency": {
+          "isoCode": "HKD"
+        }
+      },
+      "language": {
+        "isoCode": "ZH_TW"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "HK",
+          "name": "香港特別行政區",
+          "currency": {
+            "isoCode": "HKD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "ZH_TW",
+              "name": "繁體中文"
+            }
+          ]
+        },
+        {
+          "isoCode": "MO",
+          "name": "澳門特別行政區",
+          "currency": {
+            "isoCode": "HKD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "ZH_TW",
+              "name": "繁體中文"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

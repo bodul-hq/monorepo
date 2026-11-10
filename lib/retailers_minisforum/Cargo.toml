@@ -5,12 +5,16 @@ edition = "2024"
 publish = ["null-labs-hq"]
 
 [dependencies]
+graphql_client.workspace = true
 html-extractor.workspace = true
 money.workspace = true
 retailer_sauce.workspace = true
+scraper.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 shared.workspace = true
 thiserror.workspace = true
+url.workspace = true
 
 [dev-dependencies]
 # Keeps keys in struct order when tests pretty-print documents to disk.

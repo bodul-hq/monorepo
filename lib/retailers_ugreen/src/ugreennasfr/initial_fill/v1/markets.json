@@ -1,0 +1,35 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AD",
+        "currency": {
+          "isoCode": "EUR"
+        }
+      },
+      "language": {
+        "isoCode": "FR"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "FR",
+          "name": "France",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

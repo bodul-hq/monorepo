@@ -1,0 +1,334 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/gc",
+    "name": "Cartes-cadeaux"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTA1MDc3NDU2MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODYwOTQyNDIxMTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "ugreen-hot-product",
+          "id": "gid://shopify/Collection/486094242112",
+          "image": null,
+          "onlineStoreUrl": "https://fr.ugreen.com/collections/ugreen-hot-product",
+          "seo": {
+            "__typename": "SEO",
+            "description": "UGREEN Hot Product - UGREEN FR",
+            "title": "UGREEN Hot Product - UGREEN FR"
+          },
+          "title": "UGREEN Hot Product",
+          "updatedAt": "2026-11-07T12:07:05Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0OTU3NjI3MzU0MjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "tous-les-produits",
+          "id": "gid://shopify/Collection/495762735424",
+          "image": null,
+          "onlineStoreUrl": "https://fr.ugreen.com/collections/tous-les-produits",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez tous les produits UGREEN en France : chargeurs, batteries externes, câbles USB-C, hubs, stations d’accueil et accessoires tech.",
+            "title": "UGREEN Tous les produits | Chargeurs, câbles et plus | UGREEN FR"
+          },
+          "title": "Tous les produits UGREEN",
+          "updatedAt": "2026-11-07T12:07:05Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTAyMzUzNDUyMTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "ugreen-soldes-de-printemps-jusqua-reduction",
+          "id": "gid://shopify/Collection/510235345216",
+          "image": null,
+          "onlineStoreUrl": "https://fr.ugreen.com/collections/ugreen-soldes-de-printemps-jusqua-reduction",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Les soldes de printemps UGREEN FR offrent jusqu’à 45 % de réduction sur une sélection d’accessoires. Profitez de grandes économies sur les chargeurs, batteries externes et hubs avec des offres à durée limitée. Achetez maintenant !",
+            "title": "Soldes de printemps : jusqu’à 45 % de réduction | UGREEN FR"
+          },
+          "title": "30 à 45 % de réduction sur une sélection d’articles",
+          "updatedAt": "2026-11-07T12:07:05Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTA1MDc3NDU2MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "thank-you-5",
+          "id": "gid://shopify/Collection/510507745600",
+          "image": null,
+          "onlineStoreUrl": "https://fr.ugreen.com/collections/thank-you-5",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Thank you 5%",
+          "updatedAt": "2026-11-07T12:07:05Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "300.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "300.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2025-03-12T07:39:39Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "UGREEN €300 Carte Cadeau",
+    "height": 576,
+    "id": "gid://shopify/ProductImage/48074578624832",
+    "thumbhash": "MDuGC4IdRGS/Z6RwFdoMo2hnjXeAyBg=",
+    "url": "https://cdn.shopify.com/s/files/1/0726/4111/8528/files/giftcard_pc-902383_1.png?v=1742353845",
+    "width": 876
+  },
+  "handle": "ugreen-carte-cadeau-300",
+  "id": "gid://shopify/Product/9749743272256",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0ODA3NDU3ODYyNDgzMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODA3NDU3ODYyNDgzMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN €300 Carte Cadeau",
+          "height": 576,
+          "id": "gid://shopify/ProductImage/48074578624832",
+          "thumbhash": "MDuGC4IdRGS/Z6RwFdoMo2hnjXeAyBg=",
+          "url": "https://cdn.shopify.com/s/files/1/0726/4111/8528/files/giftcard_pc-902383_1.png?v=1742353845",
+          "width": 876
+        }
+      }
+    ]
+  },
+  "isGiftCard": true,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozOTU4NDc2NjY1NjgzMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTU4NDc2NjY1NjgzMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN €300 Carte Cadeau",
+          "id": "gid://shopify/MediaImage/39584766656832",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN €300 Carte Cadeau",
+            "height": 576,
+            "id": "gid://shopify/ImageSource/39584766656832",
+            "thumbhash": "MDuGC4IdRGS/Z6RwFdoMo2hnjXeAyBg=",
+            "url": "https://cdn.shopify.com/s/files/1/0726/4111/8528/files/giftcard_pc-902383_1.png?v=1742353845",
+            "width": 876
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN €300 Carte Cadeau",
+            "height": 576,
+            "id": "gid://shopify/ImageSource/39584766656832",
+            "thumbhash": "MDuGC4IdRGS/Z6RwFdoMo2hnjXeAyBg=",
+            "url": "https://cdn.shopify.com/s/files/1/0726/4111/8528/files/giftcard_pc-902383_1.png?v=1742353845",
+            "width": 876
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://fr.ugreen.com/products/ugreen-carte-cadeau-300",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/12187464073536",
+      "name": "Value",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4433853972800",
+          "name": "€300",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "300.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "300.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-03-24T06:51:36Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Buy UGREEN €300 Carte Cadeau for only €290.00 at UGREEN FR!",
+    "title": "UGREEN €300 Carte Cadeau - UGREEN FR"
+  },
+  "tags": [],
+  "title": "UGREEN €300 Carte Cadeau",
+  "updatedAt": "2026-10-27T20:45:13Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MDQwODUwOTUzODYyNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDQwODUwOTUzODYyNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "300.0",
+            "currencyCode": "EUR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/50408509538624",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN €300 Carte Cadeau",
+            "height": 576,
+            "id": "gid://shopify/ProductImage/48074578624832",
+            "thumbhash": "MDuGC4IdRGS/Z6RwFdoMo2hnjXeAyBg=",
+            "url": "https://cdn.shopify.com/s/files/1/0726/4111/8528/files/giftcard_pc-902383_1.png?v=1742353845",
+            "width": 876
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "300.0",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Value",
+              "value": "€300"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": false,
+          "title": "€300",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN FR"
+}

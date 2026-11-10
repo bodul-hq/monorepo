@@ -1,0 +1,441 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-4",
+        "name": "Audio & Video Splitters & Switches"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-4-2",
+    "name": "HDMI Splitters & Switches"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTM1NTAxODg2NDMsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTMxIDE1OjQ2OjA0LjQwMTc4NyIsIm9mZnNldCI6Mn0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNzY3MDU5MzU0NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Choose what connects, and where it goes. Explore UGREEN switches and splitters for compatible display and peripheral setups.Switch or split? Draw your setup. Count sources and destinations, then check whether the product selects between inputs, duplicates a signal or shares USB devices. Match the capability. Verify supported resolution, refresh rate or USB speed for the selected model and your equipment. Check the package. Confirm power, cables, control options and any compatibility requirements. A USB-only sharing switch does not automatically switch video.",
+          "descriptionHtml": "<p>Choose what connects, and where it goes. Explore UGREEN switches and splitters for compatible display and peripheral setups.</p><details><summary><strong>Switch or split?</strong></summary><ul>\n<li>\n<strong>Draw your setup.</strong> Count sources and destinations, then check whether the product selects between inputs, duplicates a signal or shares USB devices.</li>\n<li>\n<strong>Match the capability.</strong> Verify supported resolution, refresh rate or USB speed for the selected model and your equipment.</li>\n<li>\n<strong>Check the package.</strong> Confirm power, cables, control options and any compatibility requirements. A USB-only sharing switch does not automatically switch video.</li>\n</ul></details>",
+          "handle": "pc-accessories-switches-splitters",
+          "id": "gid://shopify/Collection/276705935459",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN two-port HDMI switching device",
+            "height": 1300,
+            "id": "gid://shopify/CollectionImage/1764678205539",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/collections/519juUzW-wL._SL1300.jpg?v=1791167558",
+            "width": 1001
+          },
+          "onlineStoreUrl": "https://ugreenindia.com/hi/collections/pc-accessories-switches-splitters",
+          "seo": {
+            "__typename": "SEO",
+            "description": " - यूग्रीन इंडिया",
+            "title": "स्विच / स्प्लिटर्स - यूग्रीन इंडिया"
+          },
+          "title": "स्विच / स्प्लिटर्स",
+          "updatedAt": "2026-11-07T12:13:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNzc2ODgxNTYyNTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Find the next useful addition to your setup. Explore UGREEN charging, connectivity and everyday tech essentials in one place.Find the right product for you Start with your need. Choose the device connection or everyday task you want to improve. Compare the details. Check your exact device model, required ports, supported power or speed and available product options. Review before ordering. Confirm the selected variant, package contents, availability and product-specific warranty details.",
+          "descriptionHtml": "<p>Find the next useful addition to your setup. Explore UGREEN charging, connectivity and everyday tech essentials in one place.</p><details><summary><strong>Find the right product for you</strong></summary><ul>\n<li>\n<strong>Start with your need.</strong> Choose the device connection or everyday task you want to improve.</li>\n<li>\n<strong>Compare the details.</strong> Check your exact device model, required ports, supported power or speed and available product options.</li>\n<li>\n<strong>Review before ordering.</strong> Confirm the selected variant, package contents, availability and product-specific warranty details.</li>\n</ul></details>",
+          "handle": "best-selling-collection",
+          "id": "gid://shopify/Collection/277688156259",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN charging accessories in a laptop workspace",
+            "height": 1600,
+            "id": "gid://shopify/CollectionImage/1764678500451",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/collections/717RBwRwhxL_e824ed08-e94f-454e-9083-114d041b6aa9.jpg?v=1791167606",
+            "width": 1200
+          },
+          "onlineStoreUrl": "https://ugreenindia.com/hi/collections/best-selling-collection",
+          "seo": {
+            "__typename": "SEO",
+            "description": " - यूग्रीन इंडिया",
+            "title": "सर्वाधिक बिकने वाले उत्पाद - यूग्रीन इंडिया"
+          },
+          "title": "सर्वाधिक बिकने वाले उत्पाद",
+          "updatedAt": "2026-11-07T12:13:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTM1NTAxODg2NDMsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTMxIDE1OjQ2OjA0LjQwMTc4NyIsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Official UGREEN switches, splitters, KVM switches, extenders and capture cards for screens, computers and consoles. How to choose Switch or splitter. A switch picks one of several sources for one screen. A splitter shows one source on several screens. KVM. A KVM switch lets two or more computers share one set of screen, keyboard and mouse. Distance. For long runs, an HDMI extender over Ethernet or a wireless HDMI kit carries the picture further than a cable. Capture. Capture cards bring a camera or console picture into your computer for recording or streaming. Picture. Check the supported resolution and refresh rate on the product page for your screens and sources. Warranty. UGREEN India switching and capture products carry a 2-year warranty.",
+          "descriptionHtml": "<p>Official UGREEN switches, splitters, KVM switches, extenders and capture cards for screens, computers and consoles.</p>\n<details><summary><strong>How to choose</strong></summary>\n<ul>\n<li>\n<strong>Switch or splitter.</strong> A switch picks one of several sources for one screen. A splitter shows one source on several screens.</li>\n<li>\n<strong>KVM.</strong> A KVM switch lets two or more computers share one set of screen, keyboard and mouse.</li>\n<li>\n<strong>Distance.</strong> For long runs, an HDMI extender over Ethernet or a wireless HDMI kit carries the picture further than a cable.</li>\n<li>\n<strong>Capture.</strong> Capture cards bring a camera or console picture into your computer for recording or streaming.</li>\n<li>\n<strong>Picture.</strong> Check the supported resolution and refresh rate on the product page for your screens and sources.</li>\n<li>\n<strong>Warranty.</strong> UGREEN India switching and capture products carry a 2-year warranty.</li>\n</ul>\n</details>",
+          "handle": "switches-extenders-capture",
+          "id": "gid://shopify/Collection/513550188643",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN dual-monitor KVM switch in a two-computer desk setup",
+            "height": 1500,
+            "id": "gid://shopify/CollectionImage/1764881956963",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/collections/55455_06.jpg?v=1793497707",
+            "width": 1500
+          },
+          "onlineStoreUrl": "https://ugreenindia.com/hi/collections/switches-extenders-capture",
+          "seo": {
+            "__typename": "SEO",
+            "description": "UGREEN HDMI and DisplayPort switches, splitters, KVM switches, HDMI extenders, wireless HDMI and video capture cards. GST invoice and 2-year India warranty.",
+            "title": "UGREEN HDMI Switches, Splitters, KVM, Extenders & Capture Cards"
+          },
+          "title": "Switches, Extenders & Capture",
+          "updatedAt": "2026-11-07T12:13:50Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "5109.0",
+      "currencyCode": "INR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "5109.0",
+      "currencyCode": "INR"
+    }
+  },
+  "createdAt": "2024-05-16T17:11:26Z",
+  "description": "उच्चतम वीडियो रिज़ॉल्यूशन 4K*2K का समर्थन; HDMI 1.4 संस्करण; एचडीसीपी अनुरूप; 12 बिट तक गहरा रंगीन वीडियो, 1080p@(24/50/60)Hz 1920x1200 ; सिग्नल हानि के बिना, एक HDMI स्रोत को एक साथ चार आउटपुट तक विभाजित करता है; विद्युत आपूर्ति: 12V (यूएस/ईयू मानक); ऑपरेटिंग तापमान 0°C ~ 48°C तक संचालित. ऑडियो प्रारूप: डीटीएस / डीटीएस-एचडी / डॉल्बी ट्रूएचडी / डॉल्बी ।",
+  "descriptionHtml": "<p><span><span><span></span></span></span><span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\">उच्चतम वीडियो रिज़ॉल्यूशन <strong>4K*2K का समर्थन; HDMI 1.4</strong> संस्करण;</span></p>\n\n<p> <span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\"><strong>एचडीसीपी</strong> अनुरूप;</span></p>\n\n<p> <span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\"><strong>12 बिट तक गहरा रंगीन वीडियो, 1080p@(24/50/60)Hz 1920x1200</strong> ;</span></p>\n\n<p> <span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\">सिग्नल हानि के बिना, एक <strong>HDMI</strong> स्रोत को एक साथ चार आउटपुट तक विभाजित करता है;</span></p>\n\n<p> <span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\">विद्युत आपूर्ति: <strong>12V</strong> (यूएस/ईयू मानक);</span></p>\n\n<p> <span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\">ऑपरेटिंग तापमान <strong>0°C ~ 48°C</strong> तक संचालित.</span></p>\n\n <p><span style=\"font-family: arial, helvetica, sans-serif; font-size: 10pt;\">ऑडियो प्रारूप: <strong>डीटीएस / डीटीएस-एचडी / डॉल्बी ट्रूएचडी / डॉल्बी</strong> ।</span></p>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+    "height": 800,
+    "id": "gid://shopify/ProductImage/34516234993763",
+    "thumbhash": "9AcWBwComId4h4d/dneJRohoCNfKSoUA",
+    "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000.jpg?v=1763829889",
+    "width": 800
+  },
+  "handle": "ugreen-1x4-hdmi-amplifier-splitter-40202",
+  "id": "gid://shopify/Product/7438718533731",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDUxNjIzNDk2MDk5NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDUxNjIzNDk5Mzc2MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+          "height": 800,
+          "id": "gid://shopify/ProductImage/34516234993763",
+          "thumbhash": "9AcWBwComId4h4d/dneJRohoCNfKSoUA",
+          "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000.jpg?v=1763829889",
+          "width": 800
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDUxNjIzNDkyODIyNywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN 40202 HDMI splitter sending one source to four displays",
+          "height": 798,
+          "id": "gid://shopify/ProductImage/34516234928227",
+          "thumbhash": "tPcFFYT3mId+ind7hcZHfoePdvhY",
+          "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_1.jpg?v=1763829890",
+          "width": 1000
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDUxNjIzNDk2MDk5NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN 40202 HDMI splitter package contents",
+          "height": 947,
+          "id": "gid://shopify/ProductImage/34516234960995",
+          "thumbhash": "MvgNBoDDuIqTfHidd8Y1+FmICHhpj2c=",
+          "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_2.jpg?v=1763829894",
+          "width": 1000
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNjA4NjY3MjM2NzcxNSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjA4NjY3MjQwMDQ4MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+          "id": "gid://shopify/MediaImage/26086672400483",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+            "height": 800,
+            "id": "gid://shopify/ImageSource/26086672400483",
+            "thumbhash": "9AcWBwComId4h4d/dneJRohoCNfKSoUA",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000.jpg?v=1763829889",
+            "width": 800
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+            "height": 800,
+            "id": "gid://shopify/ImageSource/26086672400483",
+            "thumbhash": "9AcWBwComId4h4d/dneJRohoCNfKSoUA",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000.jpg?v=1763829889",
+            "width": 800
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjA4NjY3MjMzNDk0NywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN 40202 HDMI splitter sending one source to four displays",
+          "id": "gid://shopify/MediaImage/26086672334947",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 HDMI splitter sending one source to four displays",
+            "height": 798,
+            "id": "gid://shopify/ImageSource/26086672334947",
+            "thumbhash": "tPcFFYT3mId+ind7hcZHfoePdvhY",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_1.jpg?v=1763829890",
+            "width": 1000
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 HDMI splitter sending one source to four displays",
+            "height": 798,
+            "id": "gid://shopify/ImageSource/26086672334947",
+            "thumbhash": "tPcFFYT3mId+ind7hcZHfoePdvhY",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_1.jpg?v=1763829890",
+            "width": 1000
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjA4NjY3MjM2NzcxNSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN 40202 HDMI splitter package contents",
+          "id": "gid://shopify/MediaImage/26086672367715",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 HDMI splitter package contents",
+            "height": 947,
+            "id": "gid://shopify/ImageSource/26086672367715",
+            "thumbhash": "MvgNBoDDuIqTfHidd8Y1+FmICHhpj2c=",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_2.jpg?v=1763829894",
+            "width": 1000
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 HDMI splitter package contents",
+            "height": 947,
+            "id": "gid://shopify/ImageSource/26086672367715",
+            "thumbhash": "MvgNBoDDuIqTfHidd8Y1+FmICHhpj2c=",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000_2.jpg?v=1763829894",
+            "width": 1000
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ugreenindia.com/hi/products/ugreen-1x4-hdmi-amplifier-splitter-40202",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9668020732003",
+      "name": "शीर्षक",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2845197828195",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "4609.0",
+      "currencyCode": "INR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "4609.0",
+      "currencyCode": "INR"
+    }
+  },
+  "productType": "KVM & Video Switch",
+  "publishedAt": "2024-05-16T17:11:26Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "उच्चतम वीडियो रिज़ॉल्यूशन 4K*2K का समर्थन करता है; HDMI 1.4 संस्करण; HDCP अनुरूप; गहरे रंग का वीडियो - Ugreen India",
+    "title": "यूग्रीन 1x4 एचडीएमआई एम्पलीफायर स्प्लिटर (40202) - यूग्रीन इंडिया"
+  },
+  "tags": [
+    "HDMI signal amplifier",
+    "HDMI splitter",
+    "multiple displays",
+    "UGREEN 1x4 HDMI Splitter",
+    "video distribution"
+  ],
+  "title": "UGREEN 1x4 HDMI एम्पलीफायर स्प्लिटर ( 40202 )",
+  "updatedAt": "2026-11-07T11:16:21Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTk4MTQyMTkxMjE2MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTk4MTQyMTkxMjE2MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "6.96E+12",
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "5109.0",
+            "currencyCode": "INR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41981421912163",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN 40202 1x4 HDMI 1.4 splitter, 4K30",
+            "height": 800,
+            "id": "gid://shopify/ProductImage/34516234993763",
+            "thumbhash": "9AcWBwComId4h4d/dneJRohoCNfKSoUA",
+            "url": "https://cdn.shopify.com/s/files/1/0581/3780/4899/files/hdmi-splitter-1-in-4-out-4k-1000x1000.jpg?v=1763829889",
+            "width": 800
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "4609.0",
+            "currencyCode": "INR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "शीर्षक",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "40202",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.44,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN"
+}

@@ -1,0 +1,600 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "Power"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-12",
+    "name": "UPS"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NTQ0MzM4OTg3MzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTQ0MzM4OTg3MzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "nas-storage",
+          "id": "gid://shopify/Collection/454433898739",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN NASync - UGREEN NAS US",
+            "height": 600,
+            "id": "gid://shopify/CollectionImage/1684517748979",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/collections/1_7f206c06-7c7c-455a-b8e9-116a548ec78b-822282.png?v=1756230877",
+            "width": 1280
+          },
+          "onlineStoreUrl": "https://ai-au.ugreen.com/collections/nas-storage",
+          "seo": {
+            "__typename": "SEO",
+            "description": "With ETSI EN 303 645 certification, UGREEN offers a reliable NAS storage solution. Data security is not just an option, it is a necessity.",
+            "title": "NAS Storage | The Private Cloud You Command."
+          },
+          "title": "NAS Storage | Your Data, Your Rules",
+          "updatedAt": "2026-11-07T12:25:41Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "119.99",
+      "currencyCode": "AUD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "119.99",
+      "currencyCode": "AUD"
+    }
+  },
+  "createdAt": "2026-06-23T08:43:10Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1600,
+    "id": "gid://shopify/ProductImage/50109801496819",
+    "thumbhash": "8PcNDwDYyWaKdohvhlWYl3h4t03565QP",
+    "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.MAIN.jpg?v=1789972381",
+    "width": 1600
+  },
+  "handle": "ups2000",
+  "id": "gid://shopify/Product/9630024990963",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTcyNjE5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTQ5NjgxOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801496819",
+          "thumbhash": "8PcNDwDYyWaKdohvhlWYl3h4t03565QP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.MAIN.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTUyOTU4NywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801529587",
+          "thumbhash": "TvcJDwAJhml1iHiFe3aHuGeIdf3ql5oP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT01.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTU2MjM1NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801562355",
+          "thumbhash": "0gcSDwJpVliHh3hgh3iHh4iKlzn4Z4AP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT02.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTU5NTEyMywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801595123",
+          "thumbhash": "R/cJDwAHqGh4h3h0i6V4h2h2hnn46IsP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT03.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTYyNzg5MSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801627891",
+          "thumbhash": "1vcVBwBHWHiHiHiAeYl3mIiKd/WXN48M",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT04.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTY2MDY1OSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801660659",
+          "thumbhash": "TPcNFwInmYaDeHeDevZnWHh4aev4x4sP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT05.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTY5MzQyNywibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801693427",
+          "thumbhash": "jPcJDwBYhXmAhXdym+iIRkh8VPfYdo8M",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT06.jpg?v=1789972381",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDEwOTgwMTcyNjE5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/50109801726195",
+          "thumbhash": "xQcGDwAIJ9Z6hndwiJp4Roh1e1j3R4EP",
+          "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT07.jpg?v=1789972381",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzMwMzUzOSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzA3NDE2MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197074163",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197074163",
+            "thumbhash": "8PcNDwDYyWaKdohvhlWYl3h4t03565QP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.MAIN.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197074163",
+            "thumbhash": "8PcNDwDYyWaKdohvhlWYl3h4t03565QP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.MAIN.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzEwNjkzMSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197106931",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197106931",
+            "thumbhash": "TvcJDwAJhml1iHiFe3aHuGeIdf3ql5oP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT01.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197106931",
+            "thumbhash": "TvcJDwAJhml1iHiFe3aHuGeIdf3ql5oP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT01.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzEzOTY5OSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197139699",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197139699",
+            "thumbhash": "0gcSDwJpVliHh3hgh3iHh4iKlzn4Z4AP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT02.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197139699",
+            "thumbhash": "0gcSDwJpVliHh3hgh3iHh4iKlzn4Z4AP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT02.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzE3MjQ2NywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197172467",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197172467",
+            "thumbhash": "R/cJDwAHqGh4h3h0i6V4h2h2hnn46IsP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT03.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197172467",
+            "thumbhash": "R/cJDwAHqGh4h3h0i6V4h2h2hnn46IsP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT03.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzIwNTIzNSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197205235",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197205235",
+            "thumbhash": "1vcVBwBHWHiHiHiAeYl3mIiKd/WXN48M",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT04.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197205235",
+            "thumbhash": "1vcVBwBHWHiHiHiAeYl3mIiKd/WXN48M",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT04.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzIzODAwMywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197238003",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197238003",
+            "thumbhash": "TPcNFwInmYaDeHeDevZnWHh4aev4x4sP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT05.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197238003",
+            "thumbhash": "TPcNFwInmYaDeHeDevZnWHh4aev4x4sP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT05.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzI3MDc3MSwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197270771",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197270771",
+            "thumbhash": "jPcJDwBYhXmAhXdym+iIRkh8VPfYdo8M",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT06.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197270771",
+            "thumbhash": "jPcJDwBYhXmAhXdym+iIRkh8VPfYdo8M",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT06.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTYxMDE5NzMwMzUzOSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/41610197303539",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197303539",
+            "thumbhash": "xQcGDwAIJ9Z6hndwiJp4Roh1e1j3R4EP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT07.jpg?v=1789972381",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/41610197303539",
+            "thumbhash": "xQcGDwAIJ9Z6hndwiJp4Roh1e1j3R4EP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.PT07.jpg?v=1789972381",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ai-au.ugreen.com/products/ups2000",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/13036288311539",
+      "name": "Model",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/7043098706163",
+          "name": "UPS2000",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.99",
+      "currencyCode": "AUD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.99",
+      "currencyCode": "AUD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-09-29T06:06:25Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "UGREEN 120W UPS ensures data protection during power failures. It is specifically designed for UGREEN NAS Storage and provides a stable 12V/10A output along with a 12,000mAh backup power supply.",
+    "title": null
+  },
+  "tags": [
+    "Nas",
+    "Ugreen"
+  ],
+  "title": "UGREEN NAS UPS US2000 72W DC Battery Backup and Surge Protector",
+  "updatedAt": "2026-10-10T13:02:57Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTU1ODgxOTk4NzY5OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTU1ODgxOTk4NzY5OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "119.99",
+            "currencyCode": "AUD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/51558819987699",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ProductImage/50109801496819",
+            "thumbhash": "8PcNDwDYyWaKdohvhlWYl3h4t03565QP",
+            "url": "https://cdn.shopify.com/s/files/1/0778/1770/8787/files/B0H45S7P7P.MAIN.jpg?v=1789972381",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "109.99",
+            "currencyCode": "AUD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Model",
+              "value": "UPS2000"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "95792",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "UPS2000",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN NAS AU"
+}

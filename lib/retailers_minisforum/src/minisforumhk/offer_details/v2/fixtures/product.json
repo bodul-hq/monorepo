@@ -1,0 +1,323 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/se",
+    "name": "維修"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyOTk0MTg3NDcwNTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTU1ODY2OTMyOTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best-selling-products",
+          "id": "gid://shopify/Collection/295586693298",
+          "image": null,
+          "onlineStoreUrl": "https://minisforum.hk/collections/best-selling-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Best Selling Products",
+          "updatedAt": "2026-11-07T12:13:53Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTU1ODY3MjYwNjYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "newest-products",
+          "id": "gid://shopify/Collection/295586726066",
+          "image": null,
+          "onlineStoreUrl": "https://minisforum.hk/collections/newest-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Newest Products",
+          "updatedAt": "2026-11-07T12:13:53Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTk0MTg3NDcwNTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products",
+          "id": "gid://shopify/Collection/299418747058",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1072,
+            "id": "gid://shopify/CollectionImage/1627373797554",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/collections/ALL_PRODUCT_BACKGROUND.png?v=1784272241",
+            "width": 2048
+          },
+          "onlineStoreUrl": "https://minisforum.hk/collections/all-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": "瀏覽 MINISFORUM HK 全系列迷你電腦，包括 AI PC、AMD Ryzen／Intel Mini PC、迷你工作站及 AtomMan 電競主機，涵蓋商務辦公、內容創作、AI 應用及高效遊戲需要。香港官方網店立即選購！",
+            "title": "MINISFORUM Mini PC 一覽 - 文書、娛樂、電競需求"
+          },
+          "title": "All Product",
+          "updatedAt": "2026-11-07T12:13:53Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "10.0",
+      "currencyCode": "HKD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "10.0",
+      "currencyCode": "HKD"
+    }
+  },
+  "createdAt": "2024-10-09T03:20:14Z",
+  "description": "運費補價",
+  "descriptionHtml": "<p>運費補價</p>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 750,
+    "id": "gid://shopify/ProductImage/39703411196082",
+    "thumbhash": "OwgGBwDHeIeJiXaNdUhnt2iKgFAnCHUC",
+    "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/files/mini.png?v=1728444006",
+    "width": 750
+  },
+  "handle": "運費補價",
+  "id": "gid://shopify/Product/8326676775090",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozOTcwMzQxMTE5NjA4MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTcwMzQxMTE5NjA4MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 750,
+          "id": "gid://shopify/ProductImage/39703411196082",
+          "thumbhash": "OwgGBwDHeIeJiXaNdUhnt2iKgFAnCHUC",
+          "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/files/mini.png?v=1728444006",
+          "width": 750
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTkxMjY1ODE3NDEzMCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTkxMjY1ODE3NDEzMCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31912658174130",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 750,
+            "id": "gid://shopify/ImageSource/31912658174130",
+            "thumbhash": "OwgGBwDHeIeJiXaNdUhnt2iKgFAnCHUC",
+            "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/files/mini.png?v=1728444006",
+            "width": 750
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 750,
+            "id": "gid://shopify/ImageSource/31912658174130",
+            "thumbhash": "OwgGBwDHeIeJiXaNdUhnt2iKgFAnCHUC",
+            "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/files/mini.png?v=1728444006",
+            "width": 750
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://minisforum.hk/products/%E9%81%8B%E8%B2%BB%E8%A3%9C%E5%83%B9",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10635567726770",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2845695049906",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "10.0",
+      "currencyCode": "HKD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "10.0",
+      "currencyCode": "HKD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2024-10-09T03:20:14Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "運費補價",
+  "updatedAt": "2026-05-24T04:41:42Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NDc5MDIzNjgwNzM0NiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDc5MDIzNjgwNzM0NiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "10.0",
+            "currencyCode": "HKD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/44790236807346",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 750,
+            "id": "gid://shopify/ProductImage/39703411196082",
+            "thumbhash": "OwgGBwDHeIeJiXaNdUhnt2iKgFAnCHUC",
+            "url": "https://cdn.shopify.com/s/files/1/0616/9313/2978/files/mini.png?v=1728444006",
+            "width": 750
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "10.0",
+            "currencyCode": "HKD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum HK"
+}

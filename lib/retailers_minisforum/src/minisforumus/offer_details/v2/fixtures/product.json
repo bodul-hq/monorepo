@@ -1,0 +1,335 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2-2",
+        "name": "Audio Components"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2",
+        "name": "Audio"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-2-2-10",
+    "name": "Speakers"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NzQ2ODY5ODAzNDEsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTE3IDAzOjIxOjAyLjY1MTUzMiIsIm9mZnNldCI6Mn0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MjM1NjA0NDYxOTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "0-200",
+          "id": "gid://shopify/Collection/423560446197",
+          "image": null,
+          "onlineStoreUrl": "https://store.minisforum.com/collections/0-200",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop the MINISFORUM under $300 collection. Upgrade your mini PC with DEG1 & DEG2 OCuLink eGPU docks, ENPBA dual 25G SFP28 PCIe cards, and premium gaming gear.",
+            "title": "MINISFORUM Under $300 | DEG2 OCuLink eGPU Docks & ENPBA 25G"
+          },
+          "title": "0-$300",
+          "updatedAt": "2026-11-07T12:13:10Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzNDIwNTcyMDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gift-guide",
+          "id": "gid://shopify/Collection/464342057205",
+          "image": null,
+          "onlineStoreUrl": "https://store.minisforum.com/collections/gift-guide",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore the MINISFORUM Gear Hub for official accessories and gifts. Shop the tri-mode MKB i83 Mechanical Keyboard, NVMe enclosures, and geek lifestyle gear.",
+            "title": "MINISFORUM Gear Hub | Official Accessories, Keyboards & Gift Guide"
+          },
+          "title": "Gear Hub",
+          "updatedAt": "2026-11-04T12:05:56Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzQ2ODY5ODAzNDEsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTE3IDAzOjIxOjAyLjY1MTUzMiIsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "test",
+          "id": "gid://shopify/Collection/474686980341",
+          "image": null,
+          "onlineStoreUrl": "https://store.minisforum.com/collections/test",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Test",
+          "updatedAt": "2026-11-07T12:13:10Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.0",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.0",
+      "currencyCode": "USD"
+    }
+  },
+  "createdAt": "2025-03-06T03:56:38Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+    "height": 821,
+    "id": "gid://shopify/ProductImage/43635214319861",
+    "thumbhash": "3EcKLgYShTijiAf3eImJiYenr3Lt/Lg=",
+    "url": "https://cdn.shopify.com/s/files/1/0401/1032/5921/files/fadb74d3df508426511464c1a08a9b21.webp?v=1741232985",
+    "width": 800
+  },
+  "handle": "minisforum-bluetooth-speaker-moon-led-light",
+  "id": "gid://shopify/Product/9049600033013",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MzYzNTIxNDMxOTg2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MzYzNTIxNDMxOTg2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+          "height": 821,
+          "id": "gid://shopify/ProductImage/43635214319861",
+          "thumbhash": "3EcKLgYShTijiAf3eImJiYenr3Lt/Lg=",
+          "url": "https://cdn.shopify.com/s/files/1/0401/1032/5921/files/fadb74d3df508426511464c1a08a9b21.webp?v=1741232985",
+          "width": 800
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNjM2OTYyMDU5OTAyOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNjM2OTYyMDU5OTAyOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+          "id": "gid://shopify/MediaImage/36369620599029",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+            "height": 821,
+            "id": "gid://shopify/ImageSource/36369620599029",
+            "thumbhash": "3EcKLgYShTijiAf3eImJiYenr3Lt/Lg=",
+            "url": "https://cdn.shopify.com/s/files/1/0401/1032/5921/files/fadb74d3df508426511464c1a08a9b21.webp?v=1741232985",
+            "width": 800
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+            "height": 821,
+            "id": "gid://shopify/ImageSource/36369620599029",
+            "thumbhash": "3EcKLgYShTijiAf3eImJiYenr3Lt/Lg=",
+            "url": "https://cdn.shopify.com/s/files/1/0401/1032/5921/files/fadb74d3df508426511464c1a08a9b21.webp?v=1741232985",
+            "width": 800
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://store.minisforum.com/products/minisforum-bluetooth-speaker-moon-led-light",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/11518455742709",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/3110845612277",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.0",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.0",
+      "currencyCode": "USD"
+    }
+  },
+  "productType": "Gift Guide",
+  "publishedAt": "2026-10-13T09:35:31Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": " - Minisforum",
+    "title": "MINISFORUM Bluetooth Speaker & Moon LED Light - Minisforum"
+  },
+  "tags": [
+    "Accessory",
+    "active",
+    "Gift Guide"
+  ],
+  "title": "MINISFORUM Bluetooth Speaker & Moon LED Light",
+  "updatedAt": "2026-11-03T18:20:52Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjQ1NjcyMDQ5MDc0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQ1NjcyMDQ5MDc0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "69.0",
+            "currencyCode": "USD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46456720490741",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM Bluetooth Speaker & Moon LED Light MINISFORUM US",
+            "height": 821,
+            "id": "gid://shopify/ProductImage/43635214319861",
+            "thumbhash": "3EcKLgYShTijiAf3eImJiYenr3Lt/Lg=",
+            "url": "https://cdn.shopify.com/s/files/1/0401/1032/5921/files/fadb74d3df508426511464c1a08a9b21.webp?v=1741232985",
+            "width": 800
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "69.0",
+            "currencyCode": "USD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "MLIGHT",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "MINISFORUM US"
+}

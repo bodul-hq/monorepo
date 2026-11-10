@@ -1,0 +1,441 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Nicht kategorisiert"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0ODE5OTM0NTc4OTUsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTI4IDA2OjA0OjM5Ljg1NTg5NyIsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODE5OTM0NTc4OTUsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTI4IDA2OjA0OjM5Ljg1NTg5NyIsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Entdecke das Technik-Zubehör von UGREEN: Powerbanks, Dockingstationen und Ladegeräte. Finde praktische Lösungen zum Laden und Verbinden deiner Geräte im Alltag.",
+          "descriptionHtml": "<p>Entdecke das Technik-Zubehör von UGREEN: Powerbanks, Dockingstationen und Ladegeräte. Finde praktische Lösungen zum Laden und Verbinden deiner Geräte im Alltag.</p>",
+          "handle": "technik-zubehoer",
+          "id": "gid://shopify/Collection/481993457895",
+          "image": null,
+          "onlineStoreUrl": "https://ai-de.ugreen.com/collections/technik-zubehoer",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Entdecke UGREEN Technik-Zubehör: Powerbanks, Dockingstationen und Ladegeräte. Finde praktische Lösungen zum Laden und Verbinden deiner Geräte im Alltag.",
+            "title": "Technik-Zubehör | Powerbanks, Dockingstationen & Ladegeräte | UGREEN"
+          },
+          "title": "Technik-Zubehör",
+          "updatedAt": "2026-11-07T12:20:14Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "359.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "359.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2026-10-23T09:18:21Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/55407752839399",
+    "thumbhash": "6PeFBQA1i3R8hUkHWCBvO895OGh4eHB6iA==",
+    "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/85883EU_9cdac0f9-d8a2-4435-a7fd-718f11d91fc5.png?v=1792747105",
+    "width": 1200
+  },
+  "handle": "maxidok-10-in-1-thunderbolt-5-mac-mini-dock-m2-nvme-ssd-slot-dual-6k",
+  "id": "gid://shopify/Product/10365433413863",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NTQwNzc1Mjg3MjE2NywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQwNzc1MjgzOTM5OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/55407752839399",
+          "thumbhash": "6PeFBQA1i3R8hUkHWCBvO895OGh4eHB6iA==",
+          "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/85883EU_9cdac0f9-d8a2-4435-a7fd-718f11d91fc5.png?v=1792747105",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQwNzc1MjkwNDkzNSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "height": 1350,
+          "id": "gid://shopify/ProductImage/55407752904935",
+          "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+          "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/887.jpg?v=1792747105",
+          "width": 1080
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQwNzc1MjkzNzcwMywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55407752937703",
+          "thumbhash": "3PeFBQAziGeKhngGZ1lwlhBoSGeId3B7xw==",
+          "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_6b5f2caf-acbe-461b-8cab-eebcfb0e6228.png?v=1792747105",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQwNzc1Mjk3MDQ3MSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55407752970471",
+          "thumbhash": "5PeBBQAjf7B3iBeoieVwTA/HSHh2eHCryA==",
+          "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_9e94ff44-1e23-4b6e-80e8-07bf7402d2fd.png?v=1792747105",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQwNzc1Mjg3MjE2NywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55407752872167",
+          "thumbhash": "3PeFBQAziHd6hngHaGiAhwZ4R2h4eIB7yA==",
+          "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887.png?v=1792747105",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODgxNzUxMSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODc4NDc0MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+          "id": "gid://shopify/MediaImage/46401198784743",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/46401198784743",
+            "thumbhash": "6PeFBQA1i3R8hUkHWCBvO895OGh4eHB6iA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/85883EU_9cdac0f9-d8a2-4435-a7fd-718f11d91fc5.png?v=1792747105",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/46401198784743",
+            "thumbhash": "6PeFBQA1i3R8hUkHWCBvO895OGh4eHB6iA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/85883EU_9cdac0f9-d8a2-4435-a7fd-718f11d91fc5.png?v=1792747105",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODg1MDI3OSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "id": "gid://shopify/MediaImage/46401198850279",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/46401198850279",
+            "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/887.jpg?v=1792747105",
+            "width": 1080
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/46401198850279",
+            "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/887.jpg?v=1792747105",
+            "width": 1080
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODg4MzA0NywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "id": "gid://shopify/MediaImage/46401198883047",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198883047",
+            "thumbhash": "3PeFBQAziGeKhngGZ1lwlhBoSGeId3B7xw==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_6b5f2caf-acbe-461b-8cab-eebcfb0e6228.png?v=1792747105",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198883047",
+            "thumbhash": "3PeFBQAziGeKhngGZ1lwlhBoSGeId3B7xw==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_6b5f2caf-acbe-461b-8cab-eebcfb0e6228.png?v=1792747105",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODkxNTgxNSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "id": "gid://shopify/MediaImage/46401198915815",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198915815",
+            "thumbhash": "5PeBBQAjf7B3iBeoieVwTA/HSHh2eHCryA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_9e94ff44-1e23-4b6e-80e8-07bf7402d2fd.png?v=1792747105",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198915815",
+            "thumbhash": "5PeBBQAjf7B3iBeoieVwTA/HSHh2eHCryA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887_9e94ff44-1e23-4b6e-80e8-07bf7402d2fd.png?v=1792747105",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQwMTE5ODgxNzUxMSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+          "id": "gid://shopify/MediaImage/46401198817511",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198817511",
+            "thumbhash": "3PeFBQAziHd6hngHaGiAhwZ4R2h4eIB7yA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887.png?v=1792747105",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidog 10 - in - 1 Thunderbolt™ 5 Mac mini Dockingstion - Dockingstation",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46401198817511",
+            "thumbhash": "3PeFBQAziHd6hngHaGiAhwZ4R2h4eIB7yA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/CM887.png?v=1792747105",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ai-de.ugreen.com/products/maxidok-10-in-1-thunderbolt-5-mac-mini-dock-m2-nvme-ssd-slot-dual-6k",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/13312060063975",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/7668941652199",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "239.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "239.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "Dockingstation",
+  "publishedAt": "2026-10-28T06:19:57Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "SHOW_AMOUNT"
+  ],
+  "title": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation",
+  "updatedAt": "2026-11-02T15:04:10Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1Mjg5ODQyMDMyNjYzMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1Mjg5ODQyMDMyNjYzMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "359.99",
+            "currencyCode": "EUR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/52898420326631",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dockingstation - Dockingstation",
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/55407752839399",
+            "thumbhash": "6PeFBQA1i3R8hUkHWCBvO895OGh4eHB6iA==",
+            "url": "https://cdn.shopify.com/s/files/1/0711/5744/8935/files/85883EU_9cdac0f9-d8a2-4435-a7fd-718f11d91fc5.png?v=1792747105",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "239.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "85883EU",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN DE"
+}

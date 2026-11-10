@@ -1,0 +1,436 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NTQ4NTA0OTA3MzUsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTI5IDExOjEwOjM3LjcyNzU1OSIsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTQ4NTA0OTA3MzUsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTI5IDExOjEwOjM3LjcyNzU1OSIsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Discover UGREEN tech accessories, including power banks, docking stations, and chargers. Find reliable charging and connectivity solutions for your everyday devices.",
+          "descriptionHtml": "<p>Discover UGREEN tech accessories, including power banks, docking stations, and chargers. Find reliable charging and connectivity solutions for your everyday devices.</p>",
+          "handle": "tech-accessories",
+          "id": "gid://shopify/Collection/654850490735",
+          "image": null,
+          "onlineStoreUrl": "https://ai-uk.ugreen.com/collections/tech-accessories",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": "Tech Accessories | Power Banks, Docking Stations & Chargers | UGREEN"
+          },
+          "title": "Tech Accessories",
+          "updatedAt": "2026-11-07T12:20:28Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "299.99",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "299.99",
+      "currencyCode": "GBP"
+    }
+  },
+  "createdAt": "2026-10-27T01:50:09Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1080,
+    "id": "gid://shopify/ProductImage/65750600319343",
+    "thumbhash": "5PeFBQA0b7R3iBeoiuVwXA/HWHh2eHCpuA==",
+    "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887.png?v=1793065813",
+    "width": 1080
+  },
+  "handle": "revodok-maxidok-10-in-1-thunderbolt-5-mac-mini-dock-m2-nvme-ssd-slot-dual-6k-mac-mini",
+  "id": "gid://shopify/Product/15452669313391",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDIyMTAzOSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDMxOTM0MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1080,
+          "id": "gid://shopify/ProductImage/65750600319343",
+          "thumbhash": "5PeFBQA0b7R3iBeoiuVwXA/HWHh2eHCpuA==",
+          "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887.png?v=1793065813",
+          "width": 1080
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDI1MzgwNywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1350,
+          "id": "gid://shopify/ProductImage/65750600253807",
+          "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+          "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/887.jpg?v=1793065813",
+          "width": 1080
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDI4NjU3NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1350,
+          "id": "gid://shopify/ProductImage/65750600286575",
+          "thumbhash": "3PeFBAAziKhneHeAiAeIaYB4dXaHB6iIDA==",
+          "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_2afe1dec-876a-4454-97b9-179189e98590.png?v=1793065813",
+          "width": 1080
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDM1MjExMSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1080,
+          "id": "gid://shopify/ProductImage/65750600352111",
+          "thumbhash": "3PeFBAAziKdneHeAqASISoCHdXaIB6d4DA==",
+          "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e90efc1d-f8e1-4e2a-8487-9cb1b7ab70e4.png?v=1793065813",
+          "width": 864
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTc1MDYwMDIyMTAzOSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1080,
+          "id": "gid://shopify/ProductImage/65750600221039",
+          "thumbhash": "6PeFBABFi7VniISAB+KnYId5dHaHB5iICQ==",
+          "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e66068a7-a153-4b7c-adad-8f25f2bb2537.png?v=1793065813",
+          "width": 864
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NzA2MDk1NDk2NDMzNSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NzA2MDk1NTA2MjYzOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/57060955062639",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060955062639",
+            "thumbhash": "5PeFBQA0b7R3iBeoiuVwXA/HWHh2eHCpuA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887.png?v=1793065813",
+            "width": 1080
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060955062639",
+            "thumbhash": "5PeFBQA0b7R3iBeoiuVwXA/HWHh2eHCpuA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887.png?v=1793065813",
+            "width": 1080
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NzA2MDk1NDk5NzEwMywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/57060954997103",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/57060954997103",
+            "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/887.jpg?v=1793065813",
+            "width": 1080
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/57060954997103",
+            "thumbhash": "BQgGBQA3h3SHh3ineHCrOLZQHgbj",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/887.jpg?v=1793065813",
+            "width": 1080
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NzA2MDk1NTAyOTg3MSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/57060955029871",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/57060955029871",
+            "thumbhash": "3PeFBAAziKhneHeAiAeIaYB4dXaHB6iIDA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_2afe1dec-876a-4454-97b9-179189e98590.png?v=1793065813",
+            "width": 1080
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1350,
+            "id": "gid://shopify/ImageSource/57060955029871",
+            "thumbhash": "3PeFBAAziKhneHeAiAeIaYB4dXaHB6iIDA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_2afe1dec-876a-4454-97b9-179189e98590.png?v=1793065813",
+            "width": 1080
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NzA2MDk1NTA5NTQwNywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/57060955095407",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060955095407",
+            "thumbhash": "3PeFBAAziKdneHeAqASISoCHdXaIB6d4DA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e90efc1d-f8e1-4e2a-8487-9cb1b7ab70e4.png?v=1793065813",
+            "width": 864
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060955095407",
+            "thumbhash": "3PeFBAAziKdneHeAqASISoCHdXaIB6d4DA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e90efc1d-f8e1-4e2a-8487-9cb1b7ab70e4.png?v=1793065813",
+            "width": 864
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NzA2MDk1NDk2NDMzNSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/57060954964335",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060954964335",
+            "thumbhash": "6PeFBABFi7VniISAB+KnYId5dHaHB5iICQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e66068a7-a153-4b7c-adad-8f25f2bb2537.png?v=1793065813",
+            "width": 864
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1080,
+            "id": "gid://shopify/ImageSource/57060954964335",
+            "thumbhash": "6PeFBABFi7VniISAB+KnYId5dHaHB5iICQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887_e66068a7-a153-4b7c-adad-8f25f2bb2537.png?v=1793065813",
+            "width": 864
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ai-uk.ugreen.com/products/revodok-maxidok-10-in-1-thunderbolt-5-mac-mini-dock-m2-nvme-ssd-slot-dual-6k-mac-mini",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17927638483311",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/15191060840815",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "219.99",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "219.99",
+      "currencyCode": "GBP"
+    }
+  },
+  "productType": "Docking Station",
+  "publishedAt": "2026-10-29T11:13:35Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Expand your Mac mini with the UGREEN Revodok Maxidok Thunderbolt™ 5 Mac mini Dock featuring M.2 NVMe SSD slot, dual 6K displays and up to 120Gbps speed. Shop now.",
+    "title": "UGREEN Revodok Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dock | UGREEN UK"
+  },
+  "tags": [
+    "3c"
+  ],
+  "title": "UGREEN Revodok Maxidok 10-in-1 Thunderbolt™ 5 Mac mini Dock",
+  "updatedAt": "2026-11-01T20:33:27Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2Nzg5NTY1MzAwNzcyNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2Nzg5NTY1MzAwNzcyNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "6941876288519",
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "299.99",
+            "currencyCode": "GBP"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/67895653007727",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1080,
+            "id": "gid://shopify/ProductImage/65750600319343",
+            "thumbhash": "5PeFBQA0b7R3iBeoiuVwXA/HWHh2eHCpuA==",
+            "url": "https://cdn.shopify.com/s/files/1/0893/1518/0911/files/CM887.png?v=1793065813",
+            "width": 1080
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "219.99",
+            "currencyCode": "GBP"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "85883UK",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "GRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN UK"
+}

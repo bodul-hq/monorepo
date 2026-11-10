@@ -1,0 +1,327 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/se",
+        "name": "Services"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/se-3",
+    "name": "Business Services"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MjYxNjg1NTU3OTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjcyMTM4Nzc1MjYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "up-to-200",
+          "id": "gid://shopify/Collection/467213877526",
+          "image": null,
+          "onlineStoreUrl": "https://www.minisforum.uk/collections/up-to-200",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Up to 200£",
+          "updatedAt": "2026-11-07T12:06:49Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTkwOTY0MDIxOTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "halloween-storewide-discount-副本-1",
+          "id": "gid://shopify/Collection/519096402198",
+          "image": null,
+          "onlineStoreUrl": "https://www.minisforum.uk/collections/halloween-storewide-discount-%E5%89%AF%E6%9C%AC-1",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Christmas Storewide Discount",
+          "updatedAt": "2026-11-07T12:06:49Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MjYxNjg1NTU3OTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "other-peripheral-products",
+          "id": "gid://shopify/Collection/526168555798",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1440,
+            "id": "gid://shopify/CollectionImage/1750420390166",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/collections/accessory.jpg?v=1786946344",
+            "width": 1500
+          },
+          "onlineStoreUrl": "https://www.minisforum.uk/collections/other-peripheral-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": "Minisforum UK Official Store | Other Peripheral Products"
+          },
+          "title": "Other Peripheral Products",
+          "updatedAt": "2026-11-07T12:06:49Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "GBP"
+    }
+  },
+  "createdAt": "2023-01-12T11:24:58Z",
+  "description": "Customers who need to pay extra remote area fee can pay with this.",
+  "descriptionHtml": "Customers who need to pay extra remote area fee can pay with this.",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 200,
+    "id": "gid://shopify/ProductImage/40217223758102",
+    "thumbhash": null,
+    "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/products/Ins_1800x1800_276e3e80-d480-4cb3-ad47-1c1764f2ff86.jpg?v=1673522698",
+    "width": 200
+  },
+  "handle": "remote-area-fee",
+  "id": "gid://shopify/Product/8079914860822",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDIxNzIyMzc1ODEwMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNzIyMzc1ODEwMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 200,
+          "id": "gid://shopify/ProductImage/40217223758102",
+          "thumbhash": null,
+          "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/products/Ins_1800x1800_276e3e80-d480-4cb3-ad47-1c1764f2ff86.jpg?v=1673522698",
+          "width": 200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMjU1MjA5NjEzNzQ5NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjU1MjA5NjEzNzQ5NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/32552096137494",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 200,
+            "id": "gid://shopify/ImageSource/32552096137494",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/products/Ins_1800x1800_276e3e80-d480-4cb3-ad47-1c1764f2ff86.jpg?v=1673522698",
+            "width": 200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 200,
+            "id": "gid://shopify/ImageSource/32552096137494",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/products/Ins_1800x1800_276e3e80-d480-4cb3-ad47-1c1764f2ff86.jpg?v=1673522698",
+            "width": 200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://www.minisforum.uk/products/remote-area-fee",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10259231572246",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/842210541846",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "20.0",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "20.0",
+      "currencyCode": "GBP"
+    }
+  },
+  "productType": "Peripheral accessories",
+  "publishedAt": "2021-04-29T07:20:33Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "Christmas Storewide Discount"
+  ],
+  "title": "Remote Area Fee",
+  "updatedAt": "2026-10-30T08:11:37Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NDAwMzY3NzAxMjI0NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDAwMzY3NzAxMjI0NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": true,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/44003677012246",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 200,
+            "id": "gid://shopify/ProductImage/40217223758102",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0706/4358/1206/products/Ins_1800x1800_276e3e80-d480-4cb3-ad47-1c1764f2ff86.jpg?v=1673522698",
+            "width": 200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "20.0",
+            "currencyCode": "GBP"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "RAF",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": false,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum UK"
+}

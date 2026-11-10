@@ -1,0 +1,73 @@
+query SellingPlans($pageSize1: Int!, $pageSize5: Int!, $country: CountryCode!, $language: LanguageCode!, $id: ID!, $groupAfter: String, $after: String) @inContext(country: $country, language: $language) { product(id: $id) { id sellingPlanGroups(first: $pageSize1, after: $groupAfter) { edges { cursor node { sellingPlans(first: $pageSize5, after: $after) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                billingPolicy {
+                  __typename
+                  ... on SellingPlanRecurringBillingPolicy {
+                    interval
+                    intervalCount
+                  }
+                }
+                checkoutCharge {
+                  __typename
+                  type
+                  value {
+                    __typename
+                    ... on MoneyV2 {
+                      amount
+                      currencyCode
+                    }
+                    ... on SellingPlanCheckoutChargePercentageValue {
+                      percentage
+                    }
+                  }
+                }
+                deliveryPolicy {
+                  __typename
+                  ... on SellingPlanRecurringDeliveryPolicy {
+                    interval
+                    intervalCount
+                  }
+                }
+                description
+                id
+                name
+                options {
+                  __typename
+                  name
+                  value
+                }
+                priceAdjustments {
+                  __typename
+                  adjustmentValue {
+                    __typename
+                    ... on SellingPlanFixedAmountPriceAdjustment {
+                      adjustmentAmount {
+                        __typename
+                        amount
+                        currencyCode
+                      }
+                    }
+                    ... on SellingPlanFixedPriceAdjustment {
+                      price {
+                        __typename
+                        amount
+                        currencyCode
+                      }
+                    }
+                    ... on SellingPlanPercentagePriceAdjustment {
+                      adjustmentPercentage
+                    }
+                  }
+                  orderCount
+                }
+                recurringDeliveries
+              }
+            }
+          } } } } } }

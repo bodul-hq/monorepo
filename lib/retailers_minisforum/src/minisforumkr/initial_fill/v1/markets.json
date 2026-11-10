@@ -1,0 +1,35 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "KR",
+        "currency": {
+          "isoCode": "KRW"
+        }
+      },
+      "language": {
+        "isoCode": "KO"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "KR",
+          "name": "대한민국",
+          "currency": {
+            "isoCode": "KRW"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "KO",
+              "name": "한국어"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

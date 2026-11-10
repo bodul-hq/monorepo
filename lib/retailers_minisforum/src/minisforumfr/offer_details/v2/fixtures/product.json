@@ -1,0 +1,324 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hb-3-15",
+        "name": "Sleeping Aids"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hb-3",
+        "name": "Personal Care"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hb",
+        "name": "Health & Beauty"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/hb-3-15-3",
+    "name": "Travel Pillows"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MDIxMTI0OTgwMzMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODEyMTI1OTY1NDEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "frontpage",
+          "id": "gid://shopify/Collection/481212596541",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2240,
+            "id": "gid://shopify/CollectionImage/2066851463537",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/collections/01_MS-02_Ultra.webp?v=1788406889",
+            "width": 3744
+          },
+          "onlineStoreUrl": "https://minisforumpc.fr/en/collections/frontpage",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:12:03Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDIxMTI0OTgwMzMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "peripheriques-externes",
+          "id": "gid://shopify/Collection/702112498033",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1440,
+            "id": "gid://shopify/CollectionImage/2066729599345",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/collections/accessory.webp?v=1786959577",
+            "width": 1500
+          },
+          "onlineStoreUrl": "https://minisforumpc.fr/en/collections/peripheriques-externes",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Périphériques Externes",
+          "updatedAt": "2026-11-07T12:12:03Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2024-11-21T02:34:53Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1600,
+    "id": "gid://shopify/ProductImage/81421978403185",
+    "thumbhash": "aueBBQA03AW9Z0cEk9+1+127R2iIeIB6lg==",
+    "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/files/nackenkissen-fur-reise-1.png?v=1788349172",
+    "width": 1600
+  },
+  "handle": "oreiller-cervical-pour-voyager",
+  "id": "gid://shopify/Product/14881631076721",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo4MTQyMTk3ODQwMzE4NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo4MTQyMTk3ODQwMzE4NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/81421978403185",
+          "thumbhash": "aueBBQA03AW9Z0cEk9+1+127R2iIeIB6lg==",
+          "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/files/nackenkissen-fur-reise-1.png?v=1788349172",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MDE1MTE1NDUzMjcyMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDE1MTE1NDUzMjcyMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/70151154532721",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/70151154532721",
+            "thumbhash": "aueBBQA03AW9Z0cEk9+1+127R2iIeIB6lg==",
+            "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/files/nackenkissen-fur-reise-1.png?v=1788349172",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/70151154532721",
+            "thumbhash": "aueBBQA03AW9Z0cEk9+1+127R2iIeIB6lg==",
+            "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/files/nackenkissen-fur-reise-1.png?v=1788349172",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://minisforumpc.fr/en/products/oreiller-cervical-pour-voyager",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17200036053361",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/7198202200433",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "39.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "39.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "Accessoires Périphériques",
+  "publishedAt": "2026-05-14T03:48:04Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "Minisforum Oreiller cervical pour voyager",
+  "updatedAt": "2026-10-26T07:27:01Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTk3ODQ3NjE1OTM0NSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTk3ODQ3NjE1OTM0NSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/51978476159345",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ProductImage/81421978403185",
+            "thumbhash": "aueBBQA03AW9Z0cEk9+1+127R2iIeIB6lg==",
+            "url": "https://cdn.shopify.com/s/files/1/0860/8491/1421/files/nackenkissen-fur-reise-1.png?v=1788349172",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "39.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "U-SHAPEDP",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum FR"
+}

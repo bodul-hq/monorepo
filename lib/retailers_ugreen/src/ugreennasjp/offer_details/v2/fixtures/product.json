@@ -1,0 +1,343 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "カテゴリーなし"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "21980.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "21980.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "createdAt": "2026-11-05T01:31:26Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 3072,
+    "id": "gid://shopify/ProductImage/70870785818705",
+    "thumbhash": "7PcVBYD3OJd4iHeJdnh4efGWnvFJ",
+    "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/47d657e44737e56a6d0e53dc1785320d.jpg?v=1793842248",
+    "width": 4096
+  },
+  "handle": "hard-drive-storage-enclosure",
+  "id": "gid://shopify/Product/16435127681105",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MDg3MDc4NTc1MzE2OSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDg3MDc4NTgxODcwNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3072,
+          "id": "gid://shopify/ProductImage/70870785818705",
+          "thumbhash": "7PcVBYD3OJd4iHeJdnh4efGWnvFJ",
+          "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/47d657e44737e56a6d0e53dc1785320d.jpg?v=1793842248",
+          "width": 4096
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDg3MDc4NTc4NTkzNywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3072,
+          "id": "gid://shopify/ProductImage/70870785785937",
+          "thumbhash": "6fcVBYD3WGeHd4iLdYh3ieCGXICn",
+          "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/4caed60b196e36056c187c7551646ff3.jpg?v=1793842248",
+          "width": 4096
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDg3MDc4NTc1MzE2OSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3072,
+          "id": "gid://shopify/ProductImage/70870785753169",
+          "thumbhash": "6/cVBYD3OJd4h3d5dnh4efKXboBn",
+          "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/bc1f6fd1c5e41d819c2ff5e700c1a799.jpg?v=1793842248",
+          "width": 4096
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3NDQzMjc3MDAxNTMxMywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDQzMjc3MDA4MDg0OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/74432770080849",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770080849",
+            "thumbhash": "7PcVBYD3OJd4iHeJdnh4efGWnvFJ",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/47d657e44737e56a6d0e53dc1785320d.jpg?v=1793842248",
+            "width": 4096
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770080849",
+            "thumbhash": "7PcVBYD3OJd4iHeJdnh4efGWnvFJ",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/47d657e44737e56a6d0e53dc1785320d.jpg?v=1793842248",
+            "width": 4096
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDQzMjc3MDA0ODA4MSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/74432770048081",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770048081",
+            "thumbhash": "6fcVBYD3WGeHd4iLdYh3ieCGXICn",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/4caed60b196e36056c187c7551646ff3.jpg?v=1793842248",
+            "width": 4096
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770048081",
+            "thumbhash": "6fcVBYD3WGeHd4iLdYh3ieCGXICn",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/4caed60b196e36056c187c7551646ff3.jpg?v=1793842248",
+            "width": 4096
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDQzMjc3MDAxNTMxMywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/74432770015313",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770015313",
+            "thumbhash": "6/cVBYD3OJd4h3d5dnh4efKXboBn",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/bc1f6fd1c5e41d819c2ff5e700c1a799.jpg?v=1793842248",
+            "width": 4096
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3072,
+            "id": "gid://shopify/ImageSource/74432770015313",
+            "thumbhash": "6/cVBYD3OJd4h3d5dnh4efKXboBn",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/bc1f6fd1c5e41d819c2ff5e700c1a799.jpg?v=1793842248",
+            "width": 4096
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://store.ugreen.jp/products/hard-drive-storage-enclosure",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/19071846482001",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/15214414364753",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "19782.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "19782.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-11-05T01:31:27Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "2ベイ ハードディスクストレージケース",
+  "updatedAt": "2026-11-05T13:36:53Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2MzQwOTQ5NTU3MjU2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2MzQwOTQ5NTU3MjU2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "21980.0",
+            "currencyCode": "JPY"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/63409495572561",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3072,
+            "id": "gid://shopify/ProductImage/70870785818705",
+            "thumbhash": "7PcVBYD3OJd4iHeJdnh4efGWnvFJ",
+            "url": "https://cdn.shopify.com/s/files/1/0638/9245/5505/files/47d657e44737e56a6d0e53dc1785320d.jpg?v=1793842248",
+            "width": 4096
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "19782.0",
+            "currencyCode": "JPY"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": null,
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN NAS JP"
+}

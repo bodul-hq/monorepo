@@ -1,0 +1,565 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-9-14-2",
+        "name": "Hard Drive Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-9-14",
+        "name": "Storage Devices"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-9",
+        "name": "Computer Components"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-9-14-2-3",
+    "name": "Hard Drive Enclosures & Mounts"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "25.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "25.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2025-11-04T10:15:10Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1600,
+    "id": "gid://shopify/ProductImage/40230283641039",
+    "thumbhash": "9PcNDwC3uIiHd3iPdXaGmYeZhmz52JYP",
+    "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/ssd-1600.png?v=1762934252",
+    "width": 1600
+  },
+  "handle": "ugreen-nas-10gbps-m2-nvme-ssd-enclosure",
+  "id": "gid://shopify/Product/7748319936719",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDIxNjA1Nzk3MDg5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIzMDI4MzY0MTAzOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/40230283641039",
+          "thumbhash": "9PcNDwC3uIiHd3iPdXaGmYeZhmz52JYP",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/ssd-1600.png?v=1762934252",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1Nzc3NDI4NywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057774287",
+          "thumbhash": "F+cNFwJ4d4h/iIh5iJiIh3h3Rzn4o4UP",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-2.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1NzgwNzA1NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057807055",
+          "thumbhash": "TvcFDwJQhndueHiXpmeJl3lq97qGr1wC",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-3.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1NzgzOTgyMywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057839823",
+          "thumbhash": "Y/cJDwCQ3Zq4d3elNLWIGZhriFUHP4UA",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-4.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1Nzg3MjU5MSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057872591",
+          "thumbhash": "nPcJBwBgZpdwZ3aMeBd3iHp2md+2228F",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-5.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1NzkwNTM1OSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057905359",
+          "thumbhash": "t/cFDwDXZ4h+hIeQa3iHqFhxe6cIS6kA",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-6.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1NzkzODEyNywibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057938127",
+          "thumbhash": "sfcFBwCW+mWWdXmGeASop2d4bjEHCVYG",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-7.jpg?v=1762934252",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDIxNjA1Nzk3MDg5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/40216057970895",
+          "thumbhash": "5gcKDwKzd3igdnecdWiFiYmHV0IIJ4YA",
+          "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-8.jpg?v=1762934252",
+          "width": 1500
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDIxNzI5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTcwNjYyOTg2NTY3OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31706629865679",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/31706629865679",
+            "thumbhash": "9PcNDwC3uIiHd3iPdXaGmYeZhmz52JYP",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/ssd-1600.png?v=1762934252",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/31706629865679",
+            "thumbhash": "9PcNDwC3uIiHd3iPdXaGmYeZhmz52JYP",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/ssd-1600.png?v=1762934252",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDAyMDY4NywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480020687",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480020687",
+            "thumbhash": "F+cNFwJ4d4h/iIh5iJiIh3h3Rzn4o4UP",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-2.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480020687",
+            "thumbhash": "F+cNFwJ4d4h/iIh5iJiIh3h3Rzn4o4UP",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-2.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDA1MzQ1NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480053455",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480053455",
+            "thumbhash": "TvcFDwJQhndueHiXpmeJl3lq97qGr1wC",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-3.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480053455",
+            "thumbhash": "TvcFDwJQhndueHiXpmeJl3lq97qGr1wC",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-3.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDA4NjIyMywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480086223",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480086223",
+            "thumbhash": "Y/cJDwCQ3Zq4d3elNLWIGZhriFUHP4UA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-4.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480086223",
+            "thumbhash": "Y/cJDwCQ3Zq4d3elNLWIGZhriFUHP4UA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-4.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDExODk5MSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480118991",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480118991",
+            "thumbhash": "nPcJBwBgZpdwZ3aMeBd3iHp2md+2228F",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-5.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480118991",
+            "thumbhash": "nPcJBwBgZpdwZ3aMeBd3iHp2md+2228F",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-5.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDE1MTc1OSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480151759",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480151759",
+            "thumbhash": "t/cFDwDXZ4h+hIeQa3iHqFhxe6cIS6kA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-6.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480151759",
+            "thumbhash": "t/cFDwDXZ4h+hIeQa3iHqFhxe6cIS6kA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-6.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDE4NDUyNywibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480184527",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480184527",
+            "thumbhash": "sfcFBwCW+mWWdXmGeASop2d4bjEHCVYG",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-7.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480184527",
+            "thumbhash": "sfcFBwCW+mWWdXmGeASop2d4bjEHCVYG",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-7.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY5MjQ4MDIxNzI5NSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31692480217295",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480217295",
+            "thumbhash": "5gcKDwKzd3igdnecdWiFiYmHV0IIJ4YA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-8.jpg?v=1762934252",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31692480217295",
+            "thumbhash": "5gcKDwKzd3igdnecdWiFiYmHV0IIJ4YA",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/M2-SSD-8.jpg?v=1762934252",
+            "width": 1500
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ai-eu.ugreen.com/products/ugreen-nas-10gbps-m2-nvme-ssd-enclosure",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9814401351887",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4125013573839",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "25.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "25.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2025-11-12T05:42:54Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "UGREEN 120W UPS ensures data protection during power failures. It is specifically designed for UGREEN NAS Storage and provides a stable 12V/10A output along with a 12,000mAh backup power supply.",
+    "title": null
+  },
+  "tags": [
+    "GOCERTIFY"
+  ],
+  "title": "UGREEN 10Gbps M.2 NVMe SSD Enclosure",
+  "updatedAt": "2026-09-08T06:49:47Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NDY2Mjc4NTkzMzUxOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDY2Mjc4NTkzMzUxOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "25.99",
+            "currencyCode": "EUR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/44662785933519",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ProductImage/40230283641039",
+            "thumbhash": "9PcNDwC3uIiHd3iPdXaGmYeZhmz52JYP",
+            "url": "https://cdn.shopify.com/s/files/1/0629/2088/4431/files/ssd-1600.png?v=1762934252",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "25.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "90541",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN NAS EU"
+}

@@ -1,0 +1,273 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "Power"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-5",
+    "name": "Power Adapters & Chargers"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "38.99",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "38.99",
+      "currencyCode": "USD"
+    }
+  },
+  "createdAt": "2026-11-06T02:46:13Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 600,
+    "id": "gid://shopify/ProductImage/38292509065278",
+    "thumbhash": "UQcOFoJYh3eAiHiIeHh3eJd4CIZ9A6g=",
+    "url": "https://cdn.shopify.com/s/files/1/0257/5246/9566/files/starter-mystery-tech-box-1226587.webp?v=1793960287",
+    "width": 670
+  },
+  "handle": "mystery-box-a",
+  "id": "gid://shopify/Product/15471480635454",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozODI5MjUwOTA2NTI3OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozODI5MjUwOTA2NTI3OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 600,
+          "id": "gid://shopify/ProductImage/38292509065278",
+          "thumbhash": "UQcOFoJYh3eAiHiIeHh3eJd4CIZ9A6g=",
+          "url": "https://cdn.shopify.com/s/files/1/0257/5246/9566/files/starter-mystery-tech-box-1226587.webp?v=1793960287",
+          "width": 670
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjcyOTQzOTk2OTM0MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjcyOTQzOTk2OTM0MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/46729439969342",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ImageSource/46729439969342",
+            "thumbhash": "UQcOFoJYh3eAiHiIeHh3eJd4CIZ9A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0257/5246/9566/files/starter-mystery-tech-box-1226587.webp?v=1793960287",
+            "width": 670
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 600,
+            "id": "gid://shopify/ImageSource/46729439969342",
+            "thumbhash": "UQcOFoJYh3eAiHiIeHh3eJd4CIZ9A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0257/5246/9566/files/starter-mystery-tech-box-1226587.webp?v=1793960287",
+            "width": 670
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://us.ugreen.com/products/mystery-box-a",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17944583209022",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/15171306750014",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "38.99",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "38.99",
+      "currencyCode": "USD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-11-06T02:46:15Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "Starter Mystery Tech Box",
+  "updatedAt": "2026-11-06T10:22:50Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2ODA1MTc4Mzc3ODM2NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2ODA1MTc4Mzc3ODM2NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "38.99",
+            "currencyCode": "USD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/68051783778366",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ProductImage/38292509065278",
+            "thumbhash": "UQcOFoJYh3eAiHiIeHh3eJd4CIZ9A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0257/5246/9566/files/starter-mystery-tech-box-1226587.webp?v=1793960287",
+            "width": 670
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "38.99",
+            "currencyCode": "USD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "mystery-box-a",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "GRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN US"
+}

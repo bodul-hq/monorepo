@@ -1,0 +1,109 @@
+query VariantSellingPlanAllocations($pageSize5: Int!, $country: CountryCode!, $language: LanguageCode!, $id: ID!, $after: String) @inContext(country: $country, language: $language) { node(id: $id) { __typename ... on ProductVariant { id sellingPlanAllocations(first: $pageSize5, after: $after) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                checkoutChargeAmount {
+                  __typename
+                  amount
+                  currencyCode
+                }
+                priceAdjustments {
+                  __typename
+                  compareAtPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  perDeliveryPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  price {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  unitPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                }
+                remainingBalanceChargeAmount {
+                  __typename
+                  amount
+                  currencyCode
+                }
+                sellingPlan {
+                  __typename
+                  billingPolicy {
+                    __typename
+                    ... on SellingPlanRecurringBillingPolicy {
+                      interval
+                      intervalCount
+                    }
+                  }
+                  checkoutCharge {
+                    __typename
+                    type
+                    value {
+                      __typename
+                      ... on MoneyV2 {
+                        amount
+                        currencyCode
+                      }
+                      ... on SellingPlanCheckoutChargePercentageValue {
+                        percentage
+                      }
+                    }
+                  }
+                  deliveryPolicy {
+                    __typename
+                    ... on SellingPlanRecurringDeliveryPolicy {
+                      interval
+                      intervalCount
+                    }
+                  }
+                  description
+                  id
+                  name
+                  options {
+                    __typename
+                    name
+                    value
+                  }
+                  priceAdjustments {
+                    __typename
+                    adjustmentValue {
+                      __typename
+                      ... on SellingPlanFixedAmountPriceAdjustment {
+                        adjustmentAmount {
+                          __typename
+                          amount
+                          currencyCode
+                        }
+                      }
+                      ... on SellingPlanFixedPriceAdjustment {
+                        price {
+                          __typename
+                          amount
+                          currencyCode
+                        }
+                      }
+                      ... on SellingPlanPercentagePriceAdjustment {
+                        adjustmentPercentage
+                      }
+                    }
+                    orderCount
+                  }
+                  recurringDeliveries
+                }
+              }
+            }
+          } } } }

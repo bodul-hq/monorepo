@@ -129,3 +129,26 @@ extractions complete while the fallback handles previously saved extractions.
 
 Canonical comparison prices, availability, item condition, and descriptions are
 documented in [offer facts source coverage](../../docs/offer-facts-source-coverage.md).
+
+## GraphQL offer details v2
+
+All registered ugreen storefronts support initial fills across each advertised
+country's available languages. Each retailer owns its configuration, token policy, queries, schema, validation
+and pagination in `<retailer>/initial_fill/v1`.
+Public access is backed by captured data3 responses; this change could not
+revalidate live access because external DNS was unavailable.
+
+Each retailer defines its own concrete Product, ProductResponse and
+RawOfferDetails types in `offer_details/v2/raw`, exported through the crate prelude as
+`<retailer>_raw_v2`. Contextual artifacts use schema version 2; historical version
+1 remains readable. Extracted representations and HTML processing are unchanged.
+
+Normal CI covers real product and market-discovery fixtures for every storefront.
+To read every available saved product across contexts, run
+`cargo test -p retailers_ugreen saved_graphql_corpus -- --ignored --nocapture`
+in `lib`; this requires `../data3` beside the monorepo. Missing or partial old
+captures do not determine which live contexts are supported.
+
+New initial fills attempt public Storefront token acquisition before discovery.
+If none is found, public access continues. Optional overrides use
+`<UPPERCASE_RETAILER_CODE>_STOREFRONT_TOKEN`; query page sizes are unchanged.
