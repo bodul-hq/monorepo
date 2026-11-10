@@ -45,15 +45,15 @@ claims that the now-passing Anker sitemap tests are known failures.
 
 All checks below ran against the rebased implementation:
 
-| Check | Result |
-| --- | --- |
-| Root `make fmt`, followed by root `make ci` | Passed across lib, services, and apps; includes 582 Anker tests. |
-| Retailer-sourcing `make test-postgres` | 70 passed. |
-| Offers `make test-postgres` | 38 passed. |
-| Customer-facing `make test-postgres` | 45 passed. |
-| Locked offline Cargo metadata, host platform | Every workspace resolves exactly one local `shared`; none contains `bodul_shared`. |
-| Lockfile package comparison with `c45230b` | No package versions, registry sources, or checksums changed. |
-| Service/app startup | Sourcing, offers, customer-facing health and both app index pages returned HTTP 200. Verification processes were stopped afterward. |
+| Check                                        | Result                                                                                                                              |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Root `make fmt`, followed by root `make ci`  | Passed across lib, services, and apps; includes 582 Anker tests.                                                                    |
+| Retailer-sourcing `make test-postgres`       | 70 passed.                                                                                                                          |
+| Offers `make test-postgres`                  | 38 passed.                                                                                                                          |
+| Customer-facing `make test-postgres`         | 45 passed.                                                                                                                          |
+| Locked offline Cargo metadata, host platform | Every workspace resolves exactly one local `shared`; none contains `bodul_shared`.                                                  |
+| Lockfile package comparison with `c45230b`   | No package versions, registry sources, or checksums changed.                                                                        |
+| Service/app startup                          | Sourcing, offers, customer-facing health and both app index pages returned HTTP 200. Verification processes were stopped afterward. |
 
 PostgreSQL runs used `RUST_TEST_THREADS=4` and dedicated local test databases on
 port 55432. Sourcing and offers used `anker_split_test`. The first customer-facing
@@ -77,13 +77,13 @@ is intentional; it does not imply that one market's price is reused for another.
 
 The saved product `t90r0121` retained these exact prices and English localization:
 
-| Market | Currency | Minor-unit amount |
-| --- | --- | ---: |
-| Sweden | SEK | 49900 |
-| Norway | NOK | 49900 |
-| Finland | EUR | 4499 |
-| Iceland | ISK | 6490 |
-| Denmark | DKK | 34900 |
+| Market  | Currency | Minor-unit amount |
+| ------- | -------- | ----------------: |
+| Sweden  | SEK      |             49900 |
+| Norway  | NOK      |             49900 |
+| Finland | EUR      |              4499 |
+| Iceland | ISK      |              6490 |
+| Denmark | DKK      |             34900 |
 
 These are saved-source regression results, not a fresh live-price survey or
 coverage of every product in every market. Historical Nordic HTML coverage was
