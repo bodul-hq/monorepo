@@ -1,0 +1,273 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Uncategorized"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTAzNjIyMjI4OTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTAzNjIyMjI4OTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gear-hub",
+          "id": "gid://shopify/Collection/510362222896",
+          "image": null,
+          "onlineStoreUrl": "https://ca.minisforum.com/collections/gear-hub",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Gear Hub",
+          "updatedAt": "2026-11-07T12:23:06Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2026-03-17T06:19:54Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 600,
+    "id": "gid://shopify/ProductImage/52902701433136",
+    "thumbhash": "9/cNBwD3SIiJd3iId3iHqGd2eX+I94gI",
+    "url": "https://cdn.shopify.com/s/files/1/0923/5012/0240/files/cellphonestand_77f390b1-583a-4178-8180-e0d76d3655b0.webp?v=1773741202",
+    "width": 600
+  },
+  "handle": "adjustable-cellphone-stand",
+  "id": "gid://shopify/Product/10109610983728",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MjkwMjcwMTQzMzEzNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MjkwMjcwMTQzMzEzNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 600,
+          "id": "gid://shopify/ProductImage/52902701433136",
+          "thumbhash": "9/cNBwD3SIiJd3iId3iHqGd2eX+I94gI",
+          "url": "https://cdn.shopify.com/s/files/1/0923/5012/0240/files/cellphonestand_77f390b1-583a-4178-8180-e0d76d3655b0.webp?v=1773741202",
+          "width": 600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MzEwMDI2OTc3MzEwNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MzEwMDI2OTc3MzEwNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/43100269773104",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ImageSource/43100269773104",
+            "thumbhash": "9/cNBwD3SIiJd3iId3iHqGd2eX+I94gI",
+            "url": "https://cdn.shopify.com/s/files/1/0923/5012/0240/files/cellphonestand_77f390b1-583a-4178-8180-e0d76d3655b0.webp?v=1773741202",
+            "width": 600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 600,
+            "id": "gid://shopify/ImageSource/43100269773104",
+            "thumbhash": "9/cNBwD3SIiJd3iId3iHqGd2eX+I94gI",
+            "url": "https://cdn.shopify.com/s/files/1/0923/5012/0240/files/cellphonestand_77f390b1-583a-4178-8180-e0d76d3655b0.webp?v=1773741202",
+            "width": 600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.minisforum.com/products/adjustable-cellphone-stand",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/12607409881392",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/5684707262768",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "26.0",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "26.0",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "Gift Guide",
+  "publishedAt": "2026-03-17T06:19:55Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "Adjustable Cellphone Stand",
+  "updatedAt": "2026-11-02T15:44:48Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTE5NDgyODQ1NjI0MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE5NDgyODQ1NjI0MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/51194828456240",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ProductImage/52902701433136",
+            "thumbhash": "9/cNBwD3SIiJd3iId3iHqGd2eX+I94gI",
+            "url": "https://cdn.shopify.com/s/files/1/0923/5012/0240/files/cellphonestand_77f390b1-583a-4178-8180-e0d76d3655b0.webp?v=1773741202",
+            "width": 600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "26.0",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "P-stand",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum CA"
+}

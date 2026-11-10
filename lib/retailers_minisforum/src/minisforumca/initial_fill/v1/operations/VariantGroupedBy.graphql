@@ -1,0 +1,14 @@
+query VariantGroupedBy($pageSize5: Int!, $country: CountryCode!, $language: LanguageCode!, $id: ID!, $after: String) @inContext(country: $country, language: $language) { node(id: $id) { __typename ... on ProductVariant { id groupedBy(first: $pageSize5, after: $after) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                id
+                title
+              }
+            }
+          } } } }

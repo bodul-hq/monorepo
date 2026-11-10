@@ -1,0 +1,273 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "カテゴリーなし"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyOTQ4ODQ4MzU0OTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTQ4ODQ4MzU0OTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "30000以下",
+          "id": "gid://shopify/Collection/294884835494",
+          "image": null,
+          "onlineStoreUrl": "https://www.minisforum.jp/collections/30000%E4%BB%A5%E4%B8%8B",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "￥30000以下",
+          "updatedAt": "2026-11-07T12:12:41Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "createdAt": "2021-05-27T01:53:27Z",
+  "description": "【購入する前、お問い合わせが必要です】 Office付、カスタマイズ製品の注文や送料、税金など、ほかの需要のあるお客様への専用ページとなっております。 送料を避けるため、このリンクは配送なしでお届けするように設定されています。 ※購入次第、メールにて配送先をお知らせください。",
+  "descriptionHtml": "<div class=\"shogun-root\">\n<div id=\"s-e5dfdce6-24dc-4173-a571-42a0c5638228\" class=\"shg-c\">\n<div class=\"shg-rich-text shg-theme-text-content\">\n<p>【購入する前、お問い合わせが必要です】</p>\n<p>Office付、カスタマイズ製品の注文や送料、税金など、ほかの需要のあるお客様への専用ページとなっております。</p>\n<p><span style=\"color: rgb(186, 55, 42);\"><span style=\"color: rgb(0, 0, 0);\">送料を避けるため、このリンクは配送なしでお届けするように設定されています。</span></span></p>\n<p><span style=\"color: rgb(186, 55, 42);\"><span style=\"color: rgb(0, 0, 0);\"><span style=\"color: rgb(186, 55, 42);\">※</span></span>購入次第、メールにて配送先をお知らせください。</span></p>\n</div>\n</div>\n</div>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 600,
+    "id": "gid://shopify/ProductImage/29178258030758",
+    "thumbhash": "EPgFBIC/ZaRJdohrpofd7wp3dQ==",
+    "url": "https://cdn.shopify.com/s/files/1/0498/1296/3494/products/LOGO_1_811e588e-6a5a-49ab-b359-000ebcda90b1.jpg?v=1765418810",
+    "width": 970
+  },
+  "handle": "exclusive-use-link",
+  "id": "gid://shopify/Product/6805343436966",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyOTE3ODI1ODAzMDc1OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTE3ODI1ODAzMDc1OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 600,
+          "id": "gid://shopify/ProductImage/29178258030758",
+          "thumbhash": "EPgFBIC/ZaRJdohrpofd7wp3dQ==",
+          "url": "https://cdn.shopify.com/s/files/1/0498/1296/3494/products/LOGO_1_811e588e-6a5a-49ab-b359-000ebcda90b1.jpg?v=1765418810",
+          "width": 970
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyMTUxMjM3Njc3ODkxOCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyMTUxMjM3Njc3ODkxOCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/21512376778918",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ImageSource/21512376778918",
+            "thumbhash": "EPgFBIC/ZaRJdohrpofd7wp3dQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0498/1296/3494/products/LOGO_1_811e588e-6a5a-49ab-b359-000ebcda90b1.jpg?v=1765418810",
+            "width": 970
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 600,
+            "id": "gid://shopify/ImageSource/21512376778918",
+            "thumbhash": "EPgFBIC/ZaRJdohrpofd7wp3dQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0498/1296/3494/products/LOGO_1_811e588e-6a5a-49ab-b359-000ebcda90b1.jpg?v=1765418810",
+            "width": 970
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://www.minisforum.jp/products/exclusive-use-link",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/8779919196326",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2184848212134",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1000.0",
+      "currencyCode": "JPY"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1000.0",
+      "currencyCode": "JPY"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2021-05-27T01:54:39Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "特殊販売専用",
+  "updatedAt": "2026-11-03T00:56:57Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDE4NTg4MDA1MTg3OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDE4NTg4MDA1MTg3OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/40185880051878",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ProductImage/29178258030758",
+            "thumbhash": "EPgFBIC/ZaRJdohrpofd7wp3dQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0498/1296/3494/products/LOGO_1_811e588e-6a5a-49ab-b359-000ebcda90b1.jpg?v=1765418810",
+            "width": 970
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "1000.0",
+            "currencyCode": "JPY"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "SPECIALJP02",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": false,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum JP"
+}

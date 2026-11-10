@@ -1,0 +1,3694 @@
+schema {
+  query: QueryRoot
+  mutation: Mutation
+}
+
+type ApiVersion {
+  displayName: String!
+  handle: String!
+  supported: Boolean!
+}
+
+input ApplePayWalletContentInput {
+  billingAddress: MailingAddressInput!
+  data: String!
+  header: ApplePayWalletHeaderInput!
+  lastDigits: String
+  signature: String!
+  version: String!
+}
+
+input ApplePayWalletHeaderInput {
+  applicationData: String
+  ephemeralPublicKey: String!
+  publicKeyHash: String!
+  transactionId: String!
+}
+
+type AppliedGiftCard implements Node {
+  amountUsed: MoneyV2!
+  amountUsedV2: MoneyV2!
+  balance: MoneyV2!
+  balanceV2: MoneyV2!
+  id: ID!
+  lastCharacters: String!
+  presentmentAmountUsed: MoneyV2!
+}
+
+type Article implements HasMetafields & Node & OnlineStorePublishable & Trackable {
+  author: ArticleAuthor!
+  authorV2: ArticleAuthor
+  blog: Blog!
+  comments(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): CommentConnection!
+  content(truncateAt: Int): String!
+  contentHtml: HTML!
+  excerpt(truncateAt: Int): String
+  excerptHtml: HTML
+  handle: String!
+  id: ID!
+  image: Image
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  onlineStoreUrl: URL
+  publishedAt: DateTime!
+  seo: SEO
+  tags: [String!]!
+  title: String!
+  trackingParameters: String
+}
+
+type ArticleAuthor {
+  bio: String
+  email: String!
+  firstName: String!
+  lastName: String!
+  name: String!
+}
+
+type ArticleConnection {
+  edges: [ArticleEdge!]!
+  nodes: [Article!]!
+  pageInfo: PageInfo!
+}
+
+type ArticleEdge {
+  cursor: String!
+  node: Article!
+}
+
+enum ArticleSortKeys {
+  TITLE
+  BLOG_TITLE
+  AUTHOR
+  UPDATED_AT
+  PUBLISHED_AT
+  ID
+  RELEVANCE
+}
+
+type Attribute {
+  key: String!
+  value: String
+}
+
+input AttributeInput {
+  key: String!
+  value: String!
+}
+
+type AutomaticDiscountApplication implements DiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+  value: PricingValue!
+}
+
+interface BaseCartDiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  totalAllocatedAmount: MoneyV2!
+  value: PricingValue!
+}
+
+interface BaseCartLine implements Node {
+  attribute(key: String!): Attribute
+  attributes: [Attribute!]!
+  cost: CartLineCost!
+  discountAllocations(lineLevelOnly: Boolean = true): [CartDiscountAllocation!]!
+  estimatedCost: CartLineEstimatedCost!
+  id: ID!
+  merchandise: Merchandise!
+  quantity: Int!
+  sellingPlanAllocation: SellingPlanAllocation
+  viewKey: String
+}
+
+type BaseCartLineConnection {
+  edges: [BaseCartLineEdge!]!
+  nodes: [BaseCartLine!]!
+  pageInfo: PageInfo!
+}
+
+type BaseCartLineEdge {
+  cursor: String!
+  node: BaseCartLine!
+}
+
+type Blog implements HasMetafields & Node & OnlineStorePublishable {
+  articleByHandle(handle: String!): Article
+  articles(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ArticleSortKeys = ID, query: String): ArticleConnection!
+  authors: [ArticleAuthor!]!
+  handle: String!
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  onlineStoreUrl: URL
+  seo: SEO
+  title: String!
+}
+
+type BlogConnection {
+  edges: [BlogEdge!]!
+  nodes: [Blog!]!
+  pageInfo: PageInfo!
+}
+
+type BlogEdge {
+  cursor: String!
+  node: Blog!
+}
+
+enum BlogSortKeys {
+  HANDLE
+  TITLE
+  ID
+  RELEVANCE
+}
+
+type Brand {
+  colors: BrandColors!
+  coverImage: MediaImage
+  logo: MediaImage
+  shortDescription: String
+  slogan: String
+  squareLogo: MediaImage
+}
+
+type BrandColorGroup {
+  background: Color
+  foreground: Color
+}
+
+type BrandColors {
+  primary: [BrandColorGroup!]!
+  secondary: [BrandColorGroup!]!
+}
+
+input BuyerInput {
+  customerAccessToken: String!
+  companyLocationId: ID
+}
+
+enum CardBrand {
+  VISA
+  MASTERCARD
+  DISCOVER
+  AMERICAN_EXPRESS
+  DINERS_CLUB
+  JCB
+}
+
+type Cart implements HasMetafields & Node {
+  appliedGiftCards: [AppliedGiftCard!]!
+  attribute(key: String!): Attribute
+  attributes: [Attribute!]!
+  buyerIdentity: CartBuyerIdentity!
+  checkoutUrl: URL!
+  cost: CartCost!
+  createdAt: DateTime!
+  delivery: CartDelivery!
+  deliveryGroups(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, withCarrierRates: Boolean = false): CartDeliveryGroupConnection!
+  discountAllocations: [CartDiscountAllocation!]!
+  discountApplications: [BaseCartDiscountApplication!]!
+  discountCodes: [CartDiscountCode!]!
+  estimatedCost: CartEstimatedCost!
+  id: ID!
+  lines(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): BaseCartLineConnection!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  note: String
+  totalQuantity: Int!
+  updatedAt: DateTime!
+}
+
+union CartAddress = CartDeliveryAddress
+
+input CartAddressInput {
+  deliveryAddress: CartDeliveryAddressInput
+  copyFromCustomerAddressId: ID
+}
+
+type CartAttributesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartAutomaticDiscountAllocation implements CartDiscountAllocation {
+  discountApplication: CartDiscountApplication!
+  discountedAmount: MoneyV2!
+  sourceDiscountApplication: BaseCartDiscountApplication!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+}
+
+type CartAutomaticDiscountApplication implements BaseCartDiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+  totalAllocatedAmount: MoneyV2!
+  value: PricingValue!
+}
+
+type CartBillingAddressUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartBuyerIdentity {
+  countryCode: CountryCode
+  customer: Customer
+  deliveryAddressPreferences: [DeliveryAddress!]!
+  email: String
+  phone: String
+  preferences: CartPreferences
+  purchasingCompany: PurchasingCompany
+}
+
+input CartBuyerIdentityInput {
+  email: String
+  phone: String
+  companyLocationId: ID
+  countryCode: CountryCode
+  customerAccessToken: String
+  preferences: CartPreferencesInput
+}
+
+type CartBuyerIdentityUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+enum CartCardSource {
+  SAVED_CREDIT_CARD
+}
+
+type CartClonePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartCodeDiscountAllocation implements CartDiscountAllocation {
+  code: String!
+  discountApplication: CartDiscountApplication!
+  discountedAmount: MoneyV2!
+  sourceDiscountApplication: BaseCartDiscountApplication!
+  targetType: DiscountApplicationTargetType!
+}
+
+type CartCodeDiscountApplication implements BaseCartDiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  code: String!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  totalAllocatedAmount: MoneyV2!
+  value: PricingValue!
+}
+
+union CartCompletionAction = CompletePaymentChallenge
+
+type CartCompletionActionRequired {
+  action: CartCompletionAction
+  id: String!
+}
+
+union CartCompletionAttemptResult = CartCompletionActionRequired | CartCompletionFailed | CartCompletionProcessing | CartCompletionSuccess
+
+type CartCompletionFailed {
+  errors: [CompletionError!]!
+  id: String!
+}
+
+type CartCompletionProcessing {
+  id: String!
+  pollDelay: Int!
+}
+
+type CartCompletionSuccess {
+  completedAt: DateTime
+  id: String!
+  orderId: ID!
+  orderUrl: URL!
+}
+
+type CartCost {
+  checkoutChargeAmount: MoneyV2!
+  subtotalAmount: MoneyV2!
+  subtotalAmountEstimated: Boolean!
+  totalAmount: MoneyV2!
+  totalAmountEstimated: Boolean!
+  totalDutyAmount: MoneyV2
+  totalDutyAmountEstimated: Boolean!
+  totalTaxAmount: MoneyV2
+  totalTaxAmountEstimated: Boolean!
+}
+
+type CartCreatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartCustomDiscountAllocation implements CartDiscountAllocation {
+  discountApplication: CartDiscountApplication!
+  discountedAmount: MoneyV2!
+  sourceDiscountApplication: BaseCartDiscountApplication!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+}
+
+type CartCustomDiscountApplication implements BaseCartDiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+  totalAllocatedAmount: MoneyV2!
+  value: PricingValue!
+}
+
+type CartDelivery {
+  addresses(selected: Boolean = false): [CartSelectableAddress!]!
+}
+
+type CartDeliveryAddress {
+  address1: String
+  address2: String
+  city: String
+  company: String
+  countryCode: String
+  firstName: String
+  formatted(withName: Boolean = false, withCompany: Boolean = true): [String!]!
+  formattedArea: String
+  lastName: String
+  latitude: Float
+  longitude: Float
+  name: String
+  phone: String
+  provinceCode: String
+  zip: String
+}
+
+input CartDeliveryAddressInput {
+  address1: String
+  address2: String
+  city: String
+  company: String
+  countryCode: CountryCode
+  firstName: String
+  lastName: String
+  phone: String
+  provinceCode: String
+  zip: String
+}
+
+type CartDeliveryAddressesAddPayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartDeliveryAddressesRemovePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartDeliveryAddressesReplacePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartDeliveryAddressesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartDeliveryCoordinatesPreference {
+  countryCode: CountryCode!
+  latitude: Float!
+  longitude: Float!
+}
+
+input CartDeliveryCoordinatesPreferenceInput {
+  latitude: Float!
+  longitude: Float!
+  countryCode: CountryCode!
+}
+
+type CartDeliveryGroup {
+  cartLines(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): BaseCartLineConnection!
+  deliveryAddress: MailingAddress!
+  deliveryOptions: [CartDeliveryOption!]!
+  discountAllocations: [CartDiscountAllocation!]!
+  groupType: CartDeliveryGroupType!
+  id: ID!
+  selectedDeliveryOption: CartDeliveryOption
+}
+
+type CartDeliveryGroupConnection {
+  edges: [CartDeliveryGroupEdge!]!
+  nodes: [CartDeliveryGroup!]!
+  pageInfo: PageInfo!
+}
+
+type CartDeliveryGroupEdge {
+  cursor: String!
+  node: CartDeliveryGroup!
+}
+
+enum CartDeliveryGroupType {
+  SUBSCRIPTION
+  ONE_TIME_PURCHASE
+}
+
+input CartDeliveryInput {
+  addresses: [CartSelectableAddressInput!]
+}
+
+type CartDeliveryOption {
+  code: String
+  deliveryMethodType: DeliveryMethodType!
+  description: String
+  estimatedCost: MoneyV2!
+  handle: String!
+  title: String
+}
+
+type CartDeliveryPreference {
+  coordinates: CartDeliveryCoordinatesPreference
+  deliveryMethod: [PreferenceDeliveryMethodType!]!
+  pickupHandle: [String!]!
+}
+
+input CartDeliveryPreferenceInput {
+  deliveryMethod: [PreferenceDeliveryMethodType!]
+  pickupHandle: [String!]
+  coordinates: CartDeliveryCoordinatesPreferenceInput
+}
+
+input CartDirectPaymentMethodInput {
+  billingAddress: MailingAddressInput!
+  sessionId: String!
+  cardSource: CartCardSource
+  acceptedSubscriptionTerms: Boolean = false
+}
+
+interface CartDiscountAllocation {
+  discountApplication: CartDiscountApplication!
+  discountedAmount: MoneyV2!
+  sourceDiscountApplication: BaseCartDiscountApplication!
+  targetType: DiscountApplicationTargetType!
+}
+
+type CartDiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  value: PricingValue!
+}
+
+type CartDiscountCode {
+  applicable: Boolean!
+  code: String!
+}
+
+type CartDiscountCodesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+enum CartErrorCode {
+  INVALID
+  LESS_THAN
+  INVALID_MERCHANDISE_LINE
+  MERCHANDISE_NOT_APPLICABLE
+  MERCHANDISE_LINE_TRANSFORMERS_RUN_ERROR
+  MISSING_DISCOUNT_CODE
+  MISSING_NOTE
+  NOTE_TOO_LONG
+  INVALID_DELIVERY_GROUP
+  INVALID_DELIVERY_OPTION
+  PENDING_DELIVERY_GROUPS
+  INVALID_PAYMENT
+  PAYMENT_METHOD_NOT_SUPPORTED
+  PAYMENT_METHOD_NOT_APPLICABLE
+  INVALID_PAYMENT_DEFERRED_PAYMENT_REQUIRED
+  INVALID_PAYMENT_EMPTY_CART
+  VALIDATION_CUSTOM
+  INVALID_METAFIELDS
+  MISSING_CUSTOMER_ACCESS_TOKEN
+  INVALID_COMPANY_LOCATION
+  INVALID_INCREMENT
+  MINIMUM_NOT_MET
+  MAXIMUM_EXCEEDED
+  TOO_MANY_DELIVERY_ADDRESSES
+  ONLY_ONE_DELIVERY_ADDRESS_CAN_BE_SELECTED
+  INVALID_DELIVERY_ADDRESS_ID
+  BUYER_CANNOT_PURCHASE_FOR_COMPANY_LOCATION
+  BUNDLES_AND_ADDONS_CANNOT_BE_MIXED
+  PARENT_LINE_INVALID_REFERENCE
+  PARENT_LINE_NOT_FOUND
+  PARENT_LINE_NESTING_TOO_DEEP
+  PARENT_LINE_OPERATION_BLOCKED
+  GIFT_CARD_RECIPIENT_INVALID
+  ADDRESS_FIELD_IS_REQUIRED
+  ADDRESS_FIELD_IS_TOO_LONG
+  ADDRESS_FIELD_CONTAINS_EMOJIS
+  ADDRESS_FIELD_CONTAINS_HTML_TAGS
+  ADDRESS_FIELD_CONTAINS_URL
+  ADDRESS_FIELD_DOES_NOT_MATCH_EXPECTED_PATTERN
+  INVALID_ZIP_CODE_FOR_PROVINCE
+  INVALID_ZIP_CODE_FOR_COUNTRY
+  ZIP_CODE_NOT_SUPPORTED
+  PROVINCE_NOT_FOUND
+  UNSPECIFIED_ADDRESS_ERROR
+  PAYMENTS_CREDIT_CARD_BASE_EXPIRED
+  PAYMENTS_CREDIT_CARD_BASE_GATEWAY_NOT_SUPPORTED
+  PAYMENTS_CREDIT_CARD_GENERIC
+  PAYMENTS_CREDIT_CARD_MONTH_INCLUSION
+  PAYMENTS_CREDIT_CARD_NUMBER_INVALID
+  PAYMENTS_CREDIT_CARD_NUMBER_INVALID_FORMAT
+  PAYMENTS_CREDIT_CARD_VERIFICATION_VALUE_BLANK
+  PAYMENTS_CREDIT_CARD_VERIFICATION_VALUE_INVALID_FOR_CARD_TYPE
+  PAYMENTS_CREDIT_CARD_YEAR_EXPIRED
+  PAYMENTS_CREDIT_CARD_YEAR_INVALID_EXPIRY_YEAR
+  VARIANT_REQUIRES_SELLING_PLAN
+  SELLING_PLAN_NOT_APPLICABLE
+  SERVICE_UNAVAILABLE
+  CART_TOO_LARGE
+}
+
+type CartEstimatedCost {
+  checkoutChargeAmount: MoneyV2!
+  subtotalAmount: MoneyV2!
+  totalAmount: MoneyV2!
+  totalDutyAmount: MoneyV2
+  totalTaxAmount: MoneyV2
+}
+
+input CartFreePaymentMethodInput {
+  billingAddress: MailingAddressInput!
+}
+
+type CartGiftCardCodesAddPayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartGiftCardCodesRemovePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartGiftCardCodesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+input CartInput {
+  attributes: [AttributeInput!]
+  lines: [CartLineInput!]
+  discountCodes: [String!]
+  giftCardCodes: [String!]
+  note: String
+  buyerIdentity: CartBuyerIdentityInput
+  delivery: CartDeliveryInput
+  metafields: [CartInputMetafieldInput!]
+  sourceName: String
+}
+
+input CartInputMetafieldInput {
+  key: String!
+  value: String!
+  type: String!
+}
+
+type CartLine implements BaseCartLine & Node {
+  attribute(key: String!): Attribute
+  attributes: [Attribute!]!
+  cost: CartLineCost!
+  discountAllocations(lineLevelOnly: Boolean = true): [CartDiscountAllocation!]!
+  estimatedCost: CartLineEstimatedCost!
+  id: ID!
+  instructions: CartLineInstructions!
+  merchandise: Merchandise!
+  parentRelationship: CartLineParentRelationship
+  quantity: Int!
+  sellingPlanAllocation: SellingPlanAllocation
+  viewKey: String
+}
+
+type CartLineCost {
+  amountPerQuantity: MoneyV2!
+  compareAtAmountPerQuantity: MoneyV2
+  subtotalAmount: MoneyV2!
+  totalAmount: MoneyV2!
+}
+
+type CartLineEstimatedCost {
+  amount: MoneyV2!
+  compareAtAmount: MoneyV2
+  subtotalAmount: MoneyV2!
+  totalAmount: MoneyV2!
+}
+
+input CartLineInput {
+  attributes: [AttributeInput!]
+  quantity: Int = 1
+  merchandiseId: ID!
+  sellingPlanId: ID
+  parent: CartLineParentInput
+}
+
+type CartLineInstructions {
+  canRemove: Boolean!
+  canUpdateQuantity: Boolean!
+}
+
+input CartLineParentInput {
+  lineId: ID
+  merchandiseId: ID
+}
+
+type CartLineParentRelationship {
+  parent: CartLine!
+}
+
+input CartLineUpdateInput {
+  id: ID
+  viewKey: String
+  quantity: Int
+  merchandiseId: ID
+  attributes: [AttributeInput!]
+  sellingPlanId: ID
+}
+
+type CartLinesAddPayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartLinesRemovePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartLinesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+input CartMetafieldDeleteInput {
+  ownerId: ID!
+  key: String!
+}
+
+type CartMetafieldDeletePayload {
+  deletedId: ID
+  userErrors: [MetafieldDeleteUserError!]!
+}
+
+input CartMetafieldsSetInput {
+  ownerId: ID!
+  key: String!
+  value: String!
+  type: String!
+}
+
+type CartMetafieldsSetPayload {
+  metafields: [Metafield!]
+  userErrors: [MetafieldsSetUserError!]!
+}
+
+type CartNoteUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartOperationError {
+  code: String!
+  message: String
+}
+
+input CartPaymentInput {
+  amount: MoneyInput!
+  sourceIdentifier: String
+  freePaymentMethod: CartFreePaymentMethodInput
+  directPaymentMethod: CartDirectPaymentMethodInput
+  walletPaymentMethod: CartWalletPaymentMethodInput
+}
+
+type CartPaymentUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartPreferences {
+  delivery: CartDeliveryPreference
+  wallet: [String!]
+}
+
+input CartPreferencesInput {
+  delivery: CartDeliveryPreferenceInput
+  wallet: [String!]
+}
+
+type CartPrepareForCompletionPayload {
+  result: CartPrepareForCompletionResult
+  userErrors: [CartUserError!]!
+}
+
+union CartPrepareForCompletionResult = CartStatusNotReady | CartStatusReady | CartThrottled
+
+type CartRemovePersonalDataPayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartSelectableAddress {
+  address: CartAddress!
+  id: ID!
+  oneTimeUse: Boolean!
+  selected: Boolean!
+}
+
+input CartSelectableAddressInput {
+  address: CartAddressInput!
+  selected: Boolean
+  oneTimeUse: Boolean
+  validationStrategy: DeliveryAddressValidationStrategy = COUNTRY_CODE_ONLY
+}
+
+input CartSelectableAddressUpdateInput {
+  id: ID!
+  address: CartAddressInput
+  selected: Boolean
+  oneTimeUse: Boolean
+  validationStrategy: DeliveryAddressValidationStrategy = COUNTRY_CODE_ONLY
+}
+
+input CartSelectedDeliveryOptionInput {
+  deliveryGroupId: ID!
+  deliveryOptionHandle: String!
+}
+
+type CartSelectedDeliveryOptionsUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+  warnings: [CartWarning!]!
+}
+
+type CartStatusNotReady {
+  cart: Cart
+  errors: [CartOperationError!]!
+}
+
+type CartStatusReady {
+  cart: Cart
+}
+
+type CartSubmitForCompletionPayload {
+  result: CartSubmitForCompletionResult
+  userErrors: [CartUserError!]!
+}
+
+union CartSubmitForCompletionResult = SubmitAlreadyAccepted | SubmitFailed | SubmitSuccess | SubmitThrottled
+
+type CartThrottled {
+  cart: Cart
+  pollAfter: DateTime!
+}
+
+type CartUserError implements DisplayableError {
+  code: CartErrorCode
+  field: [String!]
+  message: String!
+}
+
+input CartWalletPaymentMethodInput {
+  applePayWalletContent: ApplePayWalletContentInput
+  shopPayWalletContent: ShopPayWalletContentInput
+}
+
+type CartWarning {
+  code: CartWarningCode!
+  message: String!
+  target: ID!
+}
+
+enum CartWarningCode {
+  MERCHANDISE_NOT_ENOUGH_STOCK
+  MERCHANDISE_OUT_OF_STOCK
+  PAYMENTS_GIFT_CARDS_UNAVAILABLE
+  DUPLICATE_DELIVERY_ADDRESS
+  DISCOUNT_CODE_NOT_HONOURED
+  DISCOUNT_NOT_FOUND
+  DISCOUNT_CURRENTLY_INACTIVE
+  DISCOUNT_USAGE_LIMIT_REACHED
+  DISCOUNT_CUSTOMER_USAGE_LIMIT_REACHED
+  DISCOUNT_CUSTOMER_NOT_ELIGIBLE
+  DISCOUNT_ELIGIBLE_CUSTOMER_MISSING
+  DISCOUNT_QUANTITY_NOT_IN_RANGE
+  DISCOUNT_PURCHASE_NOT_IN_RANGE
+  DISCOUNT_NO_ENTITLED_LINE_ITEMS
+  DISCOUNT_NO_ENTITLED_SHIPPING_LINES
+  DISCOUNT_INCOMPATIBLE_PURCHASE_TYPE
+  MERCHANDISE_SELLING_PLAN_NOT_APPLICABLE_ON_COMPANY_LOCATION
+  PRODUCT_UNAVAILABLE_IN_BUYER_LOCATION
+}
+
+input CategoryFilter {
+  id: String!
+}
+
+type Collection implements HasMetafields & Node & OnlineStorePublishable & Trackable {
+  description(truncateAt: Int): String!
+  descriptionHtml: HTML!
+  handle: String!
+  id: ID!
+  image: Image
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  onlineStoreUrl: URL
+  products(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ProductCollectionSortKeys = COLLECTION_DEFAULT, filters: [ProductFilter!]): ProductConnection!
+  seo: SEO!
+  title: String!
+  trackingParameters: String
+  updatedAt: DateTime!
+}
+
+type CollectionConnection {
+  edges: [CollectionEdge!]!
+  nodes: [Collection!]!
+  pageInfo: PageInfo!
+  totalCount: UnsignedInt64!
+}
+
+type CollectionEdge {
+  cursor: String!
+  node: Collection!
+}
+
+enum CollectionSortKeys {
+  TITLE
+  UPDATED_AT
+  ID
+  RELEVANCE
+}
+
+scalar Color
+
+type Comment implements Node {
+  author: CommentAuthor!
+  content(truncateAt: Int): String!
+  contentHtml: HTML!
+  id: ID!
+}
+
+type CommentAuthor {
+  email: String!
+  name: String!
+}
+
+type CommentConnection {
+  edges: [CommentEdge!]!
+  nodes: [Comment!]!
+  pageInfo: PageInfo!
+}
+
+type CommentEdge {
+  cursor: String!
+  node: Comment!
+}
+
+type Company implements HasMetafields & Node {
+  createdAt: DateTime!
+  externalId: String
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type CompanyContact implements Node {
+  createdAt: DateTime!
+  id: ID!
+  locale: String
+  title: String
+  updatedAt: DateTime!
+}
+
+type CompanyLocation implements HasMetafields & Node {
+  createdAt: DateTime!
+  externalId: String
+  id: ID!
+  locale: String
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type CompletePaymentChallenge {
+  redirectUrl: URL
+}
+
+type CompletionError {
+  code: CompletionErrorCode!
+  message: String
+}
+
+enum CompletionErrorCode {
+  ERROR
+  INVENTORY_RESERVATION_ERROR
+  PAYMENT_ERROR
+  PAYMENT_TRANSIENT_ERROR
+  PAYMENT_AMOUNT_TOO_SMALL
+  PAYMENT_GATEWAY_NOT_ENABLED_ERROR
+  PAYMENT_INSUFFICIENT_FUNDS
+  PAYMENT_INVALID_PAYMENT_METHOD
+  PAYMENT_INVALID_CURRENCY
+  PAYMENT_INVALID_CREDIT_CARD
+  PAYMENT_INVALID_BILLING_ADDRESS
+  PAYMENT_CARD_DECLINED
+  PAYMENT_CALL_ISSUER
+}
+
+type ComponentizableCartLine implements BaseCartLine & Node {
+  attribute(key: String!): Attribute
+  attributes: [Attribute!]!
+  cost: CartLineCost!
+  discountAllocations(lineLevelOnly: Boolean = true): [CartDiscountAllocation!]!
+  estimatedCost: CartLineEstimatedCost!
+  id: ID!
+  lineComponents: [CartLine!]!
+  merchandise: Merchandise!
+  quantity: Int!
+  sellingPlanAllocation: SellingPlanAllocation
+  viewKey: String
+}
+
+type Count {
+  count: Int!
+  precision: CountPrecision!
+}
+
+enum CountPrecision {
+  EXACT
+  AT_LEAST
+}
+
+type Country {
+  availableLanguages: [Language!]!
+  currency: Currency!
+  defaultLanguage: Language!
+  isoCode: CountryCode!
+  market: Market
+  name: String!
+  unitSystem: UnitSystem!
+}
+
+enum CountryCode {
+  AF
+  AX
+  AL
+  DZ
+  AD
+  AO
+  AI
+  AG
+  AR
+  AM
+  AW
+  AC
+  AU
+  AT
+  AZ
+  BS
+  BH
+  BD
+  BB
+  BY
+  BE
+  BZ
+  BJ
+  BM
+  BT
+  BO
+  BA
+  BW
+  BV
+  BR
+  IO
+  BN
+  BG
+  BF
+  BI
+  KH
+  CA
+  CV
+  BQ
+  KY
+  CF
+  TD
+  CL
+  CN
+  CX
+  CC
+  CO
+  KM
+  CG
+  CD
+  CK
+  CR
+  HR
+  CU
+  CW
+  CY
+  CZ
+  CI
+  DK
+  DJ
+  DM
+  DO
+  EC
+  EG
+  SV
+  GQ
+  ER
+  EE
+  SZ
+  ET
+  FK
+  FO
+  FJ
+  FI
+  FR
+  GF
+  PF
+  TF
+  GA
+  GM
+  GE
+  DE
+  GH
+  GI
+  GR
+  GL
+  GD
+  GP
+  GT
+  GG
+  GN
+  GW
+  GY
+  HT
+  HM
+  VA
+  HN
+  HK
+  HU
+  IS
+  IN
+  ID
+  IR
+  IQ
+  IE
+  IM
+  IL
+  IT
+  JM
+  JP
+  JE
+  JO
+  KZ
+  KE
+  KI
+  KP
+  XK
+  KW
+  KG
+  LA
+  LV
+  LB
+  LS
+  LR
+  LY
+  LI
+  LT
+  LU
+  MO
+  MG
+  MW
+  MY
+  MV
+  ML
+  MT
+  MQ
+  MR
+  MU
+  YT
+  MX
+  MD
+  MC
+  MN
+  ME
+  MS
+  MA
+  MZ
+  MM
+  NA
+  NR
+  NP
+  NL
+  AN
+  NC
+  NZ
+  NI
+  NE
+  NG
+  NU
+  NF
+  MK
+  NO
+  OM
+  PK
+  PS
+  PA
+  PG
+  PY
+  PE
+  PH
+  PN
+  PL
+  PT
+  QA
+  CM
+  RE
+  RO
+  RU
+  RW
+  BL
+  SH
+  KN
+  LC
+  MF
+  PM
+  WS
+  SM
+  ST
+  SA
+  SN
+  RS
+  SC
+  SL
+  SG
+  SX
+  SK
+  SI
+  SB
+  SO
+  ZA
+  GS
+  KR
+  SS
+  ES
+  LK
+  VC
+  SD
+  SR
+  SJ
+  SE
+  CH
+  SY
+  TW
+  TJ
+  TZ
+  TH
+  TL
+  TG
+  TK
+  TO
+  TT
+  TA
+  TN
+  TR
+  TM
+  TC
+  TV
+  UG
+  UA
+  AE
+  GB
+  US
+  UM
+  UY
+  UZ
+  VU
+  VE
+  VN
+  VG
+  WF
+  EH
+  YE
+  ZM
+  ZW
+  ZZ
+}
+
+enum CropRegion {
+  CENTER
+  TOP
+  BOTTOM
+  LEFT
+  RIGHT
+}
+
+type Currency {
+  isoCode: CurrencyCode!
+  name: String!
+  symbol: String!
+}
+
+enum CurrencyCode {
+  USD
+  EUR
+  GBP
+  CAD
+  AFN
+  ALL
+  DZD
+  AOA
+  ARS
+  AMD
+  AWG
+  AUD
+  BBD
+  AZN
+  BDT
+  BSD
+  BHD
+  BIF
+  BZD
+  BMD
+  BTN
+  BAM
+  BRL
+  BOB
+  BWP
+  BND
+  BGN
+  MMK
+  KHR
+  CVE
+  XCG
+  KYD
+  XAF
+  CLP
+  CNY
+  COP
+  KMF
+  CDF
+  CRC
+  HRK
+  CZK
+  DKK
+  DOP
+  XCD
+  EGP
+  ERN
+  ETB
+  FKP
+  XPF
+  FJD
+  GIP
+  GMD
+  GHS
+  GTQ
+  GYD
+  GEL
+  HTG
+  HNL
+  HKD
+  HUF
+  ISK
+  INR
+  IDR
+  ILS
+  IQD
+  JMD
+  JPY
+  JEP
+  JOD
+  KZT
+  KES
+  KID
+  KWD
+  KGS
+  LAK
+  LVL
+  LBP
+  LSL
+  LRD
+  LTL
+  MGA
+  MKD
+  MOP
+  MWK
+  MVR
+  MRU
+  MXN
+  MYR
+  MUR
+  MDL
+  MAD
+  MNT
+  MZN
+  NAD
+  NPR
+  ANG
+  NZD
+  NIO
+  NGN
+  NOK
+  OMR
+  PAB
+  PKR
+  PGK
+  PYG
+  PEN
+  PHP
+  PLN
+  QAR
+  RON
+  RUB
+  RWF
+  WST
+  SHP
+  SAR
+  RSD
+  SCR
+  SGD
+  SDG
+  SOS
+  SYP
+  ZAR
+  KRW
+  SSP
+  SBD
+  LKR
+  SRD
+  SZL
+  SEK
+  CHF
+  TWD
+  THB
+  TZS
+  TTD
+  TND
+  TRY
+  TMT
+  UGX
+  UAH
+  AED
+  UYU
+  UZS
+  VUV
+  VES
+  VND
+  XOF
+  YER
+  ZMW
+  BYN
+  BYR
+  DJF
+  GNF
+  IRR
+  LYD
+  SLL
+  STD
+  STN
+  TJS
+  TOP
+  VED
+  VEF
+  XXX
+}
+
+type Customer implements HasMetafields {
+  acceptsMarketing: Boolean!
+  addresses(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): MailingAddressConnection!
+  avatarUrl: String
+  createdAt: DateTime!
+  defaultAddress: MailingAddress
+  displayName: String!
+  email: String
+  firstName: String
+  id: ID!
+  lastName: String
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  numberOfOrders: UnsignedInt64!
+  orders(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: OrderSortKeys = ID, query: String): OrderConnection!
+  phone: String
+  socialLoginProvider: SocialLoginProvider
+  tags: [String!]!
+  updatedAt: DateTime!
+}
+
+type CustomerAccessToken {
+  accessToken: String!
+  expiresAt: DateTime!
+}
+
+input CustomerAccessTokenCreateInput {
+  email: String!
+  password: String!
+}
+
+type CustomerAccessTokenCreatePayload {
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerAccessTokenCreateWithMultipassPayload {
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+}
+
+type CustomerAccessTokenDeletePayload {
+  deletedAccessToken: String
+  deletedCustomerAccessTokenId: String
+  userErrors: [UserError!]!
+}
+
+type CustomerAccessTokenRenewPayload {
+  customerAccessToken: CustomerAccessToken
+  userErrors: [UserError!]!
+}
+
+type CustomerActivateByUrlPayload {
+  customer: Customer
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+}
+
+input CustomerActivateInput {
+  activationToken: String!
+  password: String!
+}
+
+type CustomerActivatePayload {
+  customer: Customer
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerAddressCreatePayload {
+  customerAddress: MailingAddress
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerAddressDeletePayload {
+  customerUserErrors: [CustomerUserError!]!
+  deletedCustomerAddressId: String
+  userErrors: [UserError!]!
+}
+
+type CustomerAddressUpdatePayload {
+  customerAddress: MailingAddress
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+input CustomerCreateInput {
+  firstName: String
+  lastName: String
+  email: String!
+  phone: String
+  password: String!
+  acceptsMarketing: Boolean
+}
+
+type CustomerCreatePayload {
+  customer: Customer
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerDefaultAddressUpdatePayload {
+  customer: Customer
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+enum CustomerErrorCode {
+  BLANK
+  INVALID
+  TAKEN
+  TOO_LONG
+  TOO_SHORT
+  UNIDENTIFIED_CUSTOMER
+  CUSTOMER_DISABLED
+  PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE
+  CONTAINS_HTML_TAGS
+  CONTAINS_URL
+  TOKEN_INVALID
+  ALREADY_ENABLED
+  NOT_FOUND
+  BAD_DOMAIN
+  INVALID_MULTIPASS_REQUEST
+}
+
+type CustomerRecoverPayload {
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerResetByUrlPayload {
+  customer: Customer
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+input CustomerResetInput {
+  resetToken: String!
+  password: String!
+}
+
+type CustomerResetPayload {
+  customer: Customer
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+input CustomerUpdateInput {
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  password: String
+  acceptsMarketing: Boolean
+}
+
+type CustomerUpdatePayload {
+  customer: Customer
+  customerAccessToken: CustomerAccessToken
+  customerUserErrors: [CustomerUserError!]!
+  userErrors: [UserError!]!
+}
+
+type CustomerUserError implements DisplayableError {
+  code: CustomerErrorCode
+  field: [String!]
+  message: String!
+}
+
+scalar DateTime
+
+scalar Decimal
+
+union DeliveryAddress = MailingAddress
+
+input DeliveryAddressInput {
+  deliveryAddress: MailingAddressInput
+  oneTimeUse: Boolean = false
+  deliveryAddressValidationStrategy: DeliveryAddressValidationStrategy = COUNTRY_CODE_ONLY
+  customerAddressId: ID
+}
+
+enum DeliveryAddressValidationStrategy {
+  COUNTRY_CODE_ONLY
+  STRICT
+}
+
+enum DeliveryMethodType {
+  SHIPPING
+  PICK_UP
+  RETAIL
+  LOCAL
+  PICKUP_POINT
+  NONE
+}
+
+enum DigitalWallet {
+  APPLE_PAY
+  ANDROID_PAY
+  GOOGLE_PAY
+  SHOPIFY_PAY
+}
+
+type DiscountAllocation {
+  allocatedAmount: MoneyV2!
+  discountApplication: DiscountApplication!
+}
+
+interface DiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  value: PricingValue!
+}
+
+enum DiscountApplicationAllocationMethod {
+  ACROSS
+  EACH
+  ONE
+}
+
+type DiscountApplicationConnection {
+  edges: [DiscountApplicationEdge!]!
+  nodes: [DiscountApplication!]!
+  pageInfo: PageInfo!
+}
+
+type DiscountApplicationEdge {
+  cursor: String!
+  node: DiscountApplication!
+}
+
+enum DiscountApplicationTargetSelection {
+  ALL
+  ENTITLED
+  EXPLICIT
+}
+
+enum DiscountApplicationTargetType {
+  LINE_ITEM
+  SHIPPING_LINE
+}
+
+type DiscountCodeApplication implements DiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  applicable: Boolean!
+  code: String!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  value: PricingValue!
+}
+
+interface DisplayableError {
+  field: [String!]
+  message: String!
+}
+
+type Domain {
+  host: String!
+  sslEnabled: Boolean!
+  url: URL!
+}
+
+type ExternalVideo implements Media & Node {
+  alt: String
+  embedUrl: URL!
+  embeddedUrl: URL!
+  host: MediaHost!
+  id: ID!
+  mediaContentType: MediaContentType!
+  originUrl: URL!
+  presentation: MediaPresentation
+  previewImage: Image
+}
+
+type Filter {
+  id: String!
+  label: String!
+  presentation: FilterPresentation
+  type: FilterType!
+  values: [FilterValue!]!
+}
+
+enum FilterPresentation {
+  IMAGE
+  SWATCH
+  TEXT
+}
+
+enum FilterType {
+  LIST
+  PRICE_RANGE
+  BOOLEAN
+}
+
+type FilterValue {
+  count: Int!
+  id: String!
+  image: MediaImage
+  input: JSON!
+  label: String!
+  swatch: Swatch
+}
+
+type Fulfillment {
+  fulfillmentLineItems(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): FulfillmentLineItemConnection!
+  trackingCompany: String
+  trackingInfo(first: Int): [FulfillmentTrackingInfo!]!
+}
+
+type FulfillmentLineItem {
+  lineItem: OrderLineItem!
+  quantity: Int!
+}
+
+type FulfillmentLineItemConnection {
+  edges: [FulfillmentLineItemEdge!]!
+  nodes: [FulfillmentLineItem!]!
+  pageInfo: PageInfo!
+}
+
+type FulfillmentLineItemEdge {
+  cursor: String!
+  node: FulfillmentLineItem!
+}
+
+type FulfillmentTrackingInfo {
+  number: String
+  url: URL
+}
+
+type GenericFile implements Node {
+  alt: String
+  id: ID!
+  mimeType: String
+  originalFileSize: Int
+  previewImage: Image
+  url: URL
+}
+
+input GeoCoordinateInput {
+  latitude: Float!
+  longitude: Float!
+}
+
+scalar HTML
+
+interface HasMetafields {
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+}
+
+input HasMetafieldsIdentifier {
+  namespace: String
+  key: String!
+}
+
+scalar ISO8601DateTime
+
+type Image {
+  altText: String
+  height: Int
+  id: ID
+  originalSrc: URL!
+  src: URL!
+  thumbhash: String
+  transformedSrc(maxWidth: Int, maxHeight: Int, crop: CropRegion, scale: Int = 1, preferredContentType: ImageContentType): URL!
+  url(transform: ImageTransformInput): URL!
+  width: Int
+}
+
+type ImageConnection {
+  edges: [ImageEdge!]!
+  nodes: [Image!]!
+  pageInfo: PageInfo!
+}
+
+enum ImageContentType {
+  PNG
+  JPG
+  WEBP
+}
+
+type ImageEdge {
+  cursor: String!
+  node: Image!
+}
+
+input ImageTransformInput {
+  crop: CropRegion
+  maxWidth: Int
+  maxHeight: Int
+  scale: Int = 1
+  preferredContentType: ImageContentType
+}
+
+type InContextAnnotation {
+  description: String!
+  type: InContextAnnotationType!
+}
+
+type InContextAnnotationType {
+  kind: String!
+  name: String!
+}
+
+scalar JSON
+
+type Language {
+  endonymName: String!
+  isoCode: LanguageCode!
+  name: String!
+}
+
+enum LanguageCode {
+  AF
+  AK
+  AM
+  AR
+  AS
+  AZ
+  BE
+  BG
+  BM
+  BN
+  BO
+  BR
+  BS
+  CA
+  CE
+  CKB
+  CS
+  CY
+  DA
+  DE
+  DZ
+  EE
+  EL
+  EN
+  EO
+  ES
+  ET
+  EU
+  FA
+  FF
+  FI
+  FIL
+  FO
+  FR
+  FY
+  GA
+  GD
+  GL
+  GU
+  GV
+  HA
+  HE
+  HI
+  HR
+  HU
+  HY
+  IA
+  ID
+  IG
+  II
+  IS
+  IT
+  JA
+  JV
+  KA
+  KI
+  KK
+  KL
+  KM
+  KN
+  KO
+  KS
+  KU
+  KW
+  KY
+  LB
+  LG
+  LN
+  LO
+  LT
+  LU
+  LV
+  MG
+  MI
+  MK
+  ML
+  MN
+  MR
+  MS
+  MT
+  MY
+  NB
+  ND
+  NE
+  NL
+  NN
+  NO
+  OM
+  OR
+  OS
+  PA
+  PL
+  PS
+  PT_BR
+  PT_PT
+  QU
+  RM
+  RN
+  RO
+  RU
+  RW
+  SA
+  SC
+  SD
+  SE
+  SG
+  SI
+  SK
+  SL
+  SN
+  SO
+  SQ
+  SR
+  SU
+  SV
+  SW
+  TA
+  TE
+  TG
+  TH
+  TI
+  TK
+  TO
+  TR
+  TT
+  UG
+  UK
+  UR
+  UZ
+  VI
+  WO
+  XH
+  YI
+  YO
+  ZH_CN
+  ZH_TW
+  ZU
+  ZH
+  PT
+  CU
+  VO
+  LA
+  SH
+  MO
+}
+
+type Localization {
+  availableCountries: [Country!]!
+  availableLanguages: [Language!]!
+  country: Country!
+  language: Language!
+  market: Market!
+}
+
+type Location implements HasMetafields & Node {
+  address: LocationAddress!
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  name: String!
+}
+
+type LocationAddress {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  countryCode: String
+  formatted: [String!]!
+  latitude: Float
+  longitude: Float
+  phone: String
+  province: String
+  provinceCode: String
+  zip: String
+}
+
+type LocationConnection {
+  edges: [LocationEdge!]!
+  nodes: [Location!]!
+  pageInfo: PageInfo!
+}
+
+type LocationEdge {
+  cursor: String!
+  node: Location!
+}
+
+enum LocationSortKeys {
+  ID
+  NAME
+  CITY
+  DISTANCE
+}
+
+type MailingAddress implements Node {
+  address1: String
+  address2: String
+  city: String
+  company: String
+  country: String
+  countryCode: String
+  countryCodeV2: CountryCode
+  firstName: String
+  formatted(withName: Boolean = false, withCompany: Boolean = true): [String!]!
+  formattedArea: String
+  id: ID!
+  lastName: String
+  latitude: Float
+  longitude: Float
+  name: String
+  phone: String
+  province: String
+  provinceCode: String
+  zip: String
+}
+
+type MailingAddressConnection {
+  edges: [MailingAddressEdge!]!
+  nodes: [MailingAddress!]!
+  pageInfo: PageInfo!
+}
+
+type MailingAddressEdge {
+  cursor: String!
+  node: MailingAddress!
+}
+
+input MailingAddressInput {
+  address1: String
+  address2: String
+  city: String
+  company: String
+  country: String
+  firstName: String
+  lastName: String
+  phone: String
+  province: String
+  zip: String
+}
+
+type ManualDiscountApplication implements DiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  description: String
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+  value: PricingValue!
+}
+
+type Market implements HasMetafields & Node {
+  handle: String!
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+}
+
+interface Media {
+  alt: String
+  id: ID!
+  mediaContentType: MediaContentType!
+  presentation: MediaPresentation
+  previewImage: Image
+}
+
+type MediaConnection {
+  edges: [MediaEdge!]!
+  nodes: [Media!]!
+  pageInfo: PageInfo!
+}
+
+enum MediaContentType {
+  EXTERNAL_VIDEO
+  IMAGE
+  MODEL_3D
+  VIDEO
+}
+
+type MediaEdge {
+  cursor: String!
+  node: Media!
+}
+
+enum MediaHost {
+  YOUTUBE
+  VIMEO
+}
+
+type MediaImage implements Media & Node {
+  alt: String
+  id: ID!
+  image: Image
+  mediaContentType: MediaContentType!
+  presentation: MediaPresentation
+  previewImage: Image
+}
+
+type MediaPresentation implements Node {
+  asJson(format: MediaPresentationFormat!): JSON
+  id: ID!
+}
+
+enum MediaPresentationFormat {
+  MODEL_VIEWER
+  IMAGE
+}
+
+type Menu implements Node {
+  handle: String!
+  id: ID!
+  items: [MenuItem!]!
+  itemsCount: Int!
+  title: String!
+}
+
+type MenuItem implements Node {
+  id: ID!
+  items: [MenuItem!]!
+  resource: MenuItemResource
+  resourceId: ID
+  tags: [String!]!
+  title: String!
+  type: MenuItemType!
+  url: URL
+}
+
+union MenuItemResource = Article | Blog | Collection | Metaobject | Page | Product | ShopPolicy
+
+enum MenuItemType {
+  FRONTPAGE
+  COLLECTION
+  COLLECTIONS
+  PRODUCT
+  CATALOG
+  PAGE
+  BLOG
+  ARTICLE
+  SEARCH
+  SHOP_POLICY
+  HTTP
+  METAOBJECT
+  CUSTOMER_ACCOUNT_PAGE
+}
+
+union Merchandise = ProductVariant
+
+type Metafield implements Node {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  key: String!
+  list: Boolean!
+  namespace: String!
+  parentResource: MetafieldParentResource!
+  reference: MetafieldReference
+  references(first: Int, after: String, last: Int, before: String): MetafieldReferenceConnection
+  type: String!
+  updatedAt: DateTime!
+  value: String!
+}
+
+enum MetafieldDeleteErrorCode {
+  INVALID_OWNER
+  METAFIELD_DOES_NOT_EXIST
+  APP_NOT_AUTHORIZED
+}
+
+type MetafieldDeleteUserError implements DisplayableError {
+  code: MetafieldDeleteErrorCode
+  field: [String!]
+  message: String!
+}
+
+input MetafieldFilter {
+  namespace: String!
+  key: String!
+  value: String!
+}
+
+union MetafieldParentResource = Article | Blog | Cart | Collection | Company | CompanyLocation | Customer | Location | Market | Order | Page | Product | ProductVariant | SellingPlan | Shop
+
+union MetafieldReference = Article | Collection | GenericFile | MediaImage | Metaobject | Model3d | Page | Product | ProductVariant | Video
+
+type MetafieldReferenceConnection {
+  edges: [MetafieldReferenceEdge!]!
+  nodes: [MetafieldReference!]!
+  pageInfo: PageInfo!
+}
+
+type MetafieldReferenceEdge {
+  cursor: String!
+  node: MetafieldReference!
+}
+
+type MetafieldsSetUserError implements DisplayableError {
+  code: MetafieldsSetUserErrorCode
+  elementIndex: Int
+  field: [String!]
+  message: String!
+}
+
+enum MetafieldsSetUserErrorCode {
+  BLANK
+  INCLUSION
+  LESS_THAN_OR_EQUAL_TO
+  PRESENT
+  TOO_SHORT
+  TOO_LONG
+  INVALID_OWNER
+  INVALID_VALUE
+  INVALID_TYPE
+  APP_NOT_AUTHORIZED
+}
+
+type Metaobject implements Node & OnlineStorePublishable {
+  field(key: String!): MetaobjectField
+  fields: [MetaobjectField!]!
+  handle: String!
+  id: ID!
+  onlineStoreUrl: URL
+  seo: MetaobjectSEO
+  type: String!
+  updatedAt: DateTime!
+}
+
+type MetaobjectConnection {
+  edges: [MetaobjectEdge!]!
+  nodes: [Metaobject!]!
+  pageInfo: PageInfo!
+}
+
+type MetaobjectEdge {
+  cursor: String!
+  node: Metaobject!
+}
+
+type MetaobjectField {
+  key: String!
+  reference: MetafieldReference
+  references(first: Int, after: String, last: Int, before: String): MetafieldReferenceConnection
+  type: String!
+  value: String
+}
+
+input MetaobjectHandleInput {
+  handle: String!
+  type: String!
+}
+
+type MetaobjectSEO {
+  description: MetaobjectField
+  title: MetaobjectField
+}
+
+type Model3d implements Media & Node {
+  alt: String
+  id: ID!
+  mediaContentType: MediaContentType!
+  presentation: MediaPresentation
+  previewImage: Image
+  sources: [Model3dSource!]!
+}
+
+type Model3dSource {
+  filesize: Int!
+  format: String!
+  mimeType: String!
+  url: String!
+}
+
+input MoneyInput {
+  amount: Decimal!
+  currencyCode: CurrencyCode!
+}
+
+type MoneyV2 {
+  amount: Decimal!
+  currencyCode: CurrencyCode!
+}
+
+type Mutation {
+  cartAttributesUpdate(attributes: [AttributeInput!]!, cartId: ID!): CartAttributesUpdatePayload
+  cartBillingAddressUpdate(cartId: ID!, billingAddress: MailingAddressInput): CartBillingAddressUpdatePayload
+  cartBuyerIdentityUpdate(cartId: ID!, buyerIdentity: CartBuyerIdentityInput!): CartBuyerIdentityUpdatePayload
+  cartClone(cartId: ID!): CartClonePayload
+  cartCreate(input: CartInput): CartCreatePayload
+  cartDeliveryAddressesAdd(cartId: ID!, addresses: [CartSelectableAddressInput!]!): CartDeliveryAddressesAddPayload
+  cartDeliveryAddressesRemove(cartId: ID!, addressIds: [ID!]!): CartDeliveryAddressesRemovePayload
+  cartDeliveryAddressesReplace(cartId: ID!, addresses: [CartSelectableAddressInput!]!): CartDeliveryAddressesReplacePayload
+  cartDeliveryAddressesUpdate(cartId: ID!, addresses: [CartSelectableAddressUpdateInput!]!): CartDeliveryAddressesUpdatePayload
+  cartDiscountCodesUpdate(cartId: ID!, discountCodes: [String!]!): CartDiscountCodesUpdatePayload
+  cartGiftCardCodesAdd(cartId: ID!, giftCardCodes: [String!]!): CartGiftCardCodesAddPayload
+  cartGiftCardCodesRemove(cartId: ID!, appliedGiftCardIds: [ID!]!): CartGiftCardCodesRemovePayload
+  cartGiftCardCodesUpdate(cartId: ID!, giftCardCodes: [String!]!): CartGiftCardCodesUpdatePayload
+  cartLinesAdd(cartId: ID!, lines: [CartLineInput!]!): CartLinesAddPayload
+  cartLinesRemove(cartId: ID!, lineIds: [ID!], viewKeys: [String!]): CartLinesRemovePayload
+  cartLinesUpdate(cartId: ID!, lines: [CartLineUpdateInput!]!): CartLinesUpdatePayload
+  cartMetafieldDelete(input: CartMetafieldDeleteInput!): CartMetafieldDeletePayload
+  cartMetafieldsSet(metafields: [CartMetafieldsSetInput!]!): CartMetafieldsSetPayload
+  cartNoteUpdate(cartId: ID!, note: String!): CartNoteUpdatePayload
+  cartPaymentUpdate(cartId: ID!, payment: CartPaymentInput!): CartPaymentUpdatePayload
+  cartPrepareForCompletion(cartId: ID!): CartPrepareForCompletionPayload
+  cartRemovePersonalData(cartId: ID!): CartRemovePersonalDataPayload
+  cartSelectedDeliveryOptionsUpdate(cartId: ID!, selectedDeliveryOptions: [CartSelectedDeliveryOptionInput!]!): CartSelectedDeliveryOptionsUpdatePayload
+  cartSubmitForCompletion(cartId: ID!, attemptToken: String!): CartSubmitForCompletionPayload
+  customerAccessTokenCreate(input: CustomerAccessTokenCreateInput!): CustomerAccessTokenCreatePayload
+  customerAccessTokenCreateWithMultipass(multipassToken: String!): CustomerAccessTokenCreateWithMultipassPayload
+  customerAccessTokenDelete(customerAccessToken: String!): CustomerAccessTokenDeletePayload
+  customerAccessTokenRenew(customerAccessToken: String!): CustomerAccessTokenRenewPayload
+  customerActivate(id: ID!, input: CustomerActivateInput!): CustomerActivatePayload
+  customerActivateByUrl(activationUrl: URL!, password: String!): CustomerActivateByUrlPayload
+  customerAddressCreate(customerAccessToken: String!, address: MailingAddressInput!): CustomerAddressCreatePayload
+  customerAddressDelete(id: ID!, customerAccessToken: String!): CustomerAddressDeletePayload
+  customerAddressUpdate(customerAccessToken: String!, id: ID!, address: MailingAddressInput!): CustomerAddressUpdatePayload
+  customerCreate(input: CustomerCreateInput!): CustomerCreatePayload
+  customerDefaultAddressUpdate(customerAccessToken: String!, addressId: ID!): CustomerDefaultAddressUpdatePayload
+  customerRecover(email: String!): CustomerRecoverPayload
+  customerReset(id: ID!, input: CustomerResetInput!): CustomerResetPayload
+  customerResetByUrl(resetUrl: URL!, password: String!): CustomerResetByUrlPayload
+  customerUpdate(customerAccessToken: String!, customer: CustomerUpdateInput!): CustomerUpdatePayload
+  shopPayPaymentRequestSessionCreate(sourceIdentifier: String!): ShopPayPaymentRequestSessionCreatePayload
+  shopPayPaymentRequestSessionSubmit(token: String!, paymentRequest: ShopPayPaymentRequestInput!, idempotencyKey: String!, orderName: String): ShopPayPaymentRequestSessionSubmitPayload
+}
+
+interface Node {
+  id: ID!
+}
+
+interface OnlineStorePublishable {
+  onlineStoreUrl: URL
+}
+
+type Order implements HasMetafields & Node {
+  billingAddress: MailingAddress
+  cancelReason: OrderCancelReason
+  canceledAt: DateTime
+  currencyCode: CurrencyCode!
+  currentSubtotalPrice: MoneyV2!
+  currentTotalDuties: MoneyV2
+  currentTotalPrice: MoneyV2!
+  currentTotalShippingPrice: MoneyV2!
+  currentTotalTax: MoneyV2!
+  customAttributes: [Attribute!]!
+  customerLocale: String
+  customerUrl: URL
+  discountApplications(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): DiscountApplicationConnection!
+  edited: Boolean!
+  email: String
+  financialStatus: OrderFinancialStatus
+  fulfillmentStatus: OrderFulfillmentStatus!
+  id: ID!
+  lineItems(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): OrderLineItemConnection!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  name: String!
+  orderNumber: Int!
+  originalTotalDuties: MoneyV2
+  originalTotalPrice: MoneyV2!
+  phone: String
+  processedAt: DateTime!
+  shippingAddress: MailingAddress
+  shippingDiscountAllocations: [DiscountAllocation!]!
+  statusUrl: URL!
+  subtotalPrice: MoneyV2
+  subtotalPriceV2: MoneyV2
+  successfulFulfillments(first: Int): [Fulfillment!]
+  totalPrice: MoneyV2!
+  totalPriceV2: MoneyV2!
+  totalRefunded: MoneyV2!
+  totalRefundedV2: MoneyV2!
+  totalShippingPrice: MoneyV2!
+  totalShippingPriceV2: MoneyV2!
+  totalTax: MoneyV2
+  totalTaxV2: MoneyV2
+}
+
+enum OrderCancelReason {
+  CUSTOMER
+  DECLINED
+  FRAUD
+  INVENTORY
+  STAFF
+  OTHER
+}
+
+type OrderConnection {
+  edges: [OrderEdge!]!
+  nodes: [Order!]!
+  pageInfo: PageInfo!
+  totalCount: UnsignedInt64!
+}
+
+type OrderEdge {
+  cursor: String!
+  node: Order!
+}
+
+enum OrderFinancialStatus {
+  PENDING
+  AUTHORIZED
+  PARTIALLY_PAID
+  PARTIALLY_REFUNDED
+  VOIDED
+  PAID
+  REFUNDED
+}
+
+enum OrderFulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  RESTOCKED
+  PENDING_FULFILLMENT
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  SCHEDULED
+}
+
+type OrderLineItem {
+  currentQuantity: Int!
+  customAttributes: [Attribute!]!
+  discountAllocations: [DiscountAllocation!]!
+  discountedTotalPrice: MoneyV2!
+  originalTotalPrice: MoneyV2!
+  quantity: Int!
+  title: String!
+  variant: ProductVariant
+}
+
+type OrderLineItemConnection {
+  edges: [OrderLineItemEdge!]!
+  nodes: [OrderLineItem!]!
+  pageInfo: PageInfo!
+}
+
+type OrderLineItemEdge {
+  cursor: String!
+  node: OrderLineItem!
+}
+
+enum OrderSortKeys {
+  PROCESSED_AT
+  TOTAL_PRICE
+  ID
+  RELEVANCE
+}
+
+type Page implements HasMetafields & Node & OnlineStorePublishable & Trackable {
+  body: HTML!
+  bodySummary: String!
+  createdAt: DateTime!
+  handle: String!
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  onlineStoreUrl: URL
+  seo: SEO
+  title: String!
+  trackingParameters: String
+  updatedAt: DateTime!
+}
+
+type PageConnection {
+  edges: [PageEdge!]!
+  nodes: [Page!]!
+  pageInfo: PageInfo!
+}
+
+type PageEdge {
+  cursor: String!
+  node: Page!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+enum PageSortKeys {
+  TITLE
+  UPDATED_AT
+  ID
+  RELEVANCE
+}
+
+type PaginatedSitemapResources {
+  hasNextPage: Boolean!
+  items: [SitemapResourceInterface!]!
+}
+
+type PaymentSettings {
+  acceptedCardBrands: [CardBrand!]!
+  cardVaultUrl: URL!
+  countryCode: CountryCode!
+  currencyCode: CurrencyCode!
+  enabledPresentmentCurrencies: [CurrencyCode!]!
+  shopifyPaymentsAccountId: String
+  supportedDigitalWallets: [DigitalWallet!]!
+}
+
+enum PredictiveSearchLimitScope {
+  ALL
+  EACH
+}
+
+type PredictiveSearchResult {
+  articles: [Article!]!
+  collections: [Collection!]!
+  pages: [Page!]!
+  products: [Product!]!
+  queries: [SearchQuerySuggestion!]!
+}
+
+enum PredictiveSearchType {
+  COLLECTION
+  PRODUCT
+  PAGE
+  ARTICLE
+  QUERY
+}
+
+enum PreferenceDeliveryMethodType {
+  SHIPPING
+  PICK_UP
+  PICKUP_POINT
+}
+
+input PriceRangeFilter {
+  min: Float = 0.0
+  max: Float
+}
+
+type PricingPercentageValue {
+  percentage: Float!
+}
+
+union PricingValue = MoneyV2 | PricingPercentageValue
+
+type Product implements HasMetafields & Node & OnlineStorePublishable & Trackable {
+  adjacentVariants(selectedOptions: [SelectedOptionInput!], ignoreUnknownOptions: Boolean = true, caseInsensitiveMatch: Boolean = false): [ProductVariant!]!
+  availableForSale: Boolean!
+  category: TaxonomyCategory
+  collections(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): CollectionConnection!
+  compareAtPriceRange: ProductPriceRange!
+  createdAt: DateTime!
+  description(truncateAt: Int): String!
+  descriptionHtml: HTML!
+  encodedVariantAvailability: String
+  encodedVariantExistence: String
+  featuredImage: Image
+  handle: String!
+  id: ID!
+  images(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ProductImageSortKeys = POSITION): ImageConnection!
+  isGiftCard: Boolean!
+  media(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ProductMediaSortKeys = POSITION): MediaConnection!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  onlineStoreUrl: URL
+  options(first: Int): [ProductOption!]!
+  priceRange: ProductPriceRange!
+  productType: String!
+  publishedAt: DateTime!
+  requiresSellingPlan: Boolean!
+  selectedOrFirstAvailableVariant(selectedOptions: [SelectedOptionInput!], ignoreUnknownOptions: Boolean = true, caseInsensitiveMatch: Boolean = false): ProductVariant
+  sellingPlanGroups(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): SellingPlanGroupConnection!
+  seo: SEO!
+  tags: [String!]!
+  title: String!
+  totalInventory: Int
+  trackingParameters: String
+  updatedAt: DateTime!
+  variantBySelectedOptions(selectedOptions: [SelectedOptionInput!]!, ignoreUnknownOptions: Boolean = false, caseInsensitiveMatch: Boolean = false): ProductVariant
+  variants(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ProductVariantSortKeys = POSITION): ProductVariantConnection!
+  variantsCount: Count
+  vendor: String!
+}
+
+enum ProductCollectionSortKeys {
+  TITLE
+  PRICE
+  BEST_SELLING
+  CREATED
+  ID
+  MANUAL
+  COLLECTION_DEFAULT
+  RELEVANCE
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  filters: [Filter!]!
+  nodes: [Product!]!
+  pageInfo: PageInfo!
+}
+
+type ProductEdge {
+  cursor: String!
+  node: Product!
+}
+
+input ProductFilter {
+  available: Boolean
+  variantOption: VariantOptionFilter
+  category: CategoryFilter
+  taxonomyMetafield: TaxonomyMetafieldFilter
+  productType: String
+  productVendor: String
+  price: PriceRangeFilter
+  productMetafield: MetafieldFilter
+  variantMetafield: MetafieldFilter
+  tag: String
+}
+
+enum ProductImageSortKeys {
+  CREATED_AT
+  POSITION
+  ID
+  RELEVANCE
+}
+
+enum ProductMediaSortKeys {
+  POSITION
+  ID
+  RELEVANCE
+}
+
+type ProductOption implements Node {
+  id: ID!
+  name: String!
+  optionValues: [ProductOptionValue!]!
+  values: [String!]!
+}
+
+type ProductOptionValue implements Node {
+  firstSelectableVariant: ProductVariant
+  id: ID!
+  name: String!
+  swatch: ProductOptionValueSwatch
+}
+
+type ProductOptionValueSwatch {
+  color: Color
+  image: Media
+}
+
+type ProductPriceRange {
+  maxVariantPrice: MoneyV2!
+  minVariantPrice: MoneyV2!
+}
+
+enum ProductRecommendationIntent {
+  RELATED
+  COMPLEMENTARY
+}
+
+enum ProductSortKeys {
+  TITLE
+  PRODUCT_TYPE
+  VENDOR
+  UPDATED_AT
+  CREATED_AT
+  BEST_SELLING
+  PRICE
+  ID
+  RELEVANCE
+}
+
+type ProductVariant implements HasMetafields & Node {
+  availableForSale: Boolean!
+  barcode: String
+  compareAtPrice: MoneyV2
+  compareAtPriceV2: MoneyV2
+  components(first: Int, after: String, last: Int, before: String): ProductVariantComponentConnection!
+  currentlyNotInStock: Boolean!
+  groupedBy(first: Int, after: String, last: Int, before: String): ProductVariantConnection!
+  id: ID!
+  image: Image
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  price: MoneyV2!
+  priceV2: MoneyV2!
+  product: Product!
+  quantityAvailable: Int
+  quantityPriceBreaks(first: Int, after: String, last: Int, before: String): QuantityPriceBreakConnection!
+  quantityRule: QuantityRule!
+  requiresComponents: Boolean!
+  requiresShipping: Boolean!
+  selectedOptions: [SelectedOption!]!
+  sellingPlanAllocations(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): SellingPlanAllocationConnection!
+  shopPayInstallmentsPricing: ShopPayInstallmentsProductVariantPricing
+  sku: String
+  storeAvailability(near: GeoCoordinateInput, first: Int, after: String, last: Int, before: String, reverse: Boolean = false): StoreAvailabilityConnection!
+  taxable: Boolean!
+  title: String!
+  unitPrice: MoneyV2
+  unitPriceMeasurement: UnitPriceMeasurement
+  weight: Float
+  weightUnit: WeightUnit!
+}
+
+type ProductVariantComponent {
+  productVariant: ProductVariant!
+  quantity: Int!
+}
+
+type ProductVariantComponentConnection {
+  edges: [ProductVariantComponentEdge!]!
+  nodes: [ProductVariantComponent!]!
+  pageInfo: PageInfo!
+}
+
+type ProductVariantComponentEdge {
+  cursor: String!
+  node: ProductVariantComponent!
+}
+
+type ProductVariantConnection {
+  edges: [ProductVariantEdge!]!
+  nodes: [ProductVariant!]!
+  pageInfo: PageInfo!
+}
+
+type ProductVariantEdge {
+  cursor: String!
+  node: ProductVariant!
+}
+
+enum ProductVariantSortKeys {
+  TITLE
+  SKU
+  POSITION
+  ID
+  RELEVANCE
+}
+
+type PurchasingCompany {
+  company: Company!
+  contact: CompanyContact
+  location: CompanyLocation!
+}
+
+type QuantityPriceBreak {
+  minimumQuantity: Int!
+  price: MoneyV2!
+}
+
+type QuantityPriceBreakConnection {
+  edges: [QuantityPriceBreakEdge!]!
+  nodes: [QuantityPriceBreak!]!
+  pageInfo: PageInfo!
+}
+
+type QuantityPriceBreakEdge {
+  cursor: String!
+  node: QuantityPriceBreak!
+}
+
+type QuantityRule {
+  increment: Int!
+  maximum: Int
+  minimum: Int!
+}
+
+type QueryRoot {
+  article(id: ID!): Article
+  articles(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ArticleSortKeys = ID, query: String): ArticleConnection!
+  blog(handle: String, id: ID): Blog
+  blogByHandle(handle: String!): Blog
+  blogs(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: BlogSortKeys = ID, query: String): BlogConnection!
+  cart(id: ID!): Cart
+  cartCompletionAttempt(attemptId: String!): CartCompletionAttemptResult
+  collection(id: ID, handle: String): Collection
+  collectionByHandle(handle: String!): Collection
+  collections(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: CollectionSortKeys = ID, query: String): CollectionConnection!
+  customer(customerAccessToken: String!): Customer
+  localization: Localization!
+  locations(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: LocationSortKeys = ID, near: GeoCoordinateInput): LocationConnection!
+  menu(handle: String!): Menu
+  metaobject(id: ID, handle: MetaobjectHandleInput): Metaobject
+  metaobjects(type: String!, sortKey: String, first: Int, after: String, last: Int, before: String, reverse: Boolean = false): MetaobjectConnection!
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
+  page(handle: String, id: ID): Page
+  pageByHandle(handle: String!): Page
+  pages(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: PageSortKeys = ID, query: String): PageConnection!
+  paymentSettings: PaymentSettings!
+  predictiveSearch(limit: Int, limitScope: PredictiveSearchLimitScope, query: String!, types: [PredictiveSearchType!], unavailableProducts: SearchUnavailableProductsType): PredictiveSearchResult
+  product(id: ID, handle: String): Product
+  productByHandle(handle: String!): Product
+  productRecommendations(productId: ID, productHandle: String, intent: ProductRecommendationIntent = RELATED): [Product!]
+  productTags(first: Int!): StringConnection!
+  productTypes(first: Int!): StringConnection!
+  products(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: ProductSortKeys = ID, query: String): ProductConnection!
+  publicApiVersions: [ApiVersion!]!
+  search(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, sortKey: SearchSortKeys = RELEVANCE, query: String!, prefix: SearchPrefixQueryType, productFilters: [ProductFilter!], types: [SearchType!], unavailableProducts: SearchUnavailableProductsType): SearchResultItemConnection!
+  shop: Shop!
+  sitemap(type: SitemapType!): Sitemap!
+  urlRedirects(first: Int, after: String, last: Int, before: String, reverse: Boolean = false, query: String): UrlRedirectConnection!
+}
+
+type SEO {
+  description: String
+  title: String
+}
+
+type ScriptDiscountApplication implements DiscountApplication {
+  allocationMethod: DiscountApplicationAllocationMethod!
+  targetSelection: DiscountApplicationTargetSelection!
+  targetType: DiscountApplicationTargetType!
+  title: String!
+  value: PricingValue!
+}
+
+enum SearchPrefixQueryType {
+  LAST
+  NONE
+}
+
+type SearchQuerySuggestion implements Trackable {
+  styledText: String!
+  text: String!
+  trackingParameters: String
+}
+
+union SearchResultItem = Article | Page | Product
+
+type SearchResultItemConnection {
+  edges: [SearchResultItemEdge!]!
+  nodes: [SearchResultItem!]!
+  pageInfo: PageInfo!
+  productFilters: [Filter!]!
+  totalCount: Int!
+}
+
+type SearchResultItemEdge {
+  cursor: String!
+  node: SearchResultItem!
+}
+
+enum SearchSortKeys {
+  PRICE
+  RELEVANCE
+}
+
+enum SearchType {
+  PRODUCT
+  PAGE
+  ARTICLE
+}
+
+enum SearchUnavailableProductsType {
+  SHOW
+  HIDE
+  LAST
+}
+
+enum SearchableField {
+  AUTHOR
+  BODY
+  PRODUCT_TYPE
+  TAG
+  TITLE
+  VARIANTS_BARCODE
+  VARIANTS_SKU
+  VARIANTS_TITLE
+  VENDOR
+}
+
+type SelectedOption {
+  name: String!
+  value: String!
+}
+
+input SelectedOptionInput {
+  name: String!
+  value: String!
+}
+
+type SellingPlan implements HasMetafields {
+  billingPolicy: SellingPlanBillingPolicy
+  checkoutCharge: SellingPlanCheckoutCharge!
+  deliveryPolicy: SellingPlanDeliveryPolicy
+  description: String
+  id: ID!
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  name: String!
+  options: [SellingPlanOption!]!
+  priceAdjustments: [SellingPlanPriceAdjustment!]!
+  recurringDeliveries: Boolean!
+}
+
+type SellingPlanAllocation {
+  checkoutChargeAmount: MoneyV2!
+  priceAdjustments: [SellingPlanAllocationPriceAdjustment!]!
+  remainingBalanceChargeAmount: MoneyV2!
+  sellingPlan: SellingPlan!
+}
+
+type SellingPlanAllocationConnection {
+  edges: [SellingPlanAllocationEdge!]!
+  nodes: [SellingPlanAllocation!]!
+  pageInfo: PageInfo!
+}
+
+type SellingPlanAllocationEdge {
+  cursor: String!
+  node: SellingPlanAllocation!
+}
+
+type SellingPlanAllocationPriceAdjustment {
+  compareAtPrice: MoneyV2!
+  perDeliveryPrice: MoneyV2!
+  price: MoneyV2!
+  unitPrice: MoneyV2
+}
+
+union SellingPlanBillingPolicy = SellingPlanRecurringBillingPolicy
+
+type SellingPlanCheckoutCharge {
+  type: SellingPlanCheckoutChargeType!
+  value: SellingPlanCheckoutChargeValue!
+}
+
+type SellingPlanCheckoutChargePercentageValue {
+  percentage: Float!
+}
+
+enum SellingPlanCheckoutChargeType {
+  PERCENTAGE
+  PRICE
+}
+
+union SellingPlanCheckoutChargeValue = MoneyV2 | SellingPlanCheckoutChargePercentageValue
+
+type SellingPlanConnection {
+  edges: [SellingPlanEdge!]!
+  nodes: [SellingPlan!]!
+  pageInfo: PageInfo!
+}
+
+union SellingPlanDeliveryPolicy = SellingPlanRecurringDeliveryPolicy
+
+type SellingPlanEdge {
+  cursor: String!
+  node: SellingPlan!
+}
+
+type SellingPlanFixedAmountPriceAdjustment {
+  adjustmentAmount: MoneyV2!
+}
+
+type SellingPlanFixedPriceAdjustment {
+  price: MoneyV2!
+}
+
+type SellingPlanGroup {
+  appName: String
+  name: String!
+  options: [SellingPlanGroupOption!]!
+  sellingPlans(first: Int, after: String, last: Int, before: String, reverse: Boolean = false): SellingPlanConnection!
+}
+
+type SellingPlanGroupConnection {
+  edges: [SellingPlanGroupEdge!]!
+  nodes: [SellingPlanGroup!]!
+  pageInfo: PageInfo!
+}
+
+type SellingPlanGroupEdge {
+  cursor: String!
+  node: SellingPlanGroup!
+}
+
+type SellingPlanGroupOption {
+  name: String!
+  values: [String!]!
+}
+
+enum SellingPlanInterval {
+  DAY
+  MONTH
+  WEEK
+  YEAR
+}
+
+type SellingPlanOption {
+  name: String
+  value: String
+}
+
+type SellingPlanPercentagePriceAdjustment {
+  adjustmentPercentage: Float!
+}
+
+type SellingPlanPriceAdjustment {
+  adjustmentValue: SellingPlanPriceAdjustmentValue!
+  orderCount: Int
+}
+
+union SellingPlanPriceAdjustmentValue = SellingPlanFixedAmountPriceAdjustment | SellingPlanFixedPriceAdjustment | SellingPlanPercentagePriceAdjustment
+
+type SellingPlanRecurringBillingPolicy {
+  interval: SellingPlanInterval!
+  intervalCount: Int!
+}
+
+type SellingPlanRecurringDeliveryPolicy {
+  interval: SellingPlanInterval!
+  intervalCount: Int!
+}
+
+type Shop implements HasMetafields & Node {
+  brand: Brand
+  contactInformation: ShopPolicy
+  customerAccountTranslations: [Translation!]
+  customerAccountUrl: String
+  description: String
+  id: ID!
+  legalNotice: ShopPolicy
+  metafield(namespace: String, key: String!): Metafield
+  metafields(identifiers: [HasMetafieldsIdentifier!]!): [Metafield]!
+  moneyFormat: String!
+  name: String!
+  paymentSettings: PaymentSettings!
+  primaryDomain: Domain!
+  privacyPolicy: ShopPolicy
+  refundPolicy: ShopPolicy
+  shippingPolicy: ShopPolicy
+  shipsToCountries: [CountryCode!]!
+  shopPayInstallmentsPricing: ShopPayInstallmentsPricing
+  socialLoginProviders: [SocialLoginProvider!]!
+  subscriptionPolicy: ShopPolicyWithDefault
+  termsOfSale: ShopPolicy
+  termsOfService: ShopPolicy
+}
+
+type ShopPayInstallmentsFinancingPlan implements Node {
+  id: ID!
+  maxPrice: MoneyV2!
+  minPrice: MoneyV2!
+  terms: [ShopPayInstallmentsFinancingPlanTerm!]!
+}
+
+enum ShopPayInstallmentsFinancingPlanFrequency {
+  WEEKLY
+  MONTHLY
+}
+
+type ShopPayInstallmentsFinancingPlanTerm implements Node {
+  apr: Int!
+  frequency: ShopPayInstallmentsFinancingPlanFrequency!
+  id: ID!
+  installmentsCount: Count
+  loanType: ShopPayInstallmentsLoan!
+}
+
+enum ShopPayInstallmentsLoan {
+  INTEREST
+  SPLIT_PAY
+  ZERO_PERCENT
+}
+
+type ShopPayInstallmentsPricing {
+  financingPlans: [ShopPayInstallmentsFinancingPlan!]!
+  maxPrice: MoneyV2!
+  minPrice: MoneyV2!
+}
+
+type ShopPayInstallmentsProductVariantPricing implements Node {
+  available: Boolean!
+  eligible: Boolean!
+  fullPrice: MoneyV2!
+  id: ID!
+  installmentsCount: Count
+  pricePerTerm: MoneyV2!
+}
+
+type ShopPayPaymentRequest {
+  deliveryMethods: [ShopPayPaymentRequestDeliveryMethod!]!
+  discountCodes: [String!]!
+  discounts: [ShopPayPaymentRequestDiscount!]
+  lineItems: [ShopPayPaymentRequestLineItem!]!
+  locale: String!
+  presentmentCurrency: CurrencyCode!
+  selectedDeliveryMethodType: ShopPayPaymentRequestDeliveryMethodType!
+  shippingAddress: ShopPayPaymentRequestContactField
+  shippingLines: [ShopPayPaymentRequestShippingLine!]!
+  subtotal: MoneyV2!
+  total: MoneyV2!
+  totalShippingPrice: ShopPayPaymentRequestTotalShippingPrice
+  totalTax: MoneyV2
+}
+
+type ShopPayPaymentRequestContactField {
+  address1: String!
+  address2: String
+  city: String!
+  companyName: String
+  countryCode: String!
+  email: String
+  firstName: String!
+  lastName: String!
+  phone: String
+  postalCode: String
+  provinceCode: String
+}
+
+type ShopPayPaymentRequestDeliveryMethod {
+  amount: MoneyV2!
+  code: String!
+  deliveryExpectationLabel: String
+  detail: String
+  label: String!
+  maxDeliveryDate: ISO8601DateTime
+  minDeliveryDate: ISO8601DateTime
+}
+
+input ShopPayPaymentRequestDeliveryMethodInput {
+  code: String
+  label: String
+  detail: String
+  amount: MoneyInput
+  minDeliveryDate: ISO8601DateTime
+  maxDeliveryDate: ISO8601DateTime
+  deliveryExpectationLabel: String
+}
+
+enum ShopPayPaymentRequestDeliveryMethodType {
+  SHIPPING
+  PICKUP
+}
+
+type ShopPayPaymentRequestDiscount {
+  amount: MoneyV2!
+  label: String!
+}
+
+input ShopPayPaymentRequestDiscountInput {
+  label: String
+  amount: MoneyInput
+}
+
+type ShopPayPaymentRequestImage {
+  alt: String
+  url: String!
+}
+
+input ShopPayPaymentRequestImageInput {
+  url: String!
+  alt: String
+}
+
+input ShopPayPaymentRequestInput {
+  discountCodes: [String!]
+  lineItems: [ShopPayPaymentRequestLineItemInput!]
+  shippingLines: [ShopPayPaymentRequestShippingLineInput!]
+  total: MoneyInput!
+  subtotal: MoneyInput!
+  discounts: [ShopPayPaymentRequestDiscountInput!]
+  totalShippingPrice: ShopPayPaymentRequestTotalShippingPriceInput
+  totalTax: MoneyInput
+  selectedDeliveryMethodType: ShopPayPaymentRequestDeliveryMethodType
+  locale: String!
+  presentmentCurrency: CurrencyCode!
+  paymentMethod: String
+}
+
+type ShopPayPaymentRequestLineItem {
+  finalItemPrice: MoneyV2!
+  finalLinePrice: MoneyV2!
+  image: ShopPayPaymentRequestImage
+  itemDiscounts: [ShopPayPaymentRequestDiscount!]
+  label: String!
+  lineDiscounts: [ShopPayPaymentRequestDiscount!]
+  originalItemPrice: MoneyV2
+  originalLinePrice: MoneyV2
+  quantity: Int!
+  requiresShipping: Boolean
+  sku: String
+}
+
+input ShopPayPaymentRequestLineItemInput {
+  label: String
+  quantity: Int!
+  sku: String
+  requiresShipping: Boolean
+  image: ShopPayPaymentRequestImageInput
+  originalLinePrice: MoneyInput
+  finalLinePrice: MoneyInput
+  lineDiscounts: [ShopPayPaymentRequestDiscountInput!]
+  originalItemPrice: MoneyInput
+  finalItemPrice: MoneyInput
+  itemDiscounts: [ShopPayPaymentRequestDiscountInput!]
+}
+
+type ShopPayPaymentRequestReceipt {
+  paymentRequest: ShopPayPaymentRequest!
+  processingStatusType: String!
+  shopUser: ShopPayPaymentRequestShopUser
+  token: String!
+}
+
+type ShopPayPaymentRequestSession {
+  checkoutUrl: URL!
+  paymentRequest: ShopPayPaymentRequest
+  sourceIdentifier: String!
+  token: String!
+}
+
+type ShopPayPaymentRequestSessionCreatePayload {
+  shopPayPaymentRequestSession: ShopPayPaymentRequestSession
+  userErrors: [UserErrorsShopPayPaymentRequestSessionUserErrors!]!
+}
+
+type ShopPayPaymentRequestSessionSubmitPayload {
+  paymentRequestReceipt: ShopPayPaymentRequestReceipt
+  userErrors: [UserErrorsShopPayPaymentRequestSessionUserErrors!]!
+}
+
+type ShopPayPaymentRequestShippingLine {
+  amount: MoneyV2!
+  code: String!
+  label: String!
+}
+
+input ShopPayPaymentRequestShippingLineInput {
+  code: String
+  label: String
+  amount: MoneyInput
+}
+
+type ShopPayPaymentRequestShopUser {
+  publicId: String
+}
+
+type ShopPayPaymentRequestTotalShippingPrice {
+  discounts: [ShopPayPaymentRequestDiscount!]!
+  finalTotal: MoneyV2!
+  originalTotal: MoneyV2
+}
+
+input ShopPayPaymentRequestTotalShippingPriceInput {
+  discounts: [ShopPayPaymentRequestDiscountInput!]
+  originalTotal: MoneyInput
+  finalTotal: MoneyInput
+}
+
+input ShopPayWalletContentInput {
+  billingAddress: MailingAddressInput!
+  sessionToken: String!
+}
+
+type ShopPolicy implements Node {
+  body: String!
+  handle: String!
+  id: ID!
+  title: String!
+  url: URL!
+}
+
+type ShopPolicyWithDefault {
+  body: String!
+  handle: String!
+  id: ID
+  title: String!
+  url: URL!
+}
+
+type Sitemap {
+  pagesCount: Count
+  resources(page: Int!): PaginatedSitemapResources
+}
+
+type SitemapImage {
+  alt: String
+  filepath: String
+  updatedAt: DateTime!
+}
+
+type SitemapResource implements SitemapResourceInterface {
+  handle: String!
+  image: SitemapImage
+  title: String
+  updatedAt: DateTime!
+}
+
+interface SitemapResourceInterface {
+  handle: String!
+  updatedAt: DateTime!
+}
+
+type SitemapResourceMetaobject implements SitemapResourceInterface {
+  handle: String!
+  onlineStoreUrlHandle: String
+  type: String!
+  updatedAt: DateTime!
+}
+
+enum SitemapType {
+  PRODUCT
+  COLLECTION
+  PAGE
+  METAOBJECT
+  BLOG
+  ARTICLE
+}
+
+type SocialLoginProvider {
+  handle: String!
+}
+
+type StoreAvailability {
+  available: Boolean!
+  location: Location!
+  pickUpTime: String!
+  quantityAvailable: Int!
+}
+
+type StoreAvailabilityConnection {
+  edges: [StoreAvailabilityEdge!]!
+  nodes: [StoreAvailability!]!
+  pageInfo: PageInfo!
+}
+
+type StoreAvailabilityEdge {
+  cursor: String!
+  node: StoreAvailability!
+}
+
+type StringConnection {
+  edges: [StringEdge!]!
+  nodes: [String!]!
+  pageInfo: PageInfo!
+}
+
+type StringEdge {
+  cursor: String!
+  node: String!
+}
+
+type SubmissionError {
+  code: SubmissionErrorCode!
+  message: String
+}
+
+enum SubmissionErrorCode {
+  ERROR
+  NO_DELIVERY_GROUP_SELECTED
+  BUYER_IDENTITY_EMAIL_IS_INVALID
+  BUYER_IDENTITY_EMAIL_REQUIRED
+  BUYER_IDENTITY_PHONE_IS_INVALID
+  DELIVERY_ADDRESS1_INVALID
+  DELIVERY_ADDRESS1_REQUIRED
+  DELIVERY_ADDRESS1_TOO_LONG
+  DELIVERY_ADDRESS2_INVALID
+  DELIVERY_ADDRESS2_REQUIRED
+  DELIVERY_ADDRESS2_TOO_LONG
+  DELIVERY_CITY_INVALID
+  DELIVERY_CITY_REQUIRED
+  DELIVERY_CITY_TOO_LONG
+  DELIVERY_COMPANY_INVALID
+  DELIVERY_COMPANY_REQUIRED
+  DELIVERY_COMPANY_TOO_LONG
+  DELIVERY_COUNTRY_REQUIRED
+  DELIVERY_FIRST_NAME_INVALID
+  DELIVERY_FIRST_NAME_REQUIRED
+  DELIVERY_FIRST_NAME_TOO_LONG
+  DELIVERY_INVALID_POSTAL_CODE_FOR_COUNTRY
+  DELIVERY_INVALID_POSTAL_CODE_FOR_ZONE
+  DELIVERY_LAST_NAME_INVALID
+  DELIVERY_LAST_NAME_REQUIRED
+  DELIVERY_LAST_NAME_TOO_LONG
+  DELIVERY_NO_DELIVERY_AVAILABLE
+  DELIVERY_NO_DELIVERY_AVAILABLE_FOR_MERCHANDISE_LINE
+  DELIVERY_OPTIONS_PHONE_NUMBER_INVALID
+  DELIVERY_OPTIONS_PHONE_NUMBER_REQUIRED
+  DELIVERY_PHONE_NUMBER_INVALID
+  DELIVERY_PHONE_NUMBER_REQUIRED
+  DELIVERY_POSTAL_CODE_INVALID
+  DELIVERY_POSTAL_CODE_REQUIRED
+  DELIVERY_ZONE_NOT_FOUND
+  DELIVERY_ZONE_REQUIRED_FOR_COUNTRY
+  DELIVERY_ADDRESS_REQUIRED
+  MERCHANDISE_NOT_APPLICABLE
+  MERCHANDISE_LINE_LIMIT_REACHED
+  MERCHANDISE_NOT_ENOUGH_STOCK_AVAILABLE
+  MERCHANDISE_OUT_OF_STOCK
+  MERCHANDISE_PRODUCT_NOT_PUBLISHED
+  PAYMENTS_ADDRESS1_INVALID
+  PAYMENTS_ADDRESS1_REQUIRED
+  PAYMENTS_ADDRESS1_TOO_LONG
+  PAYMENTS_ADDRESS2_INVALID
+  PAYMENTS_ADDRESS2_REQUIRED
+  PAYMENTS_ADDRESS2_TOO_LONG
+  PAYMENTS_CITY_INVALID
+  PAYMENTS_CITY_REQUIRED
+  PAYMENTS_CITY_TOO_LONG
+  PAYMENTS_COMPANY_INVALID
+  PAYMENTS_COMPANY_REQUIRED
+  PAYMENTS_COMPANY_TOO_LONG
+  PAYMENTS_COUNTRY_REQUIRED
+  PAYMENTS_CREDIT_CARD_BASE_EXPIRED
+  PAYMENTS_CREDIT_CARD_BASE_GATEWAY_NOT_SUPPORTED
+  PAYMENTS_CREDIT_CARD_BASE_INVALID_START_DATE_OR_ISSUE_NUMBER_FOR_DEBIT
+  PAYMENTS_CREDIT_CARD_BRAND_NOT_SUPPORTED
+  PAYMENTS_CREDIT_CARD_FIRST_NAME_BLANK
+  PAYMENTS_CREDIT_CARD_GENERIC
+  PAYMENTS_CREDIT_CARD_LAST_NAME_BLANK
+  PAYMENTS_CREDIT_CARD_MONTH_INCLUSION
+  PAYMENTS_CREDIT_CARD_NAME_INVALID
+  PAYMENTS_CREDIT_CARD_NUMBER_INVALID
+  PAYMENTS_CREDIT_CARD_NUMBER_INVALID_FORMAT
+  PAYMENTS_CREDIT_CARD_SESSION_ID
+  PAYMENTS_CREDIT_CARD_VERIFICATION_VALUE_BLANK
+  PAYMENTS_CREDIT_CARD_VERIFICATION_VALUE_INVALID_FOR_CARD_TYPE
+  PAYMENTS_CREDIT_CARD_YEAR_EXPIRED
+  PAYMENTS_CREDIT_CARD_YEAR_INVALID_EXPIRY_YEAR
+  PAYMENTS_FIRST_NAME_INVALID
+  PAYMENTS_FIRST_NAME_REQUIRED
+  PAYMENTS_FIRST_NAME_TOO_LONG
+  PAYMENTS_INVALID_POSTAL_CODE_FOR_COUNTRY
+  PAYMENTS_INVALID_POSTAL_CODE_FOR_ZONE
+  PAYMENTS_LAST_NAME_INVALID
+  PAYMENTS_LAST_NAME_REQUIRED
+  PAYMENTS_LAST_NAME_TOO_LONG
+  PAYMENTS_METHOD_UNAVAILABLE
+  PAYMENTS_METHOD_REQUIRED
+  PAYMENTS_UNACCEPTABLE_PAYMENT_AMOUNT
+  PAYMENTS_PHONE_NUMBER_INVALID
+  PAYMENTS_PHONE_NUMBER_REQUIRED
+  PAYMENTS_POSTAL_CODE_INVALID
+  PAYMENTS_POSTAL_CODE_REQUIRED
+  PAYMENTS_SHOPIFY_PAYMENTS_REQUIRED
+  PAYMENTS_WALLET_CONTENT_MISSING
+  PAYMENTS_BILLING_ADDRESS_ZONE_NOT_FOUND
+  PAYMENTS_BILLING_ADDRESS_ZONE_REQUIRED_FOR_COUNTRY
+  REDIRECT_TO_CHECKOUT_REQUIRED
+  TAXES_MUST_BE_DEFINED
+  TAXES_LINE_ID_NOT_FOUND
+  TAXES_DELIVERY_GROUP_ID_NOT_FOUND
+  VALIDATION_CUSTOM
+}
+
+type SubmitAlreadyAccepted {
+  attemptId: String!
+}
+
+type SubmitFailed {
+  checkoutUrl: URL
+  errors: [SubmissionError!]!
+}
+
+type SubmitSuccess {
+  attemptId: String!
+  redirectUrl: URL!
+}
+
+type SubmitThrottled {
+  pollAfter: DateTime!
+}
+
+type Swatch {
+  color: Color
+  image: MediaImage
+}
+
+type TaxonomyCategory implements Node {
+  ancestors: [TaxonomyCategory!]!
+  id: ID!
+  name: String!
+}
+
+input TaxonomyMetafieldFilter {
+  namespace: String!
+  key: String!
+  value: String!
+}
+
+interface Trackable {
+  trackingParameters: String
+}
+
+type Translation {
+  key: String!
+  value: String!
+}
+
+scalar URL
+
+type UnitPriceMeasurement {
+  measuredType: UnitPriceMeasurementMeasuredType
+  quantityUnit: UnitPriceMeasurementMeasuredUnit
+  quantityValue: Float!
+  referenceUnit: UnitPriceMeasurementMeasuredUnit
+  referenceValue: Int!
+}
+
+enum UnitPriceMeasurementMeasuredType {
+  VOLUME
+  WEIGHT
+  LENGTH
+  AREA
+  COUNT
+  UNKNOWN
+}
+
+enum UnitPriceMeasurementMeasuredUnit {
+  ML
+  CL
+  L
+  M3
+  FLOZ
+  PT
+  QT
+  GAL
+  MG
+  G
+  KG
+  LB
+  OZ
+  MM
+  CM
+  M
+  IN
+  FT
+  YD
+  M2
+  FT2
+  ITEM
+  UNKNOWN
+}
+
+enum UnitSystem {
+  IMPERIAL_SYSTEM
+  METRIC_SYSTEM
+}
+
+scalar UnsignedInt64
+
+type UrlRedirect implements Node {
+  id: ID!
+  path: String!
+  target: String!
+}
+
+type UrlRedirectConnection {
+  edges: [UrlRedirectEdge!]!
+  nodes: [UrlRedirect!]!
+  pageInfo: PageInfo!
+}
+
+type UrlRedirectEdge {
+  cursor: String!
+  node: UrlRedirect!
+}
+
+type UserError implements DisplayableError {
+  field: [String!]
+  message: String!
+}
+
+type UserErrorsShopPayPaymentRequestSessionUserErrors implements DisplayableError {
+  code: UserErrorsShopPayPaymentRequestSessionUserErrorsCode
+  field: [String!]
+  message: String!
+}
+
+enum UserErrorsShopPayPaymentRequestSessionUserErrorsCode {
+  PAYMENT_REQUEST_INVALID_INPUT
+  PAYMENT_REQUEST_NOT_FOUND
+  IDEMPOTENCY_KEY_ALREADY_USED
+}
+
+input VariantOptionFilter {
+  name: String!
+  value: String!
+}
+
+type Video implements Media & Node {
+  alt: String
+  id: ID!
+  mediaContentType: MediaContentType!
+  presentation: MediaPresentation
+  previewImage: Image
+  sources: [VideoSource!]!
+}
+
+type VideoSource {
+  format: String!
+  height: Int!
+  mimeType: String!
+  url: String!
+  width: Int!
+}
+
+input VisitorConsent {
+  preferences: Boolean
+  analytics: Boolean
+  marketing: Boolean
+  saleOfData: Boolean
+}
+
+enum WeightUnit {
+  KILOGRAMS
+  GRAMS
+  POUNDS
+  OUNCES
+}
+
+directive @accessRestricted(reason: String = null) on FIELD_DEFINITION | OBJECT
+
+directive @defer(if: Boolean = true, label: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @inContext(channelId: ID, country: CountryCode, language: LanguageCode, preferredLocationId: ID, buyer: BuyerInput, visitorConsent: VisitorConsent) on QUERY | MUTATION

@@ -1,0 +1,327 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/bu",
+    "name": "Bundels"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzI0ODA1Nzc3MzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDY2MTk4NDI3NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "EasyGift all products collection",
+          "descriptionHtml": "EasyGift all products collection",
+          "handle": "all-products",
+          "id": "gid://shopify/Collection/306619842759",
+          "image": {
+            "__typename": "Image",
+            "altText": "All Products - UGREEN NL",
+            "height": 427,
+            "id": "gid://shopify/CollectionImage/2043883094215",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/collections/all-products-4030905.png?v=1763588080",
+            "width": 2048
+          },
+          "onlineStoreUrl": "https://nl.ugreen.com/collections/all-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:12:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTI5NDIyMzE3NTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "product3c",
+          "id": "gid://shopify/Collection/312942231751",
+          "image": null,
+          "onlineStoreUrl": "https://nl.ugreen.com/collections/product3c",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Product3C - UGREEN NL",
+            "title": "Product3C - UGREEN NL"
+          },
+          "title": "Alle producten",
+          "updatedAt": "2026-11-07T12:12:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzI0ODA1Nzc3MzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products-副本",
+          "id": "gid://shopify/Collection/332480577735",
+          "image": {
+            "__typename": "Image",
+            "altText": "2026 PD selected products - UGREEN NL",
+            "height": 427,
+            "id": "gid://shopify/CollectionImage/2045541810375",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/collections/2026-pd-selected-products-6212253.png?v=1782251471",
+            "width": 2048
+          },
+          "onlineStoreUrl": "https://nl.ugreen.com/collections/all-products-%E5%89%AF%E6%9C%AC",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "2026 PD selected products",
+          "updatedAt": "2026-11-07T12:12:14Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2026-11-06T08:58:15Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 600,
+    "id": "gid://shopify/ProductImage/53613595427015",
+    "thumbhash": "U/cRFoJIiHeAiIeHeXh3eJh5B4V8A6g=",
+    "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/files/nl-boxb-mo.webp?v=1793955489",
+    "width": 670
+  },
+  "handle": "mystery-box-b",
+  "id": "gid://shopify/Product/15479480647879",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MzYxMzU5NTQyNzAxNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MzYxMzU5NTQyNzAxNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 600,
+          "id": "gid://shopify/ProductImage/53613595427015",
+          "thumbhash": "U/cRFoJIiHeAiIeHeXh3eJh5B4V8A6g=",
+          "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/files/nl-boxb-mo.webp?v=1793955489",
+          "width": 670
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NzA4MTYyNzM1MzI4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzA4MTYyNzM1MzI4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/47081627353287",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ImageSource/47081627353287",
+            "thumbhash": "U/cRFoJIiHeAiIeHeXh3eJh5B4V8A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/files/nl-boxb-mo.webp?v=1793955489",
+            "width": 670
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 600,
+            "id": "gid://shopify/ImageSource/47081627353287",
+            "thumbhash": "U/cRFoJIiHeAiIeHeXh3eJh5B4V8A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/files/nl-boxb-mo.webp?v=1793955489",
+            "width": 670
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://nl.ugreen.com/products/mystery-box-b",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17961094250695",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/15224834588871",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "48.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "48.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-11-06T08:58:16Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "Tech-verrassingsbox – Premium",
+  "updatedAt": "2026-11-06T09:28:36Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2ODI1ODUwODYzNjM1OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2ODI1ODUwODYzNjM1OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/68258508636359",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 600,
+            "id": "gid://shopify/ProductImage/53613595427015",
+            "thumbhash": "U/cRFoJIiHeAiIeHeXh3eJh5B4V8A6g=",
+            "url": "https://cdn.shopify.com/s/files/1/0640/3735/5719/files/nl-boxb-mo.webp?v=1793955489",
+            "width": 670
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "48.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "mystery-box-b",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN NL"
+}

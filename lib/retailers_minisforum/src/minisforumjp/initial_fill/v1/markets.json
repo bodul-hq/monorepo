@@ -1,0 +1,3103 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "JP",
+        "currency": {
+          "isoCode": "JPY"
+        }
+      },
+      "language": {
+        "isoCode": "JA"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AC",
+          "name": "アセンション島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AD",
+          "name": "アンドラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AE",
+          "name": "アラブ首長国連邦",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AF",
+          "name": "アフガニスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AG",
+          "name": "アンティグア・バーブーダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AI",
+          "name": "アンギラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AL",
+          "name": "アルバニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AM",
+          "name": "アルメニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AO",
+          "name": "アンゴラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AR",
+          "name": "アルゼンチン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AT",
+          "name": "オーストリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AU",
+          "name": "オーストラリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AW",
+          "name": "アルバ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AX",
+          "name": "オーランド諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "AZ",
+          "name": "アゼルバイジャン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BA",
+          "name": "ボスニア・ヘルツェゴビナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BB",
+          "name": "バルバドス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BD",
+          "name": "バングラデシュ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BE",
+          "name": "ベルギー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BF",
+          "name": "ブルキナファソ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BG",
+          "name": "ブルガリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BH",
+          "name": "バーレーン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BI",
+          "name": "ブルンジ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BJ",
+          "name": "ベナン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BL",
+          "name": "サン・バルテルミー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BM",
+          "name": "バミューダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BN",
+          "name": "ブルネイ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BO",
+          "name": "ボリビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BQ",
+          "name": "オランダ領カリブ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BR",
+          "name": "ブラジル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BS",
+          "name": "バハマ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BT",
+          "name": "ブータン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BW",
+          "name": "ボツワナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BY",
+          "name": "ベラルーシ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "BZ",
+          "name": "ベリーズ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CA",
+          "name": "カナダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CC",
+          "name": "ココス(キーリング)諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CD",
+          "name": "コンゴ民主共和国(キンシャサ)",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CF",
+          "name": "中央アフリカ共和国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CG",
+          "name": "コンゴ共和国(ブラザビル)",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CH",
+          "name": "スイス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CI",
+          "name": "コートジボワール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CK",
+          "name": "クック諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CL",
+          "name": "チリ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CM",
+          "name": "カメルーン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CN",
+          "name": "中国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CO",
+          "name": "コロンビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CR",
+          "name": "コスタリカ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CV",
+          "name": "カーボベルデ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CW",
+          "name": "キュラソー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CX",
+          "name": "クリスマス島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CY",
+          "name": "キプロス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "CZ",
+          "name": "チェコ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DE",
+          "name": "ドイツ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DJ",
+          "name": "ジブチ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DK",
+          "name": "デンマーク",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DM",
+          "name": "ドミニカ国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DO",
+          "name": "ドミニカ共和国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "DZ",
+          "name": "アルジェリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "EC",
+          "name": "エクアドル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "EE",
+          "name": "エストニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "EG",
+          "name": "エジプト",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "EH",
+          "name": "西サハラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ER",
+          "name": "エリトリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ES",
+          "name": "スペイン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ET",
+          "name": "エチオピア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "FI",
+          "name": "フィンランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "FJ",
+          "name": "フィジー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "FK",
+          "name": "フォークランド諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "FO",
+          "name": "フェロー諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "FR",
+          "name": "フランス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GA",
+          "name": "ガボン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GB",
+          "name": "イギリス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GD",
+          "name": "グレナダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GE",
+          "name": "ジョージア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GF",
+          "name": "仏領ギアナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GG",
+          "name": "ガーンジー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GH",
+          "name": "ガーナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GI",
+          "name": "ジブラルタル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GL",
+          "name": "グリーンランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GM",
+          "name": "ガンビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GN",
+          "name": "ギニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GP",
+          "name": "グアドループ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GQ",
+          "name": "赤道ギニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GR",
+          "name": "ギリシャ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GS",
+          "name": "サウスジョージア・サウスサンドウィッチ諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GT",
+          "name": "グアテマラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GW",
+          "name": "ギニアビサウ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "GY",
+          "name": "ガイアナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "HK",
+          "name": "中華人民共和国香港特別行政区",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "HN",
+          "name": "ホンジュラス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "HR",
+          "name": "クロアチア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "HT",
+          "name": "ハイチ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "HU",
+          "name": "ハンガリー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ID",
+          "name": "インドネシア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IE",
+          "name": "アイルランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IL",
+          "name": "イスラエル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IM",
+          "name": "マン島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IN",
+          "name": "インド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IO",
+          "name": "英領インド洋地域",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IQ",
+          "name": "イラク",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IS",
+          "name": "アイスランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "IT",
+          "name": "イタリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "JE",
+          "name": "ジャージー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "JM",
+          "name": "ジャマイカ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "JO",
+          "name": "ヨルダン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "JP",
+          "name": "日本",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KE",
+          "name": "ケニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KG",
+          "name": "キルギス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KH",
+          "name": "カンボジア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KI",
+          "name": "キリバス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KM",
+          "name": "コモロ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KN",
+          "name": "セントクリストファー・ネーヴィス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KR",
+          "name": "韓国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KW",
+          "name": "クウェート",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KY",
+          "name": "ケイマン諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "KZ",
+          "name": "カザフスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LA",
+          "name": "ラオス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LB",
+          "name": "レバノン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LC",
+          "name": "セントルシア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LI",
+          "name": "リヒテンシュタイン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LK",
+          "name": "スリランカ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LR",
+          "name": "リベリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LS",
+          "name": "レソト",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LT",
+          "name": "リトアニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LU",
+          "name": "ルクセンブルク",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LV",
+          "name": "ラトビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "LY",
+          "name": "リビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MA",
+          "name": "モロッコ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MC",
+          "name": "モナコ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MD",
+          "name": "モルドバ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ME",
+          "name": "モンテネグロ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MF",
+          "name": "サン・マルタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MG",
+          "name": "マダガスカル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MK",
+          "name": "北マケドニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ML",
+          "name": "マリ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MM",
+          "name": "ミャンマー (ビルマ)",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MN",
+          "name": "モンゴル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MO",
+          "name": "中華人民共和国マカオ特別行政区",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MQ",
+          "name": "マルティニーク",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MR",
+          "name": "モーリタニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MS",
+          "name": "モントセラト",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MT",
+          "name": "マルタ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MU",
+          "name": "モーリシャス",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MV",
+          "name": "モルディブ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MW",
+          "name": "マラウイ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MX",
+          "name": "メキシコ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MY",
+          "name": "マレーシア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "MZ",
+          "name": "モザンビーク",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NA",
+          "name": "ナミビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NC",
+          "name": "ニューカレドニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NE",
+          "name": "ニジェール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NF",
+          "name": "ノーフォーク島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NG",
+          "name": "ナイジェリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NI",
+          "name": "ニカラグア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NL",
+          "name": "オランダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NO",
+          "name": "ノルウェー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NP",
+          "name": "ネパール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NR",
+          "name": "ナウル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NU",
+          "name": "ニウエ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "NZ",
+          "name": "ニュージーランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "OM",
+          "name": "オマーン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PA",
+          "name": "パナマ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PE",
+          "name": "ペルー",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PF",
+          "name": "仏領ポリネシア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PG",
+          "name": "パプアニューギニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PH",
+          "name": "フィリピン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PK",
+          "name": "パキスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PL",
+          "name": "ポーランド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PM",
+          "name": "サンピエール島・ミクロン島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PN",
+          "name": "ピトケアン諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PS",
+          "name": "パレスチナ自治区",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PT",
+          "name": "ポルトガル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "PY",
+          "name": "パラグアイ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "QA",
+          "name": "カタール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "RE",
+          "name": "レユニオン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "RO",
+          "name": "ルーマニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "RS",
+          "name": "セルビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "RU",
+          "name": "ロシア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "RW",
+          "name": "ルワンダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SA",
+          "name": "サウジアラビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SB",
+          "name": "ソロモン諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SC",
+          "name": "セーシェル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SD",
+          "name": "スーダン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SE",
+          "name": "スウェーデン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SG",
+          "name": "シンガポール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SH",
+          "name": "セントヘレナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SI",
+          "name": "スロベニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SJ",
+          "name": "スバールバル諸島・ヤンマイエン島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SK",
+          "name": "スロバキア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SL",
+          "name": "シエラレオネ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SM",
+          "name": "サンマリノ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SN",
+          "name": "セネガル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SO",
+          "name": "ソマリア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SR",
+          "name": "スリナム",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SS",
+          "name": "南スーダン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ST",
+          "name": "サントメ・プリンシペ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SV",
+          "name": "エルサルバドル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SX",
+          "name": "シント・マールテン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "SZ",
+          "name": "エスワティニ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TA",
+          "name": "トリスタン・ダ・クーニャ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TC",
+          "name": "タークス・カイコス諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TD",
+          "name": "チャド",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TF",
+          "name": "仏領極南諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TG",
+          "name": "トーゴ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TH",
+          "name": "タイ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TJ",
+          "name": "タジキスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TK",
+          "name": "トケラウ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TL",
+          "name": "東ティモール",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TM",
+          "name": "トルクメニスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TN",
+          "name": "チュニジア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TO",
+          "name": "トンガ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TR",
+          "name": "トルコ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TT",
+          "name": "トリニダード・トバゴ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TV",
+          "name": "ツバル",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TW",
+          "name": "台湾",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "TZ",
+          "name": "タンザニア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "UA",
+          "name": "ウクライナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "UG",
+          "name": "ウガンダ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "UM",
+          "name": "合衆国領有小離島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "US",
+          "name": "アメリカ合衆国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "UY",
+          "name": "ウルグアイ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "UZ",
+          "name": "ウズベキスタン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VA",
+          "name": "バチカン市国",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VC",
+          "name": "セントビンセント及びグレナディーン諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VE",
+          "name": "ベネズエラ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VG",
+          "name": "英領ヴァージン諸島",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VN",
+          "name": "ベトナム",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "VU",
+          "name": "バヌアツ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "WF",
+          "name": "ウォリス・フツナ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "WS",
+          "name": "サモア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "XK",
+          "name": "コソボ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "YE",
+          "name": "イエメン",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "YT",
+          "name": "マヨット",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZA",
+          "name": "南アフリカ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZM",
+          "name": "ザンビア",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZW",
+          "name": "ジンバブエ",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

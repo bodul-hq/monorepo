@@ -1,0 +1,35 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "JP",
+        "currency": {
+          "isoCode": "JPY"
+        }
+      },
+      "language": {
+        "isoCode": "JA"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "JP",
+          "name": "日本",
+          "currency": {
+            "isoCode": "JPY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "JA",
+              "name": "日本語"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

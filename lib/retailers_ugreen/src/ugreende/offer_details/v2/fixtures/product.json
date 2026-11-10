@@ -1,0 +1,379 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/ae-2-2-3",
+        "name": "Sammelkarten"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/ae-2-2",
+        "name": "Sammlerstücke"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/ae-2",
+        "name": "Hobby & Kunst"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/ae",
+        "name": "Kunst & Unterhaltung"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/ae-2-2-3-2",
+    "name": "Spielkarten"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MDA5OTE5NjM0NzksImxhc3RfdmFsdWUiOiIyMDI2LTExLTA1IDEyOjM4OjAzLjExNDQyNCIsIm9mZnNldCI6NH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2MDA0MjI0ODIyNjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "produkte",
+          "id": "gid://shopify/Collection/600422482263",
+          "image": null,
+          "onlineStoreUrl": "https://de.ugreen.com/collections/produkte",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Entdecke alle UGREEN Produkte: Ladegeräte, Powerbanks, USB-C-Kabel, Docks, Hubs, Adapter, Sets und Zubehör für Alltag, Reise & Arbeit.",
+            "title": "UGREEN Produkte | Ladegeräte, Powerbanks, Kabel, Docks & mehr"
+          },
+          "title": "Alle Produkte",
+          "updatedAt": "2026-11-07T12:19:20Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NzczMTAzMDA1MDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "perfekte-erganzungen",
+          "id": "gid://shopify/Collection/677310300503",
+          "image": null,
+          "onlineStoreUrl": "https://de.ugreen.com/collections/perfekte-erganzungen",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Perfekte Ergänzungen",
+          "updatedAt": "2026-11-07T12:19:20Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2ODQ2Mzg4MzA5MzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "50",
+          "id": "gid://shopify/Collection/684638830935",
+          "image": null,
+          "onlineStoreUrl": "https://de.ugreen.com/collections/50",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "50",
+          "updatedAt": "2026-11-07T12:19:20Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTE5NzgwMTA5NjcsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTI1IDAxOjUyOjUzLjgwMDM2NCIsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "ugreen-honkai-star-rail",
+          "id": "gid://shopify/Collection/691978010967",
+          "image": null,
+          "onlineStoreUrl": "https://de.ugreen.com/collections/ugreen-honkai-star-rail",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Erlebe die UGREEN × Honkai: Star Rail Kollektion mit limitierten Editionen und exklusivem Design. Jetzt entdecken.",
+            "title": "UGREEN × Honkai: Star Rail Kollektion | UGREEN DE"
+          },
+          "title": "UGREEN × Honkai: Star Rail Kollektion",
+          "updatedAt": "2026-11-07T12:19:19Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MDA5OTE5NjM0NzksImxhc3RfdmFsdWUiOiIyMDI2LTExLTA1IDEyOjM4OjAzLjExNDQyNCIsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "oktober-2026",
+          "id": "gid://shopify/Collection/700991963479",
+          "image": null,
+          "onlineStoreUrl": "https://de.ugreen.com/collections/oktober-2026",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Oktober 2026",
+          "updatedAt": "2026-11-07T12:19:20Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2026-10-23T10:26:41Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/84349562323287",
+    "thumbhash": "JdeBBQAkZrqtNJYJs3jfc+YKB3mGeYOaVw==",
+    "url": "https://cdn.shopify.com/s/files/1/0669/7336/8632/files/ugreen-x-honkai-star-rail-transparent-card-6644332.png?v=1792751077",
+    "width": 1200
+  },
+  "handle": "ugreen-x-honkai-star-rail-transparente-karte",
+  "id": "gid://shopify/Product/11308872958295",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo4NDM0OTU2MjMyMzI4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo4NDM0OTU2MjMyMzI4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/84349562323287",
+          "thumbhash": "JdeBBQAkZrqtNJYJs3jfc+YKB3mGeYOaVw==",
+          "url": "https://cdn.shopify.com/s/files/1/0669/7336/8632/files/ugreen-x-honkai-star-rail-transparent-card-6644332.png?v=1792751077",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NDA1MTQwOTQyMDYzMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDA1MTQwOTQyMDYzMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+          "id": "gid://shopify/MediaImage/64051409420631",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/64051409420631",
+            "thumbhash": "JdeBBQAkZrqtNJYJs3jfc+YKB3mGeYOaVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0669/7336/8632/files/ugreen-x-honkai-star-rail-transparent-card-6644332.png?v=1792751077",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/64051409420631",
+            "thumbhash": "JdeBBQAkZrqtNJYJs3jfc+YKB3mGeYOaVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0669/7336/8632/files/ugreen-x-honkai-star-rail-transparent-card-6644332.png?v=1792751077",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://de.ugreen.com/products/ugreen-x-honkai-star-rail-transparente-karte",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/14185525248343",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/10279977156951",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-10-23T10:26:42Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "261023",
+    "NEU2610",
+    "SHOP",
+    "Star Rail"
+  ],
+  "title": "UGREEN x Honkai: Star Rail – Transparente Karte",
+  "updatedAt": "2026-11-06T18:53:18Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NTU1Njc2OTYxMjExOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTU1Njc2OTYxMjExOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "9.99",
+            "currencyCode": "EUR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/55556769612119",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN x Honkai: Star Rail – Transparente Karte -",
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/84349562323287",
+            "thumbhash": "JdeBBQAkZrqtNJYJs3jfc+YKB3mGeYOaVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0669/7336/8632/files/ugreen-x-honkai-star-rail-transparent-card-6644332.png?v=1792751077",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "9.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "16153",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN DE"
+}

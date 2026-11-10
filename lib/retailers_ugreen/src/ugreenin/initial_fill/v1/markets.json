@@ -1,0 +1,39 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "IN",
+        "currency": {
+          "isoCode": "INR"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "IN",
+          "name": "India",
+          "currency": {
+            "isoCode": "INR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "HI",
+              "name": "Hindi"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

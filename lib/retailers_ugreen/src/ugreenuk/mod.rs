@@ -5,3 +5,5 @@ mod offer_details;
 mod sitemap;
 
 pub mod prelude;
+
+pub mod initial_fill;

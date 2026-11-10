@@ -1,0 +1,380 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NzQ1NTc5NzI3NjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0Mjc4Njg4MTU2NDgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "hubs-and-adapters",
+          "id": "gid://shopify/Collection/427868815648",
+          "image": {
+            "__typename": "Image",
+            "altText": "15% off for hubs & adapters",
+            "height": 400,
+            "id": "gid://shopify/CollectionImage/1741459915040",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/collections/USB_Hubs-832546_7d7e7858-2d80-40db-aad0-7b01decc2f38-682320.jpg?v=1699006209",
+            "width": 1920
+          },
+          "onlineStoreUrl": "https://ca.ugreen.com/collections/hubs-and-adapters",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "HUBS & ADAPTERS",
+          "updatedAt": "2026-10-31T11:04:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTM4MTgyMjA4MzIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "docking-stations",
+          "id": "gid://shopify/Collection/453818220832",
+          "image": null,
+          "onlineStoreUrl": "https://ca.ugreen.com/collections/docking-stations",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Docking Stations",
+          "updatedAt": "2026-11-07T12:07:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTM4NDE3ODEwMjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "hubs-docks",
+          "id": "gid://shopify/Collection/453841781024",
+          "image": null,
+          "onlineStoreUrl": "https://ca.ugreen.com/collections/hubs-docks",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Premium USB hubs and docking stations from Ugreen. Expand connectivity for all your devices. Quality ports for every need.",
+            "title": "Hubs & Docks | UGREEN CA"
+          },
+          "title": "Hubs & Docks",
+          "updatedAt": "2026-11-07T12:07:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzQ1NTc5NzI3NjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "non-limit",
+          "id": "gid://shopify/Collection/474557972768",
+          "image": null,
+          "onlineStoreUrl": "https://ca.ugreen.com/collections/non-limit",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Non-limit",
+          "updatedAt": "2026-11-07T12:07:01Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "279.97",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "279.97",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2024-05-09T12:22:26Z",
+  "description": "Ugreen 9-in-1 USB C Docking Station Must Read: The Displaylink software must be installed to ensure media display and network RJ45 functionality can be used correctly.",
+  "descriptionHtml": "<h4 style=\"text-align: center;\">Ugreen 9-in-1 USB C Docking Station </h4>\n<p><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-1_3e1a5203-0992-43d2-8fde-aa11b55d1850.png?v=1675907215\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-1_3e1a5203-0992-43d2-8fde-aa11b55d1850.png?v=1675907215\" data-mce-fragment=\"1\"></p>\n<p><strong>Must Read: The Displaylink software must be installed to ensure media display and network RJ45 functionality can be used correctly.</strong></p>\n<div style=\"text-align: left;\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/A__6.png?v=1677148992\"></div>\n<p><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-7_e9bdf4d5-5544-4a2a-acdf-0a84125ab355.jpg?v=1675907214\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-7_e9bdf4d5-5544-4a2a-acdf-0a84125ab355.jpg?v=1675907214\" data-mce-fragment=\"1\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-3_7f3c2625-20ad-4a16-8284-5ee16d7064d5.jpg?v=1675907215\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-3_7f3c2625-20ad-4a16-8284-5ee16d7064d5.jpg?v=1675907215\" data-mce-fragment=\"1\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-4_36bf6a63-fc87-434a-8200-5b9d1c3d0d57.jpg?v=1675907215\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-4_36bf6a63-fc87-434a-8200-5b9d1c3d0d57.jpg?v=1675907215\" data-mce-fragment=\"1\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-2_7a2501ec-5360-444b-ab28-d35efaed0f85.jpg?v=1675907215\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-2_7a2501ec-5360-444b-ab28-d35efaed0f85.jpg?v=1675907215\" data-mce-fragment=\"1\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-8_51368d50-7052-4370-b01b-325d1aeee342.jpg?v=1675907214\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-8_51368d50-7052-4370-b01b-325d1aeee342.jpg?v=1675907214\" data-mce-fragment=\"1\"><img src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-9_6f657b36-7e36-4e10-b606-11794574d7d9.jpg?v=1675907215\" data-mce-src=\"https://cdn.shopify.com/s/files/1/0257/5246/9566/files/Detail-9_6f657b36-7e36-4e10-b606-11794574d7d9.jpg?v=1675907215\" data-mce-fragment=\"1\"></p>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 464,
+    "id": "gid://shopify/ProductImage/49348132471072",
+    "thumbhash": "3PeBBQAjnF5MR7DZNEH6BlLdWUeAeWXoBw==",
+    "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.png?v=1746739848",
+    "width": 464
+  },
+  "handle": "ugreen-travel-charging-bundle",
+  "id": "gid://shopify/Product/9351033487648",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NTUwNzYwMzQ2NDQ4MCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0OTM0ODEzMjQ3MTA3MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 464,
+          "id": "gid://shopify/ProductImage/49348132471072",
+          "thumbhash": "3PeBBQAjnF5MR7DZNEH6BlLdWUeAeWXoBw==",
+          "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.png?v=1746739848",
+          "width": 464
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTUwNzYwMzQ2NDQ4MCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 464,
+          "id": "gid://shopify/ProductImage/45507603464480",
+          "thumbhash": "9geKFQIPp7lvhqkn13l/lvipCAiIeIBwCA==",
+          "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.webp?v=1746703402",
+          "width": 464
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNzk3MzQ0NDc1NTc0NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDg0OTc0NTU0MzQ1NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/40849745543456",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 464,
+            "id": "gid://shopify/ImageSource/40849745543456",
+            "thumbhash": "3PeBBQAjnF5MR7DZNEH6BlLdWUeAeWXoBw==",
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.png?v=1746739848",
+            "width": 464
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 464,
+            "id": "gid://shopify/ImageSource/40849745543456",
+            "thumbhash": "3PeBBQAjnF5MR7DZNEH6BlLdWUeAeWXoBw==",
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.png?v=1746739848",
+            "width": 464
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk3MzQ0NDc1NTc0NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/37973444755744",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 464,
+            "id": "gid://shopify/ImageSource/37973444755744",
+            "thumbhash": "9geKFQIPp7lvhqkn13l/lvipCAiIeIBwCA==",
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.webp?v=1746703402",
+            "width": 464
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 464,
+            "id": "gid://shopify/ImageSource/37973444755744",
+            "thumbhash": "9geKFQIPp7lvhqkn13l/lvipCAiIeIBwCA==",
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.webp?v=1746703402",
+            "width": 464
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.ugreen.com/products/ugreen-travel-charging-bundle",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/11757160956192",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/3464936194336",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "195.98",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "195.98",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "Docking Station",
+  "publishedAt": "2024-05-09T12:24:22Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Ugreen 9-in-1 4k HDMI Universal Docking Station boost your work efficiency with the DisplayLink Technology to extend dual 4K@60Hz monitors for Windows and macOS systems.",
+    "title": null
+  },
+  "tags": [
+    "Docking Stations",
+    "Non-limit"
+  ],
+  "title": "UGREEN Travel Charging Bundle",
+  "updatedAt": "2026-10-06T19:34:11Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0ODQ0MjEwODczOTg3MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODQ0MjEwODczOTg3MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "279.97",
+            "currencyCode": "CAD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/48442108739872",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 464,
+            "id": "gid://shopify/ProductImage/49348132471072",
+            "thumbhash": "3PeBBQAjnF5MR7DZNEH6BlLdWUeAeWXoBw==",
+            "url": "https://cdn.shopify.com/s/files/1/0665/9660/2144/files/111172bb92bb0de4787096e10261989c_653672ab-14dd-4008-b88a-48da87a87c65-660166.png?v=1746739848",
+            "width": 464
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "195.98",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "90912+10334+10232",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "GRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN"
+}

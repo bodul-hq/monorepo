@@ -1,0 +1,260 @@
+query ProductVariants($pageSize5: Int!, $pageSize10: Int!, $country: CountryCode!, $language: LanguageCode!, $id: ID!, $after: String) @inContext(country: $country, language: $language) { product(id: $id) { id variants(first: $pageSize10, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          __typename
+          availableForSale
+          barcode
+          compareAtPrice {
+            __typename
+            amount
+            currencyCode
+          }
+          components(first: $pageSize5) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                productVariant {
+                  __typename
+                  id
+                  title
+                }
+                quantity
+              }
+            }
+          }
+          currentlyNotInStock
+          groupedBy(first: $pageSize5) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                id
+                title
+              }
+            }
+          }
+          id
+          image {
+            __typename
+            altText
+            height
+            id
+            thumbhash
+            url
+            width
+          }
+          price {
+            __typename
+            amount
+            currencyCode
+          }
+          quantityPriceBreaks(first: $pageSize5) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                minimumQuantity
+                price {
+                  __typename
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+          quantityRule {
+            __typename
+            increment
+            maximum
+            minimum
+          }
+          requiresComponents
+          requiresShipping
+          selectedOptions {
+            __typename
+            name
+            value
+          }
+          sellingPlanAllocations(first: $pageSize5) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                checkoutChargeAmount {
+                  __typename
+                  amount
+                  currencyCode
+                }
+                priceAdjustments {
+                  __typename
+                  compareAtPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  perDeliveryPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  price {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                  unitPrice {
+                    __typename
+                    amount
+                    currencyCode
+                  }
+                }
+                remainingBalanceChargeAmount {
+                  __typename
+                  amount
+                  currencyCode
+                }
+                sellingPlan {
+                  __typename
+                  billingPolicy {
+                    __typename
+                    ... on SellingPlanRecurringBillingPolicy {
+                      interval
+                      intervalCount
+                    }
+                  }
+                  checkoutCharge {
+                    __typename
+                    type
+                    value {
+                      __typename
+                      ... on MoneyV2 {
+                        amount
+                        currencyCode
+                      }
+                      ... on SellingPlanCheckoutChargePercentageValue {
+                        percentage
+                      }
+                    }
+                  }
+                  deliveryPolicy {
+                    __typename
+                    ... on SellingPlanRecurringDeliveryPolicy {
+                      interval
+                      intervalCount
+                    }
+                  }
+                  description
+                  id
+                  name
+                  options {
+                    __typename
+                    name
+                    value
+                  }
+                  priceAdjustments {
+                    __typename
+                    adjustmentValue {
+                      __typename
+                      ... on SellingPlanFixedAmountPriceAdjustment {
+                        adjustmentAmount {
+                          __typename
+                          amount
+                          currencyCode
+                        }
+                      }
+                      ... on SellingPlanFixedPriceAdjustment {
+                        price {
+                          __typename
+                          amount
+                          currencyCode
+                        }
+                      }
+                      ... on SellingPlanPercentagePriceAdjustment {
+                        adjustmentPercentage
+                      }
+                    }
+                    orderCount
+                  }
+                  recurringDeliveries
+                }
+              }
+            }
+          }
+          sku
+          storeAvailability(first: $pageSize5) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                __typename
+                available
+                location {
+                  __typename
+                  address {
+                    __typename
+                    address1
+                    address2
+                    city
+                    country
+                    countryCode
+                    formatted
+                    latitude
+                    longitude
+                    phone
+                    province
+                    provinceCode
+                    zip
+                  }
+                  id
+                  name
+                }
+                pickUpTime
+                quantityAvailable
+              }
+            }
+          }
+          taxable
+          title
+          unitPrice {
+            __typename
+            amount
+            currencyCode
+          }
+          unitPriceMeasurement {
+            __typename
+            measuredType
+            quantityUnit
+            quantityValue
+            referenceUnit
+            referenceValue
+          }
+          weight
+          weightUnit
+        }
+      }
+    } } }

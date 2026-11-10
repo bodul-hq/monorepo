@@ -1,0 +1,35 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "US",
+        "currency": {
+          "isoCode": "USD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "US",
+          "name": "United States",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

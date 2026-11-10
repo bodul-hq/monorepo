@@ -1,0 +1,594 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "US",
+        "currency": {
+          "isoCode": "USD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AE",
+          "name": "United Arab Emirates",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AU",
+          "name": "Australia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BE",
+          "name": "Belgium",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BR",
+          "name": "Brazil",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CA",
+          "name": "Canada",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DK",
+          "name": "Denmark",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ES",
+          "name": "Spain",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "FI",
+          "name": "Finland",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "FR",
+          "name": "France",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GB",
+          "name": "United Kingdom",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GE",
+          "name": "Georgia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GR",
+          "name": "Greece",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HR",
+          "name": "Croatia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HU",
+          "name": "Hungary",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ID",
+          "name": "Indonesia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IE",
+          "name": "Ireland",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IL",
+          "name": "Israel",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IN",
+          "name": "India",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IT",
+          "name": "Italy",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "JP",
+          "name": "Japan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KH",
+          "name": "Cambodia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KR",
+          "name": "South Korea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LT",
+          "name": "Lithuania",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LV",
+          "name": "Latvia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MD",
+          "name": "Moldova",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MX",
+          "name": "Mexico",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MY",
+          "name": "Malaysia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NL",
+          "name": "Netherlands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NO",
+          "name": "Norway",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NZ",
+          "name": "New Zealand",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PE",
+          "name": "Peru",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PH",
+          "name": "Philippines",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PK",
+          "name": "Pakistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PT",
+          "name": "Portugal",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "RS",
+          "name": "Serbia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "RU",
+          "name": "Russia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SA",
+          "name": "Saudi Arabia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SE",
+          "name": "Sweden",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SG",
+          "name": "Singapore",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SI",
+          "name": "Slovenia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TH",
+          "name": "Thailand",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TR",
+          "name": "Türkiye",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "UA",
+          "name": "Ukraine",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "US",
+          "name": "United States",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

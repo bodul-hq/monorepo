@@ -1,0 +1,139 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AD",
+        "currency": {
+          "isoCode": "EUR"
+        }
+      },
+      "language": {
+        "isoCode": "NL"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AT",
+          "name": "Oostenrijk",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "BE",
+          "name": "België",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "DE",
+          "name": "Duitsland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "DK",
+          "name": "Denemarken",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "ES",
+          "name": "Spanje",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "FR",
+          "name": "Frankrijk",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "IT",
+          "name": "Italië",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "NL",
+          "name": "Nederland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        },
+        {
+          "isoCode": "PL",
+          "name": "Polen",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "NL",
+              "name": "Nederlands"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

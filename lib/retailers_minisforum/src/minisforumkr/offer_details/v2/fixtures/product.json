@@ -1,0 +1,294 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-4-8-4",
+        "name": "휴대전화/스마트폰 부대용품"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-4-8",
+        "name": "전화"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-4",
+        "name": "통신"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "전자기기"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-4-8-4-2",
+    "name": "휴대전화 케이스"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyODg3OTc4MTg5MjYsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTIzIDAyOjM0OjE0LjkwOTQ2OCIsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyODg3OTc4MTg5MjYsImxhc3RfdmFsdWUiOiIyMDI2LTEwLTIzIDAyOjM0OjE0LjkwOTQ2OCIsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "minisforum-goods",
+          "id": "gid://shopify/Collection/288797818926",
+          "image": null,
+          "onlineStoreUrl": "https://www.minisforum.kr/collections/minisforum-goods",
+          "seo": {
+            "__typename": "SEO",
+            "description": "MINISFORUM 브랜드 굿즈를 만나보세요. 귀걸이형 블루투스 이어폰과 전동 드라이버 세트 등 일상과 작업에 유용한 아이템을 공식 스토어에서 확인하세요.",
+            "title": "MINISFORUM 브랜드 굿즈 | 공식 스토어"
+          },
+          "title": "MINISFORUM 브랜드 굿즈",
+          "updatedAt": "2026-10-29T11:11:39Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "KRW"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "KRW"
+    }
+  },
+  "createdAt": "2025-12-03T08:41:35Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2000,
+    "id": "gid://shopify/ProductImage/33007593979950",
+    "thumbhash": "5gcaDwD3qGiId4eMdXd4t2h3eZ/H938H",
+    "url": "https://cdn.shopify.com/s/files/1/0575/2890/9870/files/phonebag.png?v=1764751450",
+    "width": 2000
+  },
+  "handle": "minisforum-스마트폰-파우치",
+  "id": "gid://shopify/Product/7225095356462",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzAwNzU5Mzk3OTk1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzAwNzU5Mzk3OTk1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/33007593979950",
+          "thumbhash": "5gcaDwD3qGiId4eMdXd4t2h3eZ/H938H",
+          "url": "https://cdn.shopify.com/s/files/1/0575/2890/9870/files/phonebag.png?v=1764751450",
+          "width": 2000
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNDc2MzcxNjczMDkyNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNDc2MzcxNjczMDkyNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/24763716730926",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/24763716730926",
+            "thumbhash": "5gcaDwD3qGiId4eMdXd4t2h3eZ/H938H",
+            "url": "https://cdn.shopify.com/s/files/1/0575/2890/9870/files/phonebag.png?v=1764751450",
+            "width": 2000
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/24763716730926",
+            "thumbhash": "5gcaDwD3qGiId4eMdXd4t2h3eZ/H938H",
+            "url": "https://cdn.shopify.com/s/files/1/0575/2890/9870/files/phonebag.png?v=1764751450",
+            "width": 2000
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://www.minisforum.kr/products/minisforum-%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0-%ED%8C%8C%EC%9A%B0%EC%B9%98",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9416010530862",
+      "name": "색상",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2988354994222",
+          "name": "블랙",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "56850.0",
+      "currencyCode": "KRW"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "56850.0",
+      "currencyCode": "KRW"
+    }
+  },
+  "productType": "gift",
+  "publishedAt": "2025-12-03T08:41:37Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "MINISFORUM 스마트폰 파우치",
+  "updatedAt": "2026-10-23T03:43:59Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTY2NDQ4OTk3OTk1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY2NDQ4OTk3OTk1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41664489979950",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ProductImage/33007593979950",
+            "thumbhash": "5gcaDwD3qGiId4eMdXd4t2h3eZ/H938H",
+            "url": "https://cdn.shopify.com/s/files/1/0575/2890/9870/files/phonebag.png?v=1764751450",
+            "width": 2000
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "56850.0",
+            "currencyCode": "KRW"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "색상",
+              "value": "블랙"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "c-bag",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "블랙",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Minisforum KR"
+}

@@ -1,0 +1,762 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-8",
+        "name": "Computer Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-8-7",
+    "name": "Laptop Docking Stations"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNjc3NjI3MDI1MTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjQ4OTc0Mjk2ODIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "popular",
+          "id": "gid://shopify/Collection/264897429682",
+          "image": null,
+          "onlineStoreUrl": "https://minisforum.ru/collections/popular",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Popular",
+          "updatedAt": "2026-10-10T06:10:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjQ4OTgxMTc4MTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product",
+          "id": "gid://shopify/Collection/264898117810",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2093,
+            "id": "gid://shopify/CollectionImage/1619658440882",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/collections/6feabd6e53c83c501b1dd1e153fba7d8.jpg?v=1722936388",
+            "width": 4000
+          },
+          "onlineStoreUrl": "https://minisforum.ru/collections/all-product",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "ВСЕ ПРОДУКТЫ МИНИ ПК",
+          "updatedAt": "2026-10-10T06:10:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNjc2ODQ5MTEyODIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Accessories",
+          "descriptionHtml": "<div>\n<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span>Accessories</span></div>\n</div>",
+          "handle": "аксессуары",
+          "id": "gid://shopify/Collection/367684911282",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1440,
+            "id": "gid://shopify/CollectionImage/1627467874482",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/collections/03_Accessories_e5e5c3cf-56aa-4288-acd1-517845ff89b0.png?v=1785208548",
+            "width": 1500
+          },
+          "onlineStoreUrl": "https://minisforum.ru/collections/%D0%B0%D0%BA%D1%81%D0%B5%D1%81%D1%81%D1%83%D0%B0%D1%80%D1%8B",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Аксессуары",
+          "updatedAt": "2026-10-10T06:10:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNjc2ODUxNzM0MjYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "All Product",
+          "descriptionHtml": "<div>\n<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span>All Product</span></div>\n</div>",
+          "handle": "все-товары",
+          "id": "gid://shopify/Collection/367685173426",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1440,
+            "id": "gid://shopify/CollectionImage/1627460436146",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/collections/04_All_096af5c2-d791-4829-9610-29061535c9bc.png?v=1785134697",
+            "width": 1500
+          },
+          "onlineStoreUrl": "https://minisforum.ru/collections/%D0%B2%D1%81%D0%B5-%D1%82%D0%BE%D0%B2%D0%B0%D1%80%D1%8B",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Все товары",
+          "updatedAt": "2026-10-10T06:10:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNjc3NjIzMDkyOTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best-seller",
+          "id": "gid://shopify/Collection/367762309298",
+          "image": null,
+          "onlineStoreUrl": "https://minisforum.ru/collections/best-seller",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Best Seller",
+          "updatedAt": "2026-10-10T06:10:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNjc3NjI3MDI1MTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "new-coming",
+          "id": "gid://shopify/Collection/367762702514",
+          "image": null,
+          "onlineStoreUrl": "https://minisforum.ru/collections/new-coming",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "New Coming",
+          "updatedAt": "2026-10-10T06:10:05Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "USD"
+    }
+  },
+  "createdAt": "2026-10-10T03:53:54Z",
+  "description": "",
+  "descriptionHtml": "<div class=\"shogun-root\" data-shogun-id=\"665854aad3e922a14f6efe56\" data-shogun-site-id=\"154729a3-cf6b-4f40-8684-680bb57daa71\" data-shogun-page-id=\"665854aad3e922a14f6efe56\" data-shogun-page-version-id=\"66ed755bcc90f05287538b98\" data-shogun-platform-type=\"shopify\" data-shogun-variant-id=\"66ed755bcc90f05287538b9c\" data-shogun-page-type=\"product\" data-shogun-power-up-type=\"\" data-shogun-power-up-id=\"\" data-region=\"main\"> <div id=\"s-76ac4c9a-3574-4b18-a78b-15b5c06fbc9e\" class=\"shg-c \"> </div> </div>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+    "height": 1600,
+    "id": "gid://shopify/ProductImage/55446370189490",
+    "thumbhash": "3PeBBQAiPPl1mEjbaBCJSoB4OHd3iHB7yQ==",
+    "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/Compressed_DEG2_4d22637d-da39-48de-81dd-aba4ed3b78a2.png?v=1791604437",
+    "width": 1600
+  },
+  "handle": "minisforum-deg2-oculink-egpu-dock",
+  "id": "gid://shopify/Product/15416529518770",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDQ1MTYzNCwibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDE4OTQ5MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370189490",
+          "thumbhash": "3PeBBQAiPPl1mEjbaBCJSoB4OHd3iHB7yQ==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/Compressed_DEG2_4d22637d-da39-48de-81dd-aba4ed3b78a2.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDIyMjI1OCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370222258",
+          "thumbhash": "EviBBQAigm2Fecf3p/2aCTZYSGeHiHCL1w==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_6.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDI1NTAyNiwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370255026",
+          "thumbhash": "EfiBBQA0gm9nmMnHSv+cB1FVOFeHd3CLlw==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_2.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDI4Nzc5NCwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370287794",
+          "thumbhash": "FPiBBQA0Z5h8dYkISImPeARnN1h3h4CLmA==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_1.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDMyMDU2MiwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 2048,
+          "id": "gid://shopify/ProductImage/55446370320562",
+          "thumbhash": "EfiBBQARfoB4hxdYiY5gCJp4R2h3iICL+A==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_3.png?v=1791604438",
+          "width": 2048
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDM1MzMzMCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 2048,
+          "id": "gid://shopify/ProductImage/55446370353330",
+          "thumbhash": "1veBBQARX6B6hwcLmqCGCEWHSGeHeHCK9w==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_5.png?v=1791604438",
+          "width": 2048
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDM4NjA5OCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370386098",
+          "thumbhash": "1PeBBQARqwKJdkc1l094+IR4J5h3iICN+A==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_7.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDQxODg2NiwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370418866",
+          "thumbhash": "0veBBQARhG+KdrgWZqCHB2Z3KJeHeHCN9w==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_8.png?v=1791604437",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTQ0NjM3MDQ1MTYzNCwibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/55446370451634",
+          "thumbhash": "E/iBBQASZ5mtNHcJpfZzg4CYCpF3iGGLVw==",
+          "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_4.png?v=1791604437",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzIxNDY0MiwibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5Mjk1MjQ5OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432992952498",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432992952498",
+            "thumbhash": "3PeBBQAiPPl1mEjbaBCJSoB4OHd3iHB7yQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/Compressed_DEG2_4d22637d-da39-48de-81dd-aba4ed3b78a2.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432992952498",
+            "thumbhash": "3PeBBQAiPPl1mEjbaBCJSoB4OHd3iHB7yQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/Compressed_DEG2_4d22637d-da39-48de-81dd-aba4ed3b78a2.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5Mjk4NTI2NiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432992985266",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432992985266",
+            "thumbhash": "EviBBQAigm2Fecf3p/2aCTZYSGeHiHCL1w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_6.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432992985266",
+            "thumbhash": "EviBBQAigm2Fecf3p/2aCTZYSGeHiHCL1w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_6.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzAxODAzNCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993018034",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993018034",
+            "thumbhash": "EfiBBQA0gm9nmMnHSv+cB1FVOFeHd3CLlw==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_2.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993018034",
+            "thumbhash": "EfiBBQA0gm9nmMnHSv+cB1FVOFeHd3CLlw==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_2.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzA1MDgwMiwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993050802",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993050802",
+            "thumbhash": "FPiBBQA0Z5h8dYkISImPeARnN1h3h4CLmA==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_1.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993050802",
+            "thumbhash": "FPiBBQA0Z5h8dYkISImPeARnN1h3h4CLmA==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_1.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzA4MzU3MCwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993083570",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 2048,
+            "id": "gid://shopify/ImageSource/46432993083570",
+            "thumbhash": "EfiBBQARfoB4hxdYiY5gCJp4R2h3iICL+A==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_3.png?v=1791604438",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 2048,
+            "id": "gid://shopify/ImageSource/46432993083570",
+            "thumbhash": "EfiBBQARfoB4hxdYiY5gCJp4R2h3iICL+A==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_3.png?v=1791604438",
+            "width": 2048
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzExNjMzOCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993116338",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 2048,
+            "id": "gid://shopify/ImageSource/46432993116338",
+            "thumbhash": "1veBBQARX6B6hwcLmqCGCEWHSGeHeHCK9w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_5.png?v=1791604438",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 2048,
+            "id": "gid://shopify/ImageSource/46432993116338",
+            "thumbhash": "1veBBQARX6B6hwcLmqCGCEWHSGeHeHCK9w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_5.png?v=1791604438",
+            "width": 2048
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzE0OTEwNiwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993149106",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993149106",
+            "thumbhash": "1PeBBQARqwKJdkc1l094+IR4J5h3iICN+A==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_7.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993149106",
+            "thumbhash": "1PeBBQARqwKJdkc1l094+IR4J5h3iICN+A==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_7.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzE4MTg3NCwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993181874",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993181874",
+            "thumbhash": "0veBBQARhG+KdrgWZqCHB2Z3KJeHeHCN9w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_8.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993181874",
+            "thumbhash": "0veBBQARhG+KdrgWZqCHB2Z3KJeHeHCN9w==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_8.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQzMjk5MzIxNDY0MiwibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+          "id": "gid://shopify/MediaImage/46432993214642",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993214642",
+            "thumbhash": "E/iBBQASZ5mtNHcJpfZzg4CYCpF3iGGLVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_4.png?v=1791604437",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/46432993214642",
+            "thumbhash": "E/iBBQASZ5mtNHcJpfZzg4CYCpF3iGGLVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/DEG2_4.png?v=1791604437",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://minisforum.ru/products/minisforum-deg2-oculink-egpu-dock",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17880959025330",
+      "name": "Size",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/15053568049330",
+          "name": "270×175×41mm",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "259.9",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "259.9",
+      "currencyCode": "USD"
+    }
+  },
+  "productType": "Docking Station",
+  "publishedAt": "2026-10-10T05:54:32Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Shop the MINISFORUM DEG2 eGPU Dock. Unleash desktop GPU performance on your Mini PC with Thunderbolt 5 (80Gbps), OCuLink, M.2 SSD, and ATX/SFX PSU support.",
+    "title": "MINISFORUM DEG2 eGPU Dock | Thunderbolt 5 & OCuLink (64Gbps)"
+  },
+  "tags": [
+    "Accessories",
+    "Accessory",
+    "active",
+    "All",
+    "Best Sale",
+    "Best Seller",
+    "Docking Station",
+    "eGPU Dock Station",
+    "Elite Mini Series",
+    "Gamer Choice",
+    "New Arrival",
+    "New Coming",
+    "No CPU",
+    "popular",
+    "Work Space Choice"
+  ],
+  "title": "MINISFORUM DEG2 OCulink eGPU Dock",
+  "updatedAt": "2026-10-10T15:54:03Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NzY3MDQxMTYwODI0MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NzY3MDQxMTYwODI0MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/67670411608242",
+          "image": {
+            "__typename": "Image",
+            "altText": "MINISFORUM DEG2 OCulink eGPU Dock MINISFORUM",
+            "height": 1600,
+            "id": "gid://shopify/ProductImage/55446370189490",
+            "thumbhash": "3PeBBQAiPPl1mEjbaBCJSoB4OHd3iHB7yQ==",
+            "url": "https://cdn.shopify.com/s/files/1/0559/8760/1586/files/Compressed_DEG2_4d22637d-da39-48de-81dd-aba4ed3b78a2.png?v=1791604437",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "259.9",
+            "currencyCode": "USD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Size",
+              "value": "270×175×41mm"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": null,
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "270×175×41mm",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "MINISFORUM RU"
+}

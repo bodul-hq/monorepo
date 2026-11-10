@@ -1,0 +1,48 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AU",
+        "currency": {
+          "isoCode": "AUD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AU",
+          "name": "Australia",
+          "currency": {
+            "isoCode": "AUD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NZ",
+          "name": "New Zealand",
+          "currency": {
+            "isoCode": "AUD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

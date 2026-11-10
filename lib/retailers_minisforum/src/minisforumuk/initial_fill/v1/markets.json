@@ -1,0 +1,48 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "GB",
+        "currency": {
+          "isoCode": "GBP"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "GB",
+          "name": "United Kingdom",
+          "currency": {
+            "isoCode": "GBP"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IE",
+          "name": "Ireland",
+          "currency": {
+            "isoCode": "GBP"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}
