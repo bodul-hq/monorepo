@@ -294,6 +294,27 @@ folder; it's git-ignored):
 | `retailer_sourcing.log.YYYY-MM-DD` | The same lines as stderr: each step's outcome, skipped sitemap files, failed downloads and commands, one line per HTTP request |
 | `timing.log.YYYY-MM-DD`            | How long each fetch, command and reaction took, and whether it succeeded                                                       |
 
+Retailer HTTP fetch failures include a per-attempt UUIDv7 `request_id`, method,
+endpoint, route (`direct`, `proxy_N`, `storefront` or `default`), explicit proxy
+endpoint when selected, stage, elapsed milliseconds, HTTP status when available,
+and reqwest DNS/connect/timeout flags. Stages distinguish client/request `build`,
+`send`, non-success `status`, `read_body` and content `decode` failures. The error
+includes up to eight causes, capped at 8 KiB with explicit truncation markers.
+The same request ID appears in the main error log, the fetch timing record, and
+the command's persisted `extra_info.errors` message when that failure fails a
+command. Mulac adds the command and reservation IDs and preserves earlier retry
+errors. Sitemap crawls still log and skip individual failures as before.
+
+Search either log for `request_id` copied from a newly failed command. Fetch
+timing now covers construction through decoding, and records decoding failures
+as errors. Success timing records also carry a request ID and HTTP status.
+URL credentials, queries and fragments are omitted; known request/proxy secrets
+are redacted from cause text. Headers, request bodies and response bodies are
+never included. An unspecified proxy endpoint means none or implicit environment
+proxy discovery; it does not prove the connection was direct. These diagnostics
+do not change routing, retries, pacing, redirects or timeout settings, and cannot
+recover details from historical failures. No database migration is required.
+
 `RUST_LOG` sets the level, for example `RUST_LOG=debug`; the default is `info`.
 In the compose container the files are written inside the container, so mount a
 volume on the log folder to keep them.
@@ -574,6 +595,18 @@ bearer token and accept `limit` and `offset`. Limits must be 1–100 for sitemap
 and 1–1000 for offer pages. Missing or invalid credentials return 401; invalid
 limits return 400; without a database the endpoints return 503. OpenAPI
 documents the bearer scheme.
+
+`GET /api/development/offer-details-v2/sources` lists GraphQL initial-fill
+artifacts from retained `OfferDetailsFetched` events. It returns `id` (event ID),
+`run_id`, `product_id` (full Shopify GID), lowercase `retailer_code`, `fetched_at`,
+and `storage`, newest first with event ID as a tie breaker. It uses the same
+bearer authentication, limit/offset bounds (1–1000) and status codes as the v1
+offer listing. HTML source events and unrelated events are excluded; consumer
+status does not affect visibility. Payloads remain in `offer_details_raw` and
+are retrieved directly from object storage. The development app's
+`dump-offer-details-v2` command saves them under `offer_details_v2/sources`.
+This development query scans event payloads and depends on their retention;
+see [ADR 57](../../docs/adr/0057-offer-details-v2-raw-sources.md).
 
 ## Exporting offer pages
 
@@ -915,3 +948,166 @@ Append URLs to this list and rebuild/restart to add proxies. Rotation is shared
 across workers within one process and starts direct. Failed attempts use normal
 queue retries. The six-second delay and sitemap routing remain unchanged.
 See ADR 45.
+
+## Anker initial offer fill
+
+New command/event payloads serialize `retailer_code` as a lowercase slug, such
+as `ankerau`. Readers also accept historical `AnkerAu` payloads; existing rows
+are not rewritten. Detail-command identities remain stable across both formats.
+See [ADR 49](../../docs/adr/0049-lowercase-retailer-serialization.md) for rollout.
+
+`POST /api/initial-offer-fills` accepts `{"retailers":["ankerau","ankerca"]}`
+and returns `202` with `{"fills":[{"retailer":"ankerau","run_id":"..."},
+{"retailer":"ankerca","run_id":"..."}]}`. Each unique retailer gets its own
+run ID, in first-occurrence request order. Duplicates within a request are
+ignored. The old singular `retailer` request format is no longer accepted;
+use a one-element `retailers` array to start a single store.
+
+All 17 active Anker storefronts below are configured. The complete list is
+validated before anything is queued. An empty list, unknown or unsupported
+code, Korea, or the retired `ankernordicscom` aggregate returns `400` without
+starting any runs; an unavailable bus returns `503`.
+
+Commands are queued sequentially. A dispatch failure stops the batch and
+returns `500` with `{"error":"<opaque error ID>","fills":[...]}` listing
+confirmed prior successes. Those runs remain queued; retry only the remaining
+retailers to avoid duplicate runs. If the queue task fails unexpectedly, the
+`500` response omits `fills` because enqueue outcomes are unknown; inspect the
+service logs and queue before retrying. Internal error details are logged under
+the error ID. This flow is independent of sitemap retrieval and does not start
+automatically. See [ADR 53](../../docs/adr/0053-anker-storefront-initial-fill-markets.md).
+
+| Code | Country | Language | Currency | Authentication |
+| --- | --- | --- | --- | --- |
+| ankerau | AU | EN | AUD | `storeTokens.au` |
+| ankerca | CA | EN | CAD | `storeTokens.ca` |
+| ankercom | US | EN | USD | `storeTokens.us` |
+| ankerde | DE | DE | EUR | `storeTokens.de` |
+| ankeruk | GB | EN | GBP | `storeTokens.uk` |
+| ankereu | NL | EN | EUR | `storeTokens.eu-en` |
+| ankerpl | PL | PL | PLN | `storeTokens.eu-pl` |
+| ankerfr | FR | FR | EUR | `storeTokens.fr` |
+| ankernz | NZ | EN | NZD | `storeTokens.nz` |
+| ankervn | VN | VI | VND | `storeTokens.vn` |
+| ankeritalycom | IT | IT | EUR | Optional public token |
+| ankerjapancom | JP | JA | JPY | Optional public token |
+| ankerse | SE | EN | SEK | Browser discovery; optional environment override |
+| ankerno | NO | EN | NOK | Browser discovery; optional environment override |
+| ankerfi | FI | EN | EUR | Browser discovery; optional environment override |
+| ankeris | IS | EN | ISK | Browser discovery; optional environment override |
+| ankerdk | DK | EN | DKK | Browser discovery; optional environment override |
+
+Canada remains English-only; `/ca-fr` token acquisition is rejected. Every
+operation explicitly requests its configured language, including pagination.
+Responses reporting a different context and product prices in another currency
+are rejected. `ankereu` uses its recorded NL/EUR default; it does not fan out to
+all European countries. Nordic codes preserve the existing headless catalog via
+their public browser token. Initial fill discovers it automatically from the Nordic storefront unless
+`ANKER_NORDICS_STOREFRONT_TOKEN` supplies an override. An invalid override fails
+explicitly; discovery never falls back to anonymous access. The separate sitemap
+offer-download flow still needs that environment variable. Regional Anker
+bundles can import the token map from another module; acquisition follows the
+explicit literal import/export chain. See
+[ADR 54](../../docs/adr/0054-anker-browser-token-discovery.md).
+
+Italy and Japan attempt public token acquisition before their catalog command.
+If no token is found, they carry `storefront_token: null` through the flow.
+Existing token strings remain wire-compatible; upgrade workers before producing
+nullable acquisition events. See ADR 60 for optional-token discovery.
+
+The shared fixtures retain captured endpoint/localization evidence and a Japanese
+public product. Their source research is from 2026-11-07; live acceptance remains
+an explicit network check. No public token is hardcoded in production.
+
+1. Where configured, `AcquireStorefrontToken` reads the selected token from the
+   storefront/scripts or the Nordic environment override when configured.
+   `StorefrontTokenAcquired` carries the real public token, retailer/run identity and UTC acquisition time.
+2. `FetchProductCatalogIdentifiers` collects up to 500 product GIDs using pages
+   of at most 250. `ProductCatalogIdsRetrieved` queues one detail command per
+   product and the next batch when a continuation cursor exists. All batches
+   retain the same run ID. The full catalog is traversed, not capped at 500.
+3. `FetchOfferDetails` uses `SourceType::GraphQl` and the acquired token. It
+   fetches the full WIP AU field selection, including every selected nested
+   connection page. The assembled product and raw request/response pages are
+   written as one JSON artifact to the existing `offer_details_raw` bucket.
+
+`OfferDetailsFetched` includes retailer, run ID, source, fetched time, and
+`OfferStorageMetadata` (`object_storage_id`, `external_id`, `content_size`,
+`scraped_at`). Its bucket is `offer_details_raw` (see
+[ADR 51](../../docs/adr/0051-initial-fill-raw-offer-bucket.md)). The artifact has
+`schema_version: 1`, `product`, and `pages`, each containing `request` and
+`response`. Authentication is excluded. No listener, normalization, export,
+or outbox delivery follows this terminal event.
+
+Command workers run as configured. Advance reactions with `/api/events/run`;
+use `/api/commands/run` when `COMMAND_WORKERS=0`. Repeat those explicit runners
+until queues drain. A fresh POST intentionally starts a fresh run. Replaying a
+batch within a run does not add duplicate product commands. HTTP/GraphQL,
+pagination, and storage failures fail the command and use existing queue retry
+behavior. A retry may still repeat a read/upload; changing remote catalogs are
+not transactional snapshots. Expired tokens require a fresh run after the cause
+is resolved; this version does not automatically reacquire tokens mid-run.
+
+Use the **Start all Anker initial offer fills** Bruno request to queue all 17
+supported retailers, including the five separate Nordic markets and excluding
+Korea. For a single store, use **Start Anker initial offer fill** and set
+`retailerCode`, or use the dedicated CA request. For verification:
+
+```sh
+make fmt
+make ci
+make test-postgres  # DATABASE_URL_TEST; isolated schemas and local storage fixtures
+make test-initial-fill-live  # reachable Shopify and OBJECT_STORAGE_URL/TOKEN
+PORT=3002 make serve
+curl http://localhost:3002/api/health
+```
+
+The live tests read catalog batches and store one fully paginated product per
+configured retailer; they do not enqueue entire catalogs. Nordic tokens are
+discovered automatically unless an environment override is configured. Standard CI is offline with respect to
+Shopify. All requests use the 2026-10 schema, existing offer proxy rotation,
+a six-second delay, a 60-second timeout and no redirects.
+All retailers use the same detail-query page sizes regardless of authentication.
+The initial query fetches up to 5 items per selected connection. Continuations
+fetch up to 25 collections/images/media, 10 variants, 20 selling-plan groups,
+and 5 items per nested variant connection or selling-plan list. Selling-plan
+continuation selects one owning group at a time. Every selected connection still
+paginates as needed; see
+[ADR 56](../../docs/adr/0056-anker-operation-specific-page-sizes.md).
+GraphQL/access failures fail the command rather than silently omit fields.
+
+## Minisforum and Ugreen multi-market initial fills
+
+The existing bulk initial-fill endpoint accepts all ten Minisforum and 21 Ugreen
+codes, including NAS. Each run queues market discovery and fans out independent
+catalog/detail work for every country's advertised languages. Run both commands
+and events to advance the workflow. Bruno includes brand-wide bulk requests.
+Commands and events carry context; explicit context mismatches and wrong monetary
+currencies fail rather than being saved under the requested market.
+
+Contextual artifacts use schema version 2 with `context` (country, language,
+currency). `/api/development/offer-details-v2/sources` includes that context and
+continues returning historical records without it. No migration is required;
+deploy updated readers/workers before starting these fills. Anker runs retain
+their existing fixed contexts. See [ADR 59](../../docs/adr/0059-multi-market-shopify-initial-fills.md).
+
+## Optional public token acquisition
+
+New fills for Minisforum, Ugreen and Anker Italy/Japan now start with
+`AcquireStorefrontToken`. They inspect public storefront settings and continue
+without a token when a successful lookup finds none. Override discovery with
+`<UPPERCASE_RETAILER_CODE>_STOREFRONT_TOKEN`, for example
+`UGREENEU_STOREFRONT_TOKEN` or `MINISFORUMJP_STOREFRONT_TOKEN`.
+Empty third-party settings are ignored; conflicting tokens, lookup errors and
+rejected API credentials remain errors. Required-token Anker stores stay strict.
+
+`StorefrontTokenAcquired.storefront_token` may be null for these optional stores.
+The resolved token follows discovery, catalog pagination and details. Update all
+workers before starting new fills; already queued public commands remain public.
+Page sizes remain unchanged pending live authenticated cost checks. See
+[ADR 60](../../docs/adr/0060-optional-public-storefront-token-acquisition.md).
+
+GraphQL initial fills use an independent integration for each of the 48 supported
+retailer codes. The retailer owns token policy, queries, schema, raw types and
+pagination; sourcing shares only HTTP pacing, durable orchestration and storage.
+See [ADR 61](../../docs/adr/0061-independent-retailer-graphql-integrations.md).

@@ -1,0 +1,49 @@
+<script>
+  (function () {
+    try {
+      const widgets = [{"bar":{"sticky":true,"justify":"center","position":"top","closeButton":{"color":"#adadad","enabled":true}},"key":"GSC-BAR-BGgvqtTcUewl","type":"bar","timer":{"date":"2026-05-11T07:00:00.000+08:00","mode":"date","daily":{"tz":"Etc\/GMT-0","endHours":14,"endMinutes":0,"repeatDays":[0,1,2,3,4,5,6],"startHours":10,"startMinutes":0},"hours":72,"onEnd":"hide","minutes":0,"seconds":0,"scheduling":{"end":null,"start":null}},"content":{"align":"center","items":[{"id":"text-YFWpARSSlANY","type":"text","align":"left","color":"#000000","value":"Mother's Day Offers","enabled":true,"padding":{"mobile":{},"desktop":{"top":"0px","bottom":"0px"}},"fontFamily":"font1","fontWeight":"600","textTransform":"unset","mobileFontSize":"16px","desktopFontSize":"18px","mobileLineHeight":"1.2","desktopLineHeight":"1.2","mobileLetterSpacing":"0","desktopLetterSpacing":"-0.1px"},{"id":"text-xVgnoSYcxTOY","type":"text","align":"left","color":"#000000","value":"Up to 20% OFF！","enabled":true,"padding":{"mobile":{},"desktop":{}},"fontFamily":"font1","fontWeight":"500","textTransform":"unset","mobileFontSize":"15px","desktopFontSize":"15px","mobileLineHeight":"1.2","desktopLineHeight":"1.2","mobileLetterSpacing":"0px","desktopLetterSpacing":"0"},{"id":"timer-OrSHXdhyFrtJ","type":"timer","view":"custom","border":{"size":"2px","color":"#FFFFFF","enabled":false},"digits":{"gap":"2px","color":"#007934","fontSize":"68px","fontFamily":"font2","fontWeight":"700"},"labels":{"days":"days","color":"#5c5c5c","hours":"hours","enabled":true,"minutes":"mins","seconds":"secs","fontSize":"28px","fontFamily":"font3","fontWeight":"500","milliseconds":"ms","textTransform":"capitalize"},"layout":"separate","margin":{"mobile":{},"desktop":{}},"radius":{"value":"18px","enabled":true},"shadow":{"type":"","color":"black","enabled":true},"enabled":true,"padding":{"mobile":{},"desktop":{"top":"0px"}},"fontSize":{"mobile":"14px","desktop":"18px"},"separator":{"type":"colon","color":"#000000","enabled":true},"background":{"blur":"2px","color":"rgba(40,40,40,0)","enabled":true},"unitFormat":"d:h:m:s","mobileWidth":"142px","desktopWidth":"162px"},{"id":"button-VrGijQcYgFtd","href":"https:\/\/nas-eu.ugreen.com\/pages\/ugreen-mothers-day-nas-sale","type":"button","label":"Buy Now","width":"content","border":{"size":"2px","color":"rgba(40,40,40,0)","enabled":true},"margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"15px","enabled":true},"target":"_blank","enabled":true,"padding":{"mobile":{"top":"4px","left":"7px","right":"7px","bottom":"4px"},"desktop":{"top":"5px","left":"8px","right":"8px","bottom":"5px"}},"textColor":"#000000","background":{"blur":"0px","color":"#f9b95a","enabled":true},"fontFamily":"font1","fontWeight":"600","textTransform":"unset","mobileFontSize":"13px","desktopFontSize":"16px","mobileLetterSpacing":"0px","desktopLetterSpacing":"0px"},{"id":"coupon-hDyqVBCJRExT","code":"PASTE YOUR CODE","icon":{"url":"https:\/\/assets.getsitecontrol.com\/shopify-apps\/shared\/icons\/shopping-discounts\/badge-percent-filled.svg","mask":true,"source":"gallery","enabled":true},"type":"coupon","label":"Save 35%","action":"copy","border":{"size":"1px","color":"#747474","enabled":true},"margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"6px","enabled":true},"enabled":false,"padding":{"mobile":{"top":"4px","left":"12px","right":"12px","bottom":"4px"},"desktop":{"top":"8px","left":"16px","right":"16px","bottom":"8px"}},"textColor":"#ffffff","background":{"blur":"0px","color":"#2a2a2a","enabled":true},"fontFamily":"font1","fontWeight":"600","textTransform":"uppercase","mobileFontSize":"12px","desktopFontSize":"14px"}],"border":{"size":"1px","color":"#000000","enabled":false},"layout":"column","margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"8px","enabled":false},"padding":{"mobile":{"top":"5px","left":"0px","right":"0px","bottom":"5px"},"desktop":{"top":"8px","left":"0px","right":"0px","bottom":"8px"}},"mobileGap":"6px","background":{"src":"https:\/\/cdn.shopify.com\/s\/files\/1\/0629\/2088\/4431\/files\/Top_bar_pc_7f4d64e8-a88f-4e75-8aea-54919309b09e.png?v=1763692559","blur":"8px","source":"color","bgColor":"linear-gradient(303deg, rgba(249,212,90,0.25) 0%, #f9b95a 100%)","enabled":true,"overlayColor":"rgba(51,51,51,0)"},"desktopGap":"24px","mobileWidth":"100%","desktopWidth":"400px","backgroundClick":{"url":"","target":"_self","enabled":false}},"enabled":false,"general":{"font1":"inherit","font2":"inherit","font3":"inherit","preset":"bar4","breakpoint":"768px"},"section":null,"userCss":"","targeting":{"geo":null,"pages":{"cart":true,"home":true,"other":true,"password":true,"products":{"mode":"all","tags":[],"enabled":true,"specificProducts":[],"productsInCollections":[]},"collections":{"mode":"all","items":[],"enabled":true}}}}] || [];
+
+      if (Array.isArray(window.GSC_COUNTDOWN_WIDGETS)) {
+        // Embed and inline countdown blocks may load on the same page. Inline
+        // pushes a single widget keyed by `key`; embed pushes the whole metafield
+        // array. Dedup by `key` so the same widget isn't duplicated when both
+        // blocks reference it. Widgets without a key push through (no dedup).
+        widgets.forEach(function(w) {
+          if (!w.key || !window.GSC_COUNTDOWN_WIDGETS.find(function(e) { return e.key === w.key; })) {
+            window.GSC_COUNTDOWN_WIDGETS.push(w);
+          }
+        });
+      } else {
+        window.GSC_COUNTDOWN_WIDGETS = widgets;
+      }
+
+      // Stale-metafield guard via theme_store_id (TAE Liquid has `theme.id`
+      // always null, so the check runs on JS). Mismatch = merchant switched
+      // theme family after the last backend sync — fall back to runtime
+      // defaults until re-sync writes a fresh metafield.
+      
+      
+if (!window.GSC_COUNTDOWN_META) {
+        window.GSC_COUNTDOWN_META = {
+          product_tags: ["DXP Series","GOCERTIFY","Nas","product-compare","SHOW_AMOUNT","Ugreen","US Nasync"],
+          storefrontToken:"synthetic-ugreennaseu",
+          productData:{
+            handle: "ugreen-nasync-dxp8800-ultra-nas-storage",
+            id: 7928860410063,
+            tags: ["DXP Series","GOCERTIFY","Nas","product-compare","SHOW_AMOUNT","Ugreen","US Nasync"],
+            collections: ["298453205199","298453139663","298453237967","312457822415","312583225551"],
+            available: true,
+            compareAtPrice: 177999,
+            price: 177999,
+            createdAt: "2026-08-24T10:45:09+0800",selectedVariantId: "45796008526031",
+            variants: [{
+                id: "45796008526031",
+                available: true,options: {"Modèle": "DXP8800Plus",
+}
+              }]
+          }};
+      }} catch (e) {
+      console.log(e);
+    }
+  })();
+</script>

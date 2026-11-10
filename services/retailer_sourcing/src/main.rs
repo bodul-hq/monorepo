@@ -1,4 +1,5 @@
 mod development;
+mod initial_offer_fill;
 mod monitoring;
 mod offer_delivery;
 mod offer_discovery;
@@ -71,6 +72,7 @@ fn app(state: AppState) -> Router {
         .routes(routes!(health))
         .merge(platform::bus_api::routes())
         .merge(sitemap_discovery::prelude::routes())
+        .merge(initial_offer_fill::prelude::routes())
         .merge(development::prelude::routes())
         .merge(reporting::prelude::routes())
         .split_for_parts();
@@ -149,6 +151,7 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
 
     let mut bus = Bus::default();
     sitemap_discovery::prelude::register(&mut bus, &platform);
+    initial_offer_fill::prelude::register(&mut bus, &platform);
     offer_discovery::prelude::register(&mut bus, &platform);
     offer_delivery::prelude::register(&mut bus, &platform);
     development::prelude::register(&mut bus, &platform);
@@ -457,9 +460,10 @@ mod tests {
     }
 
     /// The development source routes relative to `/api`, with their maximum page sizes.
-    const DEVELOPMENT_SOURCES: [(&str, u32); 2] = [
+    const DEVELOPMENT_SOURCES: [(&str, u32); 3] = [
         ("/development/sitemaps/sources", 100),
         ("/development/offer-details/sources", 1000),
+        ("/development/offer-details-v2/sources", 1000),
     ];
 
     #[tokio::test]

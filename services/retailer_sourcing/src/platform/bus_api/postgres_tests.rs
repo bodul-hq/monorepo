@@ -298,3 +298,76 @@ async fn partial_batches_complete_successes_and_reschedule_failures() {
         assert_eq!(future, true);
     }
 }
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+async fn http_diagnostics_survive_command_persistence_and_retry_history() {
+    use crate::platform::http::{FetchError, OfferClient};
+
+    struct FailingFetch(Arc<Mutex<Option<String>>>);
+    impl Handle for FailingFetch {
+        type Command = Ping;
+        type Event = Pong;
+        type Error = FetchError;
+
+        fn handle(&self, _: Ping) -> Result<Vec<Pong>, FetchError> {
+            // A real construction failure without a network dependency.
+            let error = OfferClient::default()
+                .post_storefront_json(
+                    "https://example.com/graphql?key=query-secret#private-fragment",
+                    r#"{"secret":"body-secret"}"#,
+                    "invalid\nsecret-token",
+                )
+                .unwrap_err();
+            *self.0.lock().unwrap() = Some(error.message.clone());
+            Err(error)
+        }
+    }
+
+    let db = Database::new();
+    let id = seed_command(&db, r#"{"value":0}"#, None);
+    let diagnostic = Arc::new(Mutex::new(None));
+    let mut bus = Bus::default();
+    bus.handle(FailingFetch(diagnostic.clone()));
+    let app = crate::app(AppState {
+        bus: Some(bus.start(db.pool.clone()).unwrap()),
+        db: Some(db.pool.clone()),
+        object_storage: None,
+        outbox: None,
+    });
+    let report = run(&app, "/api/commands/run", 1).await;
+    assert_eq!(report["errors"].as_array().unwrap().len(), 1);
+    let row = rows(&db, "command_entries").remove(0);
+    assert_eq!(row["id"], id.to_string());
+    assert_eq!(row["status"], 4);
+    assert_eq!(row["attempts"], 3);
+    assert!(row["reservation_id"].is_null());
+    assert!(row["reserved_at"].is_null());
+    assert!(row["processed_at"].is_null());
+    let errors = row["extra_info"]["errors"].as_array().unwrap();
+    assert_eq!(errors.len(), 2);
+    assert_eq!(errors[0], "earlier failure");
+    let stored = errors[1].as_str().unwrap();
+    let diagnostic = diagnostic.lock().unwrap().clone().unwrap();
+    assert!(stored.contains(&diagnostic));
+    assert!(stored.contains(&id.to_string()));
+    assert!(stored.contains("request_id="));
+    assert!(stored.contains("stage=build"));
+    for secret in [
+        "query-secret",
+        "private-fragment",
+        "secret-token",
+        "body-secret",
+    ] {
+        assert!(!stored.contains(secret), "{stored}");
+    }
+    assert_eq!(
+        json_query(
+            &mut db.pool.get().unwrap(),
+            &format!(
+                "SELECT to_jsonb(scheduled_at > now()) AS value FROM command_entries WHERE id = '{id}'"
+            )
+        ),
+        true
+    );
+}
