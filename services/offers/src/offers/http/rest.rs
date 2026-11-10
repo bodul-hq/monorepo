@@ -344,7 +344,7 @@ mod tests {
             assert_eq!(
                 payload,
                 json!({
-                    "retailer_code": "AnkerAu",
+                    "retailer_code": "ankerau",
                     "title": " USB charger ",
                     "price": { "amount": amount, "currency": "AUD" },
                     "url": "https://example.com/Charger?q=red#details",
