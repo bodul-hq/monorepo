@@ -1,11 +1,31 @@
 use super::*;
 
 const CASES: [(Market, &str, i64); 5] = [
-    (Market::Sweden, include_str!("fixtures/se.json"), 49900),
-    (Market::Norway, include_str!("fixtures/no.json"), 49900),
-    (Market::Finland, include_str!("fixtures/fi.json"), 4499),
-    (Market::Iceland, include_str!("fixtures/is.json"), 6490),
-    (Market::Denmark, include_str!("fixtures/dk.json"), 34900),
+    (
+        Market::Sweden,
+        include_str!("../ankerse/offer_details/v1/graphql/response.json"),
+        49900,
+    ),
+    (
+        Market::Norway,
+        include_str!("../ankerno/offer_details/v1/graphql/response.json"),
+        49900,
+    ),
+    (
+        Market::Finland,
+        include_str!("../ankerfi/offer_details/v1/graphql/response.json"),
+        4499,
+    ),
+    (
+        Market::Iceland,
+        include_str!("../ankeris/offer_details/v1/graphql/response.json"),
+        6490,
+    ),
+    (
+        Market::Denmark,
+        include_str!("../ankerdk/offer_details/v1/graphql/response.json"),
+        34900,
+    ),
 ];
 const URL: &str = "https://www.ankernordics.com/products/t90r0121";
 
@@ -146,22 +166,21 @@ fn incomplete_wrong_product_and_error_responses_fail_before_storage() {
 
 #[test]
 fn decimal_prices_are_exact_and_checked() {
-    for (market, amount, expected) in [
-        (Market::Finland, "89.99", 8999),
-        (Market::Finland, "0.1", 10),
-        (Market::Iceland, "6490.0", 6490),
-        (Market::Sweden, "0", 0),
+    for (market, amount, expected, fixture) in [
+        (Market::Finland, "89.99", 8999, CASES[2].1),
+        (Market::Finland, "0.1", 10, CASES[2].1),
+        (Market::Iceland, "6490.0", 6490, CASES[3].1),
+        (Market::Sweden, "0", 0, CASES[0].1),
     ] {
-        assert_eq!(
-            market
-                .money(&raw::Price {
-                    amount: amount.into(),
-                    currency_code: market.currency().as_str().into()
-                })
-                .unwrap()
-                .amount(),
-            expected
-        );
+        let mut value: serde_json::Value = serde_json::from_str(fixture).unwrap();
+        value["data"]["product"]["variants"]["nodes"][0]["price"]["amount"] = json!(amount);
+        let document = market
+            .normalize(&value.to_string())
+            .unwrap()
+            .document_json
+            .unwrap();
+        let document: serde_json::Value = serde_json::from_str(&document).unwrap();
+        assert_eq!(document["variants"][0]["price"]["amount"], expected);
     }
     for amount in [
         "-1",
@@ -171,14 +190,9 @@ fn decimal_prices_are_exact_and_checked() {
         "0.001",
         "99999999999999999999999999",
     ] {
-        assert!(
-            Market::Finland
-                .money(&raw::Price {
-                    amount: amount.into(),
-                    currency_code: "EUR".into()
-                })
-                .is_err()
-        );
+        let mut value: serde_json::Value = serde_json::from_str(CASES[2].1).unwrap();
+        value["data"]["product"]["variants"]["nodes"][0]["price"]["amount"] = json!(amount);
+        assert!(Market::Finland.normalize(&value.to_string()).is_err());
     }
 }
 

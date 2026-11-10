@@ -1,0 +1,865 @@
+{
+  "data": {
+    "products": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6MTUzOTUxNzI0NTA1NTUsIm9mZnNldCI6MH0="
+      },
+      "edges": [
+        {
+          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6MTUzOTUxNzI0NTA1NTUsIm9mZnNldCI6MH0=",
+          "node": {
+            "__typename": "Product",
+            "availableForSale": true,
+            "category": null,
+            "collections": {
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "eyJsYXN0X2lkIjo1MTE0ODE2MTA0OTEsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDExOjAwOjAwLjQ5NTgzOCIsIm9mZnNldCI6OX0="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0NzM2NDc4NjcsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjUwOjUxLjgzNzExMyIsIm9mZnNldCI6MH0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "staffdiscount",
+                    "id": "gid://shopify/Collection/511473647867",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/staffdiscount",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjkwOTMwNywib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjkwOTMwNywib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1665-5k-ultra-slim-qi2-power-bank",
+                            "id": "gid://shopify/Product/15395172909307",
+                            "title": "Anker MagGo Ultra-Slim Power Bank (MagSafe) 5000mAh 15W"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "Staff discount",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0NzY0NjU5MTUsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU1OjUyLjMwNTEyMSIsIm9mZnNldCI6MX0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "employeepurchas",
+                    "id": "gid://shopify/Collection/511476465915",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/employeepurchas",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjkwOTMwNywib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjkwOTMwNywib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1665-5k-ultra-slim-qi2-power-bank",
+                            "id": "gid://shopify/Product/15395172909307",
+                            "title": "Anker MagGo Ultra-Slim Power Bank (MagSafe) 5000mAh 15W"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "渠道折扣",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0Nzg0NjQ3NjMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU3OjIyLjYxNDYyNyIsIm9mZnNldCI6Mn0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "portable-chargers",
+                    "id": "gid://shopify/Collection/511478464763",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/portable-chargers",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3ODg0MDMxNSwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3ODg0MDMxNSwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1289",
+                            "id": "gid://shopify/Product/15395178840315",
+                            "title": "Anker 737 Power Bank (24,000mAh, 140W, 3-Port)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Explore Anker's Portable Chargers, ensuring you stay powered up on the move. Compact and reliable, embrace seamless power wherever your adventure takes you.",
+                      "title": "Portable Chargers"
+                    },
+                    "title": "Portable Chargers",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0Nzg1MzAyOTksImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU3OjMxLjA5NzAyMCIsIm9mZnNldCI6M30=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "power-bank-essentials",
+                    "id": "gid://shopify/Collection/511478530299",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/power-bank-essentials",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMDRueW04ZXF1Iiwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMDRueW04ZXF1Iiwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1902-100w-power-bank-charging-station",
+                            "id": "gid://shopify/Product/15395172450555",
+                            "title": "Anker Prime Wireless Charging Base (100W, 3 Ports)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "Recommended",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODAyMDE0NjcsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU4OjU1LjE0MzExNyIsIm9mZnNldCI6NH0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "allproduct",
+                    "id": "gid://shopify/Collection/511480201467",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/allproduct",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMDRueW04ZXF1Iiwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMDRueW04ZXF1Iiwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1902-100w-power-bank-charging-station",
+                            "id": "gid://shopify/Product/15395172450555",
+                            "title": "Anker Prime Wireless Charging Base (100W, 3 Ports)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "AllProduct",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODA1OTQ2ODMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU5OjExLjExMDg2NSIsIm9mZnNldCI6NX0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "qi-wireless-charger",
+                    "id": "gid://shopify/Collection/511480594683",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/qi-wireless-charger",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE4MjgwNTI0Mywib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE4MjgwNTI0Mywib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a25n1-anker-prime-qi2-25w-foldable-3-in-1-wireless-charger",
+                            "id": "gid://shopify/Product/15395182805243",
+                            "title": "Anker Prime Wireless Charging Station (3-in-1, MagGo, AirCool, Foldable)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Charge your phone with Anker’s Qi wireless pads and stands. Enjoy fast, reliable power and universal compatibility with iPhone, Samsung, and more.",
+                      "title": "Qi Wireless Charging Solutions"
+                    },
+                    "title": "Qi Wireless Charger",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODA4NTY4MjcsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU5OjIwLjE1ODI3NiIsIm9mZnNldCI6Nn0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "2025-bts",
+                    "id": "gid://shopify/Collection/511480856827",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/2025-bts",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3NjU3OTMyMywib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3NjU3OTMyMywib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1383",
+                            "id": "gid://shopify/Product/15395176579323",
+                            "title": "Anker Power Bank (20K, 87W, Built-In USB-C Cable)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "2025 bts",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODEwNTM0MzUsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU5OjI4LjE4NDU2NiIsIm9mZnNldCI6N30=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "chargers-for-airpods",
+                    "id": "gid://shopify/Collection/511481053435",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/chargers-for-airpods",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMjdiY2h5eW82Iiwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3MjQ1MDU1NSwibGFzdF92YWx1ZSI6IjAwMjdiY2h5eW82Iiwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1902-100w-power-bank-charging-station",
+                            "id": "gid://shopify/Product/15395172450555",
+                            "title": "Anker Prime Wireless Charging Base (100W, 3 Ports)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Enjoy Anker's efficient and portable chargers for AirPods - an all-in-one charging solution for iPhone, AirPods & Apple Watch, ensuring uninterrupted power anytime!",
+                      "title": "Efficient Chargers for AirPods"
+                    },
+                    "title": "Chargers for AirPods",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODEyODI4MTEsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU5OjQyLjcwMjY5NyIsIm9mZnNldCI6OH0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "wireless",
+                    "id": "gid://shopify/Collection/511481282811",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/wireless",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3NDcxMTU0NywibGFzdF92YWx1ZSI6IjAwMDB4bGJuYTVkIiwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3NDcxMTU0NywibGFzdF92YWx1ZSI6IjAwMDB4bGJuYTVkIiwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a25m8-maggo-qi2-wireless-charging-station-magsafe-compatible",
+                            "id": "gid://shopify/Product/15395174711547",
+                            "title": "Anker MagGo Wireless Charging Station (3-in-1, Foldable Pad)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Power up with Anker's chargers: compact, eco-friendly, and efficient. Charge multiple devices safely with intelligent protection for seamless productivity.",
+                      "title": "Wireless Charging Solutions - Fast & Eco-Friendly "
+                    },
+                    "title": "Wireless",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MTE0ODE2MTA0OTEsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDExOjAwOjAwLjQ5NTgzOCIsIm9mZnNldCI6OX0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "portable-power-bank",
+                    "id": "gid://shopify/Collection/511481610491",
+                    "image": null,
+                    "onlineStoreUrl": "https://au.store.anker.com/collections/portable-power-bank",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjoxNTM5NTE3ODg0MDMxNSwib2Zmc2V0IjowfQ=="
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjoxNTM5NTE3ODg0MDMxNSwib2Zmc2V0IjowfQ==",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1289",
+                            "id": "gid://shopify/Product/15395178840315",
+                            "title": "Anker 737 Power Bank (24,000mAh, 140W, 3-Port)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Explore portable power banks that offer quick charging for all your devices. Find the compact and high-capacity solutions for all your charging needs on the go. ",
+                      "title": null
+                    },
+                    "title": "Portable Power Banks",
+                    "updatedAt": "2026-11-07T12:28:59Z"
+                  }
+                }
+              ]
+            },
+            "compareAtPriceRange": {
+              "__typename": "ProductPriceRange",
+              "maxVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "0.0",
+                "currencyCode": "AUD"
+              },
+              "minVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "0.0",
+                "currencyCode": "AUD"
+              }
+            },
+            "createdAt": "2026-09-28T07:57:41Z",
+            "description": "Go Wireless, Go Convenient: Experience hassle-free recharging with the charging base—simply place your power bank on the base for an instant boost, up to 100W. Please note that Anker 737 Power Bank (PowerCore 24K) does not support wireless recharge. 4-in-1 Fast Charging: With a total output of 100W shared among 3 USB ports and 1 Pogo pin, the charging base is ideal for powering your essentials. Smaller with GaN: With GaN technology, get reliable, high-powered charging in a compact design—comparable in size to an original 96W single-port charger. Smart LED Indicator: Easily monitor the status of your Anker Prime Power Bank with the intuitive LED indicator, which flashes while wirelessly recharging and stays steady when fully charged. What You Get: Anker 100W Charging Base for Anker Prime Power Bank, power cord for the charging base, a welcome guide, our worry-free 24-month warranty, and a friendly customer service.",
+            "descriptionHtml": "<p> </p>\n<ul class=\"a-unordered-list a-vertical a-spacing-mini\" data-mce-fragment=\"1\">\n<li class=\"a-spacing-mini\" data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Go Wireless, Go Convenient: Experience hassle-free recharging with the charging base—simply place your power bank on the base for an instant boost, up to 100W. Please note that Anker 737 Power Bank (PowerCore 24K) does not support wireless recharge.</span></li>\n<li class=\"a-spacing-mini\" data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">4-in-1 Fast Charging: With a total output of 100W shared among 3 USB ports and 1 Pogo pin, the charging base is ideal for powering your essentials.</span></li>\n<li class=\"a-spacing-mini\" data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Smaller with GaN: With GaN technology, get reliable, high-powered charging in a compact design—comparable in size to an original 96W single-port charger.</span></li>\n<li class=\"a-spacing-mini\" data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Smart LED Indicator: Easily monitor the status of your Anker Prime Power Bank with the intuitive LED indicator, which flashes while wirelessly recharging and stays steady when fully charged.</span></li>\n<li class=\"a-spacing-mini\" data-mce-fragment=\"1\">\n<meta charset=\"utf-8\"> <span>What You Get: Anker 100W Charging </span><span elementtiming=\"element-timing\"><span class=\"at-lingo__text--highlight\" elementtiming=\"element-timing\">Base</span></span><span> for Anker Prime Power </span><span elementtiming=\"element-timing\"><span class=\"at-lingo__text--highlight\" elementtiming=\"element-timing\">Bank</span></span><span>, power cord for the charging base, a welcome guide, our worry-free 24-month warranty, and a friendly customer service.</span>\n</li>\n</ul>\n<div id=\"_feilian_extension_installed\"></div>",
+            "encodedVariantAvailability": "v1_0",
+            "encodedVariantExistence": "v1_0",
+            "featuredImage": {
+              "__typename": "Image",
+              "altText": null,
+              "height": 3000,
+              "id": "gid://shopify/ProductImage/50727870562555",
+              "thumbhash": "0feFBQA0WZWLdWgJZo9e9+l1R3iId4B6uA==",
+              "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Rectangle5.png?v=1790582263",
+              "width": 3000
+            },
+            "handle": "a1902-100w-power-bank-charging-station",
+            "id": "gid://shopify/Product/15395172450555",
+            "images": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDcyNjM5NSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDU2MjU1NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 3000,
+                    "id": "gid://shopify/ProductImage/50727870562555",
+                    "thumbhash": "0feFBQA0WZWLdWgJZo9e9+l1R3iId4B6uA==",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Rectangle5.png?v=1790582263",
+                    "width": 3000
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDU5NTMyMywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 2000,
+                    "id": "gid://shopify/ProductImage/50727870595323",
+                    "thumbhash": "y/cFBQCfakJyiWfnm2JaaEKvOPyp",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD02_V1.png?v=1790582267",
+                    "width": 1600
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDYyODA5MSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 2000,
+                    "id": "gid://shopify/ProductImage/50727870628091",
+                    "thumbhash": "ZhgKDQJoWl9oeYYWmnqHaW6g/ybq",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD03_V1.png?v=1790582263",
+                    "width": 1600
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDY2MDg1OSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 2000,
+                    "id": "gid://shopify/ProductImage/50727870660859",
+                    "thumbhash": "yfcFBQBSCoBYN1mJaHOnWZx/z/vn",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD04_V1.png?v=1790582262",
+                    "width": 1600
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDY5MzYyNywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 2000,
+                    "id": "gid://shopify/ProductImage/50727870693627",
+                    "thumbhash": "JQgKJQaHe4+m6HdYloenh3iAiAd4",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD05_V1.png?v=1790582263",
+                    "width": 1600
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo1MDcyNzg3MDcyNjM5NSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 2000,
+                    "id": "gid://shopify/ProductImage/50727870726395",
+                    "thumbhash": "6fcRBQCWeXCFSGgnqZioeJNgRQpW",
+                    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD06_V1.png?v=1790582263",
+                    "width": 1600
+                  }
+                }
+              ]
+            },
+            "isGiftCard": false,
+            "media": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTE3ODc0NywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTAxNDkwNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275014907",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 3000,
+                      "id": "gid://shopify/ImageSource/46198275014907",
+                      "thumbhash": "0feFBQA0WZWLdWgJZo9e9+l1R3iId4B6uA==",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Rectangle5.png?v=1790582263",
+                      "width": 3000
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": {
+                      "__typename": "MediaPresentation"
+                    },
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 3000,
+                      "id": "gid://shopify/ImageSource/46198275014907",
+                      "thumbhash": "0feFBQA0WZWLdWgJZo9e9+l1R3iId4B6uA==",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Rectangle5.png?v=1790582263",
+                      "width": 3000
+                    }
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTA0NzY3NSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275047675",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275047675",
+                      "thumbhash": "y/cFBQCfakJyiWfnm2JaaEKvOPyp",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD02_V1.png?v=1790582267",
+                      "width": 1600
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275047675",
+                      "thumbhash": "y/cFBQCfakJyiWfnm2JaaEKvOPyp",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD02_V1.png?v=1790582267",
+                      "width": 1600
+                    }
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTA4MDQ0MywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275080443",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275080443",
+                      "thumbhash": "ZhgKDQJoWl9oeYYWmnqHaW6g/ybq",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD03_V1.png?v=1790582263",
+                      "width": 1600
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275080443",
+                      "thumbhash": "ZhgKDQJoWl9oeYYWmnqHaW6g/ybq",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD03_V1.png?v=1790582263",
+                      "width": 1600
+                    }
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTExMzIxMSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275113211",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275113211",
+                      "thumbhash": "yfcFBQBSCoBYN1mJaHOnWZx/z/vn",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD04_V1.png?v=1790582262",
+                      "width": 1600
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275113211",
+                      "thumbhash": "yfcFBQBSCoBYN1mJaHOnWZx/z/vn",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD04_V1.png?v=1790582262",
+                      "width": 1600
+                    }
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTE0NTk3OSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275145979",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275145979",
+                      "thumbhash": "JQgKJQaHe4+m6HdYloenh3iAiAd4",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD05_V1.png?v=1790582263",
+                      "width": 1600
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275145979",
+                      "thumbhash": "JQgKJQaHe4+m6HdYloenh3iAiAd4",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD05_V1.png?v=1790582263",
+                      "width": 1600
+                    }
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0NjE5ODI3NTE3ODc0NywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/46198275178747",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275178747",
+                      "thumbhash": "6fcRBQCWeXCFSGgnqZioeJNgRQpW",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD06_V1.png?v=1790582263",
+                      "width": 1600
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 2000,
+                      "id": "gid://shopify/ImageSource/46198275178747",
+                      "thumbhash": "6fcRBQCWeXCFSGgnqZioeJNgRQpW",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/A1902111_TD06_V1.png?v=1790582263",
+                      "width": 1600
+                    }
+                  }
+                }
+              ]
+            },
+            "onlineStoreUrl": "https://au.store.anker.com/products/a1902-100w-power-bank-charging-station",
+            "options": [
+              {
+                "__typename": "ProductOption",
+                "id": "gid://shopify/ProductOption/17857298202875",
+                "name": "Title",
+                "optionValues": [
+                  {
+                    "__typename": "ProductOptionValue",
+                    "id": "gid://shopify/ProductOptionValue/14910990450939",
+                    "name": "Default Title",
+                    "swatch": null
+                  }
+                ]
+              }
+            ],
+            "priceRange": {
+              "__typename": "ProductPriceRange",
+              "maxVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "169.95",
+                "currencyCode": "AUD"
+              },
+              "minVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "169.95",
+                "currencyCode": "AUD"
+              }
+            },
+            "productType": "charging only",
+            "publishedAt": "2026-10-10T07:53:42Z",
+            "requiresSellingPlan": false,
+            "sellingPlanGroups": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": null
+              },
+              "edges": []
+            },
+            "seo": {
+              "__typename": "SEO",
+              "description": null,
+              "title": null
+            },
+            "tags": [
+              "100 ANSI lm",
+              "2025_Valentine_buy_50P_save",
+              "2025btsbuyone",
+              "25_newyear",
+              "25_Xmas",
+              "26ValBOGO",
+              "4plusphonecharges",
+              "801new",
+              "AnkerChargers",
+              "buyfreelabels",
+              "charger_bts_2024",
+              "charger_fall_pd_2309",
+              "desk-charging",
+              "eofy_2025_06",
+              "Others",
+              "Portable Charger",
+              "powerbankspd24",
+              "up 100W charger"
+            ],
+            "title": "Anker Prime Wireless Charging Base (100W, 3 Ports)",
+            "updatedAt": "2026-11-06T11:05:57Z",
+            "variants": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjo2NzU5MzA5OTMxMzQwMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo2NzU5MzA5OTMxMzQwMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "ProductVariant",
+                    "availableForSale": true,
+                    "barcode": "194644145453",
+                    "compareAtPrice": null,
+                    "components": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "currentlyNotInStock": false,
+                    "groupedBy": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "id": "gid://shopify/ProductVariant/67593099313403",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 3000,
+                      "id": "gid://shopify/ProductImage/50727870562555",
+                      "thumbhash": "0feFBQA0WZWLdWgJZo9e9+l1R3iId4B6uA==",
+                      "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Rectangle5.png?v=1790582263",
+                      "width": 3000
+                    },
+                    "price": {
+                      "__typename": "MoneyV2",
+                      "amount": "169.95",
+                      "currencyCode": "AUD"
+                    },
+                    "quantityPriceBreaks": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "quantityRule": {
+                      "__typename": "QuantityRule",
+                      "increment": 1,
+                      "maximum": null,
+                      "minimum": 1
+                    },
+                    "requiresComponents": false,
+                    "requiresShipping": true,
+                    "selectedOptions": [
+                      {
+                        "__typename": "SelectedOption",
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ],
+                    "sellingPlanAllocations": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "sku": "A1902T11",
+                    "storeAvailability": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "taxable": true,
+                    "title": "Default Title",
+                    "unitPrice": null,
+                    "unitPriceMeasurement": {
+                      "__typename": "UnitPriceMeasurement",
+                      "measuredType": null,
+                      "quantityUnit": null,
+                      "quantityValue": 0.0,
+                      "referenceUnit": null,
+                      "referenceValue": 0
+                    },
+                    "weight": 0.759,
+                    "weightUnit": "KILOGRAMS"
+                  }
+                }
+              ]
+            },
+            "variantsCount": {
+              "__typename": "Count",
+              "count": 1,
+              "precision": "EXACT"
+            },
+            "vendor": "Anker"
+          }
+        }
+      ]
+    },
+    "localization": {
+      "country": {
+        "isoCode": "AU",
+        "currency": {
+          "isoCode": "AUD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      }
+    }
+  },
+  "extensions": {
+    "context": {
+      "country": "AU",
+      "language": "EN"
+    },
+    "cost": {
+      "requestedQueryCost": 517
+    }
+  }
+}

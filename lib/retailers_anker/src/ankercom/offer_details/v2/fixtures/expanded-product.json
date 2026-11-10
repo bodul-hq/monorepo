@@ -1,0 +1,1642 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-7",
+        "name": "Cables"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-7-6",
+    "name": "System & Power Cables"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzkyODY3ODYxOTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjZ9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTQxNDk5NDc1NDIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "new-arrival-pps",
+          "id": "gid://shopify/Collection/294149947542",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "new arrival-pps",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDMwNDE3NzM3MTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "20w-usb-c-power-adapter",
+          "id": "gid://shopify/Collection/303041773718",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker 20W USB-C Power Adapters with fast charging & advanced safety features. Get the perfect companion to keep your devices powered up wherever you go.",
+            "title": null
+          },
+          "title": "20W USB-C Power Adapter",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDMxNDAwMTIxODIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-a-to-lightning-cable",
+          "id": "gid://shopify/Collection/303140012182",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Take Anker's PowerLine+ II USB A to Lightning cables to experience the ultimate in durability & speed. Fast charging & unbeatable toughness in different colors.",
+            "title": "Durable USB A to Lightning Cables for Convenience"
+          },
+          "title": "USB A to Lightning Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDMxNDAzMDcwOTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "10ft-usb-c-cable",
+          "id": "gid://shopify/Collection/303140307094",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your charging with the Anker 10ft USB C Cables. With 100W max charging support and 480Mbps max transfer speed, Anker is essential for modern living.",
+            "title": "10ft USB C Cable: Unparalleled Connection Freedom"
+          },
+          "title": "10Ft USB C Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzQ3ODQxNTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-cable-for-macbook-pro",
+          "id": "gid://shopify/Collection/303734784150",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Get our MacBook Pro charging cables to witness Anker’s excellence. Relish in unparalleled charging speed and build quality. Choose Anker for a difference.",
+            "title": null
+          },
+          "title": "Charging Cable for MacBook Pro",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzQ4NDk2ODYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-cord-for-macbook-air",
+          "id": "gid://shopify/Collection/303734849686",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker MacBook Air charging cords, the embodiment of Anker Advantage. Relish the elevated charging & data transfer speed as well as hardcore durability.",
+            "title": null
+          },
+          "title": "Charging Cord for MacBook Air",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzUwNDYyOTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "vr-link-cable",
+          "id": "gid://shopify/Collection/303735046294",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Opt for Anker VR link cables and elevate your VR enjoyment. Unlock the full potential of your VR headset with Anker’s fast and ultra-durable VR link cables.",
+            "title": null
+          },
+          "title": "VR Link Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzUxNDQ1OTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-pd-cable",
+          "id": "gid://shopify/Collection/303735144598",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker USB-C PD cables and charge fast. Enjoy the transformative power of these cables with up to 60W max output, superior durability & wide compatibility.",
+            "title": null
+          },
+          "title": "USB-C PD Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzU1Mzc4MTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "data-cable",
+          "id": "gid://shopify/Collection/303735537814",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience Anker's data cables - fast charging up to 140W, rapid data transfer & hardcore durability with a 35,000-bend lifespan. Stay connected with confidence.",
+            "title": "Best Data Cables with Power, Speed & Reliability"
+          },
+          "title": "Data Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzU3OTk5NTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "braided-usb-c-cable",
+          "id": "gid://shopify/Collection/303735799958",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Charge faster and smarter with Anker's braided USB-C cables. Durable, tangle-free, eco-friendly options to support high-speed charging for all your USB-C devices.",
+            "title": "Braided USB-C Cable: Premium Speed & Durability"
+          },
+          "title": "Braided USB-C Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzU4MzI3MjYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-a-to-usb-c-cable",
+          "id": "gid://shopify/Collection/303735832726",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker USB A to USB C cables to experience efficient charging and data transfer. With up to 15W output & tough material, they are the perfect choice.",
+            "title": "USB A to USB C Cables for Charging & Data Transfer"
+          },
+          "title": "USB-A to USB-C Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzU4NjU0OTQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-2-cable",
+          "id": "gid://shopify/Collection/303735865494",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover the superiority of Anker USB 2.0 cables. With 480Mbps max transfer speed and double-braided nylon exteriors, our cables are efficient and durable.",
+            "title": "USB 2.0 Cable: Versatile and Reliable"
+          },
+          "title": "USB 2.0 Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDM3MzU5MzEwMzAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-to-usb-c-cable",
+          "id": "gid://shopify/Collection/303735931030",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Anker USB-C to USB-C cables deliver 240W fast charging, reliable data transfer & extreme durability, perfect for laptops, phones, and tablets, anywhere you go.",
+            "title": "USB C to USB C Cables: Connection Anywhere"
+          },
+          "title": "USB-C to USB-C Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDQwOTI3NDE3ODIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "samsung-galaxy-charger-cable",
+          "id": "gid://shopify/Collection/304092741782",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Charger Cable for Samsung Galaxy",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDQwOTI3NzQ1NTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "airpods-charging-cable",
+          "id": "gid://shopify/Collection/304092774550",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Get Anker AirPods charging cable to upgrade your charging game. We offer USB-C to Lightning cables for fast charging your AirPods, AirPods Pro, and AirPods Max.\n",
+            "title": null
+          },
+          "title": "AirPods Charging Cable",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDQwOTMwNjk0NjIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-cable-for-airpods-pro",
+          "id": "gid://shopify/Collection/304093069462",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Grab Anker’s premium AirPods Pro USB C cables and fast charge your AirPods Pro. Witness a new era of fast charging and ultra durability with Anker today.",
+            "title": null
+          },
+          "title": "USB C Cable for AirPods Pro",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDQxNzYyMDE4NzgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gifts-50-to-100-dollars",
+          "id": "gid://shopify/Collection/304176201878",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Exceptional Choices from $50 to $100",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDUyMjQ5NzQ0ODYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-to-magsafe-2-cable",
+          "id": "gid://shopify/Collection/305224974486",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy high-quality Anker USB C to MagSafe 2 cables featuring rapid charging and secure connections to keep your MacBook devices stay powered up anytime.",
+            "title": null
+          },
+          "title": "Usb C to Magsafe 2 Cable",
+          "updatedAt": "2026-11-07T15:17:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMDUyMjU0OTg3NzQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-to-magsafe-3-cable",
+          "id": "gid://shopify/Collection/305225498774",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Grab Anker’s USB C to MagSafe 3 cables and replenish your MacBooks with blazing efficiency. Embrace secure connections and prevent accidental unplugging.",
+            "title": null
+          },
+          "title": "Usb C to Magsafe 3 Cable",
+          "updatedAt": "2026-11-07T12:09:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjcxNDU2NTIzNzQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c",
+          "id": "gid://shopify/Collection/327145652374",
+          "image": null,
+          "onlineStoreUrl": "https://us.anker.com/collections/usb-c",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover our collection of USB-C cables at Anker.com and enjoy fast charging and speedy data transfers.",
+            "title": null
+          },
+          "title": "USB-C Cables",
+          "updatedAt": "2026-11-07T15:17:47Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzA2NTQ3MTE5NTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "checkout-edm-without-prime",
+          "id": "gid://shopify/Collection/330654711958",
+          "image": null,
+          "onlineStoreUrl": "https://us.anker.com/collections/checkout-edm-without-prime",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "checkout edm without prime",
+          "updatedAt": "2026-11-07T15:25:41Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzcwNjk2NzA1NTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-cable-for-apple",
+          "id": "gid://shopify/Collection/337069670550",
+          "image": null,
+          "onlineStoreUrl": "https://us.anker.com/collections/charging-cable-for-apple",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore Anker's various Apple charger cords for iPhone, iPad and MacBook. Durable, fast & certified, enjoy safe and seamless charging for all your Apple devices.",
+            "title": null
+          },
+          "title": "Apple Charger Cords",
+          "updatedAt": "2026-11-07T15:17:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzc3MzY4OTI1NjYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "thunderbolt-cable",
+          "id": "gid://shopify/Collection/337736892566",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience the power of Thunderbolt cables by Anker - fast charging, rapid data transfer, and stunning video display between compatible devices. Upgrade today!",
+            "title": "Thunderbolt Cables: Power and Speed Unleashed"
+          },
+          "title": "Thunderbolt Cable",
+          "updatedAt": "2026-11-07T12:09:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzc3Mzc4NzU2MDYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Stay connected and powered up with a 2-Pack Cable, offering two high-quality, durable cables in one set. Perfect for charging and data transfer, these cables provide reliable performance for smartphones, tablets, and other USB devices, keeping all your gadgets ready whenever you need them.",
+          "descriptionHtml": "<div data-page-id=\"EfQ5ds37AovSu3xakD0cHXVLnWf\" data-lark-html-role=\"root\" data-docx-has-block-data=\"false\">\n<div class=\"old-record-id-DJXCdSxcAoEiuFxUWkcc6yllnW6\">Stay connected and powered up with a 2-Pack Cable, offering two high-quality, durable cables in one set. Perfect for charging and data transfer, these cables provide reliable performance for smartphones, tablets, and other USB devices, keeping all your gadgets ready whenever you need them.</div>\n</div>\n<p> </p>",
+          "handle": "2-pack-cable",
+          "id": "gid://shopify/Collection/337737875606",
+          "image": null,
+          "onlineStoreUrl": "https://us.anker.com/collections/2-pack-cable",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop 2-pack cables for versatile charging and syncing. Each bundle includes two durable cables designed to keep all your devices powered efficiently.",
+            "title": null
+          },
+          "title": "2-Pack Cable",
+          "updatedAt": "2026-11-07T12:09:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzgwNTI0NDg0MDYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Anker's 3ft Cables deliver fast, reliable charging and data transfer in a compact length. Designed for convenience and portability, these cables help reduce clutter while offering durability and flexibility—perfect for everyday use with smartphones, tablets, and other USB-powered devices.",
+          "descriptionHtml": "<div data-page-id=\"EfQ5ds37AovSu3xakD0cHXVLnWf\" data-lark-html-role=\"root\" data-docx-has-block-data=\"false\">\n<div class=\"old-record-id-EqTHd6FKOoQWUpxQYNZc8YODnmg\">Anker's 3ft Cables deliver fast, reliable charging and data transfer in a compact length. Designed for convenience and portability, these cables help reduce clutter while offering durability and flexibility—perfect for everyday use with smartphones, tablets, and other USB-powered devices.</div>\n</div>\n<p> </p>",
+          "handle": "3ft-cable",
+          "id": "gid://shopify/Collection/338052448406",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Get fast, stable charging with Anker's 3ft Cables. Compact and durable, making them perfect for connecting devices conveniently without excess clutter.",
+            "title": null
+          },
+          "title": "3ft Cables",
+          "updatedAt": "2026-11-07T12:09:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzgwNTI2Nzc3ODIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Anker 6ft cables offer extended reach and strong performance, giving you the freedom to charge and sync your devices comfortably from any spot. Designed for speed, durability, and flexibility, these 6ft charging cables make it easy to stay powered without being tied close to the outlet.",
+          "descriptionHtml": "<div data-page-id=\"EfQ5ds37AovSu3xakD0cHXVLnWf\" data-lark-html-role=\"root\" data-docx-has-block-data=\"false\">\n<div class=\"old-record-id-JhMHdOm1honAAWxlASqc0ZqYnWh\">Anker 6ft cables offer extended reach and strong performance, giving you the freedom to charge and sync your devices comfortably from any spot. Designed for speed, durability, and flexibility, these 6ft charging cables make it easy to stay powered without being tied close to the outlet.</div>\n</div>\n<p> </p>",
+          "handle": "6ft-cable",
+          "id": "gid://shopify/Collection/338052677782",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience greater reach and reliable performance with Anker's 6ft Cables. Built for durability and efficiency, ensuring smooth charging anywhere.",
+            "title": null
+          },
+          "title": "6ft Cables",
+          "updatedAt": "2026-11-07T15:17:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzkyODY3ODYxOTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Discover thoughtfully curated bundle recommendations to simplify your tech setup. From chargers and cables to docking stations, these bundles offer seamless connectivity and reliable performance, helping you stay productive without the hassle of choosing individual accessories.",
+          "descriptionHtml": "<div data-page-id=\"EfQ5ds37AovSu3xakD0cHXVLnWf\" data-lark-html-role=\"root\" data-docx-has-block-data=\"false\">\n<div class=\"old-record-id-H14sdS5rYoarb6xVXUFcxlPUn8c\">Discover thoughtfully curated bundle recommendations to simplify your tech setup. From chargers and cables to docking stations, these bundles offer seamless connectivity and reliable performance, helping you stay productive without the hassle of choosing individual accessories.</div>\n</div>\n<p> </p>",
+          "handle": "bundles",
+          "id": "gid://shopify/Collection/339286786198",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore curated bundles of chargers, cables, and other accessories for seamless connectivity, reliable performance, and a tidy, productive workspace.",
+            "title": null
+          },
+          "title": "Bundle Recommendations",
+          "updatedAt": "2026-11-07T12:09:13Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "USD"
+    }
+  },
+  "createdAt": "2026-05-12T02:29:52Z",
+  "description": "Super-Fast 240W Cable: This 240W USB-IF certified cable can charge your 16-inch MacBook Pro (2023) to 50% in just 28 minutes or your iPhone 15 Pro to 50% in 26 minutes. Soft to the Touch, Simple to Store: This cable combines a soft touch with easy storage for knot-free charging sessions without the fuss. Ultra-Durable Charging Cable: With a 30,000+ bend lifespan and the ability to withstand 220 lbs without breaking, this cable is built to last over 10 years. Charge Sustainably: Crafted from 100% post-consumer recycled materials, the braided exterior combines eco-friendliness with high performance. What You Get: 2 × Anker USB-C to USB-C Cable (3 ft / 6 ft, 240W, Upcycled-Braided), silicone cord organizer, welcome guide, 24-month warranty, and our friendly customer service.",
+  "descriptionHtml": "<ul>\n<li>\n<span><strong>Super-Fast 240W Cable: </strong></span><span>This 240W </span><span>USB-IF</span><span> certified cable can charge your 16-inch MacBook Pro (2023) to 50% in just 28 minutes or your iPhone 15 Pro to 50% in 26 minutes.</span>\n</li>\n<li data-docx-has-block-data=\"false\" data-page-id=\"I8q7dwsA2oyElkxGFsKc0DMZnzd\">\n<div class=\"ace-line ace-line old-record-id-Z0Ppddy1Ko4d9LxgpJIcDXdsn6b\">\n<strong>Soft to the Touch, Simple to </strong><strong>Store</strong><strong>: </strong>This cable combines a soft touch with easy storage for knot-free charging sessions without the fuss.</div>\n</li>\n<li data-docx-has-block-data=\"false\" data-page-id=\"I8q7dwsA2oyElkxGFsKc0DMZnzd\">\n<div class=\"ace-line ace-line old-record-id-Z0Ppddy1Ko4d9LxgpJIcDXdsn6b\">\n<strong>Ultra-Durable Charging Cable: </strong>With a 30,000+ bend lifespan and the ability to withstand 220 lbs without breaking, this cable is <span>built to last over 10 years.</span>\n</div>\n</li>\n<li data-docx-has-block-data=\"false\" data-page-id=\"I8q7dwsA2oyElkxGFsKc0DMZnzd\">\n<div class=\"ace-line ace-line old-record-id-Z0Ppddy1Ko4d9LxgpJIcDXdsn6b\">\n<span><strong>Charge Sustainably: </strong></span><span>Crafted from</span><span><strong> </strong></span><span>100% post-consumer recycled materials, the braided exterior combines eco-friendliness with high performance.</span>\n</div>\n</li>\n<li data-docx-has-block-data=\"false\" data-page-id=\"I8q7dwsA2oyElkxGFsKc0DMZnzd\">\n<div class=\"ace-line ace-line old-record-id-Z0Ppddy1Ko4d9LxgpJIcDXdsn6b\">\n<strong>What You Get:</strong> <meta charset=\"utf-8\">\n<strong><span>2 × </span></strong>Anker USB-C to USB-C Cable (3 ft / 6 ft, 240W, Upcycled-Braided), silicone cord organizer, welcome guide, 24-month warranty, and our friendly customer service.</div>\n</li>\n</ul>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1000,
+    "id": "gid://shopify/ProductImage/42069456519318",
+    "thumbhash": "0/eBBQASiHl7d3kHWHePiPiIeFiHiHCYhw==",
+    "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/Group2147226154.png?v=1778553250",
+    "width": 1000
+  },
+  "handle": "bundle-a82e2011-2-a82e2012-2",
+  "id": "gid://shopify/Product/8654343897238",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNzUxMzczNzIwNzk1OCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MjA2OTQ1NjUxOTMxOCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1000,
+          "id": "gid://shopify/ProductImage/42069456519318",
+          "thumbhash": "0/eBBQASiHl7d3kHWHePiPiIeFiHiHCYhw==",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/Group2147226154.png?v=1778553250",
+          "width": 1000
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzQ4MTMyNTk1MzE3NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2560,
+          "id": "gid://shopify/ProductImage/37481325953174",
+          "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-04_91ce2e27-bcb8-443a-bc2d-dd9bb3d2d0c7.jpg?v=1739785541",
+          "width": 2048
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzUxMzczNzI3MzQ5NCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2560,
+          "id": "gid://shopify/ProductImage/37513737273494",
+          "thumbhash": "kPcBDQL8idqr3I18aoTHuwYkFAQD",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-02_d2c24485-6295-4704-9b0b-4eefb44edab7.jpg?v=1739785541",
+          "width": 2049
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzUxMzczNzQwNDU2NiwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3000,
+          "id": "gid://shopify/ProductImage/37513737404566",
+          "thumbhash": "NQgKBQD3eHSK11jXSHpGWIiwkgcs",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_TD03_V1_7a418579-d455-46dc-82a0-36550e845f3a.png?v=1739785541",
+          "width": 2400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzUxMzczNzE3NTE5MCwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2560,
+          "id": "gid://shopify/ProductImage/37513737175190",
+          "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-04_182b4cf3-04f9-494e-9bb3-b5d3a22bf472.jpg?v=1739785541",
+          "width": 2048
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzUxMzczNzE0MjQyMiwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2560,
+          "id": "gid://shopify/ProductImage/37513737142422",
+          "thumbhash": "9vcFBQD1nYx3lnhkWWpXhzqPcv14",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-05_97fc5a63-320c-4d96-a7ad-2e6b6e18774c.jpg?v=1739785541",
+          "width": 2048
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzUxMzczNzIwNzk1OCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2560,
+          "id": "gid://shopify/ProductImage/37513737207958",
+          "thumbhash": "8PcJBQABVVVXh6pphZeWh2lgbAfb",
+          "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-06_80b8ae72-eb1c-42ec-b535-c09d784645ed.jpg?v=1739785541",
+          "width": 2048
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTI1NTE5MCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjY1OTI4MDAwMzIyMiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/32659280003222",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1000,
+            "id": "gid://shopify/ImageSource/32659280003222",
+            "thumbhash": "0/eBBQASiHl7d3kHWHePiPiIeFiHiHCYhw==",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/Group2147226154.png?v=1778553250",
+            "width": 1000
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1000,
+            "id": "gid://shopify/ImageSource/32659280003222",
+            "thumbhash": "0/eBBQASiHl7d3kHWHePiPiIeFiHiHCYhw==",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/Group2147226154.png?v=1778553250",
+            "width": 1000
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTczMDA3MTkwNDQwNiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29730071904406",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29730071904406",
+            "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-04_91ce2e27-bcb8-443a-bc2d-dd9bb3d2d0c7.jpg?v=1739785541",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29730071904406",
+            "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-04_91ce2e27-bcb8-443a-bc2d-dd9bb3d2d0c7.jpg?v=1739785541",
+            "width": 2048
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTI4Nzk1OCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29750711287958",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711287958",
+            "thumbhash": "kPcBDQL8idqr3I18aoTHuwYkFAQD",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-02_d2c24485-6295-4704-9b0b-4eefb44edab7.jpg?v=1739785541",
+            "width": 2049
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711287958",
+            "thumbhash": "kPcBDQL8idqr3I18aoTHuwYkFAQD",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-02_d2c24485-6295-4704-9b0b-4eefb44edab7.jpg?v=1739785541",
+            "width": 2049
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTQxOTAzMCwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29750711419030",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/29750711419030",
+            "thumbhash": "NQgKBQD3eHSK11jXSHpGWIiwkgcs",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_TD03_V1_7a418579-d455-46dc-82a0-36550e845f3a.png?v=1739785541",
+            "width": 2400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/29750711419030",
+            "thumbhash": "NQgKBQD3eHSK11jXSHpGWIiwkgcs",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_TD03_V1_7a418579-d455-46dc-82a0-36550e845f3a.png?v=1739785541",
+            "width": 2400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTIyMjQyMiwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29750711222422",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711222422",
+            "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-04_182b4cf3-04f9-494e-9bb3-b5d3a22bf472.jpg?v=1739785541",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711222422",
+            "thumbhash": "9vcJBQDJqXWI93e2Z2dHV0+B/3XH",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-04_182b4cf3-04f9-494e-9bb3-b5d3a22bf472.jpg?v=1739785541",
+            "width": 2048
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTE4OTY1NCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29750711189654",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711189654",
+            "thumbhash": "9vcFBQD1nYx3lnhkWWpXhzqPcv14",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-05_97fc5a63-320c-4d96-a7ad-2e6b6e18774c.jpg?v=1739785541",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711189654",
+            "thumbhash": "9vcFBQD1nYx3lnhkWWpXhzqPcv14",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/6ft_Black-05_97fc5a63-320c-4d96-a7ad-2e6b6e18774c.jpg?v=1739785541",
+            "width": 2048
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyOTc1MDcxMTI1NTE5MCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/29750711255190",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711255190",
+            "thumbhash": "8PcJBQABVVVXh6pphZeWh2lgbAfb",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-06_80b8ae72-eb1c-42ec-b535-c09d784645ed.jpg?v=1739785541",
+            "width": 2048
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2560,
+            "id": "gid://shopify/ImageSource/29750711255190",
+            "thumbhash": "8PcJBQABVVVXh6pphZeWh2lgbAfb",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/3ft_Black-06_80b8ae72-eb1c-42ec-b535-c09d784645ed.jpg?v=1739785541",
+            "width": 2048
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517385879702",
+      "key": "_order",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "[\"aplusFullImage__0\",\"aplusFullImage__1\",\"aplusFullImage__2\",\"aplusNavCarousel__3\",\"aplusFullImage__4\",\"htmlContainer\",\"brandInfo\",\"brandRecommends\",\"reviews\",\"Firework\",\"similarProducts\"]"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517385453718",
+      "key": "aplusFullImage__0",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2012_PRC_TD01_V1.png?v=1719382824\",\"mobileImageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_MRC_TD01_V1.jpg?v=1719383011\",\"headline\":\"\"}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517385486486",
+      "key": "aplusFullImage__1",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_PRC_TD02_V1.png?v=1719382824\",\"mobileImageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2012_MRC_TD02_V1.jpg?v=1719383011\",\"headline\":\"\"}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517385519254",
+      "key": "aplusFullImage__2",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_PRC_TD03_V1.png?v=1719383135\",\"mobileImageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/A82E2011_MRC_TD03_V1.png?v=1719383176\",\"headline\":\"\"}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/40517385617558",
+      "key": "brandInfo",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/40517385650326",
+      "key": "brandRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"HTML\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517385715862",
+      "key": "htmlContainer",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "multi_line_text_field",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "<div class=\"celwidget aplus-module premium-module-15-text aplus-premium\" data-csa-c-id=\"eacd8o-hpfj8z-9yxajl-qeaglh\" data-cel-widget=\"aplus-premium-module-15-text\">\n<div class=\"a-section a-spacing-none premium-aplus premium-aplus-module-15\">\n<div class=\"a-section a-spacing-none\">\n<div data-page-id=\"I8q7dwsA2oyElkxGFsKc0DMZnzd\" data-docx-has-block-data=\"false\">\n<div class=\"ace-line ace-line old-record-id-IyvydND5korSiuxUcsNca0yOnSb\">Model Number: A82E2</div>\n<div class=\"ace-line ace-line old-record-id-Hob8dduq6owZh7xYOUrcGhfzn5c\">Anker USB-C to USB-C Cable (240W, Upcycled-Braided)</div>\n<div class=\"ace-line ace-line old-record-id-BkpsdVOFdowlAExxuyPcLBAwnIf\">Super Durable. Ultra-Soft. Eco-Friendly.</div>\n<div class=\"ace-line ace-line old-record-id-XafxdX7UToFeUhxek0ec5EqAnBc\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-TiIcdDRBXooc6KxV8NLcCY2tnlg\"><strong>Fast. Colorful. Sustainable.</strong> Choose sustainability without sacrificing speed&mdash;this high-speed cable comes in 5 vibrant finishes, offering fast 480 Mbps data transfer and exceptional durability thanks to its soft PCR braided construction. (Note: This cable does not support screen mirroring.)</div>\n<div class=\"ace-line ace-line old-record-id-PozBd0mz9oc110xHIKCcGfConKh\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-HP6gdvBNGov8XrxTL8mc2wtDnZe\"><strong>Unwrap to Smooth Charging</strong></div>\n<div class=\"ace-line ace-line old-record-id-BBjudKCjvo7eUQx7xCLc9rzcnxb\">Comes with a silicone cable organizer, making it easy to wrap, store, and use without any tangles or frustration.</div>\n<div class=\"ace-line ace-line old-record-id-W3lkd87yJoaQRkxOvGTc8PShnRd\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-H7J5dCmxrozcelxoj83cdJ1LnUe\"><strong>Green and Clean</strong></div>\n<div class=\"ace-line ace-line old-record-id-XreZdccwIowHVOxseEAczIQYnrg\">Our sustainable cable comes in completely plastic-free packaging, uses recycled nylon for the cable, and employs natural materials and inks for the packaging, ensuring a minimal carbon footprint.</div>\n<div class=\"ace-line ace-line old-record-id-BoGUdpeJCodMLGxwzxfc2ItOnoh\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-APFDdyq0RoeEUexwBkPc5VgKnKh\"><strong>Wide </strong><strong>Compatibility</strong></div>\n<div class=\"ace-line ace-line old-record-id-UAbCdsZwvooIduxsH1nc2aUJnbe\">Whether it's your USB-C phone, tablet, or laptop, experience high performance charging every time.</div>\n<div class=\"ace-line ace-line old-record-id-O23adx32OoHD1sxrRGwct1jDnSf\">&nbsp;</div>\n<div class=\"ace-line ace-line old-record-id-COiQdNbb5ouVHuxQUizcY00Jnac\"><strong>Compatibility</strong><strong>:</strong></div>\n<div class=\"ace-line ace-line old-record-id-DyZmdckHloifGPxLZ4GcuqeVn3f\"><strong>Fully Compatible Devices</strong></div>\n<div class=\"ace-line ace-line old-record-id-XKi1dJpnYoZ9mnxgHI2cFSvxnIc\">iPhone 15 / 15 Pro / 15 Pro Max / 15 Plus</div>\n<div class=\"ace-line ace-line old-record-id-ZofudFA4Poe9S1xDcZ5cltOYn7c\">MacBook Air (M2, 2022)</div>\n<div class=\"ace-line ace-line old-record-id-PuV2dmsWooCH2fxrkmEcprYKnZb\">14\" MacBook Pro (2021), MacBook Pro (M1, 2020), 15.4\" MacBook Pro (2019 / 2018 / 2017 / 2016), 13.3\" MacBook Pro (2020 / 2019 / 2018 / 2017 / 2016)</div>\n<div class=\"ace-line ace-line old-record-id-Nritd9tzNowJffxl9YHckI7QnSs\">MacBook Air 2020 / 2019 / 2018</div>\n<div class=\"ace-line ace-line old-record-id-CTSrdx9n8o8sx7xjqeGcbkKpnwf\">Lenovo Yoga 14s</div>\n<div class=\"ace-line ace-line old-record-id-G6XldjKXeovGxnxD4KWc94ecnyc\">Lenovo ThinkPad X1 Series</div>\n<div class=\"ace-line ace-line old-record-id-BYhGdFdnNo2TYhxiGkScDpf8nYc\">HP Spectre Series</div>\n<div class=\"ace-line ace-line old-record-id-GaDrdPQbjo0fk6xJRllcpWMGnOq\">12.9\" iPad Pro (5th / 4th / 3rd / 2nd generation)</div>\n<div class=\"ace-line ace-line old-record-id-BqtHdMkIxo06TgxGHgacxyN3nob\">iPad Air (4th generation), iPad mini (6th generation)</div>\n<div class=\"ace-line ace-line old-record-id-NjxvdqEr5ozLhvxPfMwcgUvVnNd\">Samsung Galaxy Note10+ / 10 / 9 / 8</div>\n<div class=\"ace-line ace-line old-record-id-BwV6dotAMooVyKxxTVkcw2ZFnZf\">Samsung Galaxy S23+ / S22+ / S23 Ultra / S22 Ultra / S23 / S22 / S21 / S21+ / S20 / S10+ / S10e / S10 / S9+ / S9</div>\n<div class=\"ace-line ace-line old-record-id-Xmwmdv1c2ov0akxNjt7cGr8SnGf\">Google Pixel 3 / 4 / 5 / 6</div>\n<div class=\"ace-line ace-line old-record-id-FHIldYBrJo4Y15xJflYcuS0LnAb\"><strong>Compatible Devices (Limited Charging Speeds)</strong></div>\n<div class=\"ace-line ace-line old-record-id-KfNrdwavkoj5MBxiSf7cCUqwnFf\">16\" MacBook Pro (2021 / 2022)</div>\n</div>\n</div>\n</div>\n</div>\n<p><button id=\"paste-helper-id\" style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\"></button></p>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/40517385748630",
+      "key": "productRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/40517385781398",
+      "key": "reviews",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "",
+      "id": "gid://shopify/Metafield/40517385814166",
+      "key": "seriesIntroduce",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/40517385945238",
+      "key": "badge",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2026-05-12T02:29:56Z",
+      "value": "<div style='display:none' class='jdgm-prev-badge' data-average-rating='0.00' data-number-of-reviews='0' data-number-of-questions='0'> <span class='jdgm-prev-badge__stars' data-score='0.00' tabindex='0' aria-label='0.00 stars' role='button'> <span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span> </span> <span class='jdgm-prev-badge__text'> No reviews </span> </div>"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/40517385978006",
+      "key": "widget",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2026-05-12T02:29:56Z",
+      "value": "<div class='jdgm-rev-widg' data-updated-at='2026-05-12T02:29:55Z' data-average-rating='0.00' data-number-of-reviews='0' data-number-of-questions='0' data-image-url='https://cdn.shopify.com/s/files/1/0493/9834/9974/files/5-A82E2011_a5c2bf51-62d2-4af9-b483-315e3cc67428.png?v=1739516685'> <style class='jdgm-temp-hiding-style'>.jdgm-rev-widg{ display: none }</style> <div class='jdgm-rev-widg__header'> <h2 class='jdgm-rev-widg__title'>Customer Reviews</h2>  <div class='jdgm-rev-widg__summary'> <div class='jdgm-rev-widg__summary-stars' aria-label='Average rating is 0.00 stars' role='img'> <span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span> </div> <div class='jdgm-rev-widg__summary-text'>Be the first to write a review</div> </div> <a style='display: none' href='#' class='jdgm-write-rev-link' role='button'>Write a review</a> <div class='jdgm-histogram jdgm-temp-hidden'>  <div class='jdgm-histogram__row' data-rating='5' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 5 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='4' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 4 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='3' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 3 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='2' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 2 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='1' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 1 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row jdgm-histogram__clear-filter' data-rating=null tabindex='0'></div> </div>     <div class='jdgm-rev-widg__sort-wrapper'></div> </div> <div class='jdgm-rev-widg__body'>  <div class='jdgm-rev-widg__reviews'></div> <div class='jdgm-paginate' data-per-page='5' data-url='https://api.judge.me/reviews/reviews_for_widget' style=\"display: none;\"></div>  </div> <div class='jdgm-rev-widg__paginate-spinner-wrapper'> <div class='jdgm-spinner'></div> </div> </div>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/40517386043542",
+      "key": "infos",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{\"key_features\":{\"list\":[{\"key\":\"Super-Fast 240W Cable\",\"value\":\"This 240W USB-IF certified cable can charge your 16-inch MacBook Pro (2023) to 50% in just 28 minutes or your iPhone 15 Pro to 50% in 26 minutes.\"},{\"key\":\"Soft to the Touch, Simple to Store\",\"value\":\"This cable combines a soft touch with easy storage for knot-free charging sessions without the fuss.\"},{\"key\":\"Ultra-Durable Charging Cable\",\"value\":\"With a 30,000+ bend lifespan and the ability to withstand 220 lbs without breaking, this cable is built to last over 10 years.\"},{\"key\":\"Charge Sustainably\",\"value\":\"Crafted from 100% post-consumer recycled materials, the braided exterior combines eco-friendliness with high performance.\"},{\"key\":\"What You Get\",\"value\":\"Anker USB-C to USB-C Cable (3 ft, 240W, Upcycled-Braided), silicone cord organizer, welcome guide, 24-month warranty, and our friendly customer service.\"}]}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2026-05-12T02:29:53Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/40517386076310",
+      "key": "topbar",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2026-05-12T02:29:53Z",
+      "value": "{\"first\":{\"purchase\":\"Purchase\"},\"components\":{\"listingBanner\":\"Overview\",\"productSpecs\":\"Specs\",\"faq\":\"FAQ\",\"compare\":\"Comparison\",\"productRecommends\":\"Recommends\",\"reviews\":\"Reviews\"},\"last\":{}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": null,
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10993283268758",
+      "name": "Size",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4443834843286",
+          "name": "3ft × 6ft",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "85.96",
+      "currencyCode": "USD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "85.96",
+      "currencyCode": "USD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-05-12T02:34:33Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Power your MacBook Pro to 50% in 28 minutes with this 240W, soft, durable, and eco-friendly USB-C cable—ideal for efficient and sustainable charging.",
+    "title": null
+  },
+  "tags": [
+    "kelong"
+  ],
+  "title": "Anker USB-C to USB-C Cable (3 ft / 6 ft, 240W, Upcycled-Braided, 4-Pack)",
+  "totalInventory": 0,
+  "updatedAt": "2026-09-22T08:25:29Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjM4MTc1Njc0MzgzMCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjM4MTc1Njc0MzgzMCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644039882",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46381756743830",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1000,
+            "id": "gid://shopify/ProductImage/42069456519318",
+            "thumbhash": "0/eBBQASiHl7d3kHWHePiPiIeFiHiHCYhw==",
+            "url": "https://cdn.shopify.com/s/files/1/0493/9834/9974/files/Group2147226154.png?v=1778553250",
+            "width": 1000
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "85.96",
+            "currencyCode": "USD"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Size",
+              "value": "3ft × 6ft"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "BUNDLE-A82E2011-2-A82E2012-2",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "3ft × 6ft",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/46381756743830": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/46381756743830",
+      "metafields": [
+        null,
+        null,
+        {
+          "__typename": "Metafield",
+          "createdAt": "2026-05-12T02:29:53Z",
+          "description": null,
+          "id": "gid://shopify/Metafield/40517386928278",
+          "key": "data",
+          "list": false,
+          "namespace": "__discountCodeApp",
+          "reference": null,
+          "references": null,
+          "type": "json",
+          "updatedAt": "2026-05-12T02:29:53Z",
+          "value": "[{\"title\":\"WS244L0K38\",\"starts_at\":\"2026-02-24T08:00:00.000Z\",\"ends_at\":\"2027-02-24T08:00:00.000Z\",\"variant_shopify_id\":44401257808022,\"value_type\":\"fixed_amount\",\"value\":\"-11.0\",\"currency\":\"USD\",\"fixed_value\":\"11.0\",\"value_style\":\"$11\",\"variant_price4wscode\":31.98,\"discount_type\":\"WS24\",\"amazon_deal\":false,\"sales_channel\":null,\"cdi_id\":129826,\"cdi_updated_at\":\"2026-02-26T05:39:06.125Z\"}]"
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

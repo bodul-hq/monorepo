@@ -1,0 +1,521 @@
+{
+  "data": {
+    "products": {
+      "pageInfo": {
+        "hasNextPage": true,
+        "endCursor": "eyJsYXN0X2lkIjo4MzAyMjIzNTI0MDI5LCJsYXN0X3ZhbHVlIjo4MzAyMjIzNTI0MDI5LCJvZmZzZXQiOjN9"
+      },
+      "edges": [
+        {
+          "cursor": "eyJsYXN0X2lkIjo4MzAyMjIzNTI0MDI5LCJsYXN0X3ZhbHVlIjo4MzAyMjIzNTI0MDI5LCJvZmZzZXQiOjN9",
+          "node": {
+            "__typename": "Product",
+            "availableForSale": false,
+            "category": {
+              "__typename": "TaxonomyCategory",
+              "ancestors": [
+                {
+                  "__typename": "TaxonomyCategory",
+                  "id": "gid://shopify/TaxonomyCategory/el-2-1-2-3",
+                  "name": "Headphone Carrying Cases"
+                },
+                {
+                  "__typename": "TaxonomyCategory",
+                  "id": "gid://shopify/TaxonomyCategory/el-2-1-2",
+                  "name": "Headphone & Headset Accessories"
+                },
+                {
+                  "__typename": "TaxonomyCategory",
+                  "id": "gid://shopify/TaxonomyCategory/el-2-1",
+                  "name": "Audio Accessories"
+                },
+                {
+                  "__typename": "TaxonomyCategory",
+                  "id": "gid://shopify/TaxonomyCategory/el-2",
+                  "name": "Audio"
+                },
+                {
+                  "__typename": "TaxonomyCategory",
+                  "id": "gid://shopify/TaxonomyCategory/el",
+                  "name": "Electronics"
+                }
+              ],
+              "id": "gid://shopify/TaxonomyCategory/el-2-1-2-3-1",
+              "name": "Earbud & In-Ear Headphone Carrying Cases"
+            },
+            "collections": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6NH0="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjozMzYyMDA1OTc2OTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "headphone-accessories",
+                    "id": "gid://shopify/Collection/336200597693",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 1026,
+                      "id": "gid://shopify/CollectionImage/1638690029757",
+                      "thumbhash": null,
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/collections/1.webp?v=1778668193",
+                      "width": 3198
+                    },
+                    "onlineStoreUrl": "https://ca.store.anker.com/collections/headphone-accessories",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjo5MDQ5ODA1MDk1MTAxLCJsYXN0X3ZhbHVlIjoiMDAwMDV6eTgwaXkiLCJvZmZzZXQiOjB9"
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjo5MDQ5ODA1MDk1MTAxLCJsYXN0X3ZhbHVlIjoiMDAwMDV6eTgwaXkiLCJvZmZzZXQiOjB9",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "d1206z11-91",
+                            "id": "gid://shopify/Product/9049805095101",
+                            "title": "Liberty Buds 2 - Left and Right Ear Grips (without charging case)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Get any accessories of your headphones. Include charging case, ear tips kit and AUX cable.You can find everything you need here.",
+                      "title": "Headphone Accessories | soundcore - Anker"
+                    },
+                    "title": "Headphone Accessories",
+                    "updatedAt": "2026-11-07T12:17:37Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjozMzYyMDA4NTk4MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "best-seller-internal-use",
+                    "id": "gid://shopify/Collection/336200859837",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 1026,
+                      "id": "gid://shopify/CollectionImage/1638690259133",
+                      "thumbhash": null,
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/collections/banner.jpg?v=1778668198",
+                      "width": 3198
+                    },
+                    "onlineStoreUrl": "https://ca.store.anker.com/collections/best-seller-internal-use",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjo4MzAyMjI1NTIyODc3LCJvZmZzZXQiOjB9"
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjo4MzAyMjI1NTIyODc3LCJvZmZzZXQiOjB9",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "d1301-sleep-a30-smart-anc-earbuds-for-sleeping",
+                            "id": "gid://shopify/Product/8302225522877",
+                            "title": "soundcore Sleep A30 Special / Sleep A30 | The World's First Smart ANC Sleep Earbuds"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "Best Seller (internal use)",
+                    "updatedAt": "2026-11-07T12:17:37Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjozMzc0MzQ1MDk1MDEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "sport-earbuds-for-fitness",
+                    "id": "gid://shopify/Collection/337434509501",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": "sport earbuds",
+                      "height": 1260,
+                      "id": "gid://shopify/CollectionImage/1639341031613",
+                      "thumbhash": null,
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/collections/sport_earbuds_headphones_for_workout_pc.jpg?v=1780466376",
+                      "width": 6048
+                    },
+                    "onlineStoreUrl": "https://ca.store.anker.com/collections/sport-earbuds-for-fitness",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjo4MzAyMjIzNTI0MDI5LCJsYXN0X3ZhbHVlIjoiMDAwNG55bThlcXUiLCJvZmZzZXQiOjB9"
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjo4MzAyMjIzNTI0MDI5LCJsYXN0X3ZhbHVlIjoiMDAwNG55bThlcXUiLCJvZmZzZXQiOjB9",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a3968z21-96",
+                            "id": "gid://shopify/Product/8302223524029",
+                            "title": "soundcore Sport X20 Charging Case- White"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": "Boost your workouts with Soundcore wireless sport earbuds & headphones. Open-ear or over-ear designs deliver comfort, secure fit, and premium sound for fitness.",
+                      "title": "Wireless Sport Earbuds for Fitness | soundcore - Anker"
+                    },
+                    "title": "Sport Earbuds",
+                    "updatedAt": "2026-11-07T12:17:37Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjozNDA0MDgyNzEwMzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "soundcore-audio-projector",
+                    "id": "gid://shopify/Collection/340408271037",
+                    "image": null,
+                    "onlineStoreUrl": "https://ca.store.anker.com/collections/soundcore-audio-projector",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjo4MzAyMjI1NTIyODc3LCJvZmZzZXQiOjB9"
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjo4MzAyMjI1NTIyODc3LCJvZmZzZXQiOjB9",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "d1301-sleep-a30-smart-anc-earbuds-for-sleeping",
+                            "id": "gid://shopify/Product/8302225522877",
+                            "title": "soundcore Sleep A30 Special / Sleep A30 | The World's First Smart ANC Sleep Earbuds"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "soundcore Audio&Projector",
+                    "updatedAt": "2026-11-07T12:17:37Z"
+                  }
+                },
+                {
+                  "cursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6NH0=",
+                  "node": {
+                    "__typename": "Collection",
+                    "description": "",
+                    "descriptionHtml": "",
+                    "handle": "all-porducts",
+                    "id": "gid://shopify/Collection/344445681853",
+                    "image": null,
+                    "onlineStoreUrl": "https://ca.store.anker.com/collections/all-porducts",
+                    "products": {
+                      "pageInfo": {
+                        "hasNextPage": true,
+                        "endCursor": "eyJsYXN0X2lkIjo4MzAyMjY0MzIwMTg5LCJsYXN0X3ZhbHVlIjoiMTAxM3ZraHExbWMiLCJvZmZzZXQiOjB9"
+                      },
+                      "edges": [
+                        {
+                          "cursor": "eyJsYXN0X2lkIjo4MzAyMjY0MzIwMTg5LCJsYXN0X3ZhbHVlIjoiMTAxM3ZraHExbWMiLCJvZmZzZXQiOjB9",
+                          "node": {
+                            "__typename": "Product",
+                            "handle": "a1695-anker-power-bank-25000mah-165w",
+                            "id": "gid://shopify/Product/8302264320189",
+                            "title": "Anker Power Bank (25K, 165W, Built-In and Retractable Cables)"
+                          }
+                        }
+                      ]
+                    },
+                    "seo": {
+                      "__typename": "SEO",
+                      "description": null,
+                      "title": null
+                    },
+                    "title": "All Products",
+                    "updatedAt": "2026-11-07T12:17:37Z"
+                  }
+                }
+              ]
+            },
+            "compareAtPriceRange": {
+              "__typename": "ProductPriceRange",
+              "maxVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "0.0",
+                "currencyCode": "CAD"
+              },
+              "minVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "0.0",
+                "currencyCode": "CAD"
+              }
+            },
+            "createdAt": "2026-05-13T09:47:20Z",
+            "description": "* Authentic part manufactured by soundcore * Compatible with ssoundcore Sport X20 Charging Case- White",
+            "descriptionHtml": "<p> </p>\n<div>\n<div><span>* Authentic part manufactured by soundcore </span></div>\n<div><span>* Compatible with ssoundcore Sport X20 Charging Case- White</span></div>\n</div>\n<!---->",
+            "encodedVariantAvailability": "v1_",
+            "encodedVariantExistence": "v1_0",
+            "featuredImage": {
+              "__typename": "Image",
+              "altText": null,
+              "height": 3000,
+              "id": "gid://shopify/ProductImage/40255724191933",
+              "thumbhash": "PggCBwDol2iLdod/hCaniHiIhHAHB3gA",
+              "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/A3968Z21_ProductImage_03.jpg?v=1778665642",
+              "width": 3000
+            },
+            "handle": "a3968z21-96",
+            "id": "gid://shopify/Product/8302223524029",
+            "images": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjo0MDI1NTcyNDE5MTkzMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0MDI1NTcyNDE5MTkzMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "Image",
+                    "altText": null,
+                    "height": 3000,
+                    "id": "gid://shopify/ProductImage/40255724191933",
+                    "thumbhash": "PggCBwDol2iLdod/hCaniHiIhHAHB3gA",
+                    "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/A3968Z21_ProductImage_03.jpg?v=1778665642",
+                    "width": 3000
+                  }
+                }
+              ]
+            },
+            "isGiftCard": false,
+            "media": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjozMTM2NDgyNzQ4MDI1MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjozMTM2NDgyNzQ4MDI1MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "MediaImage",
+                    "alt": "",
+                    "id": "gid://shopify/MediaImage/31364827480253",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 3000,
+                      "id": "gid://shopify/ImageSource/31364827480253",
+                      "thumbhash": "PggCBwDol2iLdod/hCaniHiIhHAHB3gA",
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/A3968Z21_ProductImage_03.jpg?v=1778665642",
+                      "width": 3000
+                    },
+                    "mediaContentType": "IMAGE",
+                    "presentation": null,
+                    "previewImage": {
+                      "__typename": "Image",
+                      "altText": "",
+                      "height": 3000,
+                      "id": "gid://shopify/ImageSource/31364827480253",
+                      "thumbhash": "PggCBwDol2iLdod/hCaniHiIhHAHB3gA",
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/A3968Z21_ProductImage_03.jpg?v=1778665642",
+                      "width": 3000
+                    }
+                  }
+                }
+              ]
+            },
+            "onlineStoreUrl": "https://ca.store.anker.com/products/a3968z21-96",
+            "options": [
+              {
+                "__typename": "ProductOption",
+                "id": "gid://shopify/ProductOption/10593653424317",
+                "name": "Title",
+                "optionValues": [
+                  {
+                    "__typename": "ProductOptionValue",
+                    "id": "gid://shopify/ProductOptionValue/4224940310717",
+                    "name": "Default Title",
+                    "swatch": null
+                  }
+                ]
+              }
+            ],
+            "priceRange": {
+              "__typename": "ProductPriceRange",
+              "maxVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "46.99",
+                "currencyCode": "CAD"
+              },
+              "minVariantPrice": {
+                "__typename": "MoneyV2",
+                "amount": "46.99",
+                "currencyCode": "CAD"
+              }
+            },
+            "productType": "",
+            "publishedAt": "2026-07-29T03:49:33Z",
+            "requiresSellingPlan": false,
+            "sellingPlanGroups": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": null
+              },
+              "edges": []
+            },
+            "seo": {
+              "__typename": "SEO",
+              "description": null,
+              "title": null
+            },
+            "tags": [
+              "soundcore Accessories"
+            ],
+            "title": "soundcore Sport X20 Charging Case- White",
+            "updatedAt": "2026-10-19T09:42:15Z",
+            "variants": {
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "eyJsYXN0X2lkIjo0Njc4ODIwNjEwMDY2OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+              },
+              "edges": [
+                {
+                  "cursor": "eyJsYXN0X2lkIjo0Njc4ODIwNjEwMDY2OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+                  "node": {
+                    "__typename": "ProductVariant",
+                    "availableForSale": false,
+                    "barcode": null,
+                    "compareAtPrice": null,
+                    "components": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "currentlyNotInStock": false,
+                    "groupedBy": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "id": "gid://shopify/ProductVariant/46788206100669",
+                    "image": {
+                      "__typename": "Image",
+                      "altText": null,
+                      "height": 3000,
+                      "id": "gid://shopify/ProductImage/40255724191933",
+                      "thumbhash": "PggCBwDol2iLdod/hCaniHiIhHAHB3gA",
+                      "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/A3968Z21_ProductImage_03.jpg?v=1778665642",
+                      "width": 3000
+                    },
+                    "price": {
+                      "__typename": "MoneyV2",
+                      "amount": "46.99",
+                      "currencyCode": "CAD"
+                    },
+                    "quantityPriceBreaks": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "quantityRule": {
+                      "__typename": "QuantityRule",
+                      "increment": 1,
+                      "maximum": null,
+                      "minimum": 1
+                    },
+                    "requiresComponents": false,
+                    "requiresShipping": true,
+                    "selectedOptions": [
+                      {
+                        "__typename": "SelectedOption",
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ],
+                    "sellingPlanAllocations": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "sku": "A3968Z21-96",
+                    "storeAvailability": {
+                      "pageInfo": {
+                        "hasNextPage": false,
+                        "endCursor": null
+                      },
+                      "edges": []
+                    },
+                    "taxable": true,
+                    "title": "Default Title",
+                    "unitPrice": null,
+                    "unitPriceMeasurement": {
+                      "__typename": "UnitPriceMeasurement",
+                      "measuredType": null,
+                      "quantityUnit": null,
+                      "quantityValue": 0.0,
+                      "referenceUnit": null,
+                      "referenceValue": 0
+                    },
+                    "weight": 0.097,
+                    "weightUnit": "POUNDS"
+                  }
+                }
+              ]
+            },
+            "variantsCount": {
+              "__typename": "Count",
+              "count": 1,
+              "precision": "EXACT"
+            },
+            "vendor": "Soundcore"
+          }
+        }
+      ]
+    },
+    "localization": {
+      "country": {
+        "isoCode": "CA",
+        "currency": {
+          "isoCode": "CAD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      }
+    }
+  },
+  "extensions": {
+    "context": {
+      "country": "CA",
+      "language": "EN"
+    },
+    "cost": {
+      "requestedQueryCost": 517
+    }
+  }
+}

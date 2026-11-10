@@ -1,0 +1,921 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Uncategorized"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTY2MzQxNjk1MTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzM4NzQ2MDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "power-cube",
+          "id": "gid://shopify/Collection/316633874603",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Check out Anker's power cubes to enjoy convenient and high-speed charging. Compact, versatile & safe, they power up your devices effortlessly. Get yours now!",
+            "title": "Compact Power Cubes for Efficient Charging"
+          },
+          "title": "Power Cube",
+          "updatedAt": "2026-06-08T13:19:16Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzQxNjk1MTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "allproduct",
+          "id": "gid://shopify/Collection/316634169515",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "AllProduct",
+          "updatedAt": "2026-06-08T13:19:54Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "NZD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "NZD"
+    }
+  },
+  "createdAt": "2025-05-08T08:38:33Z",
+  "description": "The Anker Advantage: Join the 55 million+ powered by our leading technology. Transfer Files in Seconds: Insert your M.2 NVMe/SATA SSD and connect to a USB-C or Thunderbolt 3 port to transfer files at speeds of up to 10 Gbps. Wide Compatibility: Compatible with NVMe and SATA protocols, SSDs with M or B&M keys, and size 2230 / 2242 / 2260 / 2280 SSDs. Not compatible with mSATA or PCIe AHCI SSDs. Compact and Portable: The slimline design features a lightweight aluminum casing for superior portability. What You Get: PowerExpand M.2 SSD Enclosure, USB-C to USB-A/USB-C cable, screwdriver, 2 screws, travel pouch, welcome guide, 18-month warranty, and friendly customer service.",
+  "descriptionHtml": "<meta charset=\"utf-8\">\n<ul class=\"a-unordered-list a-vertical a-spacing-mini\" data-mce-fragment=\"1\">\n<li data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">The Anker Advantage: Join the 55 million+ powered by our leading technology.</span></li>\n<li data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Transfer Files in Seconds: Insert your M.2 NVMe/SATA SSD and connect to a USB-C or Thunderbolt 3 port to transfer files at speeds of up to 10 Gbps.</span></li>\n<li data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Wide Compatibility: Compatible with NVMe and SATA protocols, SSDs with M or B&amp;M keys, and size 2230 / 2242 / 2260 / 2280 SSDs. Not compatible with mSATA or PCIe AHCI SSDs.</span></li>\n<li data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">Compact and Portable: The slimline design features a lightweight aluminum casing for superior portability.</span></li>\n<li data-mce-fragment=\"1\"><span class=\"a-list-item\" data-mce-fragment=\"1\">What You Get: PowerExpand M.2 SSD Enclosure, USB-C to USB-A/USB-C cable, screwdriver, 2 screws, travel pouch, welcome guide, 18-month warranty, and friendly customer service.</span></li>\n</ul>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/39360521732267",
+    "thumbhash": "8fcFBoD703mNfYPNFVpEyIeG9bdcj7s=",
+    "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/1_1f44dbe8-6fac-484a-8615-773913776ce8.jpg?v=1746693515",
+    "width": 1400
+  },
+  "handle": "a8314",
+  "id": "gid://shopify/Product/8425258516651",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozOTM2MDUyMTY2NjczMSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMTczMjI2NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/39360521732267",
+          "thumbhash": "8fcFBoD703mNfYPNFVpEyIeG9bdcj7s=",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/1_1f44dbe8-6fac-484a-8615-773913776ce8.jpg?v=1746693515",
+          "width": 1400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMTc2NTAzNSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/39360521765035",
+          "thumbhash": "6fcRDQKuZ7Boh3aHdniHh/TEJmoN",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/3_5522d0dd-c1cc-4488-8e78-005b44d3c44f.jpg?v=1746693515",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMjA5MjcxNSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/39360522092715",
+          "thumbhash": "6PcNBQB3Rn13B4d4h3dXiKhpMKsG",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/4_d541b6cd-cd1b-47bb-ba02-a95c95bb1d7d.jpg?v=1746693515",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMTk5NDQxMSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/39360521994411",
+          "thumbhash": "6vcJDQIVJoiISIgol3L5GMeAig23",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/5_818480fe-8701-457b-8d2f-23d4d05dd38e.jpg?v=1746693515",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMTYwMTE5NSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/39360521601195",
+          "thumbhash": "9fcFBQCX53t32IjoiHoHd6dxcA0X",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/6_08d02610-faea-40f3-9c04-12836f077ebf.jpg?v=1746693515",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDUyMTY2NjczMSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/39360521666731",
+          "thumbhash": "9vcFBQC2ap9490cmlpLJmauF30r4",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/7_b902e2ab-e043-42ff-83ee-aa52a7309cc5.jpg?v=1746693515",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTAzMzU5ODU3NDc2MywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODI3OTg1MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598279851",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31033598279851",
+            "thumbhash": "8fcFBoD703mNfYPNFVpEyIeG9bdcj7s=",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/1_1f44dbe8-6fac-484a-8615-773913776ce8.jpg?v=1746693515",
+            "width": 1400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31033598279851",
+            "thumbhash": "8fcFBoD703mNfYPNFVpEyIeG9bdcj7s=",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/1_1f44dbe8-6fac-484a-8615-773913776ce8.jpg?v=1746693515",
+            "width": 1400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODMxMjYxOSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598312619",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598312619",
+            "thumbhash": "6fcRDQKuZ7Boh3aHdniHh/TEJmoN",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/3_5522d0dd-c1cc-4488-8e78-005b44d3c44f.jpg?v=1746693515",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598312619",
+            "thumbhash": "6fcRDQKuZ7Boh3aHdniHh/TEJmoN",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/3_5522d0dd-c1cc-4488-8e78-005b44d3c44f.jpg?v=1746693515",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODM0NTM4NywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598345387",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598345387",
+            "thumbhash": "6PcNBQB3Rn13B4d4h3dXiKhpMKsG",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/4_d541b6cd-cd1b-47bb-ba02-a95c95bb1d7d.jpg?v=1746693515",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598345387",
+            "thumbhash": "6PcNBQB3Rn13B4d4h3dXiKhpMKsG",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/4_d541b6cd-cd1b-47bb-ba02-a95c95bb1d7d.jpg?v=1746693515",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODM3ODE1NSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598378155",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598378155",
+            "thumbhash": "6vcJDQIVJoiISIgol3L5GMeAig23",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/5_818480fe-8701-457b-8d2f-23d4d05dd38e.jpg?v=1746693515",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598378155",
+            "thumbhash": "6vcJDQIVJoiISIgol3L5GMeAig23",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/5_818480fe-8701-457b-8d2f-23d4d05dd38e.jpg?v=1746693515",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODQxMDkyMywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598410923",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598410923",
+            "thumbhash": "9fcFBQCX53t32IjoiHoHd6dxcA0X",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/6_08d02610-faea-40f3-9c04-12836f077ebf.jpg?v=1746693515",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598410923",
+            "thumbhash": "9fcFBQCX53t32IjoiHoHd6dxcA0X",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/6_08d02610-faea-40f3-9c04-12836f077ebf.jpg?v=1746693515",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzU5ODU3NDc2MywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033598574763",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598574763",
+            "thumbhash": "9vcFBQC2ap9490cmlpLJmauF30r4",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/7_b902e2ab-e043-42ff-83ee-aa52a7309cc5.jpg?v=1746693515",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/31033598574763",
+            "thumbhash": "9vcFBQC2ap9490cmlpLJmauF30r4",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/7_b902e2ab-e043-42ff-83ee-aa52a7309cc5.jpg?v=1746693515",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": null,
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10636160237739",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4034540273835",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "183.0",
+      "currencyCode": "NZD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "183.0",
+      "currencyCode": "NZD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2025-05-09T06:05:19Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "2025_Valentine_buy_50P_save",
+    "buyfreelabels",
+    "charger_fall_pd_2309",
+    "eofy_2024",
+    "Winter_sale_2024"
+  ],
+  "title": "Anker <b>PowerExpand</b> M.2 SSD Enclosure",
+  "totalInventory": 0,
+  "updatedAt": "2025-05-09T20:40:44Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NTE5NDE0Mzg5MTYyNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTE5NDE0Mzg5MTYyNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644063344",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/45194143891627",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/39360521732267",
+            "thumbhash": "8fcFBoD703mNfYPNFVpEyIeG9bdcj7s=",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/1_1f44dbe8-6fac-484a-8615-773913776ce8.jpg?v=1746693515",
+            "width": 1400
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "183.0",
+            "currencyCode": "NZD"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "shopPayInstallmentsPricing": null,
+          "sku": "A83140A1",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.1389,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/45194143891627": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/45194143891627",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

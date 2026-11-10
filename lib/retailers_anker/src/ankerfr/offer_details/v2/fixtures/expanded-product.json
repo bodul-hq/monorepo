@@ -1,0 +1,2169 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15-5",
+        "name": "Adaptateurs secteur et chargeurs"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "Puissance"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Accessoires électroniques"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Appareil électronique"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-5-1",
+    "name": "Banques d’alimentation"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NzA1OTQxMDU3MjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTl9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDcyMzI0NDI2ODQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all",
+          "id": "gid://shopify/Collection/447232442684",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez chargeurs, batteries externes, stations sans fil et câbles Anker pour téléphones et PC, avec formats compacts, forte puissance et recharge avancée.",
+            "title": "Produits de Recharge"
+          },
+          "title": "Tous les produits",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjQ2Nzk4NjI1ODgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products",
+          "id": "gid://shopify/Collection/464679862588",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "all products",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTMzMjg3MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-airpods",
+          "id": "gid://shopify/Collection/476813328700",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Chargeur AirPods efficace et portable d'Anker - Chargement tout-en-un pour iPhone, AirPods et Apple Watch, offrant une alimentation ininterrompue à tout moment.",
+            "title": "Chargeur AirPods : Charger à tout moment, n'importe où"
+          },
+          "title": "Chargeurs Airpods",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTMzNjE0NjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-telephone",
+          "id": "gid://shopify/Collection/476813361468",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "chargeur telephone",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTkwNjMxMDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batteries-nomades",
+          "id": "gid://shopify/Collection/476819063100",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "batteries nomades",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTk2ODU2OTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "meilleur-batterie-externe",
+          "id": "gid://shopify/Collection/476819685692",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": " Découvrez la puissance des meilleures batteries externes Anker: chargez plusieurs appareils jusqu'à 250W, suivez vos statistiques sur l'appli et rechargez vite!",
+            "title": "Meilleure Batterie Externe"
+          },
+          "title": "meilleur batterie externe",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTk3NTEyMjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-usb-c",
+          "id": "gid://shopify/Collection/476819751228",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "batterie externe usb c",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTk4MTY3NjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-charge-rapide",
+          "id": "gid://shopify/Collection/476819816764",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "batterie externe charge rapide",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTk5MTUwNjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "mini-batterie-externe",
+          "id": "gid://shopify/Collection/476819915068",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Restez alimenté en déplacement avec les mini-batteries externes Anker en France, capacité de 5 000 à 10 000 mAh+, câbles intégrés, charge MagGo et format compact.",
+            "title": null
+          },
+          "title": "Mini Batteries Externes",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MTk5ODA2MDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-legere",
+          "id": "gid://shopify/Collection/476819980604",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Besoin d'une batterie externe légère? Notre sélection combine design épuré et technologie rapide pour garder vos appareils chargés en déplacement. ",
+            "title": null
+          },
+          "title": "batterie externe légère",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MjAxNzcyMTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-5000mah",
+          "id": "gid://shopify/Collection/476820177212",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Choisissez les batteries externes Anker 5000 mAh au design fin, avec charge magnétique Qi2, supports intégrés et énergie portable fiable au quotidien.",
+            "title": "Batteries externes 5000 mAh"
+          },
+          "title": "Batterie externe 5000mah",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MjAyNDI3NDgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-pour-smartphone",
+          "id": "gid://shopify/Collection/476820242748",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "batterie externe pour smartphone",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MjAzMDgyODQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "apple-batterie-externe",
+          "id": "gid://shopify/Collection/476820308284",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Achetez les batteries externes Apple Anker pour garder votre iPhone, AirPods, Apple Watch et MacBook prêts avec la charge MagSafe/Qi2, la vitesse USB-C et une grande autonomie pour les voyages.",
+            "title": null
+          },
+          "title": "Batterie externe Apple",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzY4MjAzNzM4MjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-samsung",
+          "id": "gid://shopify/Collection/476820373820",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Alimentez vos appareils Galaxy et USB-C avec les batteries Anker : charge rapide, câbles intégrés, grande capacité et sécurité pour vos voyages.",
+            "title": null
+          },
+          "title": "Batterie Externe Samsung",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcwOTk0MjYxMDgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-iphone15",
+          "id": "gid://shopify/Collection/477099426108",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Obtenez le chargeur iPhone 15 Anker pour faciliter la charge. Alimentez instantanément votre iPhone 15 avec une sortie maximale à 100W et reprenez immédiatement votre activité.",
+            "title": "Chargeur iphone 15"
+          },
+          "title": "Chargeur iphone15",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcwOTk1NTcxODAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-mac",
+          "id": "gid://shopify/Collection/477099557180",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs Mac d’Anker pour une charge efficace et portable, alliant puissance et praticité pour une expérience inégalée.",
+            "title": "Chargeurs Mac"
+          },
+          "title": "Chargeur Mac",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcwOTk5ODMxNjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-macbook-air",
+          "id": "gid://shopify/Collection/477099983164",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Alimentez votre ordinateur partout avec le chargeur MacBook Air Anker en France, au design GaN compact, une puissance de 45 W à 250 W et des ports multiples.",
+            "title": null
+          },
+          "title": "Chargeur MacBook Air",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDAwODE0NjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-ipad",
+          "id": "gid://shopify/Collection/477100081468",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Libérez votre iPad des heures de charge ! Le chargeur iPad Anker allie vitesse de charge optimale et design ultra-compact pour une mobilité sans compromis.",
+            "title": "Chargeur iPad"
+          },
+          "title": "Chargeur iPad",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDAyNDUzMDgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeurs-iphone-12",
+          "id": "gid://shopify/Collection/477100245308",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Achetez le chargeur iPhone 12 d'Anker pour charger efficacement la série iPhone 12. Nos chargeurs avec ports USB-C et USB-A sont rapides, sûrs et compacts.",
+            "title": "Chargeur iPhone 12"
+          },
+          "title": "Chargeurs iphone 12",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDA1NDAyMjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-iphone-14",
+          "id": "gid://shopify/Collection/477100540220",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs polyvalents d'Anker pour iPhone 14 et améliorez votre expérience. Maximisez votre iPhone 14 avec des chargeurs iPhone 14 rapides et portables.",
+            "title": "Chargeurs iPhone 14"
+          },
+          "title": "chargeur iphone 14",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDMzOTEwMzYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-universel",
+          "id": "gid://shopify/Collection/477103391036",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs universels Anker en France: USB-C rapide, GaN compact, écrans intelligents et charge multi-appareils pour travail et voyage.",
+            "title": null
+          },
+          "title": "Chargeurs Universels",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDM0ODkzNDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-ordinateur-portable-asus",
+          "id": "gid://shopify/Collection/477103489340",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs compacts d'Anker pour ordinateurs portables ASUS : puissants, écologiques et sécurisés. Faites la mise à niveau !",
+            "title": "Chargeurs pour Ordinateurs Portables ASUS"
+          },
+          "title": "Chargeur pour Ordinateur Portable ASUS",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDM3NTE0ODQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-nomade-iphone",
+          "id": "gid://shopify/Collection/477103751484",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Achetez les batterie externe iPhone 15 Anker et ne vous inquiétez plus jamais de batterie morte. Réapprovisionnez instantanément jusqu'à 3 appareils à la fois.",
+            "title": null
+          },
+          "title": "Batterie externe iPhone 15",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ0Mzk2MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-pour-iphone-13",
+          "id": "gid://shopify/Collection/477104439612",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Faites l'expérience d'une charge rapide et fiable avec les chargeurs de haute qualité d'Anker pour iPhone 13. Restez branché et connecté avec Anker où que vous alliez.",
+            "title": "Chargeurs Rapides, Fiables et Sûrs iPhone 13"
+          },
+          "title": "Chargeurs iPhone 13",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ1NzA2ODQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-pour-ordinateur-portable-hp",
+          "id": "gid://shopify/Collection/477104570684",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Bénéficiez d'une recharge efficace avec les chargeurs ordinateur portable HP d'Anker. Alimentez vos appareils HP et restez productif grâce à notre technologie de pointe et à nos performances fiables.",
+            "title": "Chargeurs Ordinateur Portable HP : Votre Solution de Charge Efficace"
+          },
+          "title": "Chargeurs Ordinateur Portable HP",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ2Njg5ODgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-d-ordinateur-portable-lenovo",
+          "id": "gid://shopify/Collection/477104668988",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Améliorez votre expérience de charge avec le chargeur ordinateur portable Lenovo d'Anker - un chargeur compact, puissant et rapide pour une productivité ininterrompue et une durée d'utilisation prolongée.",
+            "title": "Chargeurs Ordinateur Portable Lenovo"
+          },
+          "title": "chargeur d ordinateur portable lenovo",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ3NjcyOTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-microsoft-surface",
+          "id": "gid://shopify/Collection/477104767292",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Utilisez le chargeur Microsoft Surface d'Anker pour profiter d'une puissance rapide et puissante à tout moment. Avec une sortie de 150 watts et 4 ports, ils peuvent recharger votre Surface à tout moment.",
+            "title": "Chargeur Microsoft Surface de Qualité et Fiable"
+          },
+          "title": "Chargeur Microsoft Surface",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ4NjU1OTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-usb-c-macbook",
+          "id": "gid://shopify/Collection/477104865596",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Restez alimenté et connecté à tout moment avec les chargeurs MacBook USB C d'Anker qui ont une sortie allant jusqu'à 150 W et la technologie PowerIQ.",
+            "title": "Chargeurs MacBook USB C fantastiques"
+          },
+          "title": "Chargeur MacBook USB C",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ4OTgzNjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-ultra-rapide-samsung",
+          "id": "gid://shopify/Collection/477104898364",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Utilisez le chargeur Samsung Super Rapides d’Anker pour recharger votre appareil Samsung en un instant. Avec une puissance de sortie maximale de 100 watts, notre chargeur est un changement de jeu.",
+            "title": "Chargeurs Samsung Super Rapides à Haute Performance"
+          },
+          "title": "Chargeur Ultra Rapide Samsung",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDQ5MzExMzIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-portable-usb-c",
+          "id": "gid://shopify/Collection/477104931132",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Optez pour une batterie externe USB C haute capacité et ultrarapide, parfaite pour voyage et multitâche. Conforme aux normes aériennes, légère et durable.",
+            "title": "Batterie externe USB C: grand et rapide"
+          },
+          "title": "Batterie externe USB C",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDUwMjk0MzYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-de-manette-xbox",
+          "id": "gid://shopify/Collection/477105029436",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Améliorez votre expérience de jeu grâce à la commodité et à la fiabilité de chargeur pour manette Xbox Anker, en profitant d'une charge haute performance.",
+            "title": "Chargeur pour manette Xbox"
+          },
+          "title": "Chargeur pour manette Xbox",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDc2ODM2NDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-samsung-galaxy",
+          "id": "gid://shopify/Collection/477107683644",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Achetez les chargeurs Samsung Galaxy d'Anker : La solution de charge rapide, polyvalente et sûre pour Samsung Galaxy à la maison, au travail ou en déplacement. ",
+            "title": null
+          },
+          "title": "Chargeur Samsung Galaxy",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDc3MTY0MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-sans-fil-samsung-galaxy",
+          "id": "gid://shopify/Collection/477107716412",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs sans fil Samsung Galaxy d'Anker pour une charge efficace, une commodité sans fil, une large compatibilité et une sécurité améliorée.",
+            "title": null
+          },
+          "title": "Chargeur sans fil Samsung Galaxy",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDc3NDkxODAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-portable-iphone-13",
+          "id": "gid://shopify/Collection/477107749180",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs portables ou les batteries externes iPhone 13 d'Anker, combinant la charge murale et chargeant 3 appareils avec la technologie GaN.",
+            "title": null
+          },
+          "title": "Batterie externe iPhone 13",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDc3ODE5NDgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-portable-iphone-12",
+          "id": "gid://shopify/Collection/477107781948",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Boostez avec une batterie externe iPhone 12 ultra-performante. Combinez recharge rapide PD et design ergonomique pour vos voyages et votre quotidien. ",
+            "title": "Batterie externe iPhone 12 "
+          },
+          "title": "Batterie externe iPhone 12",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDgyNDA3MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-portable-iphone-14",
+          "id": "gid://shopify/Collection/477108240700",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Chargeur portable ou Batterie externe iPhone 14 d'Anker - une solution 2-en-1 pour une charge rapide, une compatibilité polyvalente et une sécurité robuste.",
+            "title": " Batterie externe iPhone 14"
+          },
+          "title": "Batterie externe iPhone 14",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDg0MDQ1NDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeurs-pour-ordinateur-portable-dell",
+          "id": "gid://shopify/Collection/477108404540",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les puissants chargeurs ordinateur Dell d'Anker dotés de la technologie GaNPrime pour une charge plus rapide et un design compact. ",
+            "title": "Chargeurs Ordinateur Dell"
+          },
+          "title": "Chargeurs Ordinateur Dell",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDg0NzAwNzYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-pour-macbook-pro",
+          "id": "gid://shopify/Collection/477108470076",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Procurez-vous les chargeurs MacBook Pro d'Anker pour une solution de charge optimale. Boostez performances, vitesse et sécurité avec nos chargeurs premium compacts.",
+            "title": "Chargeur pour MacBook Pro"
+          },
+          "title": "Chargeur pour MacBook Pro",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDg1MDI4NDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-portable-macbook",
+          "id": "gid://shopify/Collection/477108502844",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs portables pour MacBook d'Anker : puissance jusqu'à 27 000 mAh et sortie de 250 W pour une productivité sans interruption.",
+            "title": "Chargeur Portable pour MacBook"
+          },
+          "title": "Chargeur Portable pour MacBook",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxMDg1MzU2MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-double-usb",
+          "id": "gid://shopify/Collection/477108535612",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Optez pour les chargeurs USB double Anker pour une charge révolutionnaire. Vitesse, sécurité et compatibilité réunies en un seul appareil.",
+            "title": "Chargeur USB Double"
+          },
+          "title": "Chargeur USB Double",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjE5ODAyMjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-pour-iphone",
+          "id": "gid://shopify/Collection/477161980220",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Batterie pour iPhone",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIwNDU3NTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-65w",
+          "id": "gid://shopify/Collection/477162045756",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Restez alimenté avec les batteries externes 65W Anker pour ordinateurs, téléphones et tablettes, avec recharge rapide, grande capacité et mobilité fiable.",
+            "title": "Batteries externes 65W"
+          },
+          "title": "batterie externe 65w",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIwNzg1MjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-45w",
+          "id": "gid://shopify/Collection/477162078524",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "batterie externe 45w",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIxMTEyOTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-100w",
+          "id": "gid://shopify/Collection/477162111292",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez la puissance de nos batteries externes 100 W pour tablettes, téléphones et ordinateurs. Anker vous garantit une charge rapide et sûre à tout moment.",
+            "title": "Batterie externe 100 W puissante"
+          },
+          "title": "Batterie Externe 100 W",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIxNDQwNjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-steam-deck",
+          "id": "gid://shopify/Collection/477162144060",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Batterie externe Steam Deck",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIyMDk1OTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-grande-capacite",
+          "id": "gid://shopify/Collection/477162209596",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Autonomie extrême pour vos aventures! La batterie externe grande capacité Anker recharge tous appareils 10 fois, technologie SafeFast pour sécurité maximale.",
+            "title": "Batterie externe grande capacité"
+          },
+          "title": "Batterie Externe Grande Capacité",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjIyNDIzNjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "batterie-externe-camping",
+          "id": "gid://shopify/Collection/477162242364",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Parfaite pour la randonnée ou le bivouac, la batterie externe camping Anker combine puissance, format compact et sécurité pour vos aventures en pleine nature.",
+            "title": "Batterie Externe Camping Puissante et Nomade"
+          },
+          "title": "Batterie Externe pour Camping",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjg3OTU5NjQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-magsafe-pour-iphone-15",
+          "id": "gid://shopify/Collection/477168795964",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "chargeur magsafe pour iphone 15",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjg4NjE1MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-usb-c-65w",
+          "id": "gid://shopify/Collection/477168861500",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Achetez le chargeur USB-C 65W Anker en France : recharge rapide pour téléphones, PC et tablettes, design GaN compact, multi-ports et sécurité maximale.",
+            "title": null
+          },
+          "title": "Chargeur USB-C 65W",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjg4OTQyNjgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-usb-c-45w",
+          "id": "gid://shopify/Collection/477168894268",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Chargeur USB C 45W ultra-compact et haute performance pour variété d'appareils. Conçu pour les déplacements et le quotidien sans compromis.",
+            "title": "Chargeur USB C 45W"
+          },
+          "title": "Chargeur USB C 45 W",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjg5NTk4MDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "100w-gan-charger",
+          "id": "gid://shopify/Collection/477168959804",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "100w-gan-charger",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjkxNTY0MTIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "station-de-recharge-3-en-1",
+          "id": "gid://shopify/Collection/477169156412",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les stations de charge 3-en-1 Anker en France: charge sans fil rapide, refroidissement intelligent, USB-C et design compact pour téléphones, PC, etc.",
+            "title": null
+          },
+          "title": "Stations de Charge 3-en-1",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjkyNTQ3MTYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-25w",
+          "id": "gid://shopify/Collection/477169254716",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Découvrez les chargeurs 25W d'Anker: compacts, rapides et écologiques avec PowerIQ, GaN et ActiveShield. Chargez vos appareils plus vite et de manière plus verte!",
+            "title": "Chargeurs 25W"
+          },
+          "title": "Chargeur 25W",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NzcxNjkyODc0ODQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeur-usb-c-100w",
+          "id": "gid://shopify/Collection/477169287484",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Chargeurs USB C 100W Anker, puissance ultra-rapide pour appareils multiples. Compact, sûr et conçu pour les professionnels en déplacement.",
+            "title": "Chargeurs USB C 100W"
+          },
+          "title": "Chargeur USB-C 100w",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODkxMTI3OTc1MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "meilleures-ventes",
+          "id": "gid://shopify/Collection/489112797500",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Meilleures ventes",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODkxMzEwODIwNDQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargeurs-android",
+          "id": "gid://shopify/Collection/489131082044",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Restez connecté et productif avec les chargeurs Android d'Anker. La charge rapide et les fonctionnalités de sécurité vous permettent de recharger facilement.",
+            "title": null
+          },
+          "title": "Chargeurs Android",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODkxMzI5ODI1ODgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "adaptateur-chargeur-apple-watch",
+          "id": "gid://shopify/Collection/489132982588",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Assurez-vous que votre Apple Watch est alimentée rapidement et sans restriction avec l'adaptateur de chargeur pour Apple Watch d'Anker.",
+            "title": "Rester Alimenté Avec l'Adaptateur Chargeur pour Apple Watch"
+          },
+          "title": "Adaptateur Chargeur Apple Watch",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDYxMzQ3NTk4MDAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-all-products",
+          "id": "gid://shopify/Collection/646134759800",
+          "image": null,
+          "onlineStoreUrl": "https://fr.anker.com/collections/chargers-all-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "chargers all products",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NzAxOTk2NDQ1MzYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "laptop-charger-campaign",
+          "id": "gid://shopify/Collection/670199644536",
+          "image": null,
+          "onlineStoreUrl": "https://fr.anker.com/collections/laptop-charger-campaign",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Laptop charger campaign",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NzA1OTQxMDU3MjAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "2026年pd抽奖20-折扣",
+          "id": "gid://shopify/Collection/670594105720",
+          "image": null,
+          "onlineStoreUrl": "https://fr.anker.com/collections/2026%E5%B9%B4pd%E6%8A%BD%E5%A5%9620-%E6%8A%98%E6%89%A3",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "2026年PD抽奖20%折扣",
+          "updatedAt": "2026-11-07T12:33:14Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "RON"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "RON"
+    }
+  },
+  "createdAt": "2025-08-05T03:45:32Z",
+  "description": "PowerBank Anker (25K, 165 W, câble intégré + câble rétractable) Trois ports USB-C 100 W Conçu pour le multitâche, cette banque d'alimentation possède trois ports USB-C (100 W chacun) qui alimentent votre MacBook et vos autres appareils sans perte de vitesse. 25 000 mAh d'énergie Grâce à sa puissance de 25 000 mAh, vous pourrez utiliser vos appareils autant que vous voulez. En plus, cette batterie se recharge très rapidement (100 W) : elle atteint 30 % en 20 minutes seulement. Deux câbles intégrés Rechargez vos appareils où que vous soyez grâce aux deux câbles intégrés : un câble rétractable de 70 cm testé pour résister à plus de 20 000 rétractations, et un autre de 30 cm qui fait également office de lanière. Rechargez 4 appareils à la fois Vous ne serez jamais à court d'énergie grâce à cette batterie externe qui recharge vos smartphones, vos tablettes, ou d'autres appareils USB. Branchez jusqu'à 4 appareils simultanément grâce aux deux câbles USB-C, à un port USB-A1 et à un port USB-C. Dans la boîte PowerBank Anker (25K, 165 W, 1 câble intégré + 1 câble rétractable), manuel d'utilisation, 18 mois de garantie, et notre service client efficace. Chargeur Anker Zolo (140 W, 4 ports, PD 3.1) Recharge 140 W pour 4 appareils : rechargez rapidement jusqu’à quatre appareils grâce à notre chargeur alliant 140 W de puissance et technologie GaN de pointe. Deux ports USB-C haute vitesse : votre MacBook pro passe de 0 à 50 % en 30 minutes seulement grâce à l’un des deux ports USB-C haute vitesse 140 W. Sécurité supérieure : la technologie avancée ActiveShield 3.0 contrôle la température de l’appareil plus de 6 millions de fois par jour, pour une sécurité améliorée. Suivi facile et clair : l’affichage coloré haute définition fournit une vue détaillée des statuts de recharge de chaque port et de la température, pour que vous soyez toujours informé. Dans la boîte : Chargeur Anker Zolo (140 W, 4 ports, Display), câble USB-C vers USB-C 1,5 m, guide de bienvenue, 18 mois de garantie, et notre service client efficace.",
+  "descriptionHtml": "<p>PowerBank Anker (25K, 165 W, câble intégré + câble rétractable)</p>\n<ul>\n<li data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span><b>Trois ports USB-C 100 W</b></span></li>\n<li data-zone-id=\"0\" data-line-index=\"1\" data-line=\"true\"><span>Conçu pour le multitâche, cette banque d'alimentation possède trois ports USB-C (100 W chacun) qui alimentent votre MacBook et vos autres appareils sans perte de vitesse.</span></li>\n<li data-zone-id=\"0\" data-line-index=\"2\" data-line=\"true\"><span><b>25 000 mAh d'énergie</b></span></li>\n<li data-zone-id=\"0\" data-line-index=\"3\" data-line=\"true\"><span>Grâce à sa puissance de 25 000 mAh, vous pourrez utiliser vos appareils autant que vous voulez. En plus, cette batterie se recharge très rapidement (100 W) : elle atteint 30 % en 20 minutes seulement.</span></li>\n<li data-zone-id=\"0\" data-line-index=\"4\" data-line=\"true\"><span><b>Deux câbles intégrés</b></span></li>\n<li data-zone-id=\"0\" data-line-index=\"5\" data-line=\"true\"><span>Rechargez vos appareils où que vous soyez grâce aux deux câbles intégrés : un câble rétractable de 70 cm testé pour résister à plus de 20 000 rétractations, et un autre de 30 cm qui fait également office de lanière.</span></li>\n<li data-zone-id=\"0\" data-line-index=\"6\" data-line=\"true\"><span><b>Rechargez 4 appareils à la fois</b></span></li>\n<li data-zone-id=\"0\" data-line-index=\"7\" data-line=\"true\"><span>Vous ne serez jamais à court d'énergie grâce à cette batterie externe qui recharge vos smartphones, vos tablettes, ou d'autres appareils USB. Branchez jusqu'à 4 appareils simultanément grâce aux deux câbles USB-C, à un port USB-A1 et à un port USB-C.</span></li>\n<li data-zone-id=\"0\" data-line-index=\"8\" data-line=\"true\"><span><b>Dans la boîte</b></span></li>\n<li data-zone-id=\"0\" data-line-index=\"9\" data-line=\"true\"><span>PowerBank Anker (25K, 165 W, 1 câble intégré + 1 câble rétractable), manuel d'utilisation, 18 mois de garantie, et notre service client efficace.</span></li>\n</ul>\n<p><span>Chargeur Anker Zolo (140 W, 4 ports, PD 3.1)</span></p>\n<ul class=\"a-unordered-list a-vertical a-spacing-mini\">\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\">Recharge 140 W pour 4 appareils : rechargez rapidement jusqu’à quatre appareils grâce à notre chargeur alliant 140 W de puissance et technologie GaN de pointe.</span></li>\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\">Deux ports USB-C haute vitesse : votre MacBook pro passe de 0 à 50 % en 30 minutes seulement grâce à l’un des deux ports USB-C haute vitesse 140 W.</span></li>\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\">Sécurité supérieure : la technologie avancée ActiveShield 3.0 contrôle la température de l’appareil plus de 6 millions de fois par jour, pour une sécurité améliorée.</span></li>\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\">Suivi facile et clair : l’affichage coloré haute définition fournit une vue détaillée des statuts de recharge de chaque port et de la température, pour que vous soyez toujours informé.</span></li>\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\">Dans la boîte : Chargeur Anker Zolo (140 W, 4 ports, Display), câble USB-C vers USB-C 1,5 m, guide de bienvenue, 18 mois de garantie, et notre service client efficace.</span></li>\n</ul>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2400,
+    "id": "gid://shopify/ProductImage/74238874091896",
+    "thumbhash": "5PeFBQAjc391h7fYmW9o91NlaCeHd3CIpw==",
+    "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620",
+    "width": 2400
+  },
+  "handle": "bundle-a1695h41-1-b2697341-1",
+  "id": "gid://shopify/Product/14955405934968",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3NDIzODg3Mjk0NTAxNiwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3NDA5MTg5NiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2400,
+          "id": "gid://shopify/ProductImage/74238874091896",
+          "thumbhash": "5PeFBQAjc391h7fYmW9o91NlaCeHd3CIpw==",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620",
+          "width": 2400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3MjgxMzk0NCwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3000,
+          "id": "gid://shopify/ProductImage/74238872813944",
+          "thumbhash": "8/cJBQD7h3l3+EU4qIdoeMiJr5z3",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD04_V1_06cdab48-86ea-4cae-a600-25b7e3470c93.png?v=1754365620",
+          "width": 2400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3MzA0MzMyMCwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/74238873043320",
+          "thumbhash": "8PcJDQLmd2h390h3eIdoeCIQAwEQ",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD02_V1_6c80b60d-21a1-445c-969b-020f41f20e1a.png?v=1754365620",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3Mjg0NjcxMiwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3000,
+          "id": "gid://shopify/ProductImage/74238872846712",
+          "thumbhash": "XhgKDQJklW+XZ3qWmXN4qSQQVgJT",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD06_V1_1.png?v=1754365620",
+          "width": 2400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3Mjk3Nzc4NCwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/74238872977784",
+          "thumbhash": "9vcFBQCNaWdr95R3SWZYiGh3v7fz",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD05_V1_4497ebc7-18aa-4895-bb5f-6a06f77c8ba9.png?v=1754365620",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3MjkxMjI0OCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 3000,
+          "id": "gid://shopify/ProductImage/74238872912248",
+          "thumbhash": "9vcFDQLgS9uKiFV2imW3WUDfI/Vc",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD02_V1_77e2b2fe-1563-439c-90f0-8c373d91712f.png?v=1754365620",
+          "width": 2400
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3MzAxMDU1MiwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/74238873010552",
+          "thumbhash": "8vcJBQDIioSG+Xe2h4Y3qPiBfE/3",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD03_V1_6925c6d0-fbe8-441f-9b12-7c639ca6afaa.png?v=1754365620",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3NDIzODg3Mjk0NTAxNiwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/74238872945016",
+          "thumbhash": "5PcRBQD5iXt0iIjoh3xnSKYIjG/m",
+          "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD06_V1_3570c536-2596-4ede-ac92-f456b2773543.png?v=1754365620",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTc1NTc2OCwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNjY0MDUwNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753406640504",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2400,
+            "id": "gid://shopify/ImageSource/64753406640504",
+            "thumbhash": "5PeFBQAjc391h7fYmW9o91NlaCeHd3CIpw==",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620",
+            "width": 2400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2400,
+            "id": "gid://shopify/ImageSource/64753406640504",
+            "thumbhash": "5PeFBQAjc391h7fYmW9o91NlaCeHd3CIpw==",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620",
+            "width": 2400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTYyNDY5NiwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405624696",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405624696",
+            "thumbhash": "8/cJBQD7h3l3+EU4qIdoeMiJr5z3",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD04_V1_06cdab48-86ea-4cae-a600-25b7e3470c93.png?v=1754365620",
+            "width": 2400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405624696",
+            "thumbhash": "8/cJBQD7h3l3+EU4qIdoeMiJr5z3",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD04_V1_06cdab48-86ea-4cae-a600-25b7e3470c93.png?v=1754365620",
+            "width": 2400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTg1NDA3MiwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405854072",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405854072",
+            "thumbhash": "8PcJDQLmd2h390h3eIdoeCIQAwEQ",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD02_V1_6c80b60d-21a1-445c-969b-020f41f20e1a.png?v=1754365620",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405854072",
+            "thumbhash": "8PcJDQLmd2h390h3eIdoeCIQAwEQ",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD02_V1_6c80b60d-21a1-445c-969b-020f41f20e1a.png?v=1754365620",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTY1NzQ2NCwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405657464",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405657464",
+            "thumbhash": "XhgKDQJklW+XZ3qWmXN4qSQQVgJT",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD06_V1_1.png?v=1754365620",
+            "width": 2400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405657464",
+            "thumbhash": "XhgKDQJklW+XZ3qWmXN4qSQQVgJT",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD06_V1_1.png?v=1754365620",
+            "width": 2400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTc4ODUzNiwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405788536",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405788536",
+            "thumbhash": "9vcFBQCNaWdr95R3SWZYiGh3v7fz",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD05_V1_4497ebc7-18aa-4895-bb5f-6a06f77c8ba9.png?v=1754365620",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405788536",
+            "thumbhash": "9vcFBQCNaWdr95R3SWZYiGh3v7fz",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD05_V1_4497ebc7-18aa-4895-bb5f-6a06f77c8ba9.png?v=1754365620",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTcyMzAwMCwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405723000",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405723000",
+            "thumbhash": "9vcFDQLgS9uKiFV2imW3WUDfI/Vc",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD02_V1_77e2b2fe-1563-439c-90f0-8c373d91712f.png?v=1754365620",
+            "width": 2400
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 3000,
+            "id": "gid://shopify/ImageSource/64753405723000",
+            "thumbhash": "9vcFDQLgS9uKiFV2imW3WUDfI/Vc",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/B2697341_TD02_V1_77e2b2fe-1563-439c-90f0-8c373d91712f.png?v=1754365620",
+            "width": 2400
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTgyMTMwNCwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405821304",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405821304",
+            "thumbhash": "8vcJBQDIioSG+Xe2h4Y3qPiBfE/3",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD03_V1_6925c6d0-fbe8-441f-9b12-7c639ca6afaa.png?v=1754365620",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405821304",
+            "thumbhash": "8vcJBQDIioSG+Xe2h4Y3qPiBfE/3",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD03_V1_6925c6d0-fbe8-441f-9b12-7c639ca6afaa.png?v=1754365620",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NDc1MzQwNTc1NTc2OCwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/64753405755768",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405755768",
+            "thumbhash": "5PcRBQD5iXt0iIjoh3xnSKYIjG/m",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD06_V1_3570c536-2596-4ede-ac92-f456b2773543.png?v=1754365620",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/64753405755768",
+            "thumbhash": "5PcRBQD5iXt0iIjoh3xnSKYIjG/m",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_TD06_V1_3570c536-2596-4ede-ac92-f456b2773543.png?v=1754365620",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2025-08-05T03:45:34Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/183227563835768",
+      "key": "badge",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2026-10-18T03:53:09Z",
+      "value": "<div style='display:none' class='jdgm-prev-badge' data-average-rating='5.00' data-number-of-reviews='1' data-number-of-questions='0'> <span class='jdgm-prev-badge__stars' data-score='5.00' tabindex='0' aria-label='5.00 stars' role='button'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <span class='jdgm-prev-badge__text'> 1 avis </span> </div>"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2025-08-05T03:45:34Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/183227563868536",
+      "key": "widget",
+      "list": false,
+      "namespace": "judgeme",
+      "reference": null,
+      "references": null,
+      "type": "string",
+      "updatedAt": "2026-10-18T03:53:09Z",
+      "value": "<div class='jdgm-rev-widg' data-updated-at='2026-10-18T03:53:09Z' data-average-rating='5.00' data-number-of-reviews='1' data-number-of-questions='0' data-image-url='https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620'> <style class='jdgm-temp-hiding-style'>.jdgm-rev-widg{ display: none }</style> <div class='jdgm-rev-widg__header'> <h2 class='jdgm-rev-widg__title'>Customer Reviews</h2>  <div class='jdgm-rev-widg__summary'> <div class='jdgm-rev-widg__summary-stars' aria-label='Average rating is 5.00 stars' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </div> <div class='jdgm-rev-widg__summary-text'>Based on 1 review</div> </div> <a style='display: none' href='#' class='jdgm-write-rev-link' role='button'>Write a review</a> <div class='jdgm-histogram jdgm-temp-hidden'>  <div class='jdgm-histogram__row' data-rating='5' data-frequency='1' data-percentage='100'>  <div class='jdgm-histogram__star' role='button' aria-label=\"100% (1) reviews with 5 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 100%;'> </div> </div> <div class='jdgm-histogram__percentage'>100%</div> <div class='jdgm-histogram__frequency'>(1)</div> </div>  <div class='jdgm-histogram__row' data-rating='4' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 4 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='3' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 3 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='2' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 2 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row' data-rating='1' data-frequency='0' data-percentage='0'>  <div class='jdgm-histogram__star' role='button' aria-label=\"0% (0) reviews with 1 star rating\"  tabindex='0' ><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span><span class='jdgm-star jdgm--off'></span></div> <div class='jdgm-histogram__bar'> <div class='jdgm-histogram__bar-content' style='width: 0%;'> </div> </div> <div class='jdgm-histogram__percentage'>0%</div> <div class='jdgm-histogram__frequency'>(0)</div> </div>  <div class='jdgm-histogram__row jdgm-histogram__clear-filter' data-rating=null tabindex='0'></div> </div>     <div class='jdgm-rev-widg__sort-wrapper'></div> </div> <div class='jdgm-rev-widg__body'>  <div class='jdgm-rev-widg__reviews'><div class='jdgm-rev jdgm-divider-top' data-verified-buyer='true' data-review-id='16b0f197-f448-4f25-ab26-97e376b30ffe' data-review-language='' data-product-title='PowerBank Anker (25K, 165 W) + Chargeur Anker (140 W, 4 ports, PD 3.1)' data-product-url='/products/bundle-a1695h41-1-b2697341-1' data-thumb-up-count='0' data-thumb-down-count='0'> <div class='jdgm-rev__header'>  <div class='jdgm-rev__icon' > R </div>  <span class='jdgm-rev__rating' data-score='5' tabindex='0' aria-label='5 star review' role='img'> <span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span><span class='jdgm-star jdgm--on'></span> </span> <time class='jdgm-rev__timestamp jdgm-spinner' datetime='2026-06-19T20:19:01Z' data-content='2026-06-19 20:19:01 UTC'></time>    <div class='jdgm-rev__br'></div> <span class='jdgm-rev__buyer-badge-wrapper'> <span class='jdgm-rev__buyer-badge'></span> </span> <span class='jdgm-rev__author-wrapper'> <span class='jdgm-rev__author'>R.B.J.p.</span> <span class='jdgm-rev__location' >  </span>  </span> </div> <div class='jdgm-rev__content'>  <div class='jdgm-rev__custom-form'>  </div> <b class='jdgm-rev__title'>Rien à dire \nAu delà de mes</b> <div class='jdgm-rev__body'><p>Rien à dire \n<br />Au delà de mes attentes</p></div> <div class='jdgm-rev__pics'>  <a class='jdgm-rev__pic-link jdgm--loading' target='_blank' rel='nofollow' href='https://review-images.judgeme.com/anker-fr/1781900342__1781900320530-img_9760__original.jpeg?quality=80&amp;width=1024' data-mfp-src='https://review-images.judgeme.com/anker-fr/1781900342__1781900320530-img_9760__original.jpeg?quality=80&amp;width=1024' aria-label='R.B.J.p. review photo 1'> <img class='jdgm-rev__pic-img' alt='R.B.J.p. review photo' data-src='https://review-images.judgeme.com/anker-fr/1781900342__1781900320530-img_9760__original.jpeg?quality=80&amp;width=160'> </a>  <a class='jdgm-rev__pic-link jdgm--loading' target='_blank' rel='nofollow' href='https://review-images.judgeme.com/anker-fr/1781900346__1781900320531-img_9757__original.jpeg?quality=80&amp;width=1024' data-mfp-src='https://review-images.judgeme.com/anker-fr/1781900346__1781900320531-img_9757__original.jpeg?quality=80&amp;width=1024' aria-label='R.B.J.p. review photo 2'> <img class='jdgm-rev__pic-img' alt='R.B.J.p. review photo' data-src='https://review-images.judgeme.com/anker-fr/1781900346__1781900320531-img_9757__original.jpeg?quality=80&amp;width=160'> </a>  <a class='jdgm-rev__pic-link jdgm--loading' target='_blank' rel='nofollow' href='https://review-images.judgeme.com/anker-fr/1781900352__1781900320531-img_9752__original.jpeg?quality=80&amp;width=1024' data-mfp-src='https://review-images.judgeme.com/anker-fr/1781900352__1781900320531-img_9752__original.jpeg?quality=80&amp;width=1024' aria-label='R.B.J.p. review photo 3'> <img class='jdgm-rev__pic-img' alt='R.B.J.p. review photo' data-src='https://review-images.judgeme.com/anker-fr/1781900352__1781900320531-img_9752__original.jpeg?quality=80&amp;width=160'> </a>  </div> <div class='jdgm-rev__vids'>   </div> <div class='jdgm-rev__transparency-badge-wrapper'>  <div class='jdgm-rev__transparency-badge' data-badge-type=review_collected_via_store_invitation></div>  </div> </div> <div class='jdgm-rev__actions'> <div class='jdgm-rev__social'></div> <div class='jdgm-rev__votes'></div> </div> <div class='jdgm-rev__reply'>  </div> </div></div> <div class='jdgm-paginate' data-per-page='5' data-url='https://api.judge.me/reviews/reviews_for_widget' style=\"display: none;\"></div>  </div> <div class='jdgm-rev-widg__paginate-spinner-wrapper'> <div class='jdgm-spinner'></div> </div> </div>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": "https://fr.anker.com/products/bundle-a1695h41-1-b2697341-1",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17295911321976",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/9498816610680",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1035.0",
+      "currencyCode": "RON"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "1035.0",
+      "currencyCode": "RON"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2025-08-05T03:45:35Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "2026_BTS",
+    "2026_FPD",
+    "2026_FPD_Encore",
+    "2026_FPD_Main",
+    "2026_FRTS",
+    "2026_OTG",
+    "2026_PD",
+    "2026_PD_SIGNUP",
+    "2026_spring_sales",
+    "charger_fall_pd_2309",
+    "Laptop charger campaign",
+    "show_cart"
+  ],
+  "title": "PowerBank Anker (25K, 165 W) + Chargeur Anker (140 W, 4 ports, PD 3.1)",
+  "totalInventory": 66,
+  "updatedAt": "2026-10-18T03:55:20Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NTIzMzcwNTQxMDkzNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NTIzMzcwNTQxMDkzNiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/55233705410936",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2400,
+            "id": "gid://shopify/ProductImage/74238874091896",
+            "thumbhash": "5PeFBQAjc391h7fYmW9o91NlaCeHd3CIpw==",
+            "url": "https://cdn.shopify.com/s/files/1/0732/1187/1548/files/A1695H41_B2697341.png?v=1754365620",
+            "width": 2400
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "1035.0",
+            "currencyCode": "RON"
+          },
+          "quantityAvailable": 66,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "BUNDLE-A1695H41-1-B2697341-1",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker FR",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/55233705410936": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/55233705410936",
+      "metafields": [
+        null,
+        null,
+        {
+          "__typename": "Metafield",
+          "createdAt": "2025-08-05T09:30:22Z",
+          "description": null,
+          "id": "gid://shopify/Metafield/183231449727352",
+          "key": "data",
+          "list": false,
+          "namespace": "__discountCodeApp",
+          "reference": null,
+          "references": null,
+          "type": "json",
+          "updatedAt": "2026-06-05T06:54:56Z",
+          "value": "[]"
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

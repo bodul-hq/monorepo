@@ -1,0 +1,873 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "VND"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "VND"
+    }
+  },
+  "createdAt": "2024-07-10T08:41:32Z",
+  "description": "AnkerWork M650 is an all-in-one wireless lavalier mic for content creators. Record right away with an embedded touchscreen to customize your settings. Comes with Lightning and USB accessories for no-hassle connections to cameras, tablets, and computers. Professional Noise Cancelling: Free yourself to create on-the-go content with AnkerWork's VoiceShield noise-cancelling technology. Record confidently with natural, low, or high settings and a windproof cotton cover. 15H Battery Life with Charging Case: When you're putting in overtime on a shoot, the wireless lavalier microphone keeps up with 6 hours on a single charge or 15 hours with the charging case. TrueLink 656 ft (200 m) Transmission: The LC3plus codec powers TrueLink, so you can record ultra-wide shots with 656 ft (200 m) of wireless transmission and super-low latency for less lip-syncing in post. Dual-Channel Lossless Pickup: With dual-channel lossless sound pickup, you can record two sound sources at the same time. And for super-long projects, store up to 7 hours of uncompressed audio—no hard drive required. Replaceable Colors, Magnetic Design: Finally, a wireless lavalier microphone that works with your wardrobe. Swap between three colorful covers (metallic black, soft gold, dark jade) and attach magnetically or clip on to your outfit.",
+  "descriptionHtml": "<meta charset=\"utf-8\">\n<ul>\n<li>AnkerWork M650 is an all-in-one wireless lavalier mic for content creators. Record right away with an embedded touchscreen to customize your settings. Comes with Lightning and USB accessories for no-hassle connections to cameras, tablets, and computers.</li>\n<li>\n<strong>Professional Noise Cancelling:</strong> Free yourself to create on-the-go content with AnkerWork's VoiceShield noise-cancelling technology. Record confidently with natural, low, or high settings and a windproof cotton cover.</li>\n<li>\n<strong>15H Battery Life with Charging Case:</strong> When you're putting in overtime on a shoot, the wireless lavalier microphone keeps up with 6 hours on a single charge or 15 hours with the charging case.</li>\n<li>\n<strong>TrueLink 656 ft (200 m) Transmission</strong><span>: The </span><span>LC3plus</span><span> </span><span>codec</span><span> powers TrueLink, so you can record ultra-wide shots with 656 ft (200 m) of wireless transmission and super-low </span><span>latency</span><span> for less </span><span>lip-syncing</span><span> in post.</span>\n</li>\n<li>\n<strong>Dual-Channel Lossless Pickup:</strong> With dual-channel lossless sound pickup, you can record two sound sources at the same time. And for super-long projects, store up to 7 hours of uncompressed audio—no hard drive required.</li>\n<li>\n<strong>Replaceable Colors, Magnetic Design:</strong> Finally, a wireless lavalier microphone that works with your wardrobe. Swap between three colorful covers (metallic black, soft gold, dark jade) and attach magnetically or clip on to your outfit.</li>\n</ul>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/33576769683537",
+    "thumbhash": "LggODwD5qHaHiXVvhXeIlod3WNMFQ48A",
+    "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD01_V1.jpg?v=1720600892",
+    "width": 1200
+  },
+  "handle": "a3320-m650-wireless-microphone",
+  "id": "gid://shopify/Product/7588143726673",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzU3Njc2OTg0NzM3NywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTY4MzUzNywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769683537",
+          "thumbhash": "LggODwD5qHaHiXVvhXeIlod3WNMFQ48A",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD01_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTcxNjMwNSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769716305",
+          "thumbhash": "qSgOFwTImHaPiIdrg1eYeIh3WAeIVoAI",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD02_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTc0OTA3MywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769749073",
+          "thumbhash": "bQgWDwCXiId/h4dzd5iYiGiIeGgHd3QA",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD03_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTc4MTg0MSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769781841",
+          "thumbhash": "KwgOHwamuIePh3eGeIaHiHiGmAWnSXAJ",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD04_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTgxNDYwOSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769814609",
+          "thumbhash": "pvcRHwSpdodvh4h2h2iYl4d4eAaod3AJ",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD05_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3Njc2OTg0NzM3NywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/33576769847377",
+          "thumbhash": "KQgKBwByhph/l4asd5qoWYh3+QOmPWAI",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD06_V1.jpg?v=1720600892",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNjcwMzg2NDEwMjk5MywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2MzkzOTE1MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703863939153",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703863939153",
+            "thumbhash": "LggODwD5qHaHiXVvhXeIlod3WNMFQ48A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD01_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703863939153",
+            "thumbhash": "LggODwD5qHaHiXVvhXeIlod3WNMFQ48A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD01_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2Mzk3MTkyMSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703863971921",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703863971921",
+            "thumbhash": "qSgOFwTImHaPiIdrg1eYeIh3WAeIVoAI",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD02_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703863971921",
+            "thumbhash": "qSgOFwTImHaPiIdrg1eYeIh3WAeIVoAI",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD02_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2NDAwNDY4OSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703864004689",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864004689",
+            "thumbhash": "bQgWDwCXiId/h4dzd5iYiGiIeGgHd3QA",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD03_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864004689",
+            "thumbhash": "bQgWDwCXiId/h4dzd5iYiGiIeGgHd3QA",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD03_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2NDAzNzQ1NywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703864037457",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864037457",
+            "thumbhash": "KwgOHwamuIePh3eGeIaHiHiGmAWnSXAJ",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD04_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864037457",
+            "thumbhash": "KwgOHwamuIePh3eGeIaHiHiGmAWnSXAJ",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD04_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2NDA3MDIyNSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703864070225",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864070225",
+            "thumbhash": "pvcRHwSpdodvh4h2h2iYl4d4eAaod3AJ",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD05_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864070225",
+            "thumbhash": "pvcRHwSpdodvh4h2h2iYl4d4eAaod3AJ",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD05_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMzg2NDEwMjk5MywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26703864102993",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864102993",
+            "thumbhash": "KQgKBwByhph/l4asd5qoWYh3+QOmPWAI",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD06_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/26703864102993",
+            "thumbhash": "KQgKBwByhph/l4asd5qoWYh3+QOmPWAI",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD06_V1.jpg?v=1720600892",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": null,
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9668601380945",
+      "name": "Màu sắc",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584356454481",
+          "name": "Đen + Xanh/Vàng",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "250.0",
+      "currencyCode": "VND"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "250.0",
+      "currencyCode": "VND"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2024-07-11T08:00:06Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "M650 has 2 mics with VoiceShield™ to cut out noise and TrueLink™ stable transmission.",
+    "title": "AnkerWork Wireless Microphone"
+  },
+  "tags": [
+    "kelong",
+    "Tiktok"
+  ],
+  "title": "AnkerWork M650 Wireless Microphone",
+  "totalInventory": 0,
+  "updatedAt": "2026-02-27T19:22:46Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTY5NjU4MDk5MzEwNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NjU4MDk5MzEwNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644100018",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41696580993105",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/33576769683537",
+            "thumbhash": "LggODwD5qHaHiXVvhXeIlod3WNMFQ48A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A3320011_TD01_V1.jpg?v=1720600892",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "250.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "Đen + Xanh/Vàng"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A3320011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Đen + Xanh/Vàng",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 1.1729,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "beta-ankerwork-us",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/41696580993105": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41696580993105",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

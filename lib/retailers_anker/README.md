@@ -17,7 +17,9 @@ JSON. HTML alone is rejected because it carries Swedish-default prices.
 Market, currency, handle, GraphQL errors and incomplete responses are checked
 before storage. Products needing more than 250 variants/images fail explicitly.
 See [ADR 47](../../docs/adr/0047-nordic-retailer-markets.md) for compatibility
-and rollout. `nordic/fixtures` preserves real market-specific responses.
+and rollout. Each Nordic retailer owns its legacy query, raw types, parser and captured
+response in `offer_details/v1/graphql`. `nordic` only routes compatibility calls
+and retains the existing normalized document format.
 
 Each storefront has an offer details pipeline in `offer_details/v1`:
 
@@ -69,3 +71,74 @@ that data checkout is absent.
 
 Canonical comparison prices, availability, item condition, and descriptions are
 documented in [offer facts source coverage](../../docs/offer-facts-source-coverage.md).
+
+## Anker initial fill
+
+The versioned AU/CA integrations and shared `shopify::initial_fill::markets`
+configuration support all 17 active Anker stores except Korea. Shared typed
+queries take country/language variables for every operation and continuation.
+Canada remains English-only. Germany, France, Poland, Italy, Japan and Vietnam
+use DE, FR, PL, IT, JA and VI respectively; the other storefronts use EN.
+Nordic markets keep separate prices and discover their browser token automatically
+for initial fill; `ANKER_NORDICS_STOREFRONT_TOKEN` remains an optional override
+(and is still required by the separate sitemap offer-download flow). See
+[ADR 54](../../docs/adr/0054-anker-browser-token-discovery.md).
+Italy/Japan attempt optional public token acquisition and retain token-free access
+when no token is found; other stores
+acquire the selected browser token from their configured source. The full field
+selection and exhaustive pagination are preserved for both access modes.
+All retailers use initial pages of 5 for every selected connection. Continuations
+fetch 25 collections/images/media, 10 variants, 20 selling-plan groups, and 5
+items per nested variant connection or selling-plan list. Authentication does
+not change these sizes; see
+[ADR 56](../../docs/adr/0056-anker-operation-specific-page-sizes.md).
+See the [market table](../../services/retailer_sourcing/README.md#anker-initial-offer-fill),
+[ADR 53](../../docs/adr/0053-anker-storefront-initial-fill-markets.md), and
+[captured evidence](src/shopify/initial_fill/fixtures/README.md).
+
+The checked-in schema and full details selection come from
+`wip/switching-shopify-retailers-to-api` (`c3f5872`). Catalog requests select only
+product GIDs and cursors. Separate typed continuation operations cover product,
+variant, and selling-plan connections. The saved WIP response in the fixtures
+has incomplete collections and is deliberately retained as a pagination regression.
+Presentation selections additionally request `id` to avoid the generated client's
+empty enum for objects selecting only `__typename`.
+`make ci` compiles the query documents and tests response validation; no live
+Shopify request is made by the library tests.
+
+## Offer details v2 raw representations
+
+AU and CA expose `AnkerAuRawProduct` / `AnkerCaRawProduct`,
+`AnkerAuRawResponse` / `AnkerCaRawResponse`, and
+`AnkerAuRawOfferDetails` / `AnkerCaRawOfferDetails` from `prelude`.
+These deserialize a merged product, a GraphQL response (single product or the
+older full-products connection), and a stored initial-fill artifact respectively:
+
+```rust
+use retailers_anker::prelude::AnkerAuRawOfferDetails;
+let raw: AnkerAuRawOfferDetails = serde_json::from_str(&saved_json)?;
+let title = &raw.product.title;
+let variants = &raw.product.variants.edges;
+```
+
+All 17 configured Anker retailers own concrete types in their own
+`offer_details/v2/raw.rs`, exposed as `<retailer>_raw_v2` in the prelude. Every product
+field is typed, including connections, images/media, variants, prices, quantity
+rules, selling plans and localization. Unknown fields fail rather than being
+silently dropped. Decimal amounts remain strings; other numeric scalars retain
+JSON numbers. Diagnostic metadata and recorded continuation response pages stay
+JSON evidence. Artifacts use schema 1 without context and schema 2 with context; v2 names the pipeline.
+Extracted representations and existing extraction behavior are unchanged.
+
+Each retailer's fixtures preserve its own captured product data. Run
+`cargo test -p retailers_anker offer_details::v2` in `lib` for fixtures, or
+`cargo test -p retailers_anker saved_graphql_corpus -- --ignored` for the external
+`../data3` corpus. Nordic fixtures use the corresponding country context.
+See [ADR 61](../../docs/adr/0061-independent-retailer-graphql-integrations.md)
+for ownership and [ADR 57](../../docs/adr/0057-offer-details-v2-raw-sources.md)
+for the dump contract.
+
+Regional US/EU/FR/NZ/PL/VN raw models also retain inventory, metafields and
+expanded variant-reference selections from their saved full-catalog captures.
+These optional source fields are local to those retailers; the initial-fill
+query documents and extracted representations are unchanged.

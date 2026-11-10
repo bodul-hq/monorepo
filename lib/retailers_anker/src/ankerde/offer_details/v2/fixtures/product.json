@@ -1,0 +1,292 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2OTQ2MTEwODMzNDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTQ2MDIxNzA0NDksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best-seller-internal-use-soundcore",
+          "id": "gid://shopify/Collection/694602170449",
+          "image": null,
+          "onlineStoreUrl": "https://de.store.anker.com/collections/best-seller-internal-use-soundcore",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Interne Übersicht der beliebtesten soundcore Produkte – für den internen Gebrauch zusammengestellt.",
+            "title": "soundcore Bestseller (intern) | Anker Deutschland"
+          },
+          "title": "Best Seller (internal use)",
+          "updatedAt": "2026-11-07T12:14:40Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTQ2MTEwODMzNDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-test",
+          "id": "gid://shopify/Collection/694611083345",
+          "image": null,
+          "onlineStoreUrl": "https://de.store.anker.com/collections/all-product-test",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Das komplette eufy Sortiment auf einen Blick: Sicherheitskameras, Saugroboter, Mähroboter und Zubehör für ein smarteres Zuhause.",
+            "title": "Alle eufy Produkte | Anker eufy Deutschland"
+          },
+          "title": "Alle Produkte",
+          "updatedAt": "2026-11-07T13:24:40Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2026-07-23T01:02:08Z",
+  "description": "",
+  "descriptionHtml": "<p></p>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 866,
+    "id": "gid://shopify/ProductImage/69407797444689",
+    "thumbhash": "YraFCwI3CHJ8d5kHZUXApghod4eBiUg=",
+    "url": "https://cdn.shopify.com/s/files/1/1054/0698/8369/files/Frame2121238148.png?v=1784768530",
+    "width": 590
+  },
+  "handle": "mystery-box-new-year",
+  "id": "gid://shopify/Product/15925214314577",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2OTQwNzc5NzQ0NDY4OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTQwNzc5NzQ0NDY4OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 866,
+          "id": "gid://shopify/ProductImage/69407797444689",
+          "thumbhash": "YraFCwI3CHJ8d5kHZUXApghod4eBiUg=",
+          "url": "https://cdn.shopify.com/s/files/1/1054/0698/8369/files/Frame2121238148.png?v=1784768530",
+          "width": 590
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MTYxNjY1MzI5NTY5NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTYxNjY1MzI5NTY5NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71616653295697",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 866,
+            "id": "gid://shopify/ImageSource/71616653295697",
+            "thumbhash": "YraFCwI3CHJ8d5kHZUXApghod4eBiUg=",
+            "url": "https://cdn.shopify.com/s/files/1/1054/0698/8369/files/Frame2121238148.png?v=1784768530",
+            "width": 590
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 866,
+            "id": "gid://shopify/ImageSource/71616653295697",
+            "thumbhash": "YraFCwI3CHJ8d5kHZUXApghod4eBiUg=",
+            "url": "https://cdn.shopify.com/s/files/1/1054/0698/8369/files/Frame2121238148.png?v=1784768530",
+            "width": 590
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://de.store.anker.com/products/mystery-box-new-year",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/18761671737425",
+      "name": "Auswahl",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/13824985268305",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9999999.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "9999999.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-07-23T12:10:31Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "_Christmas_gifts",
+    "BTS_Spend_Save",
+    "code not applied",
+    "dropship_draft"
+  ],
+  "title": "Mystery Box New Year",
+  "updatedAt": "2026-10-27T12:05:01Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1OTg1MjQ4ODU0MDI0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1OTg1MjQ4ODU0MDI0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/59852488540241",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 866,
+            "id": "gid://shopify/ProductImage/69407797444689",
+            "thumbhash": "YraFCwI3CHJ8d5kHZUXApghod4eBiUg=",
+            "url": "https://cdn.shopify.com/s/files/1/1054/0698/8369/files/Frame2121238148.png?v=1784768530",
+            "width": 590
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "9999999.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Auswahl",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "MYSTERYBOX-NE22399",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Soundcore"
+}

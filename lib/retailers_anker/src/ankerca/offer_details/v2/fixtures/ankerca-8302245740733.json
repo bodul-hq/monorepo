@@ -1,0 +1,657 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg-8-11",
+        "name": "Vacuum Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg-8",
+        "name": "Household Appliance Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg",
+        "name": "Home & Garden"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/hg-8-11-21",
+    "name": "Dust Bags"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MTl9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDEwODkyMTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "security-except-cam3",
+          "id": "gid://shopify/Collection/336201089213",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/security-except-cam3",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your protection with eufyCam 3. Experience top-notch surveillance. Secure your surroundings now! Unleash the power of unmatched security.",
+            "title": "eufy Security Cameras, Smart Locks & Doorbells"
+          },
+          "title": "SE Except Cam3",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDEzODQxMjUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "stbxxxxca",
+          "id": "gid://shopify/Collection/336201384125",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/stbxxxxca",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "STBXXXXCA",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDE1NDc5NjUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory-1",
+          "id": "gid://shopify/Collection/336201547965",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory-1",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore all eufy smart products excluding accessories. Find robot vacuums, security cameras, doorbells, and lighting solutions for your connected home.",
+            "title": null
+          },
+          "title": "All eufy product except accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDIwNzIyNTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufy20-off",
+          "id": "gid://shopify/Collection/336202072253",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy20-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your security with eufyCam 2C Pro, SoloCam S340, and Wired Video Doorbell S330. Enjoy 20% off on advanced outdoor solutions for a limited time!",
+            "title": "eufy 20% OFF: Save on eufyCam and SoloCam"
+          },
+          "title": "EUFY20%OFF",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDIzMDE2MjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "2024-bf",
+          "id": "gid://shopify/Collection/336202301629",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/2024-bf",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "2024 BF",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI2MjkzMDksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufy-pd-affiliate",
+          "id": "gid://shopify/Collection/336202629309",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy-pd-affiliate",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "eufy-pd-affiliate",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI3Mjc2MTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "aff-30-off",
+          "id": "gid://shopify/Collection/336202727613",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/aff-30-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "aff 30% off",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI3NjAzODEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufypicodi18",
+          "id": "gid://shopify/Collection/336202760381",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufypicodi18",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "EUFYPICODI18",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMwNTUyOTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Built with Care | Serving 9 Million Families in the World",
+          "descriptionHtml": "<div>\n<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span>Built with Care | Serving 9 Million Families in the World</span></div>\n</div>",
+          "handle": "eufy-all",
+          "id": "gid://shopify/Collection/336203055293",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy-all",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover advanced security with eufy's product collection - Baby Monitor, Video Doorbells, Indoor Cams, SoloCams, and Smart Lock. Safeguard your home intelligently.",
+            "title": "Smart Home Security Collection | eufy - Anker"
+          },
+          "title": "All eufy Products",
+          "updatedAt": "2026-11-07T15:15:29Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMxMjA4MjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-accessories-20",
+          "id": "gid://shopify/Collection/336203120829",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-accessories-20",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "except accessories-20%",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMxODYzNjUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-accessories-18",
+          "id": "gid://shopify/Collection/336203186365",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-accessories-18",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "except accessories-18%",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMzMTc0MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory",
+          "id": "gid://shopify/Collection/336203317437",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore eufy's latest products - Indoor Cams, Smart Locks, Video Doorbells, and SoloCams. Elevate your home security with cutting-edge technology and reliability.",
+            "title": "Enhance Your Home Security with eufy's  Cams, Smart Locks, Collection"
+          },
+          "title": "All product except accessory&X10&S1 Pro&Cam S3 Pro&Omni C20",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMzNTAyMDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-accessories-19",
+          "id": "gid://shopify/Collection/336203350205",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-accessories-19",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "except accessories-19%",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDM1NDY4MTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-accessories-15-18",
+          "id": "gid://shopify/Collection/336203546813",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-accessories-15-18",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "except accessories-15-17%",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxMDM4NjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "clean-except-mach",
+          "id": "gid://shopify/Collection/336204103869",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/clean-except-mach",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore eufy's outdoor security solutions - eufyCam 2C Pro, SoloCam S340, and Wired Video Doorbell S330. Keep your surroundings safe and monitored effortlessly.",
+            "title": "Secure Your Outdoors with eufyCam, SoloCam Collection"
+          },
+          "title": "AP Except Mach&Accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxMzY2MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-homebase-s380",
+          "id": "gid://shopify/Collection/336204136637",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-homebase-s380",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore all eufy products excluding HomeBase S380. Browse robot vacuums, cameras, doorbells, and smart accessories for a connected home experience.",
+            "title": null
+          },
+          "title": "except Homebase S380",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxNjk0MDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-except-x10-omi",
+          "id": "gid://shopify/Collection/336204169405",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-except-x10-omi",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Browse all eufy products excluding X10 Omni. Discover smart home devices including robot vacuums, cameras, doorbells, and more for secure and clean living.",
+            "title": null
+          },
+          "title": "all except X10 omi",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQyMDIxNzMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory-x10-cam3",
+          "id": "gid://shopify/Collection/336204202173",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory-x10-cam3",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop all eufy products excluding accessories, X10 Series, and eufyCam 3. Discover innovative smart home devices for cleaning, security, and convenience.",
+            "title": null
+          },
+          "title": "All product except accessory&X10&cam3",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDA0NzkyMTM3NTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all",
+          "id": "gid://shopify/Collection/340479213757",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Anker Products",
+          "updatedAt": "2026-11-07T15:15:29Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-porducts",
+          "id": "gid://shopify/Collection/344445681853",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-porducts",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "57.99",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "57.99",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2026-05-13T10:05:37Z",
+  "description": "Great Seal Without Leakage: The sealed design, crafted with hygienic materials, prevents dirt and odor from leaking, ensuring a clean and fresh environment. Effective Filtration: Efficiently filters dander, mold, and other common household allergens, promoting healthier indoor air quality. Versatile Auto Emptying: With a spacious 3L dust bag, enjoy up to 75 days of hands-free cleaning. The 3-pack replacement set ensures long-term maintenance convenience. Note: Performance is based on internal eufy testing. Results may vary depending on your home environment. Note: To protect your robot vacuum and extend its lifespan, we recommend using authentic eufy replacement parts. We¡¯ve received complaints about non-compliant sellers offering substandard alternatives. Compatible with the eufy Robot Vacuum 3-in-1 E20.",
+  "descriptionHtml": "<div data-line=\"true\" data-line-index=\"0\" data-zone-id=\"0\">\n<div data-line=\"true\" data-line-index=\"0\" data-zone-id=\"0\">\n<ul>\n<li>\n<strong>Great Seal Without Leakage: </strong>The sealed design, crafted with hygienic materials, prevents dirt and odor from leaking, ensuring a clean and fresh environment.</li>\n<li>\n<strong style=\"font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; font-size: 0.875rem;\">Effective Filtration: </strong>Efficiently filters dander, mold, and other common household allergens, promoting healthier indoor air quality.</li>\n<li>\n<strong style=\"font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; font-size: 0.875rem;\">Versatile Auto Emptying: </strong>With a spacious 3L dust bag, enjoy up to 75 days of hands-free cleaning. The 3-pack replacement set ensures long-term maintenance convenience.</li>\n<li>Note: Performance is based on internal eufy testing. Results may vary depending on your home environment.</li>\n<li>Note: To protect your robot vacuum and extend its lifespan, we recommend using authentic eufy replacement parts. We¡¯ve received complaints about non-compliant sellers offering substandard alternatives.</li>\n<li>Compatible with the <strong style=\"font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; font-size: 0.875rem;\">eufy Robot Vacuum 3-in-1 E20</strong><span style=\"font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; font-size: 0.875rem;\">.</span>\n</li>\n</ul>\n</div>\n</div>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "Eufy Dust Bag ×3",
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/40255897731261",
+    "thumbhash": "cQiCBQA2qmCJZ16iBlB3A2U3B1d4h3JaaA==",
+    "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/T29J0011_Rich_image_TD01_V1.png?v=1778666739",
+    "width": 1200
+  },
+  "handle": "t29j0011",
+  "id": "gid://shopify/Product/8302245740733",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDI1NTg5NzczMTI2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDI1NTg5NzczMTI2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "Eufy Dust Bag ×3",
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/40255897731261",
+          "thumbhash": "cQiCBQA2qmCJZ16iBlB3A2U3B1d4h3JaaA==",
+          "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/T29J0011_Rich_image_TD01_V1.png?v=1778666739",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTM2NTAwMDMzMTQ1MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTM2NTAwMDMzMTQ1MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "Eufy Dust Bag ×3",
+          "id": "gid://shopify/MediaImage/31365000331453",
+          "image": {
+            "__typename": "Image",
+            "altText": "Eufy Dust Bag ×3",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31365000331453",
+            "thumbhash": "cQiCBQA2qmCJZ16iBlB3A2U3B1d4h3JaaA==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/T29J0011_Rich_image_TD01_V1.png?v=1778666739",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "Eufy Dust Bag ×3",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31365000331453",
+            "thumbhash": "cQiCBQA2qmCJZ16iBlB3A2U3B1d4h3JaaA==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/T29J0011_Rich_image_TD01_V1.png?v=1778666739",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.store.anker.com/products/t29j0011",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10593678622909",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4225012564157",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "17.99",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "17.99",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-08-11T03:23:08Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Buy eufy Dust Bag 3-Pack for RoboVac. Leak-proof design, efficient filtration, and up to 75 days of hands-free cleaning for a healthier home environment.",
+    "title": "eufy Dust Bag ×3"
+  },
+  "tags": [
+    "aff_30%_off",
+    "E20"
+  ],
+  "title": "Eufy Dust Bag ×3",
+  "updatedAt": "2026-10-19T09:51:25Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0Njc4ODI4NjMxNjczMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0Njc4ODI4NjMxNjczMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "194644227067",
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "57.99",
+            "currencyCode": "CAD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46788286316733",
+          "image": {
+            "__typename": "Image",
+            "altText": "Eufy Dust Bag ×3",
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/40255897731261",
+            "thumbhash": "cQiCBQA2qmCJZ16iBlB3A2U3B1d4h3JaaA==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/T29J0011_Rich_image_TD01_V1.png?v=1778666739",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "17.99",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "T29J0011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.3527,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Eufy"
+}

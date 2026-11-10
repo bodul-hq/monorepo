@@ -1,0 +1,320 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2-2-7-1",
+        "name": "Headphones"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2-2-7",
+        "name": "Headphones & Headsets"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2-2",
+        "name": "Audio Components"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-2",
+        "name": "Audio"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-2-2-7-1-3",
+    "name": "In-Ear Headphones"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDA0NzkyMTM3NTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all",
+          "id": "gid://shopify/Collection/340479213757",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Anker Products",
+          "updatedAt": "2026-11-07T15:15:29Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-porducts",
+          "id": "gid://shopify/Collection/344445681853",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-porducts",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2026-09-11T15:28:25Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1347,
+    "id": "gid://shopify/ProductImage/41680148136125",
+    "thumbhash": "kTiCDIImdmtwlYYKeLA4B4lzgIp4R6h4Bg==",
+    "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/Frame_43.png?v=1789660493",
+    "width": 1386
+  },
+  "handle": "aeroclip-2-cary-case",
+  "id": "gid://shopify/Product/8494933606589",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTY4MDE0ODEzNjEyNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY4MDE0ODEzNjEyNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1347,
+          "id": "gid://shopify/ProductImage/41680148136125",
+          "thumbhash": "kTiCDIImdmtwlYYKeLA4B4lzgIp4R6h4Bg==",
+          "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/Frame_43.png?v=1789660493",
+          "width": 1386
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMjY5MDI1NTkyMTM0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMjY5MDI1NTkyMTM0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/32690255921341",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1347,
+            "id": "gid://shopify/ImageSource/32690255921341",
+            "thumbhash": "kTiCDIImdmtwlYYKeLA4B4lzgIp4R6h4Bg==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/Frame_43.png?v=1789660493",
+            "width": 1386
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": {
+            "__typename": "MediaPresentation"
+          },
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1347,
+            "id": "gid://shopify/ImageSource/32690255921341",
+            "thumbhash": "kTiCDIImdmtwlYYKeLA4B4lzgIp4R6h4Bg==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/Frame_43.png?v=1789660493",
+            "width": 1386
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.store.anker.com/products/aeroclip-2-cary-case",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10833901945021",
+      "name": "Style",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4934325993661",
+          "name": "Cary Case",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "29.99",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "29.99",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-09-11T15:28:26Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "AeroClip 2 Cary Case",
+  "updatedAt": "2026-11-01T14:33:00Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0ODQ2MjUyMjUxNTY0NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODQ2MjUyMjUxNTY0NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "194644364236",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/48462522515645",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1347,
+            "id": "gid://shopify/ProductImage/41680148136125",
+            "thumbhash": "kTiCDIImdmtwlYYKeLA4B4lzgIp4R6h4Bg==",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/Frame_43.png?v=1789660493",
+            "width": 1386
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "29.99",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Style",
+              "value": "Cary Case"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "D1105Z11-87",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Cary Case",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.4475,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Soundcore"
+}

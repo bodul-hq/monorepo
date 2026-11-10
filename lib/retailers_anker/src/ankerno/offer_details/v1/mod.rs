@@ -1,4 +1,4 @@
-use crate::nordic::Market;
+pub mod graphql;
 use ::shared::NormalizedData;
 use html_extractor::io::Architecture;
 use retailer_sauce::structuralized::StructuralizedData;
@@ -8,8 +8,8 @@ pub fn architecture() -> Architecture {
     Architecture::new(vec![])
 }
 pub fn normalize(json: &str) -> Result<NormalizedData, String> {
-    Market::Norway.normalize(json)
+    graphql::Store.normalize(json)
 }
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    Market::Norway.structuralize(json)
+    graphql::Store.structuralize(json)
 }

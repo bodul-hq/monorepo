@@ -1,0 +1,459 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg-8-11",
+        "name": "Vacuum Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg-8",
+        "name": "Household Appliance Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/hg",
+        "name": "Home & Garden"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/hg-8-11-65",
+    "name": "Vacuum Batteries"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6N30="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDEwODkyMTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "security-except-cam3",
+          "id": "gid://shopify/Collection/336201089213",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/security-except-cam3",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your protection with eufyCam 3. Experience top-notch surveillance. Secure your surroundings now! Unleash the power of unmatched security.",
+            "title": "eufy Security Cameras, Smart Locks & Doorbells"
+          },
+          "title": "SE Except Cam3",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDIwNzIyNTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufy20-off",
+          "id": "gid://shopify/Collection/336202072253",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy20-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your security with eufyCam 2C Pro, SoloCam S340, and Wired Video Doorbell S330. Enjoy 20% off on advanced outdoor solutions for a limited time!",
+            "title": "eufy 20% OFF: Save on eufyCam and SoloCam"
+          },
+          "title": "EUFY20%OFF",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI3Mjc2MTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "aff-30-off",
+          "id": "gid://shopify/Collection/336202727613",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/aff-30-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "aff 30% off",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxMzY2MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-homebase-s380",
+          "id": "gid://shopify/Collection/336204136637",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-homebase-s380",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore all eufy products excluding HomeBase S380. Browse robot vacuums, cameras, doorbells, and smart accessories for a connected home experience.",
+            "title": null
+          },
+          "title": "except Homebase S380",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQzMzMyNDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "accessory-for-robot-with-auto-clean-station",
+          "id": "gid://shopify/Collection/336204333245",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/accessory-for-robot-with-auto-clean-station",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Get replacement parts for eufy robots with auto-clean stations. Shop mop pads, tanks, and more to support smart hands-free cleaning and performance.",
+            "title": "Auto-Clean Station Robot Vacuum Accessories | eufy - Anker"
+          },
+          "title": "Accessory for Robot with auto-clean station",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzc0MzUzOTQyMzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "ap-accessory",
+          "id": "gid://shopify/Collection/337435394237",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/ap-accessory",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Find genuine eufy robot vacuum accessories for your auto-cleaning cleaner robots. Shop dust bags, mop pads, tanks, and more to keep your robot running smoothly.",
+            "title": "Robot Vacuum Replacement Parts"
+          },
+          "title": "AP Accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzc0MzU2NTYzODEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "robovac-accessory",
+          "id": "gid://shopify/Collection/337435656381",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 315,
+            "id": "gid://shopify/CollectionImage/1639341588669",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/collections/eufy_Appliances_RoboVac_Accessory.jpg?v=1780466420",
+            "width": 1920
+          },
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/robovac-accessory",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Brushes worn out from deep cleaning carpets and picking up pet hair? Shop accessories for your robot vacuum, handheld vacuum, or cordless stick vacuum on eufy.",
+            "title": "Robot Vacuum & Cleaning Accessories | eufy - Anker"
+          },
+          "title": "eufy RoboVac Accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-porducts",
+          "id": "gid://shopify/Collection/344445681853",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-porducts",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2026-05-13T10:06:15Z",
+  "description": "Includes two 2600mAh Li-ion battery; cleans up to 100 min per charge. Maintain your RoboVac's peak cleaning performance. Easy to install. Genuine eufy RoboVac accessory. 12-month warranty. Compatible with X9 Pro.",
+  "descriptionHtml": "<meta charset=\"utf-8\">\n<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\" data-mce-fragment=\"1\"><span data-mce-fragment=\"1\">Includes two 2600mAh Li-ion battery; cleans up to 100 min per charge.</span></div>\n<div data-zone-id=\"0\" data-line-index=\"1\" data-line=\"true\" data-mce-fragment=\"1\"><span data-mce-fragment=\"1\">Maintain your RoboVac's peak cleaning performance.</span></div>\n<div data-zone-id=\"0\" data-line-index=\"2\" data-line=\"true\" data-mce-fragment=\"1\"><span data-mce-fragment=\"1\">Easy to install.</span></div>\n<div data-zone-id=\"0\" data-line-index=\"3\" data-line=\"true\" data-mce-fragment=\"1\"><span data-mce-fragment=\"1\">Genuine eufy RoboVac accessory. 12-month warranty.</span></div>\n<div data-zone-id=\"0\" data-line-index=\"4\" data-line=\"true\" data-mce-fragment=\"1\"><span data-mce-fragment=\"1\">Compatible with X9 Pro.</span></div>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 808,
+    "id": "gid://shopify/ProductImage/40255899074749",
+    "thumbhash": "KggOBoCL7nR7Z4dvV3Z4yHeEip+c+Mg=",
+    "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/screenshot-20231124-110503.png?v=1778666777",
+    "width": 836
+  },
+  "handle": "t29d8012",
+  "id": "gid://shopify/Product/8302246428861",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDI1NTg5OTA3NDc0OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDI1NTg5OTA3NDc0OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 808,
+          "id": "gid://shopify/ProductImage/40255899074749",
+          "thumbhash": "KggOBoCL7nR7Z4dvV3Z4yHeEip+c+Mg=",
+          "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/screenshot-20231124-110503.png?v=1778666777",
+          "width": 836
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTM2NTAwMTcwNzcwOSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTM2NTAwMTY3NDk0MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31365001674941",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 808,
+            "id": "gid://shopify/ImageSource/31365001674941",
+            "thumbhash": "KggOBoCL7nR7Z4dvV3Z4yHeEip+c+Mg=",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/screenshot-20231124-110503.png?v=1778666777",
+            "width": 836
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 808,
+            "id": "gid://shopify/ImageSource/31365001674941",
+            "thumbhash": "KggOBoCL7nR7Z4dvV3Z4yHeEip+c+Mg=",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/screenshot-20231124-110503.png?v=1778666777",
+            "width": 836
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTM2NTAwMTcwNzcwOSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "ExternalVideo",
+          "alt": "",
+          "embedUrl": "https://www.youtube.com/embed/6g7dUPAlls0",
+          "host": "YOUTUBE",
+          "id": "gid://shopify/ExternalVideo/31365001707709",
+          "mediaContentType": "EXTERNAL_VIDEO",
+          "originUrl": "https://youtu.be/6g7dUPAlls0",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 360,
+            "id": "gid://shopify/ImageSource/31365001707709",
+            "thumbhash": "6/cZBYB5l4eIh3dxiHaHgIV3X3j3",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/preview_images/hqdefault_5db4c76e-efcf-4045-9920-b8535b0a3921.jpg?v=1778666777",
+            "width": 480
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.store.anker.com/products/t29d8012",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10593679343805",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4225014333629",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.99",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "69.99",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "RoboVac Accessory",
+  "publishedAt": "2026-08-11T03:22:58Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Cleans up to 100 min per charge. Maintain your RoboVac's peak cleaning performance. Easy to install. Genuine eufy RoboVac accessory. ",
+    "title": "eufy RoboVac Replacement Battery "
+  },
+  "tags": [
+    "accessory_t2320v11",
+    "aff_30%_off",
+    "Power Supply",
+    "Robot with auto-clean station",
+    "X Series",
+    "X9 Pro"
+  ],
+  "title": "eufy RoboVac Replacement Battery Pack*2, Compatible with X9 Pro",
+  "updatedAt": "2026-10-16T15:22:34Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0Njc4ODI4ODAyMDY2OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0Njc4ODI4ODAyMDY2OSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644153878",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46788288020669",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 808,
+            "id": "gid://shopify/ProductImage/40255899074749",
+            "thumbhash": "KggOBoCL7nR7Z4dvV3Z4yHeEip+c+Mg=",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/screenshot-20231124-110503.png?v=1778666777",
+            "width": 836
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "69.99",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "T29D8012",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.9833,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Eufy"
+}
