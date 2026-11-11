@@ -139,6 +139,7 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.
 - [Diesel CLI](https://diesel.rs/guides/getting-started) with PostgreSQL support, only for `make migrate` and `make migrate-redo`: `cargo install diesel_cli --no-default-features --features postgres --locked`.
 - [cargo-audit](https://crates.io/crates/cargo-audit), only for `make audit`: `cargo install cargo-audit --locked`.
+- [sccache](https://crates.io/crates/sccache), optional: when it is installed, `make/rust.mk` wraps every cargo compilation with it (`RUSTC_WRAPPER`); disable for one run with `RUSTC_WRAPPER=` on the command line. GitHub CI uses it with the [actions cache backend](https://github.com/mozilla/sccache/blob/main/docs/GHA.md).
 
 ## Make targets
 
