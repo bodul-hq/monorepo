@@ -1,0 +1,611 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "HK",
+        "currency": {
+          "isoCode": "HKD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AE",
+          "name": "United Arab Emirates",
+          "currency": {
+            "isoCode": "AED"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "AR",
+              "name": "Arabic"
+            },
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AT",
+          "name": "Austria",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AU",
+          "name": "Australia",
+          "currency": {
+            "isoCode": "AUD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BE",
+          "name": "Belgium",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BG",
+          "name": "Bulgaria",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CA",
+          "name": "Canada",
+          "currency": {
+            "isoCode": "CAD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CH",
+          "name": "Switzerland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CY",
+          "name": "Cyprus",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CZ",
+          "name": "Czechia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DE",
+          "name": "Germany",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "DE",
+              "name": "German"
+            },
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DK",
+          "name": "Denmark",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "EE",
+          "name": "Estonia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ES",
+          "name": "Spain",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "ES",
+              "name": "Spanish"
+            }
+          ]
+        },
+        {
+          "isoCode": "FI",
+          "name": "Finland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "FR",
+          "name": "France",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "FR",
+              "name": "French"
+            }
+          ]
+        },
+        {
+          "isoCode": "GB",
+          "name": "United Kingdom",
+          "currency": {
+            "isoCode": "GBP"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HR",
+          "name": "Croatia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HU",
+          "name": "Hungary",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ID",
+          "name": "Indonesia",
+          "currency": {
+            "isoCode": "IDR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "ID",
+              "name": "Indonesian"
+            }
+          ]
+        },
+        {
+          "isoCode": "IS",
+          "name": "Iceland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IT",
+          "name": "Italy",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "IT",
+              "name": "Italian"
+            }
+          ]
+        },
+        {
+          "isoCode": "LT",
+          "name": "Lithuania",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LU",
+          "name": "Luxembourg",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LV",
+          "name": "Latvia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MT",
+          "name": "Malta",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MY",
+          "name": "Malaysia",
+          "currency": {
+            "isoCode": "MYR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NL",
+          "name": "Netherlands",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "NL",
+              "name": "Dutch"
+            }
+          ]
+        },
+        {
+          "isoCode": "NO",
+          "name": "Norway",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PH",
+          "name": "Philippines",
+          "currency": {
+            "isoCode": "PHP"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PL",
+          "name": "Poland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PT",
+          "name": "Portugal",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "RO",
+          "name": "Romania",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SA",
+          "name": "Saudi Arabia",
+          "currency": {
+            "isoCode": "SAR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "AR",
+              "name": "Arabic"
+            },
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SE",
+          "name": "Sweden",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SG",
+          "name": "Singapore",
+          "currency": {
+            "isoCode": "SGD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SI",
+          "name": "Slovenia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SK",
+          "name": "Slovakia",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TH",
+          "name": "Thailand",
+          "currency": {
+            "isoCode": "THB"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "TH",
+              "name": "Thai"
+            }
+          ]
+        },
+        {
+          "isoCode": "TR",
+          "name": "Türkiye",
+          "currency": {
+            "isoCode": "TRY"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "TR",
+              "name": "Turkish"
+            }
+          ]
+        },
+        {
+          "isoCode": "US",
+          "name": "United States",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "NL",
+              "name": "Dutch"
+            },
+            {
+              "isoCode": "TR",
+              "name": "Turkish"
+            },
+            {
+              "isoCode": "VI",
+              "name": "Vietnamese"
+            }
+          ]
+        },
+        {
+          "isoCode": "VN",
+          "name": "Vietnam",
+          "currency": {
+            "isoCode": "VND"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            },
+            {
+              "isoCode": "VI",
+              "name": "Vietnamese"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

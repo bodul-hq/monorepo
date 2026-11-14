@@ -1,0 +1,654 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-4-9",
+        "name": "Video Conferencing"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-4",
+        "name": "Communications"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-4-9-1",
+    "name": "Video Conferencing Cameras"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MTN9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDEwODkyMTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "security-except-cam3",
+          "id": "gid://shopify/Collection/336201089213",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/security-except-cam3",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your protection with eufyCam 3. Experience top-notch surveillance. Secure your surroundings now! Unleash the power of unmatched security.",
+            "title": "eufy Security Cameras, Smart Locks & Doorbells"
+          },
+          "title": "SE Except Cam3",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDE1NDc5NjUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory-1",
+          "id": "gid://shopify/Collection/336201547965",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory-1",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore all eufy smart products excluding accessories. Find robot vacuums, security cameras, doorbells, and lighting solutions for your connected home.",
+            "title": null
+          },
+          "title": "All eufy product except accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDIwNzIyNTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufy20-off",
+          "id": "gid://shopify/Collection/336202072253",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy20-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your security with eufyCam 2C Pro, SoloCam S340, and Wired Video Doorbell S330. Enjoy 20% off on advanced outdoor solutions for a limited time!",
+            "title": "eufy 20% OFF: Save on eufyCam and SoloCam"
+          },
+          "title": "EUFY20%OFF",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI3Mjc2MTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "aff-30-off",
+          "id": "gid://shopify/Collection/336202727613",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/aff-30-off",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "aff 30% off",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDI3NjAzODEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eufypicodi18",
+          "id": "gid://shopify/Collection/336202760381",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufypicodi18",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "EUFYPICODI18",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMwNTUyOTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Built with Care | Serving 9 Million Families in the World",
+          "descriptionHtml": "<div>\n<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span>Built with Care | Serving 9 Million Families in the World</span></div>\n</div>",
+          "handle": "eufy-all",
+          "id": "gid://shopify/Collection/336203055293",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/eufy-all",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover advanced security with eufy's product collection - Baby Monitor, Video Doorbells, Indoor Cams, SoloCams, and Smart Lock. Safeguard your home intelligently.",
+            "title": "Smart Home Security Collection | eufy - Anker"
+          },
+          "title": "All eufy Products",
+          "updatedAt": "2026-11-07T15:15:29Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMzMTc0MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory",
+          "id": "gid://shopify/Collection/336203317437",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore eufy's latest products - Indoor Cams, Smart Locks, Video Doorbells, and SoloCams. Elevate your home security with cutting-edge technology and reliability.",
+            "title": "Enhance Your Home Security with eufy's  Cams, Smart Locks, Collection"
+          },
+          "title": "All product except accessory&X10&S1 Pro&Cam S3 Pro&Omni C20",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDMzNTAyMDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-accessories-19",
+          "id": "gid://shopify/Collection/336203350205",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-accessories-19",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "except accessories-19%",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxMDM4NjksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "clean-except-mach",
+          "id": "gid://shopify/Collection/336204103869",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/clean-except-mach",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore eufy's outdoor security solutions - eufyCam 2C Pro, SoloCam S340, and Wired Video Doorbell S330. Keep your surroundings safe and monitored effortlessly.",
+            "title": "Secure Your Outdoors with eufyCam, SoloCam Collection"
+          },
+          "title": "AP Except Mach&Accessory",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxMzY2MzcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "except-homebase-s380",
+          "id": "gid://shopify/Collection/336204136637",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/except-homebase-s380",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore all eufy products excluding HomeBase S380. Browse robot vacuums, cameras, doorbells, and smart accessories for a connected home experience.",
+            "title": null
+          },
+          "title": "except Homebase S380",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQxNjk0MDUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-except-x10-omi",
+          "id": "gid://shopify/Collection/336204169405",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-except-x10-omi",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Browse all eufy products excluding X10 Omni. Discover smart home devices including robot vacuums, cameras, doorbells, and more for secure and clean living.",
+            "title": null
+          },
+          "title": "all except X10 omi",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzYyMDQyMDIxNzMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-product-except-accessory-x10-cam3",
+          "id": "gid://shopify/Collection/336204202173",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-product-except-accessory-x10-cam3",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop all eufy products excluding accessories, X10 Series, and eufyCam 3. Discover innovative smart home devices for cleaning, security, and convenience.",
+            "title": null
+          },
+          "title": "All product except accessory&X10&cam3",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDA0NzkyMTM3NTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all",
+          "id": "gid://shopify/Collection/340479213757",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Anker Products",
+          "updatedAt": "2026-11-07T15:15:29Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNDQ0NDU2ODE4NTMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTExIDAyOjIxOjA0LjY1Mzk2NSIsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-porducts",
+          "id": "gid://shopify/Collection/344445681853",
+          "image": null,
+          "onlineStoreUrl": "https://ca.store.anker.com/collections/all-porducts",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All Products",
+          "updatedAt": "2026-11-07T12:17:37Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "CAD"
+    }
+  },
+  "createdAt": "2026-05-28T11:41:21Z",
+  "description": "Dual Backup, Double Peace of Mind. Subscribe to the eufy Security Cloud Backup service if you need extra space to store event videos. Stores videos for 30 days, giving you sufficient time to review recorded videos. Videos accessible, even if devices are offline. AWS advanced encryption, ensuring data is in your control. We offer a variety of plans for you to choose the one that suits you best, up to all devices supported. To cover multiple devices, please select a service package that includes multi-device support. Repeatedly purchasing the same package will extend service only for the original device, not add additional ones.",
+  "descriptionHtml": "<ul>\n<li data-line=\"true\" data-line-index=\"0\" data-zone-id=\"0\">\n<b></b>Dual Backup, Double Peace of Mind. Subscribe to the eufy Security Cloud Backup service if you need extra space to store event videos.</li>\n<li data-line=\"true\" data-line-index=\"1\" data-zone-id=\"0\">\n<b></b>Stores videos for 30 days, giving you sufficient time to review recorded videos.</li>\n<li data-line=\"true\" data-line-index=\"2\" data-zone-id=\"0\">\n<b></b>Videos accessible, even if devices are offline.</li>\n<li data-line=\"true\" data-line-index=\"3\" data-zone-id=\"0\">\n<div data-page-id=\"NVeBd9dqToTUcFxAlTPc0mphnzb\" data-docx-has-block-data=\"false\">\n<div dir=\"auto\" class=\"richTextContainer text-align-left\">\n<span class=\"text-only\" data-eleid=\"3\"><span class=\"text-only\"><strong></strong> </span></span><span class=\"text-only\" data-eleid=\"4\"><span class=\"text-only\">AWS advanced encryption, ensuring data is in your control.</span></span>\n</div>\n</div>\n<span data-lark-record-data='{\"rootId\":\"NVeBd9dqToTUcFxAlTPc0mphnzb\",\"text\":{\"initialAttributedTexts\":{\"text\":{\"0\":\"Optimal Comfort, Maximized Output: Designed to fit all nipple sizes with flange and sizing inserts ranging from 17 mm to 24 mm. The ergonomic 105° design ensures a gentle and nurturing experience. Achieve maximum milk output with up to 290 mmHg of safe, hospital-grade suction. Customize suction strength and cycle speed to suit your unique needs. Rest assured that all skin and milk-contact components are crafted from BPA-free, food-grade materials.\"},\"attribs\":{\"0\":\"*0*1+z*0+bk\"}},\"apool\":{\"numToAttrib\":{\"0\":[\"author\",\"7212430904369823772\"],\"1\":[\"bold\",\"true\"]},\"nextNum\":2}},\"type\":\"bullet\",\"referenceRecordMap\":{},\"extra\":{\"channel\":\"saas\",\"mention_page_title\":{},\"external_mention_url\":{}},\"isKeepQuoteContainer\":false,\"isFromCode\":false,\"selection\":[{\"id\":206,\"type\":\"text\",\"selection\":{\"start\":0,\"end\":451},\"recordId\":\"PUhrdRod7o50BWxqjGNcZjYgn86\"},{\"id\":207,\"type\":\"text\",\"selection\":{\"start\":0,\"end\":0},\"recordId\":\"Th8gdiBT0oQUouxjRe5cybvLnRb\"}],\"payloadMap\":{},\"isCut\":false}' data-lark-record-format=\"docx/text\" class=\"lark-record-clipboard\"></span>\n</li>\n<li data-line=\"true\" data-line-index=\"4\" data-zone-id=\"0\">\n<b></b><meta charset=\"utf-8\">\n<div dir=\"auto\" class=\"richTextContainer text-align-left\" data-partial-quote-enabled=\"true\" data-lark-html-role=\"root\"><span class=\"text-only\" data-eleid=\"3\">We offer a variety of plans for you to choose the one that suits you best, up to all devices supported.</span></div>\n</li>\n<li data-line=\"true\" data-line-index=\"4\" data-zone-id=\"0\">\n<b></b>To cover multiple devices, please select a service package that includes multi-device support. Repeatedly purchasing the same package will extend service only for the original device, not add additional ones.</li>\n</ul>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1200,
+    "id": "gid://shopify/ProductImage/40338740969661",
+    "thumbhash": "EPcJFwCPZ4iYeHh2h4mHiIiGBnenkHkP",
+    "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/624c320480677618c2f1bec7f2307608.png?v=1779968484",
+    "width": 1200
+  },
+  "handle": "cb001m011",
+  "id": "gid://shopify/Product/8314342080701",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDMzODc0MDk2OTY2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDMzODc0MDk2OTY2MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1200,
+          "id": "gid://shopify/ProductImage/40338740969661",
+          "thumbhash": "EPcJFwCPZ4iYeHh2h4mHiIiGBnenkHkP",
+          "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/624c320480677618c2f1bec7f2307608.png?v=1779968484",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTQ0MzExNjA2NDk1NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTQ0MzExNjA2NDk1NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31443116064957",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31443116064957",
+            "thumbhash": "EPcJFwCPZ4iYeHh2h4mHiIiGBnenkHkP",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/624c320480677618c2f1bec7f2307608.png?v=1779968484",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1200,
+            "id": "gid://shopify/ImageSource/31443116064957",
+            "thumbhash": "EPcJFwCPZ4iYeHh2h4mHiIiGBnenkHkP",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/624c320480677618c2f1bec7f2307608.png?v=1779968484",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ca.store.anker.com/products/cb001m011",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10608159981757",
+      "name": "type",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4263375863997",
+          "name": "1 device",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "4.99",
+      "currencyCode": "CAD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "4.99",
+      "currencyCode": "CAD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-08-18T07:53:37Z",
+  "requiresSellingPlan": true,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzc4NTc3NTk3LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xODk3ODgiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzc4NTc3NTk3LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xODk3ODgiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ==",
+        "node": {
+          "__typename": "SellingPlanGroup",
+          "appName": "gid://shopify/App/66228322305",
+          "name": "Subscribe and save",
+          "options": [
+            {
+              "__typename": "SellingPlanGroupOption",
+              "name": "Delivery frequency",
+              "values": [
+                "Deliver every month"
+              ]
+            }
+          ],
+          "sellingPlans": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": "eyJsYXN0X2lkIjo5ODkzMDUyNjA1LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xOTkwNzQiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ=="
+            },
+            "edges": [
+              {
+                "cursor": "eyJsYXN0X2lkIjo5ODkzMDUyNjA1LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xOTkwNzQiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ==",
+                "node": {
+                  "__typename": "SellingPlan",
+                  "billingPolicy": {
+                    "__typename": "SellingPlanRecurringBillingPolicy",
+                    "interval": "MONTH",
+                    "intervalCount": 1
+                  },
+                  "checkoutCharge": {
+                    "__typename": "SellingPlanCheckoutCharge",
+                    "type": "PERCENTAGE",
+                    "value": {
+                      "__typename": "SellingPlanCheckoutChargePercentageValue",
+                      "percentage": 100.0
+                    }
+                  },
+                  "deliveryPolicy": {
+                    "__typename": "SellingPlanRecurringDeliveryPolicy",
+                    "interval": "MONTH",
+                    "intervalCount": 1
+                  },
+                  "description": null,
+                  "id": "gid://shopify/SellingPlan/9893052605",
+                  "name": "Deliver every month",
+                  "options": [
+                    {
+                      "__typename": "SellingPlanOption",
+                      "name": "Delivery frequency",
+                      "value": "Deliver every month"
+                    }
+                  ],
+                  "priceAdjustments": [],
+                  "recurringDeliveries": true
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Buy eufy Security Cloud Backup Plus Annually Service (All devices). Securely store event videos for up to 30 days with AWS encryption and multi-device support.",
+    "title": null
+  },
+  "tags": [
+    "aff_30%_off",
+    "ListingTag1:orange: NEW",
+    "ListingTag1:orange:30 Days",
+    "ListingTag1:orange:Cloud Storage"
+  ],
+  "title": "eufy Security Cloud Backup Basic Monthly Service (1 device)",
+  "updatedAt": "2026-10-16T15:34:47Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjgyNzc1Nzg2MzEwMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjgyNzc1Nzg2MzEwMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/46827757863101",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1200,
+            "id": "gid://shopify/ProductImage/40338740969661",
+            "thumbhash": "EPcJFwCPZ4iYeHh2h4mHiIiGBnenkHkP",
+            "url": "https://cdn.shopify.com/s/files/1/0743/7769/1325/files/624c320480677618c2f1bec7f2307608.png?v=1779968484",
+            "width": 1200
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "4.99",
+            "currencyCode": "CAD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "type",
+              "value": "1 device"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": "eyJsYXN0X2lkIjo5ODkzMDUyNjA1LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xOTkwNzQiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ=="
+            },
+            "edges": [
+              {
+                "cursor": "eyJsYXN0X2lkIjo5ODkzMDUyNjA1LCJsYXN0X3ZhbHVlIjoiMjAyNi0wOC0xOCAwOToyMDoxMC4xOTkwNzQiLCJvZmZzZXQiOjAsImlkX3NvcnRlZF9ieSI6ImNyZWF0ZWRfYXQifQ==",
+                "node": {
+                  "__typename": "SellingPlanAllocation",
+                  "checkoutChargeAmount": {
+                    "__typename": "MoneyV2",
+                    "amount": "4.99",
+                    "currencyCode": "CAD"
+                  },
+                  "priceAdjustments": [],
+                  "remainingBalanceChargeAmount": {
+                    "__typename": "MoneyV2",
+                    "amount": "0.0",
+                    "currencyCode": "CAD"
+                  },
+                  "sellingPlan": {
+                    "__typename": "SellingPlan",
+                    "billingPolicy": {
+                      "__typename": "SellingPlanRecurringBillingPolicy",
+                      "interval": "MONTH",
+                      "intervalCount": 1
+                    },
+                    "checkoutCharge": {
+                      "__typename": "SellingPlanCheckoutCharge",
+                      "type": "PERCENTAGE",
+                      "value": {
+                        "__typename": "SellingPlanCheckoutChargePercentageValue",
+                        "percentage": 100.0
+                      }
+                    },
+                    "deliveryPolicy": {
+                      "__typename": "SellingPlanRecurringDeliveryPolicy",
+                      "interval": "MONTH",
+                      "intervalCount": 1
+                    },
+                    "description": null,
+                    "id": "gid://shopify/SellingPlan/9893052605",
+                    "name": "Deliver every month",
+                    "options": [
+                      {
+                        "__typename": "SellingPlanOption",
+                        "name": "Delivery frequency",
+                        "value": "Deliver every month"
+                      }
+                    ],
+                    "priceAdjustments": [],
+                    "recurringDeliveries": true
+                  }
+                }
+              }
+            ]
+          },
+          "sku": "CB001M011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "1 device",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Eufy"
+}

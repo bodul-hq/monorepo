@@ -115,6 +115,18 @@ impl Bus {
         }));
     }
 
+    /// A replay-safe reaction: each command supplies a stable identity and run correlation.
+    pub fn on_many_keyed<E: Event, C: Command>(
+        &mut self,
+        reaction: fn(&E) -> Vec<KeyedCommand<C>>,
+    ) {
+        self.registrations.push(Box::new(move |kernel| {
+            kernel.event_subscriber_with_command_gateway(E::NAME, C::NAME, move |gateway| {
+                Arc::new(KeyedReaction { gateway, reaction }) as Arc<dyn EventSubscriberPort>
+            })
+        }));
+    }
+
     /// Registers a listener for its event type.
     pub fn listen<L: Listen>(&mut self, listener: L) {
         let port: Arc<dyn EventSubscriberPort> = Arc::new(Listener(listener));
@@ -244,6 +256,66 @@ impl Dispatcher {
         )
         .map_err(|error| DispatchError(error.to_string()))?;
 
+        self.gateway
+            .dispatch(envelope)
+            .map_err(|error| DispatchError(error.to_string()))
+    }
+}
+
+/// A command whose identity survives replay of its triggering event.
+pub struct KeyedCommand<C> {
+    pub id: Uuid,
+    pub run_id: Uuid,
+    pub command: C,
+}
+
+struct KeyedReaction<E, C> {
+    gateway: Arc<CommandGateway>,
+    reaction: fn(&E) -> Vec<KeyedCommand<C>>,
+}
+
+impl<E: Event, C: Command> EventSubscriberPort for KeyedReaction<E, C> {
+    fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let event: E = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
+        let metadata = envelope
+            .metadata
+            .as_ref()
+            .ok_or_else(|| subscriber_error("keyed reaction requires event metadata"))?;
+        let start = Instant::now();
+        let result = (|| {
+            for keyed in (self.reaction)(&event) {
+                let command = command_envelope(
+                    &keyed.command,
+                    NewCommandMetadata {
+                        command_id: keyed.id,
+                        correlation_id: Some(keyed.run_id),
+                        causation_id: Some(metadata.event_id),
+                        source: Some(format!("event:{}", E::NAME)),
+                    },
+                )
+                .map_err(subscriber_error)?;
+                self.gateway.dispatch(command).map_err(subscriber_error)?;
+            }
+            Ok(())
+        })();
+        tracing::info!(target: TIMING_TARGET, kind="event", name=E::NAME, reaction=C::NAME, elapsed_ms=start.elapsed().as_millis() as u64, status=if result.is_ok() { "ok" } else { "error" });
+        result
+    }
+}
+
+impl Dispatcher {
+    /// Queues the first command with the API run ID as correlation metadata.
+    pub fn dispatch_run<C: Command>(&self, command: &C, run_id: Uuid) -> Result<(), DispatchError> {
+        let envelope = command_envelope(
+            command,
+            NewCommandMetadata {
+                command_id: run_id,
+                correlation_id: Some(run_id),
+                causation_id: None,
+                source: Some("api".into()),
+            },
+        )
+        .map_err(|error| DispatchError(error.to_string()))?;
         self.gateway
             .dispatch(envelope)
             .map_err(|error| DispatchError(error.to_string()))
@@ -539,3 +611,20 @@ mod tests {
         );
     }
 }
+
+/// RFC 9562 UUIDv5 for replay-stable command identities. Uses the existing
+/// RustCrypto SHA-1 implementation; these IDs are identifiers, not signatures.
+pub fn stable_command_id(namespace: &Uuid, key: &[u8]) -> Uuid {
+    use sha1::{Digest, Sha1};
+    let digest = Sha1::new()
+        .chain_update(namespace.as_bytes())
+        .chain_update(key)
+        .finalize();
+    let mut bytes = [0; 16];
+    bytes.copy_from_slice(&digest[..16]);
+    uuid::Builder::from_sha1_bytes(bytes).into_uuid()
+}
+
+#[cfg(test)]
+#[path = "keyed_reaction_tests.rs"]
+mod keyed_reaction_tests;

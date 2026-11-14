@@ -74,6 +74,13 @@ delivery; preparing them does not contact offers. See
 ([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
 pipeline runs only when `DATABASE_URL` is set (see below).
 
+`retailer_sourcing` also offers an independent initial fill for all active Anker storefronts except Korea through
+`POST /api/initial-offer-fills`: acquire its public Storefront token, traverse
+catalog identifiers in batches of 500, and fetch complete GraphQL details for
+each product. Details are saved in object storage and produce a terminal event;
+they do not enter the existing normalization/export pipeline. See the
+[initial-fill walkthrough](services/retailer_sourcing/README.md#anker-initial-offer-fill).
+
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
 history and projects offer events, with initial images in `OfferCreated` and
 ordered image additions on updates. Offer facts now include optional scrape time,
@@ -125,10 +132,12 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
-- Nordic Anker market downloads require the site's public browser Storefront
+- Sitemap-driven Nordic Anker downloads require the public browser Storefront
   token in `ANKER_NORDICS_STOREFRONT_TOKEN`; see
   [the sourcing setup](services/retailer_sourcing/README.md) and
-  [ADR 47](docs/adr/0047-nordic-retailer-markets.md).
+  [ADR 47](docs/adr/0047-nordic-retailer-markets.md). Initial fill discovers the
+  browser token automatically, with the same setting available as an override
+  ([ADR 54](docs/adr/0054-anker-browser-token-discovery.md)).
 - Mulac 0.5.0 packages from the `null-labs-hq` Cargo registry at
   `https://null-labs-hq.github.io/crates/`, configured in `.cargo/config.toml`.
   The services lockfile pins resolved versions and checksums; no sibling Mulac
@@ -180,6 +189,7 @@ More targets run only from the root, against `DATA_DIR`, which defaults to the
 | `export-sitemaps`             | Write each retailer's latest sitemap crawl, its sources, processed tree and consolidated links, to `<DATA_DIR>/<retailer>/sitemap` (needs `DATABASE_URL`)                                                                                                                                                                                                                                                     |
 | `dump-sitemap-sources`        | Download every fetched sitemap file from `retailer_sourcing`'s `/api/development/sitemaps/sources` to `<DATA_DIR>/<retailer>/sitemaps/sources/<retrieval id>/<url slug>.xml`; set `RETAILER_SOURCING_URL` (default `http://localhost:3000`) and, to override the hardcoded bearer token, `RETAILER_SOURCING_TOKEN`                                                                                            |
 | `dump-offer-details`          | List offer metadata from `retailer_sourcing`'s `/api/development/offer-details/sources`, then download the newest HTML from `object_storage` to `<DATA_DIR>/<retailer>/offer_details/sources/<url path>.html`; set `RETAILER_SOURCING_URL` and `RETAILER_SOURCING_TOKEN` as for `dump-sitemap-sources`, plus `OBJECT_STORAGE_URL` (default `http://172.28.100.43:3000`) and optionally `OBJECT_STORAGE_TOKEN` |
+| `dump-offer-details-v2` | Download the newest complete GraphQL artifact per retailer/product to `<DATA_DIR>/<retailer>/offer_details_v2/sources/<product ID>.json`; uses the same sourcing/object-storage settings as `dump-offer-details` |
 | `extract-offer-details`       | Extract each page in `<DATA_DIR>/<retailer>/offer_details/sources` into `offer_details/extracted/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                                                                                                                  |
 | `normalize-offer-details`     | Normalize each page in `offer_details/extracted` into `offer_details/normalized/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                                                                                                                                   |
 | `structuralize-offer-details` | Structuralize each page in `offer_details/normalized` into `offer_details/structuralized/<page>.json`; set `RETAILERS` to limit them                                                                                                                                                                                                                                                                          |
@@ -339,3 +349,14 @@ The smoke job in .github/workflows/ci.yml documents the distinct ports, test
 databases and explicit queue runners. Its shell blocks can be syntax-checked
 with bash -n; full execution requires PostgreSQL and permission to open sockets.
 A workflow definition is not evidence of a passing Actions run.
+
+Minisforum and Ugreen (including NAS) also support GraphQL initial fills through
+`POST /api/initial-offer-fills`, discovering every advertised country/language
+context per retailer. Their v2 dumps separate markets into country-language
+subdirectories; existing Anker configurations remain fixed-context. See
+[ADR 59](docs/adr/0059-multi-market-shopify-initial-fills.md).
+
+GraphQL initial fills use an independent integration for each of the 48 supported
+retailer codes. The retailer owns token policy, queries, schema, raw types and
+pagination; sourcing shares only HTTP pacing, durable orchestration and storage.
+See [ADR 61](docs/adr/0061-independent-retailer-graphql-integrations.md).

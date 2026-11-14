@@ -1,0 +1,19 @@
+meta {
+  name: Start all ugreen GraphQL markets
+  type: http
+  seq: 16
+}
+post {
+  url: {{retailerSourcingBaseUrl}}/api/initial-offer-fills
+  body: json
+  auth: none
+}
+body:json {
+  {"retailers": ["ugreenca", "ugreencom", "ugreende", "ugreeneu", "ugreenfr", "ugreenin", "ugreenjp", "ugreenkr", "ugreennas", "ugreennasau", "ugreennasca", "ugreennasde", "ugreennases", "ugreennaseu", "ugreennasfr", "ugreennasit", "ugreennasjp", "ugreennasuk", "ugreennl", "ugreenuk", "ugreenus"]}
+}
+docs {
+  Attempts public token acquisition first; continues token-free if none is found.
+  Discovers every advertised country/language context for each retailer.
+  Run commands and events to advance market discovery, catalog pagination and details.
+  Contextual artifacts are stored with schema version 2.
+}

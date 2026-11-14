@@ -68,7 +68,7 @@ dependencies = [
  "serde_urlencoded",
  "static_assertions_next",
  "tempfile",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -102,7 +102,7 @@ dependencies = [
  "quote",
  "strum",
  "syn 2.0.119",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -1154,6 +1154,63 @@ dependencies = [
 ]
 
 [[package]]
+name = "graphql-introspection-query"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e063446242093b0acecc78a2313801e6c4faafa3501277b409a2b1972eff5d85"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "graphql-parser"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a818c0d883d7c0801df27be910917750932be279c7bc82dc541b8769425f409"
+dependencies = [
+ "combine",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "graphql_client"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0f04840854efa7b06377d86fab117f598f5f5c95727067463417ccaf8aa7635"
+dependencies = [
+ "graphql_query_derive",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "graphql_client_codegen"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa0141e66c8d0302f8a586df12ad5d0cf87c0fa8c391f2f5b5dc296312dce569"
+dependencies = [
+ "graphql-introspection-query",
+ "graphql-parser",
+ "heck",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "graphql_query_derive"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e16ecf9bb87a6760cf5227f66cbe48bad7b89505aeb002aa9439ea090e6038a3"
+dependencies = [
+ "graphql_client_codegen",
+ "proc-macro2",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1185,7 +1242,7 @@ dependencies = [
  "pest_derive",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -1249,7 +1306,7 @@ dependencies = [
  "regex",
  "scraper",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "unicode-ident",
 ]
 
@@ -1541,7 +1598,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "url",
  "uuid",
@@ -1608,7 +1665,7 @@ dependencies = [
  "jni-sys",
  "log",
  "simd_cesu8",
- "thiserror",
+ "thiserror 2.0.21",
  "walkdir",
  "windows-link",
 ]
@@ -1890,7 +1947,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "utoipa",
  "uuid",
@@ -1911,7 +1968,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "utoipa",
  "uuid",
@@ -1933,7 +1990,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "utoipa",
  "uuid",
@@ -1952,7 +2009,7 @@ dependencies = [
  "mulac_diesel",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "tokio-util",
  "tracing",
@@ -1973,7 +2030,7 @@ dependencies = [
  "poem-openapi",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "utoipa",
  "uuid",
@@ -2121,7 +2178,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.21",
  "uuid",
 ]
 
@@ -2150,7 +2207,7 @@ dependencies = [
  "shared",
  "testimony",
  "testimony_infra",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "tracing-subscriber",
  "url",
@@ -2462,7 +2519,7 @@ dependencies = [
  "sse-codec",
  "sync_wrapper",
  "tempfile",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "tokio-stream",
  "tokio-tungstenite 0.27.0",
@@ -2505,7 +2562,7 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "serde_yaml",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
 ]
 
@@ -2524,7 +2581,7 @@ dependencies = [
  "quote",
  "regex",
  "syn 2.0.119",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2648,7 +2705,7 @@ dependencies = [
  "rustc-hash",
  "rustls",
  "socket2",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "tracing",
  "web-time",
@@ -2671,7 +2728,7 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "slab",
- "thiserror",
+ "thiserror 2.0.21",
  "tinyvec",
  "tracing",
  "web-time",
@@ -2964,8 +3021,9 @@ dependencies = [
  "html-extractor",
  "icu_locale_core",
  "serde",
+ "serde_json",
  "shared",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -2995,10 +3053,11 @@ dependencies = [
  "retailer_sauce",
  "serde",
  "serde_json",
+ "sha1",
  "shared",
  "sitemap",
  "strum",
- "thiserror",
+ "thiserror 2.0.21",
  "tokio",
  "tower",
  "tower-http",
@@ -3017,12 +3076,16 @@ name = "retailers_anker"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "graphql_client",
  "html-extractor",
  "money",
  "retailer_sauce",
+ "scraper",
  "serde",
+ "serde_json",
  "shared",
- "thiserror",
+ "thiserror 2.0.21",
+ "url",
 ]
 
 [[package]]
@@ -3039,24 +3102,32 @@ dependencies = [
 name = "retailers_minisforum"
 version = "0.1.0"
 dependencies = [
+ "graphql_client",
  "html-extractor",
  "money",
  "retailer_sauce",
+ "scraper",
  "serde",
+ "serde_json",
  "shared",
- "thiserror",
+ "thiserror 2.0.21",
+ "url",
 ]
 
 [[package]]
 name = "retailers_ugreen"
 version = "0.1.0"
 dependencies = [
+ "graphql_client",
  "html-extractor",
  "money",
  "retailer_sauce",
+ "scraper",
  "serde",
+ "serde_json",
  "shared",
- "thiserror",
+ "thiserror 2.0.21",
+ "url",
 ]
 
 [[package]]
@@ -3455,7 +3526,7 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "serde",
- "thiserror",
+ "thiserror 2.0.21",
  "url",
 ]
 
@@ -3519,7 +3590,7 @@ dependencies = [
  "serde",
  "shared",
  "strum",
- "thiserror",
+ "thiserror 2.0.21",
  "url",
 ]
 
@@ -3756,7 +3827,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
@@ -3809,11 +3880,31 @@ checksum = "8eaa81235c7058867fa8c0e7314f33dcce9c215f535d1913822a2b3f5e289f3c"
 
 [[package]]
 name = "thiserror"
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
+dependencies = [
+ "thiserror-impl 1.0.69",
+]
+
+[[package]]
+name = "thiserror"
 version = "2.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 2.0.21",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -4089,7 +4180,7 @@ checksum = "050686193eb999b4bb3bc2acfa891a13da00f79734704c4b8b4ef1a10b368a3c"
 dependencies = [
  "crossbeam-channel",
  "symlink",
- "thiserror",
+ "thiserror 2.0.21",
  "time",
  "tracing-subscriber",
 ]
@@ -4163,7 +4254,7 @@ dependencies = [
  "log",
  "rand 0.9.5",
  "sha1",
- "thiserror",
+ "thiserror 2.0.21",
  "utf-8",
 ]
 
@@ -4180,7 +4271,7 @@ dependencies = [
  "log",
  "rand 0.9.5",
  "sha1",
- "thiserror",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

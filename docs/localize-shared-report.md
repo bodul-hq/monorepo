@@ -13,11 +13,11 @@ HTTP contract change was introduced.
 The [saved plan](localize-shared-plan.md) was written before implementation.
 Changes were committed in order on `refactor/localize-shared-library`:
 
-| Commit | Change |
-| --- | --- |
+| Commit    | Change                                                                                                                                                   |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `e2d7fc6` | Import the resolved upstream source, tests, MIT notice, provenance, documentation, and ADR 46. Consumers still use the published package at this commit. |
-| `fd02fc3` | Migrate consumer imports and manifests across `lib`, `services`, and `apps`; refresh all three lockfiles. |
-| `2df5c17` | Correct an Anker module-name collision discovered during full validation. |
+| `fd02fc3` | Migrate consumer imports and manifests across `lib`, `services`, and `apps`; refresh all three lockfiles.                                                |
+| `2df5c17` | Correct an Anker module-name collision discovered during full validation.                                                                                |
 
 There are three implementation commits rather than the planned two: the small
 validation fix is recorded separately, preserving the two requested migration
@@ -52,20 +52,20 @@ documentation commit.
 
 ## Validation results
 
-| Check | Result |
-| --- | --- |
-| Formatting | Root `make fmt` completed; all subsequent CI formatting checks passed. |
-| Import check | `make ci` in `lib/shared` passed, including 8 tests. |
-| Library CI | Root `make ci` completed all 16 library crates after the collision fix. An additional Anker check passed all 577 tests. |
-| Service CI | Root CI completed customer-facing and offers. Resumed `make -C services/retailer_sourcing ci` and `make -C services/object_storage ci` both passed. |
-| App CI | `make -C apps ci` passed both apps and development utility binaries. |
-| Customer-facing PostgreSQL | 45 passed. |
-| Offers PostgreSQL | 38 passed. |
-| Retailer-sourcing PostgreSQL | 70 passed. |
-| Object-storage PostgreSQL | 10 passed. |
-| Dependency resolution | Locked, offline Cargo metadata confirmed exactly one local `shared` and no `bodul_shared` in each workspace. |
-| Lockfile comparison | Every other registry package's version, source, and checksum matched the pre-import lockfiles. |
-| Diff hygiene | `git diff --check` passed. |
+| Check                        | Result                                                                                                                                              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Formatting                   | Root `make fmt` completed; all subsequent CI formatting checks passed.                                                                              |
+| Import check                 | `make ci` in `lib/shared` passed, including 8 tests.                                                                                                |
+| Library CI                   | Root `make ci` completed all 16 library crates after the collision fix. An additional Anker check passed all 577 tests.                             |
+| Service CI                   | Root CI completed customer-facing and offers. Resumed `make -C services/retailer_sourcing ci` and `make -C services/object_storage ci` both passed. |
+| App CI                       | `make -C apps ci` passed both apps and development utility binaries.                                                                                |
+| Customer-facing PostgreSQL   | 45 passed.                                                                                                                                          |
+| Offers PostgreSQL            | 38 passed.                                                                                                                                          |
+| Retailer-sourcing PostgreSQL | 70 passed.                                                                                                                                          |
+| Object-storage PostgreSQL    | 10 passed.                                                                                                                                          |
+| Dependency resolution        | Locked, offline Cargo metadata confirmed exactly one local `shared` and no `bodul_shared` in each workspace.                                        |
+| Lockfile comparison          | Every other registry package's version, source, and checksum matched the pre-import lockfiles.                                                      |
+| Diff hygiene                 | `git diff --check` passed.                                                                                                                          |
 
 All constituent CI targets passed; the interrupted root invocation itself did
 not return a successful final exit code. The 163 PostgreSQL tests were run with
@@ -91,14 +91,14 @@ Each server was started through its `make serve` target with explicit `PORT` and
 isolated database configuration where required. Make command-line assignments
 passed these settings into the server environment.
 
-| Server | Port | Request and result |
-| --- | --- | --- |
-| Object storage | 38460 | Authenticated `GET /api/health`: 200, `ok`. |
-| Customer-facing | 38461 | `GET /api/health`: 200, `ok`. |
-| Offers | 18462 | `GET /api/health`: 200, `ok`. |
-| Retailer sourcing | 38463 | `GET /api/health`: 200, `ok`; command workers disabled. |
-| Customers | 38464 | `GET /`: 200, rendered offers page backed by the test customer-facing service. |
-| Development | 38465 | `GET /`: 200, rendered development page. |
+| Server            | Port  | Request and result                                                             |
+| ----------------- | ----- | ------------------------------------------------------------------------------ |
+| Object storage    | 38460 | Authenticated `GET /api/health`: 200, `ok`.                                    |
+| Customer-facing   | 38461 | `GET /api/health`: 200, `ok`.                                                  |
+| Offers            | 18462 | `GET /api/health`: 200, `ok`.                                                  |
+| Retailer sourcing | 38463 | `GET /api/health`: 200, `ok`; command workers disabled.                        |
+| Customers         | 38464 | `GET /`: 200, rendered offers page backed by the test customer-facing service. |
+| Development       | 38465 | `GET /`: 200, rendered development page.                                       |
 
 Offers initially failed to bind port 38462 with `AddrInUse`; retrying on 18462
 succeeded. No application changes were needed.
@@ -118,11 +118,11 @@ separately. **Audits did not pass**, but no advisory was introduced by this chan
 the affected registry package versions and checksums were already present before
 the import.
 
-| Workspace | Vulnerabilities | Existing affected packages |
-| --- | --- | --- |
-| lib | 2 | `rustls-webpki` 0.103.15: RUSTSEC-2026-0382; `webpki-root-certs` 1.0.9: RUSTSEC-2026-0383. |
-| services | 9 | `rustls` 0.23.45: RUSTSEC-2026-0346/0347/0348/0349; `rustls-webpki` 0.103.15: RUSTSEC-2026-0382; `zip` 8.6.0: RUSTSEC-2026-0367/0368/0369/0429. |
-| apps | 2 | Same two vulnerability advisories as lib. |
+| Workspace | Vulnerabilities | Existing affected packages                                                                                                                      |
+| --------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| lib       | 2               | `rustls-webpki` 0.103.15: RUSTSEC-2026-0382; `webpki-root-certs` 1.0.9: RUSTSEC-2026-0383.                                                      |
+| services  | 9               | `rustls` 0.23.45: RUSTSEC-2026-0346/0347/0348/0349; `rustls-webpki` 0.103.15: RUSTSEC-2026-0382; `zip` 8.6.0: RUSTSEC-2026-0367/0368/0369/0429. |
+| apps      | 2               | Same two vulnerability advisories as lib.                                                                                                       |
 
 The audit also reported existing warnings: unmaintained `fxhash` and `kuchiki`,
 plus `rand` unsoundness in all workspaces; `tokio` unsoundness in services/apps;

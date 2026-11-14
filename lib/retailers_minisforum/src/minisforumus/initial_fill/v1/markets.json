@@ -1,0 +1,1946 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "US",
+        "currency": {
+          "isoCode": "USD"
+        }
+      },
+      "language": {
+        "isoCode": "EN"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AE",
+          "name": "United Arab Emirates",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AF",
+          "name": "Afghanistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AG",
+          "name": "Antigua & Barbuda",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AI",
+          "name": "Anguilla",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AM",
+          "name": "Armenia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AO",
+          "name": "Angola",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AR",
+          "name": "Argentina",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AU",
+          "name": "Australia",
+          "currency": {
+            "isoCode": "AUD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "AZ",
+          "name": "Azerbaijan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BB",
+          "name": "Barbados",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BD",
+          "name": "Bangladesh",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BF",
+          "name": "Burkina Faso",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BH",
+          "name": "Bahrain",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BI",
+          "name": "Burundi",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BJ",
+          "name": "Benin",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BM",
+          "name": "Bermuda",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BN",
+          "name": "Brunei",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BO",
+          "name": "Bolivia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BQ",
+          "name": "Caribbean Netherlands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BS",
+          "name": "Bahamas",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BT",
+          "name": "Bhutan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BW",
+          "name": "Botswana",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "BZ",
+          "name": "Belize",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CA",
+          "name": "Canada",
+          "currency": {
+            "isoCode": "CAD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CD",
+          "name": "Congo - Kinshasa",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CF",
+          "name": "Central African Republic",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CG",
+          "name": "Congo - Brazzaville",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CI",
+          "name": "Côte d’Ivoire",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CK",
+          "name": "Cook Islands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CL",
+          "name": "Chile",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CM",
+          "name": "Cameroon",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CV",
+          "name": "Cape Verde",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "CW",
+          "name": "Curaçao",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DJ",
+          "name": "Djibouti",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DM",
+          "name": "Dominica",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DO",
+          "name": "Dominican Republic",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "DZ",
+          "name": "Algeria",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "EC",
+          "name": "Ecuador",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ER",
+          "name": "Eritrea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ET",
+          "name": "Ethiopia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "FJ",
+          "name": "Fiji",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "FK",
+          "name": "Falkland Islands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GA",
+          "name": "Gabon",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GD",
+          "name": "Grenada",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GE",
+          "name": "Georgia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GF",
+          "name": "French Guiana",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GH",
+          "name": "Ghana",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GL",
+          "name": "Greenland",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GM",
+          "name": "Gambia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GN",
+          "name": "Guinea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GP",
+          "name": "Guadeloupe",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GQ",
+          "name": "Equatorial Guinea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GT",
+          "name": "Guatemala",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "GW",
+          "name": "Guinea-Bissau",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HN",
+          "name": "Honduras",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "HT",
+          "name": "Haiti",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ID",
+          "name": "Indonesia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IL",
+          "name": "Israel",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "IQ",
+          "name": "Iraq",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "JM",
+          "name": "Jamaica",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "JO",
+          "name": "Jordan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KG",
+          "name": "Kyrgyzstan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KH",
+          "name": "Cambodia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KI",
+          "name": "Kiribati",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KM",
+          "name": "Comoros",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KN",
+          "name": "St. Kitts & Nevis",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KR",
+          "name": "South Korea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KW",
+          "name": "Kuwait",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "KY",
+          "name": "Cayman Islands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LA",
+          "name": "Laos",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LB",
+          "name": "Lebanon",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LC",
+          "name": "St. Lucia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LK",
+          "name": "Sri Lanka",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LR",
+          "name": "Liberia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LS",
+          "name": "Lesotho",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "LY",
+          "name": "Libya",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MA",
+          "name": "Morocco",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MG",
+          "name": "Madagascar",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ML",
+          "name": "Mali",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MM",
+          "name": "Myanmar (Burma)",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MN",
+          "name": "Mongolia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MO",
+          "name": "Macao SAR",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MQ",
+          "name": "Martinique",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MR",
+          "name": "Mauritania",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MS",
+          "name": "Montserrat",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MU",
+          "name": "Mauritius",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MV",
+          "name": "Maldives",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MW",
+          "name": "Malawi",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MX",
+          "name": "Mexico",
+          "currency": {
+            "isoCode": "MXN"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MY",
+          "name": "Malaysia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "MZ",
+          "name": "Mozambique",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NA",
+          "name": "Namibia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NC",
+          "name": "New Caledonia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NE",
+          "name": "Niger",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NG",
+          "name": "Nigeria",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NI",
+          "name": "Nicaragua",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NP",
+          "name": "Nepal",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NR",
+          "name": "Nauru",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NU",
+          "name": "Niue",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "NZ",
+          "name": "New Zealand",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "OM",
+          "name": "Oman",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PA",
+          "name": "Panama",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PE",
+          "name": "Peru",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PG",
+          "name": "Papua New Guinea",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PH",
+          "name": "Philippines",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PK",
+          "name": "Pakistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "PY",
+          "name": "Paraguay",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "RE",
+          "name": "Réunion",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "RW",
+          "name": "Rwanda",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SA",
+          "name": "Saudi Arabia",
+          "currency": {
+            "isoCode": "SAR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SB",
+          "name": "Solomon Islands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SC",
+          "name": "Seychelles",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SG",
+          "name": "Singapore",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SL",
+          "name": "Sierra Leone",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SN",
+          "name": "Senegal",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SO",
+          "name": "Somalia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SR",
+          "name": "Suriname",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SV",
+          "name": "El Salvador",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SX",
+          "name": "Sint Maarten",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "SZ",
+          "name": "Eswatini",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TC",
+          "name": "Turks & Caicos Islands",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TD",
+          "name": "Chad",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TG",
+          "name": "Togo",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TH",
+          "name": "Thailand",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TJ",
+          "name": "Tajikistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TM",
+          "name": "Turkmenistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TN",
+          "name": "Tunisia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TO",
+          "name": "Tonga",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TR",
+          "name": "Türkiye",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TT",
+          "name": "Trinidad & Tobago",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TV",
+          "name": "Tuvalu",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TW",
+          "name": "Taiwan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "TZ",
+          "name": "Tanzania",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "UG",
+          "name": "Uganda",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "US",
+          "name": "United States",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "UY",
+          "name": "Uruguay",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "UZ",
+          "name": "Uzbekistan",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "VC",
+          "name": "St. Vincent & Grenadines",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "VE",
+          "name": "Venezuela",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "VN",
+          "name": "Vietnam",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "VU",
+          "name": "Vanuatu",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "WF",
+          "name": "Wallis & Futuna",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "WS",
+          "name": "Samoa",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "YE",
+          "name": "Yemen",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "YT",
+          "name": "Mayotte",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZA",
+          "name": "South Africa",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZM",
+          "name": "Zambia",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        },
+        {
+          "isoCode": "ZW",
+          "name": "Zimbabwe",
+          "currency": {
+            "isoCode": "USD"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "EN",
+              "name": "English"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

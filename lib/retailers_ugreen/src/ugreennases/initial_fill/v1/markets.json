@@ -1,0 +1,35 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AD",
+        "currency": {
+          "isoCode": "EUR"
+        }
+      },
+      "language": {
+        "isoCode": "ES"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "ES",
+          "name": "España",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "ES",
+              "name": "Español"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

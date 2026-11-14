@@ -4,7 +4,7 @@
 use axum::middleware;
 use utoipa_axum::router::OpenApiRouter;
 
-use super::{offer_details, sitemaps};
+use super::{offer_details, offer_details_v2, sitemaps};
 use crate::platform::Platform;
 use crate::platform::auth::require_bearer_token;
 use crate::platform::bus::Bus;
@@ -18,5 +18,6 @@ pub fn register(_bus: &mut Bus, _platform: &Platform) {}
 pub fn routes() -> OpenApiRouter<AppState> {
     sitemaps::routes()
         .merge(offer_details::routes())
+        .merge(offer_details_v2::routes())
         .route_layer(middleware::from_fn(require_bearer_token))
 }

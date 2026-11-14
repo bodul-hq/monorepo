@@ -36,6 +36,23 @@ validation failures are reported as skipped sources while other sources
 continue. The offline stages operate on existing files without a running
 service.
 
+## Offer details v2 sources
+
+`make dump-offer-details-v2 DATA_DIR=../data` from the root lists
+`/api/development/offer-details-v2/sources`, then downloads complete GraphQL
+artifacts from object storage with the same environment settings as v1. Files
+are `<DATA_DIR>/<retailer>/offer_details_v2/sources/<numeric Shopify product ID>.json`.
+Each file preserves the stored JSON bytes: artifact schema version 1, merged
+product, and original request/response pages. V2 is the pipeline version, not a
+change to the stored artifact version. The newest successfully downloaded copy
+per retailer/product wins; older copies are skipped before fetching. Unsafe
+product IDs and mismatched storage records are rejected.
+
+This listing reads retained initial-fill terminal events. Run it after fills
+finish for stable pagination; rerunning refreshes existing files. The raw AU/CA
+representations live in `retailers_anker`. Extracted representations and the HTML
+processing commands are unchanged. See [ADR 57](../../docs/adr/0057-offer-details-v2-raw-sources.md).
+
 ## Run and test
 
 ```sh
@@ -174,3 +191,9 @@ screens. When every count in a queue is zero, its icon and colored boxes shrink
 together to 24px (18px on narrow screens), with box labels and zeros visually
 hidden but available to screen readers. The icon column retains its full width
 so status columns align across empty and populated collections.
+
+Multi-market v2 sources include context metadata. The same
+`dump-offer-details-v2` command saves each market independently under
+`<retailer>/offer_details_v2/sources/<COUNTRY>-<LANGUAGE>/<product-id>.json`.
+Historical context-free sources retain their flat paths. Contextual artifacts
+have schema version 2 and preserve all original request/response evidence.

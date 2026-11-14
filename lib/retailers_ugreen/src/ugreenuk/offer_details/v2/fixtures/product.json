@@ -1,0 +1,434 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15-5",
+        "name": "Power Adapters & Chargers"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "Power"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Electronics Accessories"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-5-1",
+    "name": "Power Banks"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTQ4OTEwNTU0MTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDk3MjgxNTE4NTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "no-power-station",
+          "id": "gid://shopify/Collection/449728151858",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/no-power-station",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "No Power Station",
+          "updatedAt": "2026-11-07T12:06:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjMwOTA5NDIyNTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Stay powered up with UGREEN UK's portable chargers and power banks. Perfect for travel, work, or play—never run out of battery again!",
+          "descriptionHtml": "<p>Stay powered up with UGREEN UK's portable chargers and power banks. Perfect for travel, work, or play—never run out of battery again!</p>",
+          "handle": "power-bank",
+          "id": "gid://shopify/Collection/463090942258",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/power-bank",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop UGREEN power banks and portable chargers for phones, tablets and laptops. Explore USB-C, magnetic and high-capacity models. Find your fit.",
+            "title": "Power Banks & Portable Chargers for Every Day | UGREEN UK"
+          },
+          "title": "Power Banks & Portable Chargers",
+          "updatedAt": "2026-11-07T12:06:47Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjY5NDY4ODM4OTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products",
+          "id": "gid://shopify/Collection/466946883890",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/all-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop all UGREEN products in the UK, including chargers, power banks, USB-C cables, hubs, docking stations and tech accessories.",
+            "title": "UGREEN All Products | Power Banks, Chargers, Cables & More | UGREEN UK"
+          },
+          "title": "UGREEN All Products",
+          "updatedAt": "2026-11-07T12:06:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDY5MzQwMzQ3MzgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "flash-sale",
+          "id": "gid://shopify/Collection/506934034738",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/flash-sale",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop UGREEN Flash Sale for chargers, power banks, USB-C hubs, docking stations, cables, adapters, and accessories. Grab limited-time deals now.",
+            "title": "Flash Sale | Chargers, Cables, Hubs & More | UGREEN UK"
+          },
+          "title": "Flash Sale",
+          "updatedAt": "2026-11-07T12:06:47Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTAyMTQwMTMyMzQsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "thank-you-5",
+          "id": "gid://shopify/Collection/510214013234",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/thank-you-5",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Thank you 5%",
+          "updatedAt": "2026-11-07T12:06:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTMzNzM4NjQyNDIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "nexode-magflow-air-editions",
+          "id": "gid://shopify/Collection/513373864242",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/nexode-magflow-air-editions",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop UGREEN Nexode & MagFlow Air Editions for 65W mini chargers and slim power banks designed for compact charging and portable power.",
+            "title": "UGREEN Nexode & MagFlow Air Editions | UGREEN UK"
+          },
+          "title": "Nexode & MagFlow Air Editions",
+          "updatedAt": "2026-11-07T12:06:47Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTQ2NTg2OTc1MjIsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best-seller",
+          "id": "gid://shopify/Collection/514658697522",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/best-seller",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Best Seller",
+          "updatedAt": "2026-11-07T12:06:47Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTQ4OTEwNTU0MTAsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "slim-power-bank",
+          "id": "gid://shopify/Collection/514891055410",
+          "image": null,
+          "onlineStoreUrl": "https://uk.ugreen.com/collections/slim-power-bank",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop UGREEN slim power banks for pocket-friendly charging. Explore compact magnetic and USB-C models for commuting, travel and everyday carry.",
+            "title": "Slim Power Bank | Compact Portable Chargers | UGREEN UK"
+          },
+          "title": "Slim Power Banks",
+          "updatedAt": "2026-11-07T12:06:47Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "139.99",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "139.99",
+      "currencyCode": "GBP"
+    }
+  },
+  "createdAt": "2026-07-21T12:37:04Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1600,
+    "id": "gid://shopify/ProductImage/54041763709234",
+    "thumbhash": "mfeBBQAksOpdaKwVGI91GPZYJWhbloA8ig==",
+    "url": "https://cdn.shopify.com/s/files/1/0697/8207/7746/files/01_7238f3c7-c1ec-4858-adfb-a208a8ed25fb.png?v=1784637312",
+    "width": 1600
+  },
+  "handle": "magflow-air-magnetic-power-bank-bundle-10000mah-5000mah-qi2-15w",
+  "id": "gid://shopify/Product/10245996708146",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1NDA0MTc2MzcwOTIzNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1NDA0MTc2MzcwOTIzNCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/54041763709234",
+          "thumbhash": "mfeBBQAksOpdaKwVGI91GPZYJWhbloA8ig==",
+          "url": "https://cdn.shopify.com/s/files/1/0697/8207/7746/files/01_7238f3c7-c1ec-4858-adfb-a208a8ed25fb.png?v=1784637312",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NDA4MjEyNzExMDQ1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NDA4MjEyNzExMDQ1MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/44082127110450",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/44082127110450",
+            "thumbhash": "mfeBBQAksOpdaKwVGI91GPZYJWhbloA8ig==",
+            "url": "https://cdn.shopify.com/s/files/1/0697/8207/7746/files/01_7238f3c7-c1ec-4858-adfb-a208a8ed25fb.png?v=1784637312",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/44082127110450",
+            "thumbhash": "mfeBBQAksOpdaKwVGI91GPZYJWhbloA8ig==",
+            "url": "https://cdn.shopify.com/s/files/1/0697/8207/7746/files/01_7238f3c7-c1ec-4858-adfb-a208a8ed25fb.png?v=1784637312",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://uk.ugreen.com/products/magflow-air-magnetic-power-bank-bundle-10000mah-5000mah-qi2-15w",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/12807127269682",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/8338548523314",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "99.98",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "99.98",
+      "currencyCode": "GBP"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-07-21T12:37:05Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Get two UGREEN MagFlow Air power banks in one bundle: 10,000mAh + 5,000mAh with Qi2 15W magnetic charging. Shop now.",
+    "title": "UGREEN MagFlow Air Qi2 15W Power Bank Bundle | UGREEN UK"
+  },
+  "tags": [
+    "air",
+    "Bundle"
+  ],
+  "title": "UGREEN MagFlow Air Magnetic Power Bank Bundle (10,000mAh + 5,000mAh, Qi2 15W)",
+  "updatedAt": "2026-11-05T19:01:17Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTQ5NDgzODA3NTY5OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTQ5NDgzODA3NTY5OCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "139.99",
+            "currencyCode": "GBP"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/51494838075698",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ProductImage/54041763709234",
+            "thumbhash": "mfeBBQAksOpdaKwVGI91GPZYJWhbloA8ig==",
+            "url": "https://cdn.shopify.com/s/files/1/0697/8207/7746/files/01_7238f3c7-c1ec-4858-adfb-a208a8ed25fb.png?v=1784637312",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "99.98",
+            "currencyCode": "GBP"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "75982+75984",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN UK"
+}

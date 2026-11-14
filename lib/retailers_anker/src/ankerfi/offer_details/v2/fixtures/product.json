@@ -1,0 +1,275 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Uncategorized"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0OTU3MTc2MTM4NDYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0OTU3MTc2MTM4NDYsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all",
+          "id": "gid://shopify/Collection/495717613846",
+          "image": null,
+          "onlineStoreUrl": "https://checkout.ankernordics.com/collections/all",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "All",
+          "updatedAt": "2026-11-07T13:39:58Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2025-01-20T03:36:17Z",
+  "description": "",
+  "descriptionHtml": "<p></p>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "1 TB Hard Drive",
+    "height": 500,
+    "id": "gid://shopify/ProductImage/48666967671062",
+    "thumbhash": "JLaFDQIrB4iCeXKfhxeJcKEICFiIh3CEVw==",
+    "url": "https://cdn.shopify.com/s/files/1/0917/4807/3750/files/70d50c8c6d5931c4938076c38e4ca867_1_25399b87-68fa-4ec2-add1-85a6c6f0e5f3.png?v=1762244671",
+    "width": 500
+  },
+  "handle": "t80303d1-81",
+  "id": "gid://shopify/Product/9842849546518",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0ODY2Njk2NzY3MTA2MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0ODY2Njk2NzY3MTA2MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "1 TB Hard Drive",
+          "height": 500,
+          "id": "gid://shopify/ProductImage/48666967671062",
+          "thumbhash": "JLaFDQIrB4iCeXKfhxeJcKEICFiIh3CEVw==",
+          "url": "https://cdn.shopify.com/s/files/1/0917/4807/3750/files/70d50c8c6d5931c4938076c38e4ca867_1_25399b87-68fa-4ec2-add1-85a6c6f0e5f3.png?v=1762244671",
+          "width": 500
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MDA3NzAwNTg0ODg1NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MDA3NzAwNTg0ODg1NCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "1 TB Hard Drive",
+          "id": "gid://shopify/MediaImage/40077005848854",
+          "image": {
+            "__typename": "Image",
+            "altText": "1 TB Hard Drive",
+            "height": 500,
+            "id": "gid://shopify/ImageSource/40077005848854",
+            "thumbhash": "JLaFDQIrB4iCeXKfhxeJcKEICFiIh3CEVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0917/4807/3750/files/70d50c8c6d5931c4938076c38e4ca867_1_25399b87-68fa-4ec2-add1-85a6c6f0e5f3.png?v=1762244671",
+            "width": 500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "1 TB Hard Drive",
+            "height": 500,
+            "id": "gid://shopify/ImageSource/40077005848854",
+            "thumbhash": "JLaFDQIrB4iCeXKfhxeJcKEICFiIh3CEVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0917/4807/3750/files/70d50c8c6d5931c4938076c38e4ca867_1_25399b87-68fa-4ec2-add1-85a6c6f0e5f3.png?v=1762244671",
+            "width": 500
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://checkout.ankernordics.com/products/t80303d1-81",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/12619041931542",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4927805522198",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "89.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "89.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2025-08-13T11:16:34Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "CLtag:New"
+  ],
+  "title": "1 TB Hard Drive",
+  "updatedAt": "2026-11-07T14:58:36Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0OTY2MjkzNzkyMzg2MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0OTY2MjkzNzkyMzg2MiwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/49662937923862",
+          "image": {
+            "__typename": "Image",
+            "altText": "1 TB Hard Drive",
+            "height": 500,
+            "id": "gid://shopify/ProductImage/48666967671062",
+            "thumbhash": "JLaFDQIrB4iCeXKfhxeJcKEICFiIh3CEVw==",
+            "url": "https://cdn.shopify.com/s/files/1/0917/4807/3750/files/70d50c8c6d5931c4938076c38e4ca867_1_25399b87-68fa-4ec2-add1-85a6c6f0e5f3.png?v=1762244671",
+            "width": 500
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "89.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "T80301D1-85",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.5732,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "eufy"
+}

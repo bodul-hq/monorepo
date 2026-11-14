@@ -1,0 +1,48 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AD",
+        "currency": {
+          "isoCode": "EUR"
+        }
+      },
+      "language": {
+        "isoCode": "DE"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "AT",
+          "name": "Österreich",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "DE",
+              "name": "Deutsch"
+            }
+          ]
+        },
+        {
+          "isoCode": "DE",
+          "name": "Deutschland",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "DE",
+              "name": "Deutsch"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

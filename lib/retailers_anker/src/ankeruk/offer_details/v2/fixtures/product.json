@@ -1,0 +1,386 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-17",
+        "name": "Video"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Electronics"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-17-2",
+    "name": "Projectors"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNzk0MTk0OTI1MjcsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjQ0LjE4NDIzOSIsIm9mZnNldCI6OH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MDc0OTk0MzksImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMwOjA5LjczMjE1MSIsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "aff-sales",
+          "id": "gid://shopify/Collection/379407499439",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 850,
+            "id": "gid://shopify/CollectionImage/1631902793903",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/0746/3999/9151/collections/footer.webp?v=1788150610",
+            "width": 1920
+          },
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/aff-sales",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Autumn Sale",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MDkzOTk5ODMsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMwOjQxLjc5Mzg0NyIsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "wifi-security-camera",
+          "id": "gid://shopify/Collection/379409399983",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/wifi-security-camera",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Secure your home with eufy's WiFi security camera range. Enjoy smart features, easy setup, and reliable monitoring without monthly fees.",
+            "title": "WiFi Security Camera | Smart Home Surveillance"
+          },
+          "title": "WiFi Security Camera",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTI2NDQwMTUsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMxOjM4LjcwMzI0MSIsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "motion-sensor-camera",
+          "id": "gid://shopify/Collection/379412644015",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/motion-sensor-camera",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Try eufy motion sensor cameras for trusted home security. Real-time alerts, 2K HD night vision, AI detection and no monthly fees keep you in full control.",
+            "title": "Motion Sensor Cameras | eufy Security Solutions"
+          },
+          "title": "motion sensor camera",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTI2NzY3ODMsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMxOjM5LjM3Njc5MiIsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "plug-in-security-camera",
+          "id": "gid://shopify/Collection/379412676783",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/plug-in-security-camera",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Browse eufy plug-in security cameras for enhanced home security. Quick setup, AI support and advanced features ensure effective round-the-clock monitoring.",
+            "title": "Plug In Security Cameras: Effortless Protection"
+          },
+          "title": "plug in security camera",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTg0NzY3MTksImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjIyLjk1OTExNyIsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "小充all-products",
+          "id": "gid://shopify/Collection/379418476719",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/%E5%B0%8F%E5%85%85all-products",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "chargers all products",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTg1NDIyNTUsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjIzLjg0MjgwNCIsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "home-charging",
+          "id": "gid://shopify/Collection/379418542255",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/home-charging",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your home setup with Anker's advanced home charging solutions. Shop high-speed GaN charger plugs, multi-port USB-C adapters, and desktop stations.",
+            "title": "Anker Home Charging | Fast Charger Plugs & Desktop Stations"
+          },
+          "title": "Home Charging",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTkwMDEwMDcsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjMzLjg5NjM2MyIsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "travel-essentials",
+          "id": "gid://shopify/Collection/379419001007",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/travel-essentials",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker travel essentials for trips, with fast smart travel chargers and portable power banks for your holiday, work travel and long-haul flights.",
+            "title": " Travel Essentials"
+          },
+          "title": "Travel Essentials",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTkwNjY1NDMsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjM1Ljg5NDU5MSIsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "all-products-anker",
+          "id": "gid://shopify/Collection/379419066543",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/all-products-anker",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": "All Products for Exclusive"
+          },
+          "title": "All Products excluded 2025 Anker Prime",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozNzk0MTk0OTI1MjcsImxhc3RfdmFsdWUiOiIyMDI2LTA4LTMxIDA0OjMzOjQ0LjE4NDIzOSIsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gpbf20",
+          "id": "gid://shopify/Collection/379419492527",
+          "image": null,
+          "onlineStoreUrl": "https://uk.store.anker.com/collections/gpbf20",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "GPBF20",
+          "updatedAt": "2026-11-07T12:22:04Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "GBP"
+    }
+  },
+  "createdAt": "2026-11-05T11:30:27Z",
+  "description": "Mystery Box Guidelines: 1. Purchase any mystery box for a surprise. 2. Mystery boxes are sold at full price without any discounts. 3. Limited stock available—act fast to secure your surprise! 4. Mystery boxes are non-returnable, unless due to a quality issue.",
+  "descriptionHtml": "<div data-zone-id=\"0\" data-line-index=\"0\" data-line=\"true\"><span style=\"color: rgb(255, 42, 0);\"><strong>Mystery Box Guidelines:</strong></span></div>\n<div data-zone-id=\"0\" data-line-index=\"1\" data-line=\"true\"><span style=\"color: rgb(255, 42, 0);\"><strong>1. Purchase any mystery box for a surprise.</strong></span></div>\n<div data-zone-id=\"0\" data-line-index=\"2\" data-line=\"true\"><span style=\"color: rgb(255, 42, 0);\"><strong>2. Mystery boxes are sold at full price without any discounts.</strong></span></div>\n<div data-zone-id=\"0\" data-line-index=\"3\" data-line=\"true\"><span style=\"color: rgb(255, 42, 0);\"><strong>3. Limited stock available—act fast to secure your surprise!</strong></span></div>\n<div data-zone-id=\"0\" data-line-index=\"4\" data-line=\"true\"><span style=\"color: rgb(255, 42, 0);\"><strong>4. Mystery boxes are non-returnable, unless due to a quality issue.</strong></span></div>",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": null,
+  "handle": "premium-mystery-box-299-99",
+  "id": "gid://shopify/Product/10367498715311",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "onlineStoreUrl": "https://uk.store.anker.com/products/premium-mystery-box-299-99",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/13309706174639",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/7717769642159",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "299.99",
+      "currencyCode": "GBP"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "299.99",
+      "currencyCode": "GBP"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-11-05T11:30:28Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [],
+  "title": "Premium Mystery Box £299.99",
+  "updatedAt": "2026-11-05T23:32:05Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MDgyNDAwNzA5MDM1MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDgyNDAwNzA5MDM1MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/50824007090351",
+          "image": null,
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "299.99",
+            "currencyCode": "GBP"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "MYSTERYBOX-BFCM26-2",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker UK"
+}

@@ -41,3 +41,8 @@ process-sitemap-sources:
 # of page and writes them to DATA_DIR/<retailer>/sitemaps/consolidate/<retrieval id>.json.
 consolidate-sitemap-sources:
 	cargo run --release --bin consolidate-sitemap-sources -- $(DATA_DIR)
+
+.PHONY: dump-offer-details-v2
+# Download complete GraphQL artifacts into offer_details_v2/sources.
+dump-offer-details-v2:
+	cargo run --release --bin dump-offer-details-v2 -- $(DATA_DIR)

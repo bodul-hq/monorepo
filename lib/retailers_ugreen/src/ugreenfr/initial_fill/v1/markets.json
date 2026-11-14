@@ -1,0 +1,87 @@
+{
+  "data": {
+    "localization": {
+      "country": {
+        "isoCode": "AD",
+        "currency": {
+          "isoCode": "EUR"
+        }
+      },
+      "language": {
+        "isoCode": "FR"
+      },
+      "availableCountries": [
+        {
+          "isoCode": "BE",
+          "name": "Belgique",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        },
+        {
+          "isoCode": "DE",
+          "name": "Allemagne",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        },
+        {
+          "isoCode": "ES",
+          "name": "Espagne",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        },
+        {
+          "isoCode": "FR",
+          "name": "France",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        },
+        {
+          "isoCode": "IT",
+          "name": "Italie",
+          "currency": {
+            "isoCode": "EUR"
+          },
+          "availableLanguages": [
+            {
+              "isoCode": "FR",
+              "name": "Français"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 7
+    }
+  }
+}

@@ -1,0 +1,605 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7-15",
+        "name": "Alimentazione"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el-7",
+        "name": "Accessori dispositivi elettronici"
+      },
+      {
+        "__typename": "TaxonomyCategory",
+        "id": "gid://shopify/TaxonomyCategory/el",
+        "name": "Elettronica"
+      }
+    ],
+    "id": "gid://shopify/TaxonomyCategory/el-7-15-12",
+    "name": "Unità backup batteria"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2ODYxMzAzNjQ0OTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2ODYxMzAyNjYxOTMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "nas-accessories",
+          "id": "gid://shopify/Collection/686130266193",
+          "image": null,
+          "onlineStoreUrl": "https://ai-it.ugreen.com/collections/nas-accessories",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "NAS Accessories",
+          "updatedAt": "2026-11-06T01:51:56Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2ODYxMzAzNjQ0OTcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "nas-storage",
+          "id": "gid://shopify/Collection/686130364497",
+          "image": {
+            "__typename": "Image",
+            "altText": "UGREEN NASync - UGREEN NAS US",
+            "height": 600,
+            "id": "gid://shopify/CollectionImage/2069823815761",
+            "thumbhash": null,
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/collections/1_7f206c06-7c7c-455a-b8e9-116a548ec78b-822282.png?v=1775009727",
+            "width": 1280
+          },
+          "onlineStoreUrl": "https://ai-it.ugreen.com/collections/nas-storage",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Scopri i server NAS UGREEN: DH2300, DH4300 Plus, DXP4800 Pro, 4800 Plus e 6800 Pro. Backup sicuro, condivisione file e accesso remoto per casa e azienda.",
+            "title": "UGREEN NAS | Server NAS e Offerte di Storage in Rete"
+          },
+          "title": "UGREEN NASync",
+          "updatedAt": "2026-11-07T12:13:36Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "124.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "124.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2026-04-01T02:15:23Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1445,
+    "id": "gid://shopify/ProductImage/69020818735185",
+    "thumbhash": "XfeFBQA2VrpthYcJeX+Q3wnJFmd3iJB6WA==",
+    "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups.webp?v=1780914158",
+    "width": 1445
+  },
+  "handle": "ugreen-nas-backup-power-120w-12000mah",
+  "id": "gid://shopify/Product/15742870716497",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2OTAzMTIyNjQ3NDU3NywibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAyMDgxODczNTE4NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1445,
+          "id": "gid://shopify/ProductImage/69020818735185",
+          "thumbhash": "XfeFBQA2VrpthYcJeX+Q3wnJFmd3iJB6WA==",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups.webp?v=1780914158",
+          "width": 1445
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNTc1MzY4MSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031225753681",
+          "thumbhash": "hvcFDwAIOHd2h3dwiLl4Noh1fZr4p4kP",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-compatibili.jpg?v=1781076546",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNTgxOTIxNywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031225819217",
+          "thumbhash": "R/cJDwAIqGh3h3h0i5V4h2iHhnn46IsP",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-sicuro.jpg?v=1781076547",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNTc4NjQ0OSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031225786449",
+          "thumbhash": "1vcVBwAnWIiFiHiAerlniHd5d/KXB34L",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups02.jpg?v=1781076547",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNTg4NDc1MywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031225884753",
+          "thumbhash": "0gcSDwJqV2aIh3dgiGh3d4iKuFr3imAP",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups01.jpg?v=1781076548",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNjQ0MTgwOSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031226441809",
+          "thumbhash": "i/cFDwAJpWlkiWWCmpZ3qHiHl/jciIoP",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT05_2f1bb93c-02ce-43b9-9c45-ed287f72ca3b.jpg?v=1781076564",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNjQwOTA0MSwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031226409041",
+          "thumbhash": "jfcJDwBIdXmBhHdjq/iINkh8UffYdo8L",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT07_56e892dd-8866-46c8-85f8-f805345acf02.jpg?v=1781076564",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo2OTAzMTIyNjQ3NDU3NywibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1600,
+          "id": "gid://shopify/ProductImage/69031226474577",
+          "thumbhash": "TecJFwIYmIdxeHdze/ZoN4h4aPzY9o8N",
+          "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT06_36eda536-175f-4996-8573-f27dfd40a468.jpg?v=1781076564",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo3MTI2MzI2MjMxMDQ4MSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI1MzY0ODk2NTcxMywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71253648965713",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1445,
+            "id": "gid://shopify/ImageSource/71253648965713",
+            "thumbhash": "XfeFBQA2VrpthYcJeX+Q3wnJFmd3iJB6WA==",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups.webp?v=1780914158",
+            "width": 1445
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1445,
+            "id": "gid://shopify/ImageSource/71253648965713",
+            "thumbhash": "XfeFBQA2VrpthYcJeX+Q3wnJFmd3iJB6WA==",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups.webp?v=1780914158",
+            "width": 1445
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MTU4OTU4NSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263261589585",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261589585",
+            "thumbhash": "hvcFDwAIOHd2h3dwiLl4Noh1fZr4p4kP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-compatibili.jpg?v=1781076546",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261589585",
+            "thumbhash": "hvcFDwAIOHd2h3dwiLl4Noh1fZr4p4kP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-compatibili.jpg?v=1781076546",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MTY1NTEyMSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263261655121",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261655121",
+            "thumbhash": "R/cJDwAIqGh3h3h0i5V4h2iHhnn46IsP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-sicuro.jpg?v=1781076547",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261655121",
+            "thumbhash": "R/cJDwAIqGh3h3h0i5V4h2iHhnn46IsP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups-sicuro.jpg?v=1781076547",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MTYyMjM1MywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263261622353",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261622353",
+            "thumbhash": "1vcVBwAnWIiFiHiAerlniHd5d/KXB34L",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups02.jpg?v=1781076547",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261622353",
+            "thumbhash": "1vcVBwAnWIiFiHiAerlniHd5d/KXB34L",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups02.jpg?v=1781076547",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MTc1MzQyNSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263261753425",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261753425",
+            "thumbhash": "0gcSDwJqV2aIh3dgiGh3d4iKuFr3imAP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups01.jpg?v=1781076548",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263261753425",
+            "thumbhash": "0gcSDwJqV2aIh3dgiGh3d4iKuFr3imAP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups01.jpg?v=1781076548",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MjI3NzcxMywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263262277713",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262277713",
+            "thumbhash": "i/cFDwAJpWlkiWWCmpZ3qHiHl/jciIoP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT05_2f1bb93c-02ce-43b9-9c45-ed287f72ca3b.jpg?v=1781076564",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262277713",
+            "thumbhash": "i/cFDwAJpWlkiWWCmpZ3qHiHl/jciIoP",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT05_2f1bb93c-02ce-43b9-9c45-ed287f72ca3b.jpg?v=1781076564",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MjI0NDk0NSwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263262244945",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262244945",
+            "thumbhash": "jfcJDwBIdXmBhHdjq/iINkh8UffYdo8L",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT07_56e892dd-8866-46c8-85f8-f805345acf02.jpg?v=1781076564",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262244945",
+            "thumbhash": "jfcJDwBIdXmBhHdjq/iINkh8UffYdo8L",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT07_56e892dd-8866-46c8-85f8-f805345acf02.jpg?v=1781076564",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo3MTI2MzI2MjMxMDQ4MSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/71263262310481",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262310481",
+            "thumbhash": "TecJFwIYmIdxeHdze/ZoN4h4aPzY9o8N",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT06_36eda536-175f-4996-8573-f27dfd40a468.jpg?v=1781076564",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1600,
+            "id": "gid://shopify/ImageSource/71263262310481",
+            "thumbhash": "TecJFwIYmIdxeHdze/ZoN4h4aPzY9o8N",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/B0DDC9ZK8R.PT06_36eda536-175f-4996-8573-f27dfd40a468.jpg?v=1781076564",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://ai-it.ugreen.com/products/ugreen-nas-backup-power-120w-12000mah",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/18548719747153",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/13049015173201",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.99",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.99",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-04-01T02:15:25Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "UGREEN UPS 120W protegge il tuo NAS durante le interruzioni di corrente. Progettato per UGREEN NAS, offre un'uscita stabile da 12V/10A e una batteria di backup da 12.000mAh per una maggiore sicurezza dei dati.",
+    "title": "UGREEN UPS 120W per NAS | Alimentazione di Emergenza per UGREEN NAS"
+  },
+  "tags": [
+    "Accessories",
+    "Nas",
+    "Ugreen",
+    "UGREEN NAS"
+  ],
+  "title": "UGREEN NAS 120W UPS CC (Gruppo di Continuità CC)",
+  "updatedAt": "2026-11-06T13:51:59Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1OTI1OTk3MTc5NzA3MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1OTI1OTk3MTc5NzA3MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": "6941876246151",
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "124.99",
+            "currencyCode": "EUR"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/59259971797073",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1445,
+            "id": "gid://shopify/ProductImage/69020818735185",
+            "thumbhash": "XfeFBQA2VrpthYcJeX+Q3wnJFmd3iJB6WA==",
+            "url": "https://cdn.shopify.com/s/files/1/1029/1219/6689/files/ups.webp?v=1780914158",
+            "width": 1445
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "109.99",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "45615",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "UGREEN NAS US"
+}

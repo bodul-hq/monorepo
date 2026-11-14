@@ -110,6 +110,135 @@ Status follows the [TODO workflow](AGENTS.md#todo-workflow):
 
 Flow: `[ ]` → `[.]` → `[>]` → `[~]` → `[x]`.
 
+RETAILER GRAPHQL ISOLATION:
+- [x] Give all 48 configured retailers independent queries, schemas, raw types,
+  token policy, market parsing, catalog traversal and detail pagination.
+- [x] Replace service Shopify dispatch with neutral integration/HTTP contracts.
+- [x] Separate the five legacy Nordic GraphQL queries, raw models and parsers;
+  preserve extracted/normalized formats and compatibility routing.
+- [x] Add isolation/compatibility coverage, ADR and run affected checks.
+  CI passes for Anker (907 tests), Minisforum (658), Ugreen (1,186), shared
+  sauce (19) and the extractor facade (20), including 53 distinct raw product
+  types and local query ownership. Service initial-fill (24), route guards,
+  health and OpenAPI checks pass; development app compilation passes.
+  Full service CI and live startup are limited by sandbox socket restrictions;
+  database checks require `DATABASE_URL_TEST`. Cached dependency audits show
+  no new advisories; advisory refresh is blocked by the read-only cache.
+  Saved-corpus reruns became unavailable when the external data directory was
+  removed; checked-in fixture tests pass. See ADRs 61 and 62.
+
+PUBLIC STOREFRONT TOKEN ACQUISITION:
+- [x] Discover optional public tokens for the 33 previously token-free retailers,
+  carry them through market discovery/catalog/details, and preserve public access
+  when no token is exposed. Keep existing required-token policy and page sizes.
+  Nine sanitized storefront fixtures exercise discovery; 29 initial-fill tests
+  and shared-library/facade CI pass. Live token probes could not resolve DNS;
+  full service CI and startup hit sandbox socket restrictions. PostgreSQL tests
+  require DATABASE_URL_TEST. New fills resolve tokens; old queued work is unchanged.
+
+MINISFORUM AND UGREEN GRAPHQL:
+- [x] Share Shopify operations and raw representations while preserving Anker interfaces.
+  Shared crate CI passes (29 tests), Anker CI passes (596 tests), and app/service
+  compile checks pass. Market discovery helpers are implemented; durable wiring
+  remains below. Dependency audit is blocked by the read-only advisory-cache lock.
+- [x] Register all 31 storefronts and discover every advertised country/language context.
+- [x] Carry contexts through durable commands, pagination, artifact storage and v2 dumping.
+- [x] Add retailer raw fixtures, Bruno requests, documentation and integration verification.
+  CI passes for Minisforum (470 tests), Ugreen (789), Anker (597), shared sauce
+  and the extractor facade. All 40,406 saved Minisforum and 78,875 Ugreen product
+  snapshots deserialize. Service initial-fill tests pass (26), as do source-route,
+  health/OpenAPI and offline app checks. Full app/service CI and live startup
+  checks hit sandbox socket restrictions. PostgreSQL tests require DATABASE_URL_TEST.
+  Live probes for all 31 endpoints were attempted but DNS resolution failed;
+  current live access remains unverified. No production fills were queued.
+
+INITIAL OFFER FILL — REMAINING ANKER RETAILERS:
+- [x] Define offer details v2 raw representations for Anker AU and CA.
+  Survey saved GraphQL products and response pages, model the source fields with
+  typed Serde structures, and test representative fixtures and the full corpus.
+  Leave extracted representations and extraction behavior unchanged.
+  Anker CI passes (596 tests). Raw tests pass with arbitrary-precision JSON,
+  including 2,304 saved products and 784 full AU/CA response pages.
+- [x] Add development dumping for GraphQL offer details v2.
+  Plan: list initial-fill storage references through an authenticated development
+  endpoint; dump the newest artifact per retailer/product into
+  `offer_details_v2/sources/`. Keep the complete source JSON for raw deserialization.
+  App/service formatting and Clippy pass, as do offline path/page checks and
+  route authentication, pagination bounds, health and OpenAPI smoke tests.
+  Full app/service CI and live startup checks hit sandbox socket restrictions;
+  database-backed pagination coverage requires `DATABASE_URL_TEST`.
+- [x] Apply verified operation-specific initial-fill page sizes to every retailer.
+  Plan: initial lists of 5, image continuations of 25, variant continuations of 10;
+  retain other continuation sizes, verify all markets and document ADR 56.
+  Anker CI (590 tests) and 23 initial-fill tests pass. The final query documents
+  pass live IT/JP probes at cost 919 (initial) and 814 (variant continuation).
+- [x] Remove authentication-dependent initial-fill page sizes.
+  Plan: use the existing query page sizes for every retailer, update the
+  cross-market regression, and supersede ADR 53's one-item tokenless policy.
+  Anker CI (590 tests) and 23 initial-fill tests pass. Live IT/JP probes reject
+  standard OfferDetails (cost 1525) and 20-variant continuation (1017) against
+  a 1000 limit. Initial size 5 (919), images 25 (26), and variants 10 (814)
+  succeed; the operation-specific follow-up is tracked separately above.
+- [x] Discover Nordic initial-fill tokens automatically when the environment override is absent.
+  Plan: resolve the Nordic frontend's explicit storefrontAccessToken import for
+  each market, preserve the environment override, and record the policy in ADR 54.
+  Captured-bundle regression and live token/market probes pass for all five countries.
+- [x] Fix regional Anker token acquisition for FR, PL, NZ, VN, EU and US.
+  Plan: resolve the regional browser bundle's imported token-map constant from
+  its explicit storeTokens reference; retain strict market selection and conflict
+  rejection. Cover the downloaded regional bundle and all six acquisition paths.
+  Live token/market probes pass for all six retailers. Sauce, Anker and extractor
+  CI pass, as do 23 initial-fill tests. Full service CI and health smoke checks
+  hit sandbox socket restrictions; PostgreSQL tests need `DATABASE_URL_TEST`.
+- [x] Upgrade initial-fill requests to accept multiple retailers and include all supported Anker retailers in Bruno.
+  Plan: replace the singular API with a validated, deduplicated retailer list;
+  return ordered per-retailer runs and confirmed successes on dispatch failure.
+  Update Bruno, OpenAPI, documentation, and offline/PostgreSQL coverage.
+  Formatting, Clippy, and 22 initial-fill tests pass; Bruno covers all 17 codes.
+  Full CI and the live health check hit sandbox socket restrictions;
+  PostgreSQL verification requires `DATABASE_URL_TEST`.
+- [x] Configure all 17 active Anker markets except Korea with evidence-backed endpoints, local languages, authentication and full pagination.
+  Anker (590 tests), shared library and extractor CI pass; 171 socket-free service
+  tests pass. Full workspace/service CI and smoke checks hit sandbox socket restrictions;
+  PostgreSQL tests require `DATABASE_URL_TEST`. Live retailer verification remains pending.
+
+  Plan: use captured data3 endpoint/localization evidence; add all 17 active Anker
+  configurations, local language variables and explicit tokenless paths for Italy and Japan;
+  reuse the Nordic token environment setting and browser tokens elsewhere.
+  Paginate smaller tokenless detail pages, retain the full field selection, test every market and
+  preserve AU/CA payload compatibility. Historical Nordic aggregate remains inactive.
+
+INITIAL OFFER FILL — ANKER CA (ENGLISH ONLY):
+- [x] Configure Canadian token acquisition, English GraphQL catalog/detail pagination, CAD validation, tests and documentation.
+  Anker/facade CI and offline initial-fill tests pass. PostgreSQL/live checks
+  require a configured test database and a runner with network access.
+
+  Plan: reuse typed Shopify operations with a country variable and fixed EN; configure
+  `/ca`, `storeTokens.ca`, `anker-canada.myshopify.com`, CA/CAD; validate every
+  continuation, currency and event chain; add offline and opt-in live checks.
+
+INITIAL OFFER FILL — ANKER AU:
+- [x] Preserve sanitized HTTP causes, route and request IDs in logs and command errors for all retailer fetches; add failure-reporting and persistence tests. Socket checks require an unrestricted runner; persistence checks require `DATABASE_URL_TEST`.
+- [x] Store initial-fill GraphQL artifacts in the existing `offer_details_raw` bucket accepted by object storage.
+- [x] Serialize retailer codes as lowercase while reading existing PascalCase payloads; preserve replay command identities and verify consumers.
+  Shared and service compatibility tests pass; see ADR 49 for rollout. Full-suite
+  verification is limited by sandbox sockets and numeric-decoding failures when
+  retailer crates are tested with combined dependency features.
+- [x] Capture the actual AU storefront inputs and assert the expected Shopify token.
+  The user's HTML and 42 captured scripts reproduce the real acquisition flow.
+  Support `storeTokens: JSON.parse('...')` from `assets/16.js`; assert the exact
+  AU token in the acquired event and subsequent catalog command. The HTML-only
+  regression rejects unrelated credentials. Live Shopify acceptance remains unverified.
+- [x] Implement AU storefront configuration, public token extraction, and typed Shopify operations.
+- [x] Implement catalog identifier batches and complete product pagination with object storage.
+- [x] Wire replay-safe reactions, REST entrypoint, and terminal events.
+- [~] Verify the pipeline and document operation, dependencies, and architecture.
+  Documentation and offline checks are complete. PostgreSQL/live verification
+  needs `DATABASE_URL_TEST` and `OBJECT_STORAGE_URL`/`OBJECT_STORAGE_TOKEN`;
+  this sandbox blocks sockets, including existing service tests and the health
+  smoke check. Dependency audit against the cached advisory database found no
+  new advisories; refreshing that database is blocked here.
+
 NOTES:
 - We are aware that `For now` is going against ADR-16, but this is shortterm
 - depending on local mulac will be needed in this phase and possibly next ones

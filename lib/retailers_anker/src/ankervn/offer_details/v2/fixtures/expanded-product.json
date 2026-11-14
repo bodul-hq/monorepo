@@ -1,0 +1,3817 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyODIwMzc2NDk0ODksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyODIwMzc2NDk0ODksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "<meta charset=\"utf-8\"><br>\n<style><!--\n.collection__tag-filter\n    {display: none};\n> \n--></style>",
+          "handle": "cables",
+          "id": "gid://shopify/Collection/282037649489",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Khám phá bộ sưu tập cáp bền bỉ của chúng tôi tại Anker.com và tận hưởng khả năng sạc cực nhanh.",
+            "title": "Cáp "
+          },
+          "title": "Cáp",
+          "updatedAt": "2026-06-01T23:30:21Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "VND"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "VND"
+    }
+  },
+  "createdAt": "2024-07-10T03:42:52Z",
+  "description": "Được chế tạo bằng nylon sinh học: 46% bề ngoài của thân cáp và vỏ đầu nối được làm từ nylon sinh học. Việc sử dụng nylon gốc sinh học trong dây cáp cho phép chúng tôi cắt giảm lượng nhựa làm từ dầu mỏ như TPE. Sạc nhanh: Sạc Samsung Galaxy S22 Ultra lên 65% chỉ trong 30 phút. Được chế tạo để trường tồn: Được thiết kế để chịu được tới 20.000 lần uốn cong và đã được chứng minh là có khả năng chống sờn và xoắn ngay cả sau khi được thử nghiệm 10.000 lần. Khả năng tương thích rộng: Đáp ứng các tiêu chuẩn an toàn USB-IF để có khả năng tương thích hoàn hảo với hầu hết mọi thiết bị USB-C, bao gồm điện thoại, máy tính bảng, máy tính xách tay, v.v. Những gì bạn nhận được: Cáp Anker 543 USB-C sang USB-C (Bio-Nylon, 6ft), bảo hành 24 tháng không cần lo lắng của chúng tôi và dịch vụ khách hàng thân thiện.",
+  "descriptionHtml": "<meta charset=\"utf-8\"><ul class=\"a-unordered-list a-vertical a-spacing-mini\" data-mce-fragment=\"1\">\n<li data-mce-fragment=\"1\"> <span class=\"a-list-item\" data-mce-fragment=\"1\">Được chế tạo bằng nylon sinh học: 46% bề ngoài của thân cáp và vỏ đầu nối được làm từ nylon sinh học. Việc sử dụng nylon gốc sinh học trong dây cáp cho phép chúng tôi cắt giảm lượng nhựa làm từ dầu mỏ như TPE.</span>\n</li>\n<li data-mce-fragment=\"1\"> <span class=\"a-list-item\" data-mce-fragment=\"1\">Sạc nhanh: Sạc Samsung Galaxy S22 Ultra lên 65% chỉ trong 30 phút.</span>\n</li>\n<li data-mce-fragment=\"1\"> <span class=\"a-list-item\" data-mce-fragment=\"1\">Được chế tạo để trường tồn: Được thiết kế để chịu được tới 20.000 lần uốn cong và đã được chứng minh là có khả năng chống sờn và xoắn ngay cả sau khi được thử nghiệm 10.000 lần.</span>\n</li>\n<li data-mce-fragment=\"1\"> <span class=\"a-list-item\" data-mce-fragment=\"1\">Khả năng tương thích rộng: Đáp ứng các tiêu chuẩn an toàn USB-IF để có khả năng tương thích hoàn hảo với hầu hết mọi thiết bị USB-C, bao gồm điện thoại, máy tính bảng, máy tính xách tay, v.v.</span>\n</li>\n<li data-mce-fragment=\"1\"> <span class=\"a-list-item\" data-mce-fragment=\"1\">Những gì bạn nhận được: Cáp Anker 543 USB-C sang USB-C (Bio-Nylon, 6ft), bảo hành 24 tháng không cần lo lắng của chúng tôi và dịch vụ khách hàng thân thiện.</span> </li>\n</ul><audio style=\"display: none;\" controls=\"controls\"></audio><button style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\" id=\"paste-helper-id\"></button><button style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\" id=\"paste-helper-id\"></button>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0:0,1:0-2,2:0-1,",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2000,
+    "id": "gid://shopify/ProductImage/33575099465809",
+    "thumbhash": "0/eBBAASVbhY6El1gPhYmI+TgHt3OKaHCA==",
+    "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80e6.png?v=1720582972",
+    "width": 1601
+  },
+  "handle": "a80e6",
+  "id": "gid://shopify/Product/7588012425297",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMzU3NTEwMDkwNzYwMSwibGFzdF92YWx1ZSI6MzYsIm9mZnNldCI6MzV9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTQ2NTgwOSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/33575099465809",
+          "thumbhash": "0/eBBAASVbhY6El1gPhYmI+TgHt3OKaHCA==",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80e6.png?v=1720582972",
+          "width": 1601
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTUzMTM0NSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099531345",
+          "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD02_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTU2NDExMywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099564113",
+          "thumbhash": "qvcJFQIgZ4pZKJNZS4xblkDtALEv",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD03_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTU5Njg4MSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099596881",
+          "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD04_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTY2MjQxNywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099662417",
+          "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD05_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTY5NTE4NSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099695185",
+          "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD06_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTcyNzk1MywibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099727953",
+          "thumbhash": "PfgFBQD3R4h3uGiHZ3iniAl5Yp/Y",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD01_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTc2MDcyMSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099760721",
+          "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD02_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTc5MzQ4OSwibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099793489",
+          "thumbhash": "q/cJFQIgeIpaF5RYS31ahkDtALI/",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD03_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTgyNjI1NywibGFzdF92YWx1ZSI6MTAsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099826257",
+          "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD04_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTg1OTAyNSwibGFzdF92YWx1ZSI6MTEsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099859025",
+          "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD05_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTg5MTc5MywibGFzdF92YWx1ZSI6MTIsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099891793",
+          "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD06_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTkyNDU2MSwibGFzdF92YWx1ZSI6MTMsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099924561",
+          "thumbhash": "8/cNBQDHeI94dliIl3l0qLd/dfpX",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD01_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTA5OTk1NzMyOSwibGFzdF92YWx1ZSI6MTQsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575099957329",
+          "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD02_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDAyMjg2NSwibGFzdF92YWx1ZSI6MTUsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100022865",
+          "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD03_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDA4ODQwMSwibGFzdF92YWx1ZSI6MTYsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100088401",
+          "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD04_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDEyMTE2OSwibGFzdF92YWx1ZSI6MTcsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100121169",
+          "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD05_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDE4NjcwNSwibGFzdF92YWx1ZSI6MTgsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100186705",
+          "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD06_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDIxOTQ3MywibGFzdF92YWx1ZSI6MTksIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100219473",
+          "thumbhash": "9fcJBQDmaI94ljmIl2l0qLd/d/tn",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD01_V1_-1280x1280_f1fc4785-950c-42b9-98b0-402ecc6f6a8d.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDI1MjI0MSwibGFzdF92YWx1ZSI6MjAsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100252241",
+          "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD02_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDMxNzc3NywibGFzdF92YWx1ZSI6MjEsIm9mZnNldCI6MjB9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100317777",
+          "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD03_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDM1MDU0NSwibGFzdF92YWx1ZSI6MjIsIm9mZnNldCI6MjF9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100350545",
+          "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD04_V1-1280x1280_af9ba04f-2368-4df6-9ff7-a229f670c9de.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDM4MzMxMywibGFzdF92YWx1ZSI6MjMsIm9mZnNldCI6MjJ9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100383313",
+          "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD05_V1-1280x1280_aedc351f-b133-4df9-9a67-38864745134a.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDQxNjA4MSwibGFzdF92YWx1ZSI6MjQsIm9mZnNldCI6MjN9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100416081",
+          "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD06_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDUxNDM4NSwibGFzdF92YWx1ZSI6MjUsIm9mZnNldCI6MjR9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100514385",
+          "thumbhash": "/PcFBQD2WI55ljmIl2p0qPaOa++4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD01_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDU0NzE1MywibGFzdF92YWx1ZSI6MjYsIm9mZnNldCI6MjV9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100547153",
+          "thumbhash": "8fcNDQBaiW9raIZIWnuKd4hvx3+3",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD02_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDYxMjY4OSwibGFzdF92YWx1ZSI6MjcsIm9mZnNldCI6MjZ9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100612689",
+          "thumbhash": "q/cJFQIQeHpaF6RYPH5bhkD+ALE/",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD03_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDY0NTQ1NywibGFzdF92YWx1ZSI6MjgsIm9mZnNldCI6Mjd9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100645457",
+          "thumbhash": "LwgKDQIFifyZp5KWlKp3V/k3qX+D",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD04_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDY3ODIyNSwibGFzdF92YWx1ZSI6MjksIm9mZnNldCI6Mjh9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100678225",
+          "thumbhash": "+PcFBQD424Rvl3eFNp62h4ePf/j4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD05_V1-1280x1280.jpg?v=1720582972",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDcxMDk5MywibGFzdF92YWx1ZSI6MzAsIm9mZnNldCI6Mjl9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100710993",
+          "thumbhash": "+fcFBQDpdIl3iIYJhoplScuZv535",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD06_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDc0Mzc2MSwibGFzdF92YWx1ZSI6MzEsIm9mZnNldCI6MzB9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100743761",
+          "thumbhash": "PPgFBQDnWI94dkiIp3t0qAl2Y/2Y",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD01_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDc3NjUyOSwibGFzdF92YWx1ZSI6MzIsIm9mZnNldCI6MzF9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100776529",
+          "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD02_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDgwOTI5NywibGFzdF92YWx1ZSI6MzMsIm9mZnNldCI6MzJ9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100809297",
+          "thumbhash": "q/cJFQIgeIpaF5RYS41ahkDtALE/",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD03_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDg0MjA2NSwibGFzdF92YWx1ZSI6MzQsIm9mZnNldCI6MzN9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100842065",
+          "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD04_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDg3NDgzMywibGFzdF92YWx1ZSI6MzUsIm9mZnNldCI6MzR9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100874833",
+          "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD05_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMzU3NTEwMDkwNzYwMSwibGFzdF92YWx1ZSI6MzYsIm9mZnNldCI6MzV9",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1280,
+          "id": "gid://shopify/ProductImage/33575100907601",
+          "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+          "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD06_V1-1280x1280.jpg?v=1720582973",
+          "width": 1024
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzgxMTE1MywibGFzdF92YWx1ZSI6MzYsIm9mZnNldCI6MzV9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MjY2NDI3MywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662664273",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26702662664273",
+            "thumbhash": "0/eBBAASVbhY6El1gPhYmI+TgHt3OKaHCA==",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80e6.png?v=1720582972",
+            "width": 1601
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/26702662664273",
+            "thumbhash": "0/eBBAASVbhY6El1gPhYmI+TgHt3OKaHCA==",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80e6.png?v=1720582972",
+            "width": 1601
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MjY5NzA0MSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662697041",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662697041",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662697041",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MjcyOTgwOSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662729809",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662729809",
+            "thumbhash": "qvcJFQIgZ4pZKJNZS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662729809",
+            "thumbhash": "qvcJFQIgZ4pZKJNZS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjc2MjU3NywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662762577",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662762577",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662762577",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjc5NTM0NSwibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662795345",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662795345",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662795345",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MjgyODExMywibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662828113",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662828113",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662828113",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjg2MDg4MSwibGFzdF92YWx1ZSI6Nywib2Zmc2V0Ijo2fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662860881",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662860881",
+            "thumbhash": "PfgFBQD3R4h3uGiHZ3iniAl5Yp/Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662860881",
+            "thumbhash": "PfgFBQD3R4h3uGiHZ3iniAl5Yp/Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjg5MzY0OSwibGFzdF92YWx1ZSI6OCwib2Zmc2V0Ijo3fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662893649",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662893649",
+            "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662893649",
+            "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MjkyNjQxNywibGFzdF92YWx1ZSI6OSwib2Zmc2V0Ijo4fQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662926417",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662926417",
+            "thumbhash": "q/cJFQIgeIpaF5RYS31ahkDtALI/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662926417",
+            "thumbhash": "q/cJFQIgeIpaF5RYS31ahkDtALI/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjk1OTE4NSwibGFzdF92YWx1ZSI6MTAsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662959185",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662959185",
+            "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662959185",
+            "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mjk5MTk1MywibGFzdF92YWx1ZSI6MTEsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702662991953",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662991953",
+            "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702662991953",
+            "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzAyNDcyMSwibGFzdF92YWx1ZSI6MTIsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663024721",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663024721",
+            "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663024721",
+            "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzA1NzQ4OSwibGFzdF92YWx1ZSI6MTMsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663057489",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663057489",
+            "thumbhash": "8/cNBQDHeI94dliIl3l0qLd/dfpX",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663057489",
+            "thumbhash": "8/cNBQDHeI94dliIl3l0qLd/dfpX",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzA5MDI1NywibGFzdF92YWx1ZSI6MTQsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663090257",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663090257",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663090257",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzEyMzAyNSwibGFzdF92YWx1ZSI6MTUsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663123025",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663123025",
+            "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663123025",
+            "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzE1NTc5MywibGFzdF92YWx1ZSI6MTYsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663155793",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663155793",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663155793",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzE4ODU2MSwibGFzdF92YWx1ZSI6MTcsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663188561",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663188561",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663188561",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzIyMTMyOSwibGFzdF92YWx1ZSI6MTgsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663221329",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663221329",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663221329",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzI1NDA5NywibGFzdF92YWx1ZSI6MTksIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663254097",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663254097",
+            "thumbhash": "9fcJBQDmaI94ljmIl2l0qLd/d/tn",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD01_V1_-1280x1280_f1fc4785-950c-42b9-98b0-402ecc6f6a8d.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663254097",
+            "thumbhash": "9fcJBQDmaI94ljmIl2l0qLd/d/tn",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD01_V1_-1280x1280_f1fc4785-950c-42b9-98b0-402ecc6f6a8d.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzI4Njg2NSwibGFzdF92YWx1ZSI6MjAsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663286865",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663286865",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663286865",
+            "thumbhash": "8fcNDQBpeW96eXZHaXqKh4WPxV+Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzMxOTYzMywibGFzdF92YWx1ZSI6MjEsIm9mZnNldCI6MjB9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663319633",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663319633",
+            "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663319633",
+            "thumbhash": "qvcJFQIgZ4pZKJNYS4xblkDtALEv",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzM1MjQwMSwibGFzdF92YWx1ZSI6MjIsIm9mZnNldCI6MjF9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663352401",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663352401",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD04_V1-1280x1280_af9ba04f-2368-4df6-9ff7-a229f670c9de.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663352401",
+            "thumbhash": "LAgKDQJHqPyI53F5tLmXR+sDuD6A",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD04_V1-1280x1280_af9ba04f-2368-4df6-9ff7-a229f670c9de.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzM4NTE2OSwibGFzdF92YWx1ZSI6MjMsIm9mZnNldCI6MjJ9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663385169",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663385169",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD05_V1-1280x1280_aedc351f-b133-4df9-9a67-38864745134a.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663385169",
+            "thumbhash": "8vcFBQDMzm5M9mczNauZeH1fzfjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD05_V1-1280x1280_aedc351f-b133-4df9-9a67-38864745134a.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzQxNzkzNywibGFzdF92YWx1ZSI6MjQsIm9mZnNldCI6MjN9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663417937",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663417937",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663417937",
+            "thumbhash": "9PcFBQDqc4tn6IYJdX1zKnqOr9j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD06_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzQ1MDcwNSwibGFzdF92YWx1ZSI6MjUsIm9mZnNldCI6MjR9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663450705",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663450705",
+            "thumbhash": "/PcFBQD2WI55ljmIl2p0qPaOa++4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663450705",
+            "thumbhash": "/PcFBQD2WI55ljmIl2p0qPaOa++4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzQ4MzQ3MywibGFzdF92YWx1ZSI6MjYsIm9mZnNldCI6MjV9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663483473",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663483473",
+            "thumbhash": "8fcNDQBaiW9raIZIWnuKd4hvx3+3",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663483473",
+            "thumbhash": "8fcNDQBaiW9raIZIWnuKd4hvx3+3",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD02_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzUxNjI0MSwibGFzdF92YWx1ZSI6MjcsIm9mZnNldCI6MjZ9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663516241",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663516241",
+            "thumbhash": "q/cJFQIQeHpaF6RYPH5bhkD+ALE/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663516241",
+            "thumbhash": "q/cJFQIQeHpaF6RYPH5bhkD+ALE/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD03_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzU0OTAwOSwibGFzdF92YWx1ZSI6MjgsIm9mZnNldCI6Mjd9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663549009",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663549009",
+            "thumbhash": "LwgKDQIFifyZp5KWlKp3V/k3qX+D",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663549009",
+            "thumbhash": "LwgKDQIFifyZp5KWlKp3V/k3qX+D",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD04_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzU4MTc3NywibGFzdF92YWx1ZSI6MjksIm9mZnNldCI6Mjh9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663581777",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663581777",
+            "thumbhash": "+PcFBQD424Rvl3eFNp62h4ePf/j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663581777",
+            "thumbhash": "+PcFBQD424Rvl3eFNp62h4ePf/j4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD05_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzYxNDU0NSwibGFzdF92YWx1ZSI6MzAsIm9mZnNldCI6Mjl9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663614545",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663614545",
+            "thumbhash": "+fcFBQDpdIl3iIYJhoplScuZv535",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD06_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663614545",
+            "thumbhash": "+fcFBQDpdIl3iIYJhoplScuZv535",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD06_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzY0NzMxMywibGFzdF92YWx1ZSI6MzEsIm9mZnNldCI6MzB9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663647313",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663647313",
+            "thumbhash": "PPgFBQDnWI94dkiIp3t0qAl2Y/2Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD01_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663647313",
+            "thumbhash": "PPgFBQDnWI94dkiIp3t0qAl2Y/2Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD01_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzY4MDA4MSwibGFzdF92YWx1ZSI6MzIsIm9mZnNldCI6MzF9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663680081",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663680081",
+            "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD02_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663680081",
+            "thumbhash": "8vcJBQBZiW9raIZIWnuKd2SftG+o",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD02_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzcxMjg0OSwibGFzdF92YWx1ZSI6MzMsIm9mZnNldCI6MzJ9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663712849",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663712849",
+            "thumbhash": "q/cJFQIgeIpaF5RYS41ahkDtALE/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD03_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663712849",
+            "thumbhash": "q/cJFQIgeIpaF5RYS41ahkDtALE/",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD03_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mzc0NTYxNywibGFzdF92YWx1ZSI6MzQsIm9mZnNldCI6MzN9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663745617",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663745617",
+            "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD04_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663745617",
+            "thumbhash": "LwgKDQIFifyap4KWlKp3V/kVln+T",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD04_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2Mzc3ODM4NSwibGFzdF92YWx1ZSI6MzUsIm9mZnNldCI6MzR9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663778385",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663778385",
+            "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD05_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663778385",
+            "thumbhash": "+PcFBQD6zHRfmHaFNp62h1hwsPjm",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD05_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNjcwMjY2MzgxMTE1MywibGFzdF92YWx1ZSI6MzYsIm9mZnNldCI6MzV9",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/26702663811153",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663811153",
+            "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD06_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1280,
+            "id": "gid://shopify/ImageSource/26702663811153",
+            "thumbhash": "+fcFBQDZdYl3iIcJhoplWRV2oLv4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD06_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:21Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/25015242588241",
+      "key": "_order",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:21Z",
+      "value": "[\"aplusFullImage__0\",\"aplusFullImage__1\",\"aplusNavCarousel__2\",\"aplusNavCarousel__3\",\"htmlContainer\",\"productSpecs\",\"brandInfo\",\"brandRecommends\",\"reviews\",\"productRecommends\"]"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:18Z",
+      "description": "{\"status\":\"Active\"}",
+      "id": "gid://shopify/Metafield/25015242489937",
+      "key": "aplusFullImage__0",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:18Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/b0d1e67b-ffd3-4f36-85d6-4802ef9614f3.__CR0_0_1464_600_PT0_SX1464_V1.jpg?v=1693484453\",\"headline\":\"\"}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:11Z",
+      "description": "{\"status\":\"Active\"}",
+      "id": "gid://shopify/Metafield/25015241965649",
+      "key": "aplusFullImage__1",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:11Z",
+      "value": "{\"imageUrl\":\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/a0821e27-dfb2-4628-9615-9ada73edb6a5.__CR0_0_1464_600_PT0_SX1464_V1.jpg?v=1693484454\",\"headline\":\"\"}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:06Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015241670737",
+      "key": "brandInfo",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:06Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:13Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015242096721",
+      "key": "brandRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:13Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:23Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"HTML\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/25015242719313",
+      "key": "htmlContainer",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "multi_line_text_field",
+      "updatedAt": "2024-07-10T09:08:50Z",
+      "value": "<div style=\"padding-left: 24px; padding-right: 24px;\"><div class=\"celwidget aplus-module premium-module-15-text aplus-premium\" data-csa-c-id=\"eacd8o-hpfj8z-9yxajl-qeaglh\" data-cel-widget=\"aplus-premium-module-15-text\"><div class=\"a-section a-spacing-none premium-aplus premium-aplus-module-15\"><div class=\"a-section a-spacing-none\"><div class=\"celwidget aplus-module premium-module-15-text aplus-premium\" data-cel-widget=\"aplus-premium-module-15-text\" data-csa-c-id=\"cd6zq7-xajfha-x6thgl-41ysir\"><div class=\"a-section a-spacing-none premium-aplus premium-aplus-module-15\"><div class=\"a-section a-spacing-none\"><p class=\"description\"> Số mô hình: A80E6</p><p class=\"description\"> Được xây dựng bền vững, cung cấp năng lượng đáng tin cậy</p><p class=\"description\"> <span class=\"a-text-bold\">Sạc nhanh cho tất cả các thiết bị của bạn:</span> Tận hưởng sự tiện lợi của tính năng sạc nhanh cho nhiều thiết bị, được tuân thủ theo tiêu chuẩn USB-IF của chúng tôi.</p><p class=\"description\"> <span class=\"a-text-bold\">Độ bền vượt trội:</span> Nâng cao trải nghiệm sạc của bạn bằng cáp được thiết kế để tồn tại lâu dài, có chất liệu nylon bện sinh học đảm bảo độ bền vượt trội và khả năng chống uốn cong.</p><p class=\"description\"> <span class=\"a-text-bold\">Mở ra một tương lai xanh hơn:</span> Dây cáp của chúng tôi được làm từ 46% nguyên liệu có nguồn gốc thực vật để giảm mức sử dụng nhựa có nguồn gốc từ dầu mỏ, đồng thời bao bì của chúng tôi sử dụng các chất thay thế bền vững như bột giấy và giấy tái chế được chứng nhận FSC với mực đậu nành tự nhiên để giảm 90% lượng nhựa.</p><p class=\"description\"> <span class=\"a-text-bold\">Khả năng tương thích phổ quát:</span> Có được khả năng tương thích toàn diện trên nhiều loại thiết bị, bao gồm điện thoại, máy tính bảng, tai nghe, v.v.</p><p class=\"description\"> Ghi chú:</p><p class=\"description\"> *Dữ liệu dựa trên thử nghiệm nội bộ trong phòng thí nghiệm.</p><p class=\"description\"></p><ol class=\"a-ordered-list a-vertical\"><li> <span class=\"a-list-item\">Cáp USB-C này không hỗ trợ màn hình đa phương tiện hoặc khả năng tương thích với bộ sạc tường USB-A.</span></li><li> <span class=\"a-list-item\">Hỗ trợ USB 2.0 để truyền dữ liệu hiệu quả.</span> </li></ol><p></p></div></div></div><div class=\"celwidget aplus-module premium-module-15-text aplus-premium\" data-cel-widget=\"aplus-premium-module-15-text\" data-csa-c-id=\"gmhsop-4db9u4-lomwp6-dl4pwc\"><div class=\"a-section a-spacing-none premium-aplus premium-aplus-module-15\"><div class=\"a-section a-spacing-none\"><p class=\"description\"> <span class=\"a-text-bold\">Thiết bị tương thích hoàn toàn:</span></p><ul class=\"a-unordered-list a-vertical\"><li> <span class=\"a-list-item\">MacBook Air (M2, 2022), MacBook Pro 14 inch (2021), MacBook Pro (M1, 2020), MacBook Pro 15,4&quot; (2019 / 2018 / 2017 / 2016), MacBook Pro 13,3&quot; (2020 / 2019 / 2018 / 2017 / 2016), MacBook Air (2020 / 2019 / 2018)</span></li><li> <span class=\"a-list-item\">Lenovo Yoga 14s, Dòng Lenovo ThinkPad X1, Dòng HP Spectre, Google Pixel 3/4/5/6</span></li><li> <span class=\"a-list-item\">iPad Pro 12.9&quot; (thế hệ thứ 5), iPad Pro 12.9&quot; (thế hệ thứ 4), iPad Pro 12.9&quot; (thế hệ thứ 3), iPad Pro 12.9&quot; (thế hệ thứ 2), iPad Air (thế hệ thứ 4), iPad mini (thế hệ thứ 6)</span></li><li> <span class=\"a-list-item\">Samsung Galaxy Note10+ / 10 / 9 / 8 / S23+ / S22+ / S23 Ultra / S22 Ultra / S23 / S22 / S21 / S21+ / S20 / S10+ / S10e / S10 / S9+ / S9</span></li><li> <span class=\"a-list-item\">Dòng AirPods</span></li></ul><p class=\"description\"> <span class=\"a-text-bold\">Các thiết bị tương thích (Tốc độ sạc có giới hạn):</span></p><ul class=\"a-unordered-list a-vertical\"><li> <span class=\"a-list-item\">MacBook Pro 16&quot; (2021/2022/2023)</span> </li></ul></div></div></div></div></div></div><p><button id=\"paste-helper-id\" style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\"></button></p></div>"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:27Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015243800657",
+      "key": "productRecommends",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:27Z",
+      "value": "{}"
+    },
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:03Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015241506897",
+      "key": "reviews",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:03Z",
+      "value": "{}"
+    },
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:08Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015241801809",
+      "key": "seriesIntroduce",
+      "list": false,
+      "namespace": "component",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T06:26:08Z",
+      "value": "{}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:29Z",
+      "description": "{\"content\":\"\",\"status\":\"Active\",\"type\":\"Json\",\"schema\":\"\"}",
+      "id": "gid://shopify/Metafield/25015243866193",
+      "key": "infos",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T09:15:03Z",
+      "value": "{\"linkOptions\":{\"displayName\":\"Chọn sản phẩm của bạn\",\"list\":[{\"label\":\"Sạc dự phòng Anker Nano 30W\",\"handle\":\"a1259-built-in-cable-power-bank-10000mah\"},{\"label\":\"Trạm sạc Anker Nano 67W\",\"handle\":\"a9129-charging-station-67w\"},{\"label\":\"Sạc dự phòng Anker Nano 22.5W\",\"handle\":\"a1653-usb-c-portable-charger-5000mah\"},{\"label\":\"Sạc Anker Nano 20W USB-C\",\"handle\":\"a2637\"},{\"label\":\"Cáp Anker Nano USB-C sang USB-C\",\"handle\":\"a80e6\"}]}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "__typename": "Metafield",
+      "createdAt": "2024-07-10T06:26:01Z",
+      "description": null,
+      "id": "gid://shopify/Metafield/25015241310289",
+      "key": "topbar",
+      "list": false,
+      "namespace": "product",
+      "reference": null,
+      "references": null,
+      "type": "json",
+      "updatedAt": "2024-07-10T09:14:53Z",
+      "value": "{\"first\":{\"purchase\":\"Mua\"},\"components\":{\"htmlContainer\":\"Tổng quan\",\"reviews\":\"Đánh giá\"},\"last\":{}}"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": null,
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9668318199889",
+      "name": "Kích cỡ",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584346918993",
+          "name": "10 ft",
+          "swatch": null
+        },
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584347017297",
+          "name": "6 ft",
+          "swatch": null
+        },
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584347115601",
+          "name": "3 ft",
+          "swatch": null
+        }
+      ]
+    },
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/9668318232657",
+      "name": "Màu sắc",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584346951761",
+          "name": "Đen",
+          "swatch": null
+        },
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584347050065",
+          "name": "nụ xanh",
+          "swatch": null
+        },
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/2584347082833",
+          "name": "Hồ băng xanh",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "807011.0",
+      "currencyCode": "VND"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "210000.0",
+      "currencyCode": "VND"
+    }
+  },
+  "productType": "charging only",
+  "publishedAt": "2024-07-11T08:00:00Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": "Cáp Anker 543 USB-C to USB-C (Bện sinh học)"
+  },
+  "tags": [
+    "AnkerChargers",
+    "apple-accessory",
+    "cablechg",
+    "charger_fall_pd_2309",
+    "chgusbc",
+    "quantity_level_discount",
+    "travel-essentials",
+    "USB-C to USB-C Cable",
+    "usbc",
+    "valentines",
+    "WS09"
+  ],
+  "title": "Cáp Anker <b>543</b> USB-C sang USB-C (Bện sinh học)",
+  "totalInventory": 0,
+  "updatedAt": "2025-09-12T03:49:22Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0MTY5NTc2ODA4NDU2MSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2NzkyMDcyMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644136345",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695767920721",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ProductImage/33575099924561",
+            "thumbhash": "8/cNBQDHeI94dliIl3l0qLd/dfpX",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E7011_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "807011.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "10 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "Đen"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E7011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "10 ft / Đen",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.366,
+          "weightUnit": "POUNDS"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2Nzk1MzQ4OSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644113971",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695767953489",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ProductImage/33575100219473",
+            "thumbhash": "9fcJBQDmaI94ljmIl2l0qLd/d/tn",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6011_TD01_V1_-1280x1280_f1fc4785-950c-42b9-98b0-402ecc6f6a8d.jpg?v=1720582972",
+            "width": 1024
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "280000.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "6 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "Đen"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E6011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "6 ft / Đen",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.1565,
+          "weightUnit": "POUNDS"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2Nzk4NjI1NywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644113957",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695767986257",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ProductImage/33575100743761",
+            "thumbhash": "PPgFBQDnWI94dkiIp3t0qAl2Y/2Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6061_TD01_V1-1280x1280.jpg?v=1720582973",
+            "width": 1024
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "280000.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "6 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "nụ xanh"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E6061",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "6 ft / nụ xanh",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.1565,
+          "weightUnit": "POUNDS"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2ODAxOTAyNSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644153458",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695768019025",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ProductImage/33575100514385",
+            "thumbhash": "/PcFBQD2WI55ljmIl2p0qPaOa++4",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E6031_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "280000.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "6 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "Hồ băng xanh"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E6031",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "6 ft / Hồ băng xanh",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.1543,
+          "weightUnit": "POUNDS"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2ODA1MTc5MywibGFzdF92YWx1ZSI6NSwib2Zmc2V0Ijo0fQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644113773",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695768051793",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ProductImage/33575099465809",
+            "thumbhash": "0/eBBAASVbhY6El1gPhYmI+TgHt3OKaHCA==",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80e6.png?v=1720582972",
+            "width": 1601
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "210000.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "3 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "Đen"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E5011",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "3 ft / Đen",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0816,
+          "weightUnit": "POUNDS"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0MTY5NTc2ODA4NDU2MSwibGFzdF92YWx1ZSI6Niwib2Zmc2V0Ijo1fQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644113988",
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/41695768084561",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1280,
+            "id": "gid://shopify/ProductImage/33575099727953",
+            "thumbhash": "PfgFBQD3R4h3uGiHZ3iniAl5Yp/Y",
+            "url": "https://cdn.shopify.com/s/files/1/0614/8109/1153/files/A80E5061_TD01_V1-1280x1280.jpg?v=1720582972",
+            "width": 1024
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "210000.0",
+            "currencyCode": "VND"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Kích cỡ",
+              "value": "3 ft"
+            },
+            {
+              "__typename": "SelectedOption",
+              "name": "Màu sắc",
+              "value": "nụ xanh"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A80E5061",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "3 ft / nụ xanh",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0816,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 6,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/41695768084561": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695768084561",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "gid://shopify/ProductVariant/41695768051793": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695768051793",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "gid://shopify/ProductVariant/41695768019025": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695768019025",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "gid://shopify/ProductVariant/41695767986257": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695767986257",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "gid://shopify/ProductVariant/41695767953489": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695767953489",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "gid://shopify/ProductVariant/41695767920721": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/41695767920721",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+query ProductCollections($pageSize25: Int!, $country: CountryCode!, $language: LanguageCode!, $id: ID!, $after: String) @inContext(country: $country, language: $language) { product(id: $id) { id collections(first: $pageSize25, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          __typename
+          description
+          descriptionHtml
+          handle
+          id
+          image {
+            __typename
+            altText
+            height
+            id
+            thumbhash
+            url
+            width
+          }
+          onlineStoreUrl
+          seo {
+            __typename
+            description
+            title
+          }
+          title
+          updatedAt
+        }
+      }
+    } } }

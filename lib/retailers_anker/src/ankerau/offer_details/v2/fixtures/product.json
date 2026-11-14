@@ -1,0 +1,411 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": null,
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTE0ODQ3NTYyMTksImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDExOjAyOjMwLjY5NDIwOCIsIm9mZnNldCI6NX0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0NzM2NDc4NjcsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjUwOjUxLjgzNzExMyIsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "staffdiscount",
+          "id": "gid://shopify/Collection/511473647867",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/staffdiscount",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Staff discount",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0NzY0NjU5MTUsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU1OjUyLjMwNTEyMSIsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "employeepurchas",
+          "id": "gid://shopify/Collection/511476465915",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/employeepurchas",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "渠道折扣",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0ODAxMDMxNjMsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU4OjUwLjU4MzY4NCIsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "100w-power-bank",
+          "id": "gid://shopify/Collection/511480103163",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/100w-power-bank",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore Anker's 100W power banks to unlock the power of portable & fast charging: charge three devices at once, monitor your power, and stay safe on the move!",
+            "title": null
+          },
+          "title": "100W Power Bank",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0ODAyMDE0NjcsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDEwOjU4OjU1LjE0MzExNyIsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "allproduct",
+          "id": "gid://shopify/Collection/511480201467",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/allproduct",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "AllProduct",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0ODMxODMzNTUsImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDExOjAxOjA2LjkwNzE5MiIsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "eofy-第二件五折",
+          "id": "gid://shopify/Collection/511483183355",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/eofy-%E7%AC%AC%E4%BA%8C%E4%BB%B6%E4%BA%94%E6%8A%98",
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "eofy 第二件五折",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTE0ODQ3NTYyMTksImxhc3RfdmFsdWUiOiIyMDI2LTA5LTI4IDExOjAyOjMwLjY5NDIwOCIsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "power-cube",
+          "id": "gid://shopify/Collection/511484756219",
+          "image": null,
+          "onlineStoreUrl": "https://au.store.anker.com/collections/power-cube",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Check out Anker's power cubes to enjoy convenient and high-speed charging. Compact, versatile & safe, they power up your devices effortlessly. Get yours now!",
+            "title": "Compact Power Cubes for Efficient Charging"
+          },
+          "title": "Power Cube",
+          "updatedAt": "2026-11-07T12:28:59Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.95",
+      "currencyCode": "AUD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.95",
+      "currencyCode": "AUD"
+    }
+  },
+  "createdAt": "2026-09-28T07:59:14Z",
+  "description": "All-in-One Power: Deliver an impressive 20000mAh power reserve, providing over 4 full charges for most smartphones and at least 1.5 charges for tablets。 Intuitive Digital Display: Stay informed with the digital percentage display, offering an intuitive and precise representation of the remaining power, enhancing your charging experience. What You Get: Anker 326 Powerbank (20,000 mAh, 15W, 2-Port), welcome guide, 18-month warranty, and our friendly customer service.",
+  "descriptionHtml": "<ul>\n<li>\n<span class=\"a-list-item\"><strong>All-in-One Power:</strong> <meta charset=\"utf-8\"></span>Deliver an impressive 20000mAh power reserve, providing over 4 full charges for most smartphones and at least 1.5 charges for tablets。</li>\n</ul>\n<ul class=\"a-unordered-list a-vertical a-spacing-mini\">\n<li class=\"a-spacing-mini\">\n<span class=\"a-list-item\"><strong>Intuitive Digital Display: </strong>Stay informed with the digital percentage display, offering an intuitive and precise representation of the remaining power, enhancing your charging experience.</span><span class=\"a-list-item\"></span>\n</li>\n<li class=\"a-spacing-mini\"><span class=\"a-list-item\"><strong>What You Get:</strong> Anker 326 Powerbank (20,000 mAh, 15W, 2-Port), welcome guide, 18-month warranty, and our friendly customer service.</span></li>\n</ul>\n<div data-page-id=\"EHDrde60LovBLexweCll8UbMgAf\" data-docx-has-block-data=\"false\"><br></div>\n<p> </p>\n<div id=\"_feilian_extension_installed\"></div>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 1500,
+    "id": "gid://shopify/ProductImage/50727890452731",
+    "thumbhash": "8vcVBwD3SIeHZ4h7hYiHmWiHaG/I+IYL",
+    "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Anker-326-Powerbank-_20.000-mAh_-15W_-2-Port.jpg?v=1790582356",
+    "width": 1500
+  },
+  "handle": "a1367",
+  "id": "gid://shopify/Product/15395174809851",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MDcyNzg5MDQ4NTQ5OSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDcyNzg5MDQ1MjczMSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/50727890452731",
+          "thumbhash": "8vcVBwD3SIeHZ4h7hYiHmWiHaG/I+IYL",
+          "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Anker-326-Powerbank-_20.000-mAh_-15W_-2-Port.jpg?v=1790582356",
+          "width": 1500
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MDcyNzg5MDQ4NTQ5OSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 1500,
+          "id": "gid://shopify/ProductImage/50727890485499",
+          "thumbhash": "9PcJBQDHmH91NpineHpHyJJVUGsG",
+          "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/71CPn4YQ_fL._AC_SL1500.jpg?v=1790582357",
+          "width": 1200
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NjE5ODI5NDQxMzU2MywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjE5ODI5NDM4MDc5NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/46198294380795",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/46198294380795",
+            "thumbhash": "8vcVBwD3SIeHZ4h7hYiHmWiHaG/I+IYL",
+            "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Anker-326-Powerbank-_20.000-mAh_-15W_-2-Port.jpg?v=1790582356",
+            "width": 1500
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/46198294380795",
+            "thumbhash": "8vcVBwD3SIeHZ4h7hYiHmWiHaG/I+IYL",
+            "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Anker-326-Powerbank-_20.000-mAh_-15W_-2-Port.jpg?v=1790582356",
+            "width": 1500
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NjE5ODI5NDQxMzU2MywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/46198294413563",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/46198294413563",
+            "thumbhash": "9PcJBQDHmH91NpineHpHyJJVUGsG",
+            "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/71CPn4YQ_fL._AC_SL1500.jpg?v=1790582357",
+            "width": 1200
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 1500,
+            "id": "gid://shopify/ImageSource/46198294413563",
+            "thumbhash": "9PcJBQDHmH91NpineHpHyJJVUGsG",
+            "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/71CPn4YQ_fL._AC_SL1500.jpg?v=1790582357",
+            "width": 1200
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://au.store.anker.com/products/a1367",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/17857301643515",
+      "name": "Title",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/14911006998779",
+          "name": "Default Title",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.95",
+      "currencyCode": "AUD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "109.95",
+      "currencyCode": "AUD"
+    }
+  },
+  "productType": "",
+  "publishedAt": "2026-10-10T07:53:02Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": null,
+    "title": null
+  },
+  "tags": [
+    "25_newyear",
+    "25_Xmas",
+    "26ValBOGO"
+  ],
+  "title": "Anker 326 Powerbank (20,000 mAh, 15W, 2-Port)",
+  "updatedAt": "2026-11-02T06:25:37Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NzU5MzEzNDE0NTc4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NzU5MzEzNDE0NTc4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": null,
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "109.95",
+            "currencyCode": "AUD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/67593134145787",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 1500,
+            "id": "gid://shopify/ProductImage/50727890452731",
+            "thumbhash": "8vcVBwD3SIeHZ4h7hYiHmWiHaG/I+IYL",
+            "url": "https://cdn.shopify.com/s/files/1/0831/7042/7131/files/Anker-326-Powerbank-_20.000-mAh_-15W_-2-Port.jpg?v=1790582356",
+            "width": 1500
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "109.95",
+            "currencyCode": "AUD"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Title",
+              "value": "Default Title"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "A1367H11",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Default Title",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.568,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker"
+}

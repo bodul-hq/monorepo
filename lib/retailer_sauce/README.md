@@ -46,3 +46,17 @@ Regional markets use `RegionCode` (`eu` for the European Union). Historical
 label-based regions decode to `LegacyRegion` to preserve immutable encoding;
 `canonicalized()` maps only the exact European Union label. Country codes remain
 separate, and unknown regional codes are rejected. See ADR 40.
+
+## Shopify initial fill
+
+`shopify::initial_fill` defines storefront configuration, read-only GraphQL
+operation/request contracts, and a public Storefront token with a redacted Debug
+representation. Its pure JavaScript configuration scanner selects a market's
+literal `storeTokens` value without evaluating scripts. Network access remains
+in retailer sourcing. Run `make fmt` and `make ci` to validate the parser tests.
+
+Shopify `operations` contains the shared initial-fill query documents and typed
+response validation. `offer_details_v2::raw` contains the shared source models;
+Anker retains compatibility exports. `markets` discovers sorted, deduplicated
+country/language/currency contexts from each country's advertised languages.
+The durable multi-market workflow is not registered yet.

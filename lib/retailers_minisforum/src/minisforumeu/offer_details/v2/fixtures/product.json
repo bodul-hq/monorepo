@@ -1,0 +1,273 @@
+{
+  "__typename": "Product",
+  "availableForSale": true,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Uncategorized"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo2NTI5ODk2OTQzMTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo2NTI5ODk2OTQzMTgsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "Explore Innovative MINI PC Without Xcotton What is a MINI PC? A MINI PC is a compact and powerful computer designed to fit all your computing needs without taking up much space. These devices are perfect for home and office use, providing great performance in a small package. Many users prefer MINI PCs due to their efficiency and low energy consumption. They are not only portable but also often come with an eco-friendly design, especially when they are built without materials like xcotton, making them a more sustainable choice for tech users. Benefits of Using a MINI PC When you opt for a MINI PC, you are choosing a device that offers numerous advantages. First, their small size means they can be easily integrated into any workspace without clutter. Second, they can handle multiple tasks effectively, supporting everything from basic browsing to more intensive applications like video editing. Additionally, MINI PCs without xcotton help reduce the environmental impact of technology, as they are made with more sustainable materials. This benefit attracts users who are conscious about their carbon footprint. Choosing the Right MINI PC for You Selecting the right MINI PC involves considering your specific needs and preferences. You should think about what tasks you will perform and the software you need to run. Make sure to look for models that offer enough processing power and memory for your activities. Also, consider exploring different brands that focus on sustainability and use eco-friendly materials in their products. By doing this, you can ensure that your choice not only serves your tech requirements but also aligns with your values for an eco-friendly future.",
+          "descriptionHtml": "<h2 id=\"tinymce_scroll_sign\">Explore Innovative MINI PC Without Xcotton</h2>\n<h3>What is a MINI PC?</h3>\n<p>A MINI PC is a compact and powerful computer designed to fit all your computing needs without taking up much space. These devices are perfect for home and office use, providing great performance in a small package. Many users prefer MINI PCs due to their efficiency and low energy consumption. They are not only portable but also often come with an eco-friendly design, especially when they are built without materials like xcotton, making them a more sustainable choice for tech users.</p>\n<h3>Benefits of Using a MINI PC</h3>\n<p>When you opt for a MINI PC, you are choosing a device that offers numerous advantages. First, their small size means they can be easily integrated into any workspace without clutter. Second, they can handle multiple tasks effectively, supporting everything from basic browsing to more intensive applications like video editing. Additionally, MINI PCs without xcotton help reduce the environmental impact of technology, as they are made with more sustainable materials. This benefit attracts users who are conscious about their carbon footprint.</p>\n<h3>Choosing the Right MINI PC for You</h3>\n<p>Selecting the right MINI PC involves considering your specific needs and preferences. You should think about what tasks you will perform and the software you need to run. Make sure to look for models that offer enough processing power and memory for your activities. Also, consider exploring different brands that focus on sustainability and use eco-friendly materials in their products. By doing this, you can ensure that your choice not only serves your tech requirements but also aligns with your values for an eco-friendly future.</p>\n<p><br></p>",
+          "handle": "mini-pc-1",
+          "id": "gid://shopify/Collection/652989694318",
+          "image": null,
+          "onlineStoreUrl": "https://minisforumpc.eu/collections/mini-pc-1",
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore our range of MINI PC without xcotton. Find the perfect eco-friendly solution for your tech needs. Shop now!",
+            "title": "Discover the Best MINI PC Options - Eco-Friendly Choice"
+          },
+          "title": "Product without xcotton",
+          "updatedAt": "2026-11-07T12:12:13Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "0.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "createdAt": "2024-10-18T10:27:53Z",
+  "description": "",
+  "descriptionHtml": "",
+  "encodedVariantAvailability": "v1_0",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": "Price difference Minisforum EU",
+    "height": 864,
+    "id": "gid://shopify/ProductImage/35106614280375",
+    "thumbhash": "8gcSBwD3eFiId4mMdnaIqFiIiIA493cM",
+    "url": "https://cdn.shopify.com/s/files/1/0585/0588/7927/files/Logo1.jpg?v=1775205608",
+    "width": 864
+  },
+  "handle": "price-difference-2",
+  "id": "gid://shopify/Product/14623228952942",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozNTEwNjYxNDI4MDM3NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozNTEwNjYxNDI4MDM3NSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": "Price difference Minisforum EU",
+          "height": 864,
+          "id": "gid://shopify/ProductImage/35106614280375",
+          "thumbhash": "8gcSBwD3eFiId4mMdnaIqFiIiIA493cM",
+          "url": "https://cdn.shopify.com/s/files/1/0585/0588/7927/files/Logo1.jpg?v=1775205608",
+          "width": 864
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjoyNzUzNDQ2MDk3NzMzNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjoyNzUzNDQ2MDk3NzMzNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "Price difference Minisforum EU",
+          "id": "gid://shopify/MediaImage/27534460977335",
+          "image": {
+            "__typename": "Image",
+            "altText": "Price difference Minisforum EU",
+            "height": 864,
+            "id": "gid://shopify/ImageSource/27534460977335",
+            "thumbhash": "8gcSBwD3eFiId4mMdnaIqFiIiIA493cM",
+            "url": "https://cdn.shopify.com/s/files/1/0585/0588/7927/files/Logo1.jpg?v=1775205608",
+            "width": 864
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "Price difference Minisforum EU",
+            "height": 864,
+            "id": "gid://shopify/ImageSource/27534460977335",
+            "thumbhash": "8gcSBwD3eFiId4mMdnaIqFiIiIA493cM",
+            "url": "https://cdn.shopify.com/s/files/1/0585/0588/7927/files/Logo1.jpg?v=1775205608",
+            "width": 864
+          }
+        }
+      }
+    ]
+  },
+  "onlineStoreUrl": "https://minisforumpc.eu/products/price-difference-2",
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/16936086176110",
+      "name": "Difference Link",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/6893460193646",
+          "name": "No Shipment",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "55.0",
+      "currencyCode": "EUR"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "55.0",
+      "currencyCode": "EUR"
+    }
+  },
+  "productType": "Other",
+  "publishedAt": "2024-10-18T10:27:53Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": " - Minisforum EU",
+    "title": "Price Difference-1 - Minisforum EU"
+  },
+  "tags": [],
+  "title": "Price Difference-1",
+  "updatedAt": "2026-11-03T09:11:56Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo1MTY1MDkyNjI4MTA3MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo1MTY1MDkyNjI4MTA3MCwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": true,
+          "barcode": null,
+          "compareAtPrice": null,
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/51650926281070",
+          "image": {
+            "__typename": "Image",
+            "altText": "Price difference Minisforum EU",
+            "height": 864,
+            "id": "gid://shopify/ProductImage/35106614280375",
+            "thumbhash": "8gcSBwD3eFiId4mMdnaIqFiIiIA493cM",
+            "url": "https://cdn.shopify.com/s/files/1/0585/0588/7927/files/Logo1.jpg?v=1775205608",
+            "width": 864
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "55.0",
+            "currencyCode": "EUR"
+          },
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": false,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Difference Link",
+              "value": "No Shipment"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "sku": "PD",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "No Shipment",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.0,
+          "weightUnit": "KILOGRAMS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Price difference"
+}

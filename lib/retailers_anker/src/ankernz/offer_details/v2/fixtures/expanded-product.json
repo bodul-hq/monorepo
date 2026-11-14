@@ -1,0 +1,2030 @@
+{
+  "__typename": "Product",
+  "availableForSale": false,
+  "category": {
+    "__typename": "TaxonomyCategory",
+    "ancestors": [],
+    "id": "gid://shopify/TaxonomyCategory/na",
+    "name": "Uncategorized"
+  },
+  "collections": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTY2MzkzNDY4NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NjJ9"
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzM1NDY5MjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "apple-accessories",
+          "id": "gid://shopify/Collection/316633546923",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Apple Accessories",
+          "updatedAt": "2025-05-09T06:04:58Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzQwMzg0NDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-dock-for-apple-watch",
+          "id": "gid://shopify/Collection/316634038443",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker's Apple Watch charging docks - efficient, stylish & portable. Charge multiple devices simultaneously with MagSafe for fast & convenient power-up.",
+            "title": null
+          },
+          "title": "Charging Dock for Apple Watch",
+          "updatedAt": "2026-06-08T13:18:52Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzQxNjk1MTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "allproduct",
+          "id": "gid://shopify/Collection/316634169515",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "AllProduct",
+          "updatedAt": "2026-06-08T13:19:54Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzQzOTg4OTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6M30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "iphone-14-charger",
+          "id": "gid://shopify/Collection/316634398891",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "iphone 14 charger",
+          "updatedAt": "2025-05-09T06:05:00Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzQ0MzE2NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "iphone-15-charger",
+          "id": "gid://shopify/Collection/316634431659",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "iphone 15 charger",
+          "updatedAt": "2025-05-09T06:05:00Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzUwMjE0ODMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-dock-for-apple",
+          "id": "gid://shopify/Collection/316635021483",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker's compact and versatile Apple charging docks. Charge your multiple Apple devices in style & on the go effortlessly, delivering quick, reliable power.",
+            "title": null
+          },
+          "title": "Charging Dock for Apple",
+          "updatedAt": "2026-06-08T13:19:27Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzUwNTQyNTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Nn0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-airpods",
+          "id": "gid://shopify/Collection/316635054251",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Enjoy Anker's efficient and portable chargers for AirPods - an all-in-one charging solution for iPhone, AirPods & Apple Watch, ensuring uninterrupted power anytime!",
+            "title": "Efficient Chargers for AirPods: Charge Anytime, Anywhere"
+          },
+          "title": "Chargers for AirPods",
+          "updatedAt": "2026-06-08T13:18:55Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzUxMTk3ODcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6N30=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "best_sellers",
+          "id": "gid://shopify/Collection/316635119787",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": "BestSellers"
+          },
+          "title": "Best Sellers",
+          "updatedAt": "2026-06-08T13:19:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzUxODUzMjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OH0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "3-in-1-charging-station",
+          "id": "gid://shopify/Collection/316635185323",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker's compact 3 in 1 charging stations for fast & versatile charging. Effortlessly power up your iPhone, Apple Watch & AirPods on the go with style.",
+            "title": null
+          },
+          "title": "3-in-1 Charging Station",
+          "updatedAt": "2026-06-08T13:19:27Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzUzNDkxNjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6OX0=",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gifts-for-everyone-occasion",
+          "id": "gid://shopify/Collection/316635349163",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Universal Favorites",
+          "updatedAt": "2026-06-08T13:18:57Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzU0ODAyMzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "20w-usb-c-power-adapter",
+          "id": "gid://shopify/Collection/316635480235",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker 20W USB-C Power Adapters with fast charging & advanced safety features. Get the perfect companion to keep your devices powered up wherever you go.",
+            "title": null
+          },
+          "title": "20W USB-C Power Adapter",
+          "updatedAt": "2026-06-08T13:18:57Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzU1Nzg1MzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "100w-usb-c-charger",
+          "id": "gid://shopify/Collection/316635578539",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker's award-winning 100W USB-C chargers to experience efficient & versatile charging. Power multiple devices simultaneously in a compact design now!",
+            "title": "Versatile 100W USB-C Chargers: Power & Innovation"
+          },
+          "title": "100W USB C Charger",
+          "updatedAt": "2026-06-08T13:18:58Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzU2NzY4NDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "workspace-power",
+          "id": "gid://shopify/Collection/316635676843",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Workspace Power",
+          "updatedAt": "2026-06-08T13:18:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzU3NDIzNzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "usb-c-charger",
+          "id": "gid://shopify/Collection/316635742379",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience efficient charging with Anker Type C chargers. With dynamic power distribution and GaNPrime technology, Anker delivers astonishing charging speed.",
+            "title": "Find the Best Type C Chargers 2023"
+          },
+          "title": "USB-C Charger",
+          "updatedAt": "2026-06-08T13:18:59Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzU5NzE3NTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "for-multi-device",
+          "id": "gid://shopify/Collection/316635971755",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your charging experience with Anker's exceptional range of multi-USB port charging gadgets, including chargers, cables, power banks, and docking stations. ",
+            "title": "Multi-Port USB Charging Devices"
+          },
+          "title": "Multi-USB Port Charging Gadgets",
+          "updatedAt": "2026-06-08T13:19:00Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzYwMzcyOTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-dell-laptop",
+          "id": "gid://shopify/Collection/316636037291",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your charging experience with Anker's efficient Dell Laptop Chargers featuring GaNPrime technology for faster charging and a compact design. ",
+            "title": "Fast & Universal Dell Laptop Chargers"
+          },
+          "title": "Chargers for Dell Laptop",
+          "updatedAt": "2026-06-08T13:19:00Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzYxMDI4MjcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "asus-laptop-charger",
+          "id": "gid://shopify/Collection/316636102827",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Enhance your ASUS laptop charging with Anker's innovative chargers: powerful, eco-friendly, and efficient. Safely charge multiple devices with intelligent protection.",
+            "title": "ASUS Laptop Chargers - Innovative Power & Efficiency "
+          },
+          "title": "ASUS Laptop Charger",
+          "updatedAt": "2026-06-08T13:19:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzYxNjgzNjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "65w-usb-c-charger",
+          "id": "gid://shopify/Collection/316636168363",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Embrace Anker’s 65W USB C Chargers, the ultimate charging solution for your devices. With GaN and ActiveShield 2.0 techs, our chargers are fast and reliable.",
+            "title": "65W USB C Charger: Fast Charging Anywhere"
+          },
+          "title": "65W USB-C Charger",
+          "updatedAt": "2026-06-08T13:19:01Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzYyMDExMzEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "30w-usb-c-power-adapter",
+          "id": "gid://shopify/Collection/316636201131",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your charging experience with Anker's 30W USB-C Power Adapters, and enjoy seamless connectivity, efficient charging, and enhanced productivity.",
+            "title": null
+          },
+          "title": "30W USB C Power Adapter",
+          "updatedAt": "2026-06-08T13:19:02Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzcwNTMwOTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "降10%",
+          "descriptionHtml": "降10%",
+          "handle": "ws24aodp10",
+          "id": "gid://shopify/Collection/316637053099",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "WS24AODP10",
+          "updatedAt": "2026-06-08T13:19:08Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzczMTUyNDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "<p> </p>\n<div id=\"_feilian_extension_installed\"></div>",
+          "handle": "anker-prime-chargers",
+          "id": "gid://shopify/Collection/316637315243",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Anker Prime Chargers",
+          "updatedAt": "2025-05-09T06:05:05Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc0NzkwODMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "In the tech-savvy world, staying connected and powered up is essential. Whether you're at home, in the office, or on the go, having the right charging solutions can make a world of difference.",
+          "descriptionHtml": "<p>In the tech-savvy world, staying connected and powered up is essential. Whether you're at home, in the office, or on the go, having the right charging solutions can make a world of difference.</p>\n<div class=\"layer\"><a class=\"content block w-full\" href=\"https://www.anker.com/anker-prime\"><picture class=\"block overflow-hidden w-full\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/765_180px_6712ecb0-0862-4faf-94ca-d115ca888d01_750x.png?v=1723031802\" media=\"(max-width: 375px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/765_180px_6712ecb0-0862-4faf-94ca-d115ca888d01_1534x.png?v=1723031802\" media=\"(max-width: 767px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2046x.png?v=1723031787\" media=\"(max-width: 1023px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2558x.png?v=1723031787\" media=\"(max-width: 1279px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2878x.png?v=1723031787\" media=\"(max-width: 1439px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_3078x.png?v=1723031787\" media=\"(max-width: 1539px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_3838x.png?v=1723031787\" media=\"(max-width: 1919px)\"></source></source></source></picture></a></div>\n<!---->",
+          "handle": "multi-port-charging",
+          "id": "gid://shopify/Collection/316637479083",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Multi-Port Charging",
+          "updatedAt": "2025-05-09T06:05:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc1MTE4NTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Anker is focused on exploring high-efficiency and eco-friendly ways to stay charged, from high-powered wall chargers to multi-port chargers with GaNPrime technology. Anker chargers are your best solution for efficient and eco-friendly charging.",
+          "descriptionHtml": "<p><meta charset=\"utf-8\"><span>Anker is focused on exploring high-efficiency and eco-friendly ways to stay charged, from high-powered wall chargers to multi-port chargers with GaNPrime technology. Anker chargers are your best solution for efficient and eco-friendly charging.</span><br></p>\n<!---->",
+          "handle": "top-recommended-power-banks",
+          "id": "gid://shopify/Collection/316637511851",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Recommended",
+          "updatedAt": "2025-05-09T06:05:06Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc1NDQ2MTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers",
+          "id": "gid://shopify/Collection/316637544619",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore our extensive selection of Anker chargers at Anker.com and efficiently fast charge a wide variety of devices for all your charging needs.",
+            "title": "Chargers for Efficient and Eco-Friendly Charging"
+          },
+          "title": "Chargers",
+          "updatedAt": "2025-05-13T04:04:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc4MDY3NjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "universal-charger",
+          "id": "gid://shopify/Collection/316637806763",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Power up all your devices effortlessly with Anker's universal chargers. With up to 150W output and ActiveShield technology, Anker powers up and keeps safe.",
+            "title": "Universal Charger: Charge Anything Anytime"
+          },
+          "title": "Universal Charger",
+          "updatedAt": "2026-06-08T13:19:23Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc4NzIyOTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "travel-chargers",
+          "id": "gid://shopify/Collection/316637872299",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker's travel chargers: Compact, powerful & safe. Charge up to 3 devices at once, perfect for travelers seeking convenience and peace of mind on the go.",
+            "title": null
+          },
+          "title": "Travel Chargers",
+          "updatedAt": "2026-06-08T13:19:44Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc5MDUwNjcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MjZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "super-fast-chargers-for-samsung",
+          "id": "gid://shopify/Collection/316637905067",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your Samsung charging experience with Anker's super fast chargers. Power up your Samsung devices in a flash with up to 100W max single-port output. ",
+            "title": "Enhanced Samsung Super Fast Chargers "
+          },
+          "title": "Super Fast Chargers for Samsung",
+          "updatedAt": "2026-06-08T13:19:46Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc5Mzc4MzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "portable-charger-for-macbook",
+          "id": "gid://shopify/Collection/316637937835",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Anker Portable Charger for MacBook provides convenient on-the-go power. With USB-C Power Delivery support, it offers compact and high-wattage power solutions.",
+            "title": null
+          },
+          "title": "Portable Charger for MacBook",
+          "updatedAt": "2026-06-08T13:19:11Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzc5NzA2MDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "portable-chargers-for-iphone-13",
+          "id": "gid://shopify/Collection/316637970603",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker's quality portable chargers for iPhone 13, combining wall charging with a large power bank. Charge up to 3 devices with advanced GaN technology.",
+            "title": null
+          },
+          "title": "Portable Chargers for iPhone 13",
+          "updatedAt": "2026-06-08T13:20:26Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgwMDMzNzEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mjl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "portable-charger-for-iphone-14",
+          "id": "gid://shopify/Collection/316638003371",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker's premium iPhone 14 portable chargers - a powerful 2-in-1 solution for fast charging, versatile compatibility, and robust safety features.",
+            "title": null
+          },
+          "title": "Portable Charger for iPhone 14",
+          "updatedAt": "2026-06-08T13:19:11Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgwMzYxMzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "portable-charger-for-iphone-12",
+          "id": "gid://shopify/Collection/316638036139",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy the best portable chargers for iPhone 12 at Anker: Fast, versatile & safe charging for your devices. Stay powered up on the go with GaNPrime™ technology.",
+            "title": null
+          },
+          "title": "Portable Charger for iPhone 12",
+          "updatedAt": "2026-06-08T13:20:34Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgwNjg5MDcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "new-releases",
+          "id": "gid://shopify/Collection/316638068907",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "New Arrival",
+          "updatedAt": "2026-06-08T13:19:11Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgxMDE2NzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "magsafe-charger-for-iphone-15",
+          "id": "gid://shopify/Collection/316638101675",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Supercharge your iPhone 15 with Anker's MagSafe charger for iPhone 15. Replenish your iPhone 15 battery in no time with the power of 15W wireless charging.",
+            "title": null
+          },
+          "title": "MagSafe Charger For iPhone 15",
+          "updatedAt": "2026-06-08T13:19:22Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgxMzQ0NDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "dual-usb-charger",
+          "id": "gid://shopify/Collection/316638134443",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Order Anker dual USB charges and transform your charging game. See how lightning-fast speed, certified safety & wide compatibility can be combined into one.",
+            "title": null
+          },
+          "title": "Dual USB Charger",
+          "updatedAt": "2026-06-08T13:19:11Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgxNjcyMTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "gan-charger",
+          "id": "gid://shopify/Collection/316638167211",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience the future of fast charging with Anker’s GaN chargers. Higher efficiency, rapid speeds, and intelligent power distribution. Get your GaN charger now!",
+            "title": "GaN Chargers – Fast & Efficient Charging"
+          },
+          "title": "GaN Charger",
+          "updatedAt": "2026-06-08T13:20:25Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgxOTk5NzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-pad-for-iphone",
+          "id": "gid://shopify/Collection/316638199979",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop Anker’s charging pad for iPhone to experience seamless wireless charging. They are fast, efficient, safe, and stylish. Enjoy the Anker Advantage now!",
+            "title": null
+          },
+          "title": "Charging Pad for iPhone",
+          "updatedAt": "2026-06-08T13:19:33Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgzMzEwNTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6MzZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Xbox controller chargers provide a convenient and reliable solution for charging Xbox controllers, ensuring they are always powered up and ready for gaming sessions without the need for disposable batteries. Leverage Anker chargers for Xbox controllers to get an easy and efficient way of powering up your gaming gear. With a sleek design and reliable performance, Anker Xbox series x or s controller chargers offer a hassle-free way to keep your Xbox controllers fully charged and ready for intense gaming sessions. Additionally, these chargers feature a compact docking station that can simultaneously charge multiple controllers, ensuring you never run out of power. Moreover, our Xbox one or 360 controller chargers are equipped with exclusive PowerIQ 4.0 charging technology featuring Dynamic Power Distribution to deliver faster and more efficient charging, allowing you to quickly get back to your gaming adventures. So say goodbye to the hassle of constantly swapping out batteries or dealing with tangled cables. With Anker controller chargers for Xbox one, 360, series x or s, etc, you can enjoy uninterrupted gaming and have peace of mind for knowing that your controllers are always charged and ready to go.",
+          "descriptionHtml": "<p data-mce-fragment=\"1\">Xbox controller chargers provide a convenient and reliable solution for charging Xbox controllers, ensuring they are always powered up and ready for gaming sessions without the need for disposable batteries. Leverage Anker chargers for Xbox controllers to get an easy and efficient way of powering up your gaming gear.</p>\n<p data-mce-fragment=\"1\">With a sleek design and reliable performance, Anker Xbox series x or s controller chargers offer a hassle-free way to keep your Xbox controllers fully charged and ready for intense gaming sessions. Additionally, these chargers feature a compact docking station that can simultaneously charge multiple controllers, ensuring you never run out of power. Moreover, our Xbox one or 360 controller chargers are equipped with exclusive PowerIQ 4.0 charging technology featuring Dynamic Power Distribution to deliver faster and more efficient charging, allowing you to quickly get back to your gaming adventures. So say goodbye to the hassle of constantly swapping out batteries or dealing with tangled cables. With Anker controller chargers for Xbox one, 360, series x or s, etc, you can enjoy uninterrupted gaming and have peace of mind for knowing that your controllers are always charged and ready to go.</p>",
+          "handle": "chargers-for-xbox-controller",
+          "id": "gid://shopify/Collection/316638331051",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your gaming experience with the convenience and reliability of Anker Xbox controller chargers, enjoying high-performance charging & energy conservation.",
+            "title": null
+          },
+          "title": "Chargers for Xbox Controller",
+          "updatedAt": "2026-06-08T13:19:18Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzgzOTY1ODcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-samsung",
+          "id": "gid://shopify/Collection/316638396587",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Anker’s Samsung chargers make power omnipresent. With 120W charging output and 3 ports in total, they power up your Samsung devices anywhere and anytime.",
+            "title": "Stay Powered Up With Anker Samsung Chargers"
+          },
+          "title": "Chargers for Samsung",
+          "updatedAt": "2026-06-08T13:19:12Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg0MjkzNTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-microsoft-surface",
+          "id": "gid://shopify/Collection/316638429355",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Keep your Microsoft Surface charged with Anker's 150W chargers. Featuring 4 ports, enjoy efficient power delivery for multiple devices simultaneously.",
+            "title": "Surface Charger for Fast Charging"
+          },
+          "title": "Chargers for Microsoft Surface",
+          "updatedAt": "2026-06-08T13:20:20Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg0NjIxMjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6Mzl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-lenovo-laptop",
+          "id": "gid://shopify/Collection/316638462123",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Elevate your Lenovo laptop charging game with Anker's chargers—compact, powerful, and fast solutions for uninterrupted productivity and extended usage.",
+            "title": "Lenovo Laptop Chargers: Upgrade Your Charging Experience"
+          },
+          "title": "Chargers for Lenovo Laptop",
+          "updatedAt": "2026-06-08T13:19:12Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg0OTQ4OTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-mac",
+          "id": "gid://shopify/Collection/316638494891",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Get fast, reliable Mac chargers at Anker. Stay powered anytime with optimized adapters for Apple laptops. Shop now for a seamless charging experience!",
+            "title": "Efficient Mac Charger Options"
+          },
+          "title": "Chargers for Mac",
+          "updatedAt": "2026-06-08T13:19:50Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg1Mjc2NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charger-for-macbook-pro",
+          "id": "gid://shopify/Collection/316638527659",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker MacBook Pro chargers as the ultimate charging solution. Elevate performance, speed & safety to new heights with Anker’s premium & compact chargers.",
+            "title": null
+          },
+          "title": "Charger for MacBook Pro",
+          "updatedAt": "2026-06-08T13:19:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg1NjA0MjcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "Anker, a leading provider of premium charging solutions, offers a vast range of laptop chargers that are compatible with various devices. Our exceptional laptop chargers ensure a seamless and speedy charging experience, while our cutting-edge ActiveShield™ 2.0 technology diligently monitors temperature and adjusts power output, prioritizing the safety of your devices. With Anker, you can trust in unparalleled charging performance and unwavering reliability.",
+          "descriptionHtml": "<p>Anker, a leading provider of premium charging solutions, offers a vast range of laptop chargers that are compatible with various devices. Our exceptional<span> </span>laptop chargers ensure a seamless and speedy charging experience, while our cutting-edge ActiveShield™ 2.0 technology diligently monitors temperature and adjusts power output, prioritizing the safety of your devices. With Anker, you can trust in unparalleled charging performance and unwavering reliability.</p>\n<div class=\"Filter_DefaultBanner__jhDg6 layer\">\n<div class=\"content\">\n<div class=\"Filter_learnMoreBox__gkmBf\">\n<div class=\"LearnMore_contentBox__SQRSz\">\n<div class=\"learn-more-container overflow-hidden\">\n<p> </p>\n</div>\n</div>\n</div>\n</div>\n</div>\n<div class=\"layer\"><a class=\"content block w-full\" href=\"https://www.anker.com/anker-prime\"><picture class=\"block overflow-hidden w-full\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/765_180px_6712ecb0-0862-4faf-94ca-d115ca888d01_750x.png?v=1723031802\" media=\"(max-width: 375px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/765_180px_6712ecb0-0862-4faf-94ca-d115ca888d01_1534x.png?v=1723031802\" media=\"(max-width: 767px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2046x.png?v=1723031787\" media=\"(max-width: 1023px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2558x.png?v=1723031787\" media=\"(max-width: 1279px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_2878x.png?v=1723031787\" media=\"(max-width: 1439px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_3078x.png?v=1723031787\" media=\"(max-width: 1539px)\"><source srcset=\"https://cdn.shopify.com/s/files/1/0493/9834/9974/files/1920_180_56f26687-8d77-4391-a234-607506742544_3838x.png?v=1723031787\" media=\"(max-width: 1919px)\"></source></source></source></picture></a></div>\n<!---->",
+          "handle": "for-laptops",
+          "id": "gid://shopify/Collection/316638560427",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover our collection of chargers for laptops at Anker.com and enjoy high-speed charging.",
+            "title": "Chargers For Laptops "
+          },
+          "title": "Chargers for Laptops",
+          "updatedAt": "2026-06-08T13:19:25Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg1OTMxOTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charger-for-macbook-air",
+          "id": "gid://shopify/Collection/316638593195",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Power your MacBook Air with Anker’s 150W charger featuring PowerIQ 4.0 and ActiveShield 2.0. Travel-ready and ultra-efficient. Order yours today!",
+            "title": "MacBook Air Charger Collection"
+          },
+          "title": "Charger for MacBook Air",
+          "updatedAt": "2026-06-08T13:19:51Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg2OTE0OTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charger-cable-for-iphone-12",
+          "id": "gid://shopify/Collection/316638691499",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Transform your charging game with Anker iPhone 12 charger cables. Our MFi-certified charging cables are fast, durable, and support up to 480Mbps data transfer.",
+            "title": "iPhone 12 Charger Cable: Unleash the Speed"
+          },
+          "title": "Charger Cable for iPhone 12",
+          "updatedAt": "2026-06-08T13:19:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg3MjQyNjcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "android-charger",
+          "id": "gid://shopify/Collection/316638724267",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Stay connected and productive with Anker Android chargers. High-speed charging and advanced safety features keep you a breeze in charging anytime, anywhere.",
+            "title": "Fast and Efficient Power with Android Chargers"
+          },
+          "title": "Android Charger",
+          "updatedAt": "2026-06-08T13:19:26Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg3NTcwMzUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charger-adapters-for-apple-watch",
+          "id": "gid://shopify/Collection/316638757035",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Ensure unlimited power supply for Apple watches with Anker’s Apple watch charger adapters. Anker’s fast charging modules revitalize your Apple watch in no time.",
+            "title": "Stay Powered Up With Apple Watch Charger Adapter"
+          },
+          "title": "Charger Adapters for Apple Watch",
+          "updatedAt": "2026-06-08T13:19:13Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg3ODk4MDMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "4-in-1-charging-station",
+          "id": "gid://shopify/Collection/316638789803",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker's premium 4 in 1 charging stations for various devices: effortless multi-device charging with efficiency and safety in one stylish package.",
+            "title": null
+          },
+          "title": "4-in-1 Charging Station",
+          "updatedAt": "2026-06-08T13:19:22Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg4MjI1NzEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "45w-usb-c-charger",
+          "id": "gid://shopify/Collection/316638822571",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Keep your devices powered up anywhere with Anker 45W USB C chargers. Portable and powerful, our 45W chargers are the most versatile charging option out there.",
+            "title": "45W USB-C Charger45W USB C Charger: Small, Swift & Superior"
+          },
+          "title": "45W USB-C Charger",
+          "updatedAt": "2026-06-08T13:19:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg4NTUzMzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NDl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "120-watt-charger",
+          "id": "gid://shopify/Collection/316638855339",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker 120 watt chargers and supercharge up to 3 devices at once. Enjoy the blazing speed, compact designs, and universal compatibility with 1000+ devices.",
+            "title": null
+          },
+          "title": "120 Watt Charger",
+          "updatedAt": "2026-06-08T13:19:22Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg4ODgxMDcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "100w-gan-charger",
+          "id": "gid://shopify/Collection/316638888107",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Explore Anker's 100W GaN chargers to experience ultimate charging efficiency & convenience. Fast, compact & safe - power up multiple devices simultaneously. ",
+            "title": "100W GaN Charger"
+          },
+          "title": "100W GaN Charger",
+          "updatedAt": "2026-06-08T13:19:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2Mzg5ODY0MTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "wireless-chargers-for-iphone-15",
+          "id": "gid://shopify/Collection/316638986411",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker iPhone 15 wireless chargers and charge your iPhone 15 fast & tangle-free. Cut the cord and unleash the power with Anker’s next-level chargers.",
+            "title": "Wireless Chargers for iPhone 15"
+          },
+          "title": "Wireless Chargers for iPhone 15",
+          "updatedAt": "2026-06-08T13:19:25Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkwMTkxNzksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charging-cables-for-iphone-15",
+          "id": "gid://shopify/Collection/316639019179",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Buy Anker's iPhone 15 charging cables for fast, durable & efficient charging. Up to 140W charging, 480Mbps transfer & hassle-free charging with premium quality.",
+            "title": "Charging Cables for iPhone 15"
+          },
+          "title": "Charging Cable for iPhone 15",
+          "updatedAt": "2026-06-08T13:19:14Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkwNTE5NDcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTN9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "multi-usb-port-charging-gadgets",
+          "id": "gid://shopify/Collection/316639051947",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Multi-USB Port Charging Gadgets",
+          "updatedAt": "2026-06-08T13:19:48Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkwODQ3MTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTR9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "charges-for-laptop",
+          "id": "gid://shopify/Collection/316639084715",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": null,
+            "title": null
+          },
+          "title": "Charges For Laptop",
+          "updatedAt": "2026-06-08T13:19:15Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkxMTc0ODMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTV9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "for-tablets",
+          "id": "gid://shopify/Collection/316639117483",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover our collection of chargers for tablets at Anker.com and enjoy ultra-fast charging.",
+            "title": "Chargers For Tablets "
+          },
+          "title": "Chargers for Tablets",
+          "updatedAt": "2026-06-08T13:20:38Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkxNTAyNTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTZ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "for-iphone-and-more",
+          "id": "gid://shopify/Collection/316639150251",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover our collection of chargers for iPhone at Anker.com and power on with blazing fast charging speeds.",
+            "title": "Chargers For iPhone and More "
+          },
+          "title": "Chargers for iPhone and More",
+          "updatedAt": "2026-06-08T13:19:15Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkxODMwMTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTd9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-phone-and-more",
+          "id": "gid://shopify/Collection/316639183019",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Power up your iPhone with Anker's advanced chargers designed for iPhones, Android devices, and more. We are committed to providing high-quality, practical, and sustainable charging solutions. Our chargers feature ActiveShield™ 2.0 technology, which intelligently protects connected devices. Additionally, our GaNPrime™ technology helps save millions of kilowatt-hours each year, promoting eco-friendly practices and sustainable development.",
+            "title": null
+          },
+          "title": "Chargers For Phone And More",
+          "updatedAt": "2026-06-08T13:19:36Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkyMTU3ODcsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTh9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-iphone-14",
+          "id": "gid://shopify/Collection/316639215787",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Shop versatile Anker iPhone 14 chargers to experience fast and efficient charging for multiple devices. Enjoy peace of mind for charging anytime & anywhere.",
+            "title": "Charge Your iPhones with Certified iPhone 14 Chargers"
+          },
+          "title": "iphone 14 charger",
+          "updatedAt": "2026-06-08T13:19:28Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkyNDg1NTUsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NTl9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-iphone-15",
+          "id": "gid://shopify/Collection/316639248555",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Power up your iPhone 15 with Anker's 100W chargers. Experience rapid charging, temperature control, and compact designs for on-the-go convenience.",
+            "title": "Best Anker Chargers for iPhone 15"
+          },
+          "title": "iphone 15 charger",
+          "updatedAt": "2026-06-08T13:19:15Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkyODEzMjMsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NjB9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-iphone-12",
+          "id": "gid://shopify/Collection/316639281323",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Discover Anker’s premium iPhone 12 chargers to find the ultimate charging solution for your iPhone 12. Our chargers are remarkably swift, safe, and compact.",
+            "title": "Swift and Compact iPhone 12 Chargers"
+          },
+          "title": "iphone 12 charger",
+          "updatedAt": "2026-06-08T13:19:28Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkzMTQwOTEsImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NjF9",
+        "node": {
+          "__typename": "Collection",
+          "description": "iPhone 13 chargers provide fast and reliable charging for different iPhone 13 models, ensuring users can keep their devices powered up and ready for use throughout the day. Anker is offering a collection of iPhone 13 charger blocks that are sure to impress. The Anker 747 charger, for example, boasts an astonishing 150W output and 4 ports, able to fast charge several devices simultaneously with little reduction in speed. Moreover, its dynamic power distribution feature can distribute power smartly between devices it is charging, further displaying its prowess in charging. Aside from its charging capability, it has a very compact appearance: it is no more than 7cm in all dimensions. This makes it an extremely portable device compared to other bulkier chargers. Lastly, it gives customers peace of mind by implementing the ActiveShield 2.0 technology, monitoring temperature 3 million times a day to ensure the safety of use. In short, Anker’s iPhone 13 charging solutions are fast, safe and reliable. Come browse Anker’s collection of Apple iPhone 13 chargers, as well as chargers for iPhone 12 and chargers for iPhone 14 today for efficient charging and undisrupted life! FAQ What kind of charger does the iPhone 13 use? There are mainly three iPhone 13 charger types: Apple’s Original Wired Chargers: These are the chargers bundled with iPhone 13 which usually include a cable from USB-C to Lightning (since the iPhone 13 charger port is Lightning) to give fast charging. Third-party USB-C Chargers: You can also charge iPhone 13 with reliable third-party USB-C chargers, like Anker Type C chargers. MagSafe Chargers: iPhone 13 supports wireless charging, so wireless chargers supporting MagSafe technology can also be used to charge iPhone 13 series. Can I use 30W charger for iPhone 13? Yes, you can use a 30W charger for iPhone 13 or iPhone 13 pro max. The iPhone 13 series is compatible with a wide range of chargers, including 30W models, which allow you to charge your iPhone 13 more quickly and efficiently, ensuring you have enough power to stay connected and productive throughout the day. How fast does Lightning charger charge iPhone 13? This depends on the wattage or charging power of your Lightning chargers. For instance, using a 20W iPhone 13 mini charger normally fully charges this model in 87 minutes, while the regular iPhone 13 can be fully charged in 89 minutes with a 20W Apple Lightning power adapter. On the other hand, an iPhone 13 Pro charger of 30W can fully charge this model in 89 minutes. So generally, it takes about 90 minutes to charge different iPhone 13 models from 0% to 100%. Why is my iPhone 13 charging so slowly? Please check the following parts when your iPhone 13 is charging slowly: Power Adapter: The power adapter you're using may not provide sufficient power output. To ensure fast charging, it's recommended to use an official Apple power adapter or a reputable third-party adapter like the Anker 747. Charging Cable: A damaged or non-certified charging cable can hinder charging speeds. Make sure you're using an Apple-certified cable or a third-party cable from reliable brands. Background Apps/Activities: Running resource-intensive apps or processes in the background can slow down the charging speed. Try closing unnecessary apps and reducing background activity while charging. Charging port: A damaged or clogged iPhone 13 charge port or iPhone 13 pro charger port may result in slower charging. Please check and clean them regularly for efficient charging. Does fast charging damage iPhone 13? No. Fast charging generally does not damage iPhone 13 if you use official or certified fast chargers. This is because most qualified fast chargers are equipped with built-in safeguards to regulate the charging process and protect the battery from overcharging or overheating.",
+          "descriptionHtml": "<p data-mce-fragment=\"1\">iPhone 13 chargers provide fast and reliable charging for different iPhone 13 models, ensuring users can keep their devices powered up and ready for use throughout the day.</p>\n<p data-mce-fragment=\"1\">Anker is offering a collection of iPhone 13 charger blocks that are sure to impress. The <span data-mce-fragment=\"1\"><a href=\"https://www.anker.com/products/a2340\" data-mce-fragment=\"1\" data-mce-href=\"https://www.anker.com/products/a2340\"><u data-mce-fragment=\"1\">Anker 747 charger</u></a></span>, for example, boasts an astonishing 150W output and 4 ports, able to fast charge several devices simultaneously with little reduction in speed. Moreover, its dynamic power distribution feature can distribute power smartly between devices it is charging, further displaying its prowess in charging. Aside from its charging capability, it has a very compact appearance: it is no more than 7cm in all dimensions. This makes it an extremely portable device compared to other bulkier chargers. Lastly, it gives customers peace of mind by implementing the ActiveShield 2.0 technology, monitoring temperature 3 million times a day to ensure the safety of use. In short, Anker’s iPhone 13 charging solutions are fast, safe and reliable. Come browse Anker’s collection of Apple iPhone 13 chargers, as well as <span data-mce-fragment=\"1\"><a href=\"https://www.anker.com/collections/chargers-for-iphone-12\" data-mce-fragment=\"1\" data-mce-href=\"https://www.anker.com/collections/chargers-for-iphone-12\"><u data-mce-fragment=\"1\">chargers for iPhone 12</u></a></span> and <span data-mce-fragment=\"1\"><a href=\"https://www.anker.com/collections/chargers-for-iphone-14\" data-mce-fragment=\"1\" data-mce-href=\"https://www.anker.com/collections/chargers-for-iphone-14\"><u data-mce-fragment=\"1\">chargers for iPhone 14</u></a></span> today for efficient charging and undisrupted life!</p>\n<h2 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">FAQ</strong></h2>\n<h3 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">What kind of charger does the iPhone 13 use?</strong></h3>\n<p data-mce-fragment=\"1\">There are mainly three iPhone 13 charger types:</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Apple</b></strong><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">’</b></strong><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">s Original Wired Chargers: </b></strong>These are the chargers bundled with iPhone 13 which usually include a cable from USB-C to Lightning (since the iPhone 13 charger port is Lightning) to give fast charging.</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Third-party USB-C Chargers:</b></strong> You can also charge iPhone 13 with reliable third-party USB-C chargers, like Anker Type C chargers.</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">MagSafe Charger</b></strong><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">s</b></strong><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">:</b></strong> iPhone 13 supports wireless charging, so wireless chargers supporting MagSafe technology can also be used to charge iPhone 13 series.</p>\n<h3 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">Can I use 30W charger for iPhone 13?</strong></h3>\n<p data-mce-fragment=\"1\">Yes, you can use a 30W charger for iPhone 13 or iPhone 13 pro max. The iPhone 13 series is compatible with a wide range of chargers, including 30W models, which allow you to charge your iPhone 13 more quickly and efficiently, ensuring you have enough power to stay connected and productive throughout the day.</p>\n<h3 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">How fast does Lightning charger charge iPhone 13?</strong></h3>\n<p data-mce-fragment=\"1\">This depends on the wattage or charging power of your Lightning chargers. For instance, using a 20W iPhone 13 mini charger normally fully charges this model in 87 minutes, while the regular iPhone 13 can be fully charged in 89 minutes with a 20W Apple Lightning power adapter. On the other hand, an iPhone 13 Pro charger of 30W can fully charge this model in 89 minutes. So generally, it takes about 90 minutes to charge different iPhone 13 models from 0% to 100%.</p>\n<h3 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">Why is my iPhone 13 charging so slowly?</strong></h3>\n<p data-mce-fragment=\"1\">Please check the following parts when your iPhone 13 is charging slowly:</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Power Adapter:</b></strong> The power adapter you're using may not provide sufficient power output. To ensure fast charging, it's recommended to use an official Apple power adapter or a reputable third-party adapter like the Anker 747.</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Charging Cable:</b></strong> A damaged or non-certified charging cable can hinder charging speeds. Make sure you're using an Apple-certified cable or a third-party cable from reliable brands.</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Background Apps/Activities: </b></strong>Running resource-intensive apps or processes in the background can slow down the charging speed. Try closing unnecessary apps and reducing background activity while charging.</p>\n<p data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\"><b data-mce-fragment=\"1\">Charging port: </b></strong>A damaged or clogged iPhone 13 charge port or iPhone 13 pro charger port may result in slower charging. Please check and clean them regularly for efficient charging.</p>\n<h3 data-mce-fragment=\"1\"><strong data-mce-fragment=\"1\">Does fast charging damage iPhone 13?</strong></h3>\n<p data-mce-fragment=\"1\">No. Fast charging generally does not damage iPhone 13 if you use official or certified fast chargers. This is because most qualified fast chargers are equipped with built-in safeguards to regulate the charging process and protect the battery from overcharging or overheating.</p>",
+          "handle": "chargers-for-iphone-13",
+          "id": "gid://shopify/Collection/316639314091",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Experience fast and reliable charging with Anker's high-quality chargers for iPhone 13. Stay powered up and connected with Anker wherever you go.",
+            "title": "Fast, Reliable and Safe Chargers for iPhone 13"
+          },
+          "title": "iphone 13 charger",
+          "updatedAt": "2026-06-08T13:19:38Z"
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTY2MzkzNDY4NTksImxhc3RfdmFsdWUiOm51bGwsIm9mZnNldCI6NjJ9",
+        "node": {
+          "__typename": "Collection",
+          "description": "",
+          "descriptionHtml": "",
+          "handle": "chargers-for-ipad",
+          "id": "gid://shopify/Collection/316639346859",
+          "image": null,
+          "onlineStoreUrl": null,
+          "seo": {
+            "__typename": "SEO",
+            "description": "Upgrade your iPad charging with Anker’s 150W GaNPrime charger. Power up to 4 devices safely and efficiently. Stay powered anywhere with Anker!",
+            "title": "Anker iPad Chargers – Fast & Reliable Power"
+          },
+          "title": "Chargers for iPad",
+          "updatedAt": "2026-06-08T13:19:15Z"
+        }
+      }
+    ]
+  },
+  "compareAtPriceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "275.0",
+      "currencyCode": "NZD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "275.0",
+      "currencyCode": "NZD"
+    }
+  },
+  "createdAt": "2025-05-08T08:32:16Z",
+  "description": "Power 3 Devices at Once: With 2 USB-C ports and one USB-A port, you can charge your phone, tablet, and notebook all at once from a single charger. Connect a single device to charge at up to 100W. Charge Up to 26 Minutes Faster: Our exclusive PowerIQ 4.0 technology features Dynamic Power Distribution, which detects the power needs of connected devices and adjusts power automatically to ensure faster, more efficient charging. ActiveShield 2.0: Anker's proprietary technology enhances protection by intelligently monitoring temperature over 3 million times per day and adjusting power output to safeguard your connected devices. Greener with GaN: If every household in the US used our GaNPrime™ products in place of non-GaNPrime™ products, the amount of power saved could be up to 796.39 million kWh per year—that's enough energy to power Hawaii for a full month. What You Get: Anker 737 Charger (GaNPrime 120W), welcome guide, our worry-free 24-month warranty, and friendly customer service.",
+  "descriptionHtml": "<meta charset=\"utf-8\"><meta charset=\"utf-8\">\n<div data-mce-fragment=\"1\" data-docx-has-block-data=\"false\" data-page-id=\"doxcn8qyzkj44dnP5Ypi5ZKL44g\">\n<div data-mce-fragment=\"1\" class=\"ace-line ace-line old-record-id-doxcnMiaAGEysIUwksVeSqA5Skc\">\n<ul>\n<li>\n<strong>Power 3 Devices at Once:</strong> With 2 USB-C ports and one USB-A port, you can charge your phone, tablet, and notebook all at once from a single charger. Connect a single device to charge at up to 100W.</li>\n</ul>\n<ul>\n<li>\n<strong>Charge Up to 26 Minutes Faster:</strong> Our exclusive PowerIQ 4.0 technology features Dynamic Power Distribution, which detects the power needs of connected devices and adjusts power automatically to ensure faster, more efficient charging.</li>\n</ul>\n<ul>\n<li>\n<strong>ActiveShield 2.0: </strong>Anker's proprietary technology enhances protection by intelligently monitoring temperature over 3 million times per day and adjusting power output to safeguard your connected devices.</li>\n</ul>\n<ul>\n<li>\n<strong>Greener with GaN:</strong> If every household in the US used our GaNPrime™ products in place of non-GaNPrime™ products, the amount of power saved could be up to 796.39 million kWh per year—that's enough energy to power Hawaii for a full month.</li>\n</ul>\n<ul>\n<li>\n<strong>What You Get:</strong> Anker <strong data-mce-fragment=\"1\">737 </strong>Charger (GaNPrime 120W), welcome guide, our worry-free 24-month warranty, and friendly customer service.</li>\n</ul>\n</div>\n</div>\n<span data-mce-fragment=\"1\" class=\"lark-record-clipboard\" data-lark-record-format=\"docx/record\" data-lark-record-data=\"{&quot;isCut&quot;:false,&quot;rootId&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;parentId&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;blockIds&quot;:[11,12,13,14,15,16,17,18,19],&quot;recordIds&quot;:[&quot;doxcnMiaAGEysIUwksVeSqA5Skc&quot;,&quot;doxcn4imgqCWIcwCMoXalgiAazb&quot;,&quot;doxcnmCiAokqEMKSysxh8t2TQSf&quot;,&quot;doxcnSE6u8iGoCUAkVDMZepVpq1&quot;,&quot;doxcnGyYgO4EwWqoKcMhO5kEggB&quot;,&quot;doxcnuI64wQGI2QoyMvn0yYWVNh&quot;,&quot;doxcnS8wgSQWgIESoa69TZvRyZd&quot;,&quot;doxcnY0W40iCsQGMc4mOUVVhqKd&quot;,&quot;doxcnMUCeEW0uEMC2meke93q3QY&quot;],&quot;recordMap&quot;:{&quot;doxcnMiaAGEysIUwksVeSqA5Skc&quot;:{&quot;id&quot;:&quot;doxcnMiaAGEysIUwksVeSqA5Skc&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[&quot;7122278664980512796&quot;],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;initialAttributedTexts&quot;:{&quot;text&quot;:{&quot;0&quot;:&quot;Power 3 Devices at Once: With 2 USB-C ports and one USB-A port, you can charge your phone, tablet, and notebook all at once from a single charger. Connect a single device to charge at up to 100W.&quot;},&quot;attribs&quot;:{&quot;0&quot;:&quot;*0+5a*0*1+4*0+1&quot;}},&quot;apool&quot;:{&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;],&quot;1&quot;:[&quot;comment-id-7122278664980512796&quot;,&quot;true&quot;]},&quot;nextNum&quot;:2}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcn4imgqCWIcwCMoXalgiAazb&quot;:{&quot;id&quot;:&quot;doxcn4imgqCWIcwCMoXalgiAazb&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:0,&quot;numToAttrib&quot;:{}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnmCiAokqEMKSysxh8t2TQSf&quot;:{&quot;id&quot;:&quot;doxcnmCiAokqEMKSysxh8t2TQSf&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[&quot;7118993389856538626&quot;,&quot;7118969953511849985&quot;],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:4,&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;comment-id-7118993389856538626&quot;,&quot;true&quot;],&quot;1&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;],&quot;2&quot;:[&quot;author&quot;,&quot;6911999907511468036&quot;],&quot;3&quot;:[&quot;comment-id-7118969953511849985&quot;,&quot;true&quot;]}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;*1*0+d*2*0+2*1*3*0+h*1*0+5j&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;Charge Up to 26 Minutes Faster: Our exclusive PowerIQ 4.0 technology features Dynamic Power Distribution, which detects the power needs of connected devices and adjusts power automatically to ensure faster, more efficient charging.&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnSE6u8iGoCUAkVDMZepVpq1&quot;:{&quot;id&quot;:&quot;doxcnSE6u8iGoCUAkVDMZepVpq1&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:0,&quot;numToAttrib&quot;:{}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnGyYgO4EwWqoKcMhO5kEggB&quot;:{&quot;id&quot;:&quot;doxcnGyYgO4EwWqoKcMhO5kEggB&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[&quot;7118994744495194140&quot;],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:2,&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;],&quot;1&quot;:[&quot;bold&quot;,&quot;true&quot;]}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;*0+h*0*1+1*0+53&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;ActiveShield 2.0: Anker's proprietary technology enhances protection by intelligently monitoring temperature over 3 million times per day and adjusting power output to safeguard your connected devices.&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnuI64wQGI2QoyMvn0yYWVNh&quot;:{&quot;id&quot;:&quot;doxcnuI64wQGI2QoyMvn0yYWVNh&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:0,&quot;numToAttrib&quot;:{}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnS8wgSQWgIESoa69TZvRyZd&quot;:{&quot;id&quot;:&quot;doxcnS8wgSQWgIESoa69TZvRyZd&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[&quot;7111163194365952003&quot;],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:2,&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;],&quot;1&quot;:[&quot;comment-id-7111163194365952003&quot;,&quot;true&quot;]}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;*0*1+6i&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;Greener with GaN: If every household in the US used our GaNPrime™ products in place of non-GaNPrime™ products, the amount of power saved could be up to 796.39 million kWh per year—that's enough energy to power Hawaii for a full month.&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnY0W40iCsQGMc4mOUVVhqKd&quot;:{&quot;id&quot;:&quot;doxcnY0W40iCsQGMc4mOUVVhqKd&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:0,&quot;numToAttrib&quot;:{}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;&quot;}}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcnMUCeEW0uEMC2meke93q3QY&quot;:{&quot;id&quot;:&quot;doxcnMUCeEW0uEMC2meke93q3QY&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;parent_id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;comments&quot;:[&quot;7118938381771063297&quot;],&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[],&quot;text&quot;:{&quot;initialAttributedTexts&quot;:{&quot;text&quot;:{&quot;0&quot;:&quot;What You Get: Anker 737 Charger (GaNPrime 120W), silicone stabilizer, welcome guide, our worry-free 24-month warranty, and friendly customer service.&quot;},&quot;attribs&quot;:{&quot;0&quot;:&quot;*0*1+e*0*1*2+5*0*1+1*0*3*1+4*0*1+19*4*1+1*0*1+27&quot;}},&quot;apool&quot;:{&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;],&quot;1&quot;:[&quot;comment-id-7118938381771063297&quot;,&quot;true&quot;],&quot;2&quot;:[&quot;grammarly-data&quot;,&quot;{\\&quot;id\\&quot;:\\&quot;8a279e0c-916b-495f-abfd-93e3620a1cad\\&quot;,\\&quot;operation\\&quot;:\\&quot;replace\\&quot;,\\&quot;origin_text\\&quot;:\\&quot;Anker\\&quot;,\\&quot;replace_text\\&quot;:\\&quot;Ankur\\&quot;,\\&quot;rule_id\\&quot;:\\&quot;1001\\&quot;,\\&quot;rule_description\\&quot;:\\&quot;Possible Spelling Issue@202206161057460102121810223502031C@en-exp-lab@14@4229307\\&quot;,\\&quot;is_ignore\\&quot;:0}&quot;],&quot;3&quot;:[&quot;bold&quot;,&quot;true&quot;],&quot;4&quot;:[&quot;author&quot;,&quot;6911999907511468036&quot;]},&quot;nextNum&quot;:5}},&quot;align&quot;:&quot;&quot;,&quot;folded&quot;:false}},&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;:{&quot;id&quot;:&quot;doxcn8qyzkj44dnP5Ypi5ZKL44g&quot;,&quot;snapshot&quot;:{&quot;type&quot;:&quot;page&quot;,&quot;parent_id&quot;:&quot;&quot;,&quot;comments&quot;:null,&quot;locked&quot;:false,&quot;hidden&quot;:false,&quot;author&quot;:&quot;6911994833812930564&quot;,&quot;children&quot;:[&quot;doxcnc8CyOWCEOoyQyYYptA1iXb&quot;,&quot;doxcnKkcskcEow0Ywe4zIyofHVe&quot;,&quot;doxcnwqcowsqW6EW4slFPtIzjTe&quot;,&quot;doxcnS4siqeUGYeoq8MKj2wDysh&quot;,&quot;doxcnaUCI8KOeEuIEstNVeXiAsc&quot;,&quot;doxcna2S4CuCgkukQsDGFBxrQHf&quot;,&quot;doxcnCaW4QWcauOWyykmx1OrDDD&quot;,&quot;doxcn2aUuUicUE6GWemJAbpfmzb&quot;,&quot;doxcnK2Ewwoi2Oi4OcTkTXnCfOe&quot;,&quot;doxcnMiaAGEysIUwksVeSqA5Skc&quot;,&quot;doxcn4imgqCWIcwCMoXalgiAazb&quot;,&quot;doxcnmCiAokqEMKSysxh8t2TQSf&quot;,&quot;doxcnSE6u8iGoCUAkVDMZepVpq1&quot;,&quot;doxcnGyYgO4EwWqoKcMhO5kEggB&quot;,&quot;doxcnuI64wQGI2QoyMvn0yYWVNh&quot;,&quot;doxcnS8wgSQWgIESoa69TZvRyZd&quot;,&quot;doxcnY0W40iCsQGMc4mOUVVhqKd&quot;,&quot;doxcnMUCeEW0uEMC2meke93q3QY&quot;,&quot;doxcnoQiEMKKWwuWWAHuYu4Ywhb&quot;,&quot;doxcnUai6myc4I6C4Zn3hqscLGw&quot;,&quot;doxcnUsw2oWau8ieSesAE4Okiaf&quot;,&quot;doxcn0cAESS428Q602NU8yLWCWh&quot;,&quot;doxcnSuUIc268oag28x4qfoAFKh&quot;,&quot;doxcnukKgOIAK2q8GGOuU225tKe&quot;,&quot;doxcnUu8MM0wi2AcC4NNDHZ7Wkb&quot;,&quot;doxcnGscqkYIygeyGclHoZxqkhg&quot;,&quot;doxcnqC0uSem4YSkQSsG8X48N8d&quot;,&quot;doxcnGyWYEoqMcCMs8rZmuHU4cf&quot;,&quot;doxcnOc88YIWAu4GwwfXfQbojTd&quot;,&quot;doxcn6EsAASSg2IIuQB5CTY2X7e&quot;,&quot;doxcn0umK688awkIAy21CFR6lkh&quot;,&quot;doxcnumAaE0qWW84om8VUiG6wyh&quot;,&quot;doxcnWCOSCYaeKQu8SYs26FbcSf&quot;,&quot;doxcnMuIW0SYuEauee014LmRSgh&quot;,&quot;doxcnyIsGk28MCQgYOsP9SK9FCf&quot;,&quot;doxcnq8EewSAc0SQouAYoXndnFc&quot;,&quot;doxcnkOAicAEKwM6e8BkQeJ6jng&quot;,&quot;doxcniY2ySs8EykoyuyBqYHNKwe&quot;,&quot;doxcnai4YmWI2ssSMMnzglmXFUh&quot;,&quot;doxcn8EUEakYGKw8cms6QYAlVTb&quot;,&quot;doxcn6sCqeAECUami2HhlvM44Ad&quot;,&quot;doxcnwmku6qqm4SQc4q4RMDJSbf&quot;,&quot;doxcnE84sM6ACE82AodIiwKB20d&quot;,&quot;doxcnAQAQcQmgEeWMMdob2ey3re&quot;,&quot;doxcnUsMI2WqwEA868jtjZjepEd&quot;,&quot;doxcnMAYCcCsGIsiqCCVnNde5rn&quot;,&quot;doxcnAoiiS2qGiIWYyI5g9NhbZc&quot;,&quot;doxcnIG8kCWya8gaga6Bx6S8pDh&quot;,&quot;doxcnASqYciCYeKKM8xKIY2Wmcf&quot;],&quot;text&quot;:{&quot;apool&quot;:{&quot;nextNum&quot;:2,&quot;numToAttrib&quot;:{&quot;0&quot;:[&quot;abbreviation-data&quot;,&quot;{\\&quot;id\\&quot;:\\&quot;4300ba5f-62a0-4613-8244-0fdd8ea966fb\\&quot;,\\&quot;abbr_ids\\&quot;:\\&quot;enterprise_7112014924074975234\\&quot;,\\&quot;is_visible\\&quot;:1,\\&quot;is_first\\&quot;:1}&quot;],&quot;1&quot;:[&quot;author&quot;,&quot;6911994833812930564&quot;]}},&quot;initialAttributedTexts&quot;:{&quot;attribs&quot;:{&quot;0&quot;:&quot;*0*1+5*1+q&quot;},&quot;text&quot;:{&quot;0&quot;:&quot;A2148 - Listing - EN - 14/06/22&quot;}}},&quot;align&quot;:&quot;&quot;}}},&quot;payloadMap&quot;:{&quot;doxcnMiaAGEysIUwksVeSqA5Skc&quot;:{&quot;level&quot;:1},&quot;doxcn4imgqCWIcwCMoXalgiAazb&quot;:{&quot;level&quot;:1},&quot;doxcnmCiAokqEMKSysxh8t2TQSf&quot;:{&quot;level&quot;:1},&quot;doxcnSE6u8iGoCUAkVDMZepVpq1&quot;:{&quot;level&quot;:1},&quot;doxcnGyYgO4EwWqoKcMhO5kEggB&quot;:{&quot;level&quot;:1},&quot;doxcnuI64wQGI2QoyMvn0yYWVNh&quot;:{&quot;level&quot;:1},&quot;doxcnS8wgSQWgIESoa69TZvRyZd&quot;:{&quot;level&quot;:1},&quot;doxcnY0W40iCsQGMc4mOUVVhqKd&quot;:{&quot;level&quot;:1},&quot;doxcnMUCeEW0uEMC2meke93q3QY&quot;:{&quot;level&quot;:1}},&quot;extra&quot;:{&quot;mention_page_title&quot;:{},&quot;external_mention_url&quot;:{}},&quot;pasteFlag&quot;:&quot;9939a2b2-106d-4fb4-a4bf-91e5f6b9b5b5&quot;}\"></span><button style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\" id=\"paste-helper-id\"></button><button style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\" id=\"paste-helper-id\"></button><button style=\"width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;\" id=\"paste-helper-id\"></button>",
+  "encodedVariantAvailability": "v1_",
+  "encodedVariantExistence": "v1_0",
+  "featuredImage": {
+    "__typename": "Image",
+    "altText": null,
+    "height": 2000,
+    "id": "gid://shopify/ProductImage/39360212107435",
+    "thumbhash": "kfeBBAAz1rpVmjjAo1CJL5J5g3eHCbiZCg==",
+    "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/86d90ef0-3eef-455f-9b91-6a7b2ac6f702_1.png?v=1746693138",
+    "width": 1600
+  },
+  "handle": "a2148",
+  "id": "gid://shopify/Product/8425242820779",
+  "images": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozOTM2MDIxMjY5NzI1OSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDIxMjEwNzQzNSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/39360212107435",
+          "thumbhash": "kfeBBAAz1rpVmjjAo1CJL5J5g3eHCbiZCg==",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/86d90ef0-3eef-455f-9b91-6a7b2ac6f702_1.png?v=1746693138",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDIxMjA0MTg5OSwibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/39360212041899",
+          "thumbhash": "2/cVBQB5eHCHh4eHiHiHhztQZwWq",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD02_V1_jpg.jpg?v=1746693138",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDIxMTk0MzU5NSwibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/39360211943595",
+          "thumbhash": "jvcJBQAmVl+HmGaYaHeYh4KAH1v2",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD03_V1_jpg.jpg?v=1746693138",
+          "width": 1600
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozOTM2MDIxMjY5NzI1OSwibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "Image",
+          "altText": null,
+          "height": 2000,
+          "id": "gid://shopify/ProductImage/39360212697259",
+          "thumbhash": "2AcSBQBoV3iHB4hniIp3p1s+IE/c",
+          "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD06_V1_jpg.jpg?v=1746693139",
+          "width": 1600
+        }
+      }
+    ]
+  },
+  "isGiftCard": false,
+  "media": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjozMTAzMzQzODgzMDc2MywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzQzODYwMTM4NywibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033438601387",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438601387",
+            "thumbhash": "kfeBBAAz1rpVmjjAo1CJL5J5g3eHCbiZCg==",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/86d90ef0-3eef-455f-9b91-6a7b2ac6f702_1.png?v=1746693138",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438601387",
+            "thumbhash": "kfeBBAAz1rpVmjjAo1CJL5J5g3eHCbiZCg==",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/86d90ef0-3eef-455f-9b91-6a7b2ac6f702_1.png?v=1746693138",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzQzODY2NjkyMywibGFzdF92YWx1ZSI6Miwib2Zmc2V0IjoxfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033438666923",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438666923",
+            "thumbhash": "2/cVBQB5eHCHh4eHiHiHhztQZwWq",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD02_V1_jpg.jpg?v=1746693138",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438666923",
+            "thumbhash": "2/cVBQB5eHCHh4eHiHiHhztQZwWq",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD02_V1_jpg.jpg?v=1746693138",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzQzODc2NTIyNywibGFzdF92YWx1ZSI6Mywib2Zmc2V0IjoyfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033438765227",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438765227",
+            "thumbhash": "jvcJBQAmVl+HmGaYaHeYh4KAH1v2",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD03_V1_jpg.jpg?v=1746693138",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438765227",
+            "thumbhash": "jvcJBQAmVl+HmGaYaHeYh4KAH1v2",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD03_V1_jpg.jpg?v=1746693138",
+            "width": 1600
+          }
+        }
+      },
+      {
+        "cursor": "eyJsYXN0X2lkIjozMTAzMzQzODgzMDc2MywibGFzdF92YWx1ZSI6NCwib2Zmc2V0IjozfQ==",
+        "node": {
+          "__typename": "MediaImage",
+          "alt": "",
+          "id": "gid://shopify/MediaImage/31033438830763",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438830763",
+            "thumbhash": "2AcSBQBoV3iHB4hniIp3p1s+IE/c",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD06_V1_jpg.jpg?v=1746693139",
+            "width": 1600
+          },
+          "mediaContentType": "IMAGE",
+          "presentation": null,
+          "previewImage": {
+            "__typename": "Image",
+            "altText": "",
+            "height": 2000,
+            "id": "gid://shopify/ImageSource/31033438830763",
+            "thumbhash": "2AcSBQBoV3iHB4hniIp3p1s+IE/c",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/A2148T11_TD06_V1_jpg.jpg?v=1746693139",
+            "width": 1600
+          }
+        }
+      }
+    ]
+  },
+  "metafields": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "onlineStoreUrl": null,
+  "options": [
+    {
+      "__typename": "ProductOption",
+      "id": "gid://shopify/ProductOption/10636135465131",
+      "name": "Color",
+      "optionValues": [
+        {
+          "__typename": "ProductOptionValue",
+          "id": "gid://shopify/ProductOptionValue/4034455404715",
+          "name": "Black",
+          "swatch": null
+        }
+      ]
+    }
+  ],
+  "priceRange": {
+    "__typename": "ProductPriceRange",
+    "maxVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "275.0",
+      "currencyCode": "NZD"
+    },
+    "minVariantPrice": {
+      "__typename": "MoneyV2",
+      "amount": "275.0",
+      "currencyCode": "NZD"
+    }
+  },
+  "productType": "Series 7",
+  "publishedAt": "2025-05-09T06:05:00Z",
+  "requiresSellingPlan": false,
+  "sellingPlanGroups": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    },
+    "edges": []
+  },
+  "seo": {
+    "__typename": "SEO",
+    "description": "Anker USB C Charger, Anker 737 Charger (GaNPrime 120W), 3-Port Fast Compact Foldable Wall Charger for MacBook Pro/Air, iPad Pro, Galaxy S22/S21, Dell XPS 13, Note 20/10+, iPhone 13/Pro, Pixel, and More",
+    "title": null
+  },
+  "tags": [
+    "2025_Valentine_buy_50P_save",
+    "25member2_ch",
+    "akr_product_discount_tag",
+    "always_on_campaign",
+    "Autumn_Chargers",
+    "BestSellers_Alwayson",
+    "bts2024_chargers",
+    "buyfreelabels",
+    "charger_fall_pd_2309",
+    "charges_for_laptop",
+    "charges_for_phone_and_more",
+    "Click_Frenzy_Partake_Product",
+    "EarthDay_Chargers",
+    "foriphoneandmore",
+    "forlaptops",
+    "formultidevice",
+    "fortablets",
+    "Homepage Best Sellers",
+    "Homepage New Arrivals",
+    "member_week_charger",
+    "MothersDay_Chargers",
+    "Multi-Device_Charging",
+    "multi_devices_solutions_collection",
+    "multi_usb_port_charging_gadgets",
+    "power_banks_discount_black_friday_2023",
+    "product_bnndle_suite_sales",
+    "recommend",
+    "up 100W charger",
+    "Winter_Chargers",
+    "Winter_sale_2024",
+    "WS24AODP10"
+  ],
+  "title": "Anker 737 Prime Charger (GaN, 120W, 3-Port)",
+  "totalInventory": 0,
+  "updatedAt": "2025-10-02T00:03:55Z",
+  "variants": {
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": "eyJsYXN0X2lkIjo0NTE5MzkxNDI4NjI1MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ=="
+    },
+    "edges": [
+      {
+        "cursor": "eyJsYXN0X2lkIjo0NTE5MzkxNDI4NjI1MSwibGFzdF92YWx1ZSI6MSwib2Zmc2V0IjowfQ==",
+        "node": {
+          "__typename": "ProductVariant",
+          "availableForSale": false,
+          "barcode": "194644099008",
+          "compareAtPrice": {
+            "__typename": "MoneyV2",
+            "amount": "275.0",
+            "currencyCode": "NZD"
+          },
+          "components": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "currentlyNotInStock": false,
+          "groupedBy": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "id": "gid://shopify/ProductVariant/45193914286251",
+          "image": {
+            "__typename": "Image",
+            "altText": null,
+            "height": 2000,
+            "id": "gid://shopify/ProductImage/39360212107435",
+            "thumbhash": "kfeBBAAz1rpVmjjAo1CJL5J5g3eHCbiZCg==",
+            "url": "https://cdn.shopify.com/s/files/1/0695/6531/7291/files/86d90ef0-3eef-455f-9b91-6a7b2ac6f702_1.png?v=1746693138",
+            "width": 1600
+          },
+          "price": {
+            "__typename": "MoneyV2",
+            "amount": "275.0",
+            "currencyCode": "NZD"
+          },
+          "quantityAvailable": 0,
+          "quantityPriceBreaks": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "quantityRule": {
+            "__typename": "QuantityRule",
+            "increment": 1,
+            "maximum": null,
+            "minimum": 1
+          },
+          "requiresComponents": false,
+          "requiresShipping": true,
+          "selectedOptions": [
+            {
+              "__typename": "SelectedOption",
+              "name": "Color",
+              "value": "Black"
+            }
+          ],
+          "sellingPlanAllocations": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "shopPayInstallmentsPricing": null,
+          "sku": "A2148T12",
+          "storeAvailability": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            },
+            "edges": []
+          },
+          "taxable": true,
+          "title": "Black",
+          "unitPrice": null,
+          "unitPriceMeasurement": {
+            "__typename": "UnitPriceMeasurement",
+            "measuredType": null,
+            "quantityUnit": null,
+            "quantityValue": 0.0,
+            "referenceUnit": null,
+            "referenceValue": 0
+          },
+          "weight": 0.7077,
+          "weightUnit": "POUNDS"
+        }
+      }
+    ]
+  },
+  "variantsCount": {
+    "__typename": "Count",
+    "count": 1,
+    "precision": "EXACT"
+  },
+  "vendor": "Anker AU",
+  "_expandedReferences": {
+    "gid://shopify/ProductVariant/45193914286251": {
+      "__typename": "ProductVariant",
+      "id": "gid://shopify/ProductVariant/45193914286251",
+      "metafields": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

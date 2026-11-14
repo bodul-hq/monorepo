@@ -1,0 +1,1 @@
+//! Storefront token acquisition entities.

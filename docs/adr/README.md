@@ -69,3 +69,29 @@ Decision, Consequences) and give it the next number.
 - [48: Local ownership of retailer shared types](0048-local-retailer-shared-types.md)
 
 - [49: Lowercase retailer serialization](0049-lowercase-retailer-serialization.md)
+
+- [50: Anker AU initial offer fill](0050-anker-au-initial-offer-fill.md)
+
+- [51: Initial fill uses the raw offer bucket](0051-initial-fill-raw-offer-bucket.md)
+
+- [52: English-only Anker Canada initial fill](0052-anker-ca-english-initial-fill.md)
+
+- [53: Initial fill for the active Anker storefronts](0053-anker-storefront-initial-fill-markets.md)
+
+- [54: Anker browser token discovery](0054-anker-browser-token-discovery.md)
+
+- [55: Uniform Anker initial-fill query page sizes](0055-anker-uniform-query-page-sizes.md)
+
+- [56: Operation-specific Anker initial-fill page sizes](0056-anker-operation-specific-page-sizes.md)
+
+- [57: Offer details v2 raw sources](0057-offer-details-v2-raw-sources.md)
+
+- [58: Shared Shopify operations](0058-shared-shopify-operations.md)
+
+- [59: Multi-market Shopify initial fills](0059-multi-market-shopify-initial-fills.md)
+
+- [60: Optional public Storefront token acquisition](0060-optional-public-storefront-token-acquisition.md)
+
+- [61: Independent retailer GraphQL integrations](0061-independent-retailer-graphql-integrations.md)
+
+- [62: Independent legacy Nordic GraphQL sources](0062-independent-legacy-nordic-graphql.md)
