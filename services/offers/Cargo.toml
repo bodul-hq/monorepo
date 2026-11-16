@@ -22,8 +22,8 @@ retailer_sauce.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
-testimony = { path = "../../lib/testimony" }
-testimony_infra = { path = "../../lib/testimony_infra" }
+testimony.workspace = true
+testimony_infra.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 tracing-subscriber.workspace = true
