@@ -13,8 +13,8 @@ fn render(
         entries,
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
-        Err(ReportError::Unavailable),
-        Err(ReportError::Unavailable),
+        (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
+        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     )
 }
 
@@ -38,10 +38,10 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
                 count: 42,
             }],
         }),
-        Err(ReportError::Unavailable),
-        Err(ReportError::Unavailable),
+        (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
+        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
-    assert!(html.contains("3<small> / 4</small>"));
+    assert!(html.contains("3<small> / 5</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
     assert!(html.contains("Offers queue status"));
     assert!(html.contains("Retailer Sourcing queue status"));
@@ -209,10 +209,10 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         Ok(empty_entries()),
         Ok(report()),
         Ok(empty_entries()),
-        Ok(report()),
-        Ok(empty_entries()),
+        (Ok(report()), Ok(empty_entries())),
+        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
-    assert!(html.contains("4<small> / 4</small>"));
+    assert!(html.contains("4<small> / 5</small>"));
     assert!(html.contains("<h2>Customer Facing</h2>"));
     // Each service has separate command and event boxes, including zero counts.
     assert_eq!(html.matches(r#"class="command-boxes""#).count(), 12);
@@ -229,7 +229,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
     assert!(html.contains("Customer Facing queue status"));
     assert!(html.contains("<strong>8</strong>"));
     assert!(html.contains("4.0 MiB"));
-    assert!(!html.contains("Summary totals include available services only"));
+    assert!(html.contains("Summary totals include available services only"));
     for service in ["Retailer Sourcing", "Offers", "Customer Facing"] {
         for queue in [
             "Inbox entries",
@@ -253,10 +253,10 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
             Ok(empty_entries()),
             Ok(report()),
             Ok(empty_entries()),
-            Err(error),
-            Ok(empty_entries()),
+            (Err(error), Ok(empty_entries())),
+            std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
-        assert!(html.contains("3<small> / 4</small>"));
+        assert!(html.contains("3<small> / 5</small>"));
         assert!(html.contains("<h2>Offers</h2>"));
         assert!(html.contains("<strong>6</strong>"));
         assert!(html.contains("Summary totals include available services only"));
@@ -270,10 +270,10 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
             Ok(empty_entries()),
             Ok(report()),
             Ok(empty_entries()),
-            Ok(customer),
-            Err(error),
+            (Ok(customer), Err(error)),
+            std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
-        assert!(html.contains("4<small> / 4</small>"));
+        assert!(html.contains("4<small> / 5</small>"));
         assert!(html.contains("&lt;customer-table&gt;"));
         assert!(!html.contains("<customer-table>"));
         assert!(!html.contains("customer-facing-development-token"));
@@ -526,4 +526,20 @@ fn missing_queues_are_distinct_from_empty_and_unknown_only_queues() {
         assert_eq!(html.matches("Upgrade this service").count(), 2);
         assert!(html.contains("unknown (status 99)</dt><dd>1</dd>"));
     }
+}
+
+#[test]
+fn foundation_reports_contribute_independently() {
+    let html = super::render(
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+        Err(ReportError::Unavailable),
+        (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
+        [(Ok(report()), Err(ReportError::Unavailable))],
+    );
+    assert!(html.contains("1<small> / 5</small>"));
+    assert!(html.contains("<h2>Products</h2>"));
+    assert!(html.contains("/assets/products.svg"));
 }

@@ -349,3 +349,5 @@ and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products
 [Training](services/training/README.md) provides an Offers-style service foundation with
 Mulac queues, Testimony persistence and authenticated reporting. Business features
 and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products-training-foundations.md).
+
+Products reporting is integrated into the development dashboard.

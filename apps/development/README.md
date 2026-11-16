@@ -60,7 +60,7 @@ inside this app's server binary; service credentials never reach the browser.
 PORT=3005 make serve
 ```
 
-Open `http://localhost:3005/dashboard`. Each page load fetches reports from all four services
+Open `http://localhost:3005/dashboard`. Each page load fetches reports from all five services
 concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
 other services’ reports.
@@ -159,7 +159,7 @@ entire panel; their potentially all-time counts are not displayed as daily total
 Invalid or incomplete windows are rejected. Missing inbox/outbox arrays in a
 windowed report still show an upgrade message for those queues.
 
-Queue section headings use the three service SVGs in `assets/`, embedded into
+Queue section headings use the service SVGs in `assets/`, embedded into
 the binary and served under `/assets/` without a separate asset deployment.
 Each icon sits in a side column beside its service’s four queue groups, within
 one bordered panel. Images have accessible service labels. Database cards retain their text headings.
@@ -174,3 +174,9 @@ screens. When every count in a queue is zero, its icon and colored boxes shrink
 together to 24px (18px on narrow screens), with box labels and zeros visually
 hidden but available to screen readers. The icon column retains its full width
 so status columns align across empty and populated collections.
+
+### Products
+
+Products reports and queue panels use PRODUCTS_URL (default http://localhost:3006)
+and PRODUCTS_TOKEN (default products-development-token), configured server-side.
+Its reports contribute to totals, with independent failure handling.
