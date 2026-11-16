@@ -4,6 +4,7 @@ members = [
     "retailer_sourcing",
     "offers",
     "products",
+    "training",
     "customer_facing",
     "object_storage",
 ]

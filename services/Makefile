@@ -1,3 +1,3 @@
-MEMBERS := products customer_facing offers retailer_sourcing object_storage
+MEMBERS := products training customer_facing offers retailer_sourcing object_storage
 
 include ../make/workspace.mk

@@ -1,6 +1,6 @@
 # Training service foundation
 
-Status: `[>]` planned; implementation has not started.
+Status: `[~]` service foundation implemented; dashboard integration remains outstanding.
 
 ## Goal and boundaries
 

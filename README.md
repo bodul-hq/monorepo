@@ -45,6 +45,7 @@ follow the [retailer integration playbook](docs/retailer-integration.md).
 | ------------------- | -------------- | ------------------------------ | ---------------------------------- |
 | `customer_facing`   | poem           | poem-openapi                   | async-graphql, async-graphql-poem  |
 | `products`          | poem           | poem-openapi                   | async-graphql, async-graphql-poem  |
+| `training`          | poem           | poem-openapi                   | async-graphql, async-graphql-poem  |
 | `offers`            | poem           | poem-openapi                   | async-graphql, async-graphql-poem  |
 | `retailer_sourcing` | axum           | utoipa, utoipa-axum            | async-graphql, async-graphql-axum  |
 | `object_storage`    | axum           | OpenAPI 3.1, utoipa-swagger-ui | async-graphql, custom HTTP adapter |
@@ -342,5 +343,9 @@ with bash -n; full execution requires PostgreSQL and permission to open sockets.
 A workflow definition is not evidence of a passing Actions run.
 
 [Products](services/products/README.md) provides an Offers-style service foundation with
+Mulac queues, Testimony persistence and authenticated reporting. Business features
+and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products-training-foundations.md).
+
+[Training](services/training/README.md) provides an Offers-style service foundation with
 Mulac queues, Testimony persistence and authenticated reporting. Business features
 and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products-training-foundations.md).

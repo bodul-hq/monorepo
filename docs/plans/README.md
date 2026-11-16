@@ -8,7 +8,7 @@ clarification extends item 22. Status markers follow the
 ## Service foundation plans
 
 - [Products service foundation](products-service-foundation.md): `[~]` service implemented; dashboard integration remains.
-- [Training service foundation](training-service-foundation.md): `[>]` planned.
+- [Training service foundation](training-service-foundation.md): `[~]` service implemented; dashboard integration remains.
 
 Both include Offers-style infrastructure, reporting and development-dashboard
 integration. Business features are deferred. Each task is tracked independently
