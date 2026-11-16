@@ -2607,6 +2607,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "products"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "async-graphql-poem",
+ "chrono",
+ "diesel",
+ "diesel_migrations",
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
+ "mulac-kernel",
+ "mulac-outbox",
+ "poem",
+ "poem-openapi",
+ "serde",
+ "serde_json",
+ "shared",
+ "testimony",
+ "testimony_infra",
+ "tokio",
+ "tracing-subscriber",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "psm"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"

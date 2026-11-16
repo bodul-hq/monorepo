@@ -1,0 +1,52 @@
+use std::{env::VarError, io, time::Duration};
+
+use diesel::{PgConnection, r2d2::ConnectionManager};
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+use testimony_infra::prelude::DbPool;
+
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+
+pub fn database_pool() -> io::Result<DbPool> {
+    let url = database_url(std::env::var("DATABASE_URL"))?;
+    connect(&url)
+}
+
+fn database_url(value: Result<String, VarError>) -> io::Result<String> {
+    match value {
+        Ok(url) if !url.trim().is_empty() => Ok(url),
+        Ok(_) => Err(io::Error::other("DATABASE_URL cannot be empty")),
+        Err(VarError::NotPresent) => Err(io::Error::other("DATABASE_URL is required")),
+        Err(_) => Err(io::Error::other("DATABASE_URL must be valid Unicode")),
+    }
+}
+
+fn connect(url: &str) -> io::Result<DbPool> {
+    let pool = DbPool::builder()
+        .connection_timeout(Duration::from_secs(5))
+        .build(ConnectionManager::<PgConnection>::new(url))
+        .map_err(|_| io::Error::other("could not connect to the products database"))?;
+    let mut connection = pool
+        .get()
+        .map_err(|_| io::Error::other("could not acquire a database connection"))?;
+    connection
+        .run_pending_migrations(MIGRATIONS)
+        .map_err(|_| io::Error::other("products database migrations failed"))?;
+    drop(connection);
+    Ok(pool)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn database_configuration_is_required() {
+        assert!(database_url(Err(VarError::NotPresent)).is_err());
+        for value in ["", " ", "\n"] {
+            assert!(database_url(Ok(value.into())).is_err());
+        }
+        assert_eq!(
+            database_url(Ok("postgres://localhost/db".into())).unwrap(),
+            "postgres://localhost/db"
+        );
+    }
+}

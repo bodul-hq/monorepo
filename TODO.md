@@ -13,7 +13,7 @@ Status follows the [TODO workflow](AGENTS.md#todo-workflow):
 Flow: `[ ]` → `[.]` → `[>]` → `[~]` → `[x]`.
 
 
-- [>] Set up the products service with Offers-style Mulac, Testimony,
+- [~] Set up the products service with Offers-style Mulac, Testimony,
   reporting and dashboard integration
   ([plan](docs/plans/products-service-foundation.md)).
 - [>] Set up the training service with Offers-style Mulac, Testimony,

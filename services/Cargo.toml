@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "retailer_sourcing",
     "offers",
+    "products",
     "customer_facing",
     "object_storage",
 ]

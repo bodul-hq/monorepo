@@ -69,3 +69,5 @@ Decision, Consequences) and give it the next number.
 - [48: Local ownership of retailer shared types](0048-local-retailer-shared-types.md)
 
 - [49: Lowercase retailer serialization](0049-lowercase-retailer-serialization.md)
+
+- [50. Products and Training service foundations](0050-products-training-foundations.md)

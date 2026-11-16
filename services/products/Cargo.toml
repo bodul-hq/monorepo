@@ -1,0 +1,34 @@
+[package]
+name = "products"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-graphql.workspace = true
+async-graphql-poem.workspace = true
+chrono.workspace = true
+commanding = { workspace = true, features = ["poem"] }
+diesel.workspace = true
+diesel_migrations.workspace = true
+eventing = { workspace = true, features = ["poem"] }
+inbox = { workspace = true, features = ["poem"] }
+kernel.workspace = true
+outbox = { workspace = true, features = ["poem"] }
+poem.workspace = true
+poem-openapi.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+shared.workspace = true
+testimony.workspace = true
+testimony_infra.workspace = true
+tokio.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+commanding = { workspace = true, features = ["api-testing"] }
+eventing = { workspace = true, features = ["api-testing"] }
+inbox = { workspace = true, features = ["api-testing"] }
+outbox = { workspace = true, features = ["api-testing"] }
+poem = { workspace = true, features = ["test"] }
+url.workspace = true

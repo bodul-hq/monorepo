@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        crate: [lib/retailer_sauce, lib/retailer_data_extractor, services/offers, services/retailer_sourcing, services/customer_facing, apps/customers]
+        crate: [lib/retailer_sauce, lib/retailer_data_extractor, services/offers, services/products, services/retailer_sourcing, services/customer_facing, apps/customers]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [offers, retailer_sourcing, customer_facing]
+        service: [offers, products, retailer_sourcing, customer_facing]
     services:
       postgres:
         image: postgres:16
@@ -122,10 +122,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p smoke-logs
-          for db in offers customer_facing retailer_sourcing object_storage; do createdb "$db"; done
+          for db in offers products customer_facing retailer_sourcing object_storage; do createdb "$db"; done
           psql -v ON_ERROR_STOP=1 -d customer_facing -c 'CREATE SCHEMA customer_facing_extensions; REVOKE CREATE ON SCHEMA customer_facing_extensions FROM PUBLIC; CREATE EXTENSION pg_trgm WITH SCHEMA customer_facing_extensions;'
           # Match each make serve invocation's feature set before the health timeout.
-          for service in object_storage offers customer_facing retailer_sourcing; do
+          for service in object_storage offers products customer_facing retailer_sourcing; do
             make -C "monorepo/services/$service" build
           done
           (cd monorepo && cargo build --manifest-path apps/Cargo.toml -p customers)
@@ -136,7 +136,7 @@ jobs:
           export OBJECT_STORAGE_URL=http://localhost:3410
           export OBJECT_STORAGE_TOKEN=6fe0382d64bba74e205af86e397d902c0f5e6f3d8e15b1a4f87c6a309d752eb1
           export COMMAND_WORKERS=0
-          for spec in object_storage:3410 offers:3411 customer_facing:3412 retailer_sourcing:3413; do
+          for spec in object_storage:3410 offers:3411 customer_facing:3412 products:3416 retailer_sourcing:3413; do
             service="${spec%:*}"
             port="${spec#*:}"
             DATABASE_URL="postgres://postgres:postgres@localhost:5432/$service" PORT="$port" make -C "monorepo/services/$service" serve >"smoke-logs/$service.log" 2>&1 &
@@ -152,7 +152,7 @@ jobs:
             return 1
           }
           wait_http -H "Authorization: Bearer $OBJECT_STORAGE_TOKEN" http://localhost:3410/api/health
-          for port in 3411 3412 3413; do wait_http "http://localhost:$port/api/health"; done
+          for port in 3416 3411 3412 3413; do wait_http "http://localhost:$port/api/health"; done
           wait_http http://localhost:3414/
           curl -fsS -H 'Content-Type: application/json' -d '{"retailer_code":"ankerau","title":"CI region fixture","url":"https://example.com/ci-region","price_amount":1999,"currency":"AUD","localization":{"target_market":{"kind":"region","label":"European Union"},"language":"en"}}' http://localhost:3411/api/tmp-import
           for queue in inbox commands events outbox; do
