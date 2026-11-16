@@ -1,0 +1,3 @@
+# Queries use explicit PgRecord mappings; no generated Diesel schema is needed.
+[migrations_directory]
+dir = "migrations"

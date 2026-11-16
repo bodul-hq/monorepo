@@ -4172,6 +4172,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "training"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "async-graphql-poem",
+ "chrono",
+ "diesel",
+ "diesel_migrations",
+ "mulac-commanding",
+ "mulac-eventing",
+ "mulac-inbox",
+ "mulac-kernel",
+ "mulac-outbox",
+ "poem",
+ "poem-openapi",
+ "serde",
+ "serde_json",
+ "shared",
+ "testimony",
+ "testimony_infra",
+ "tokio",
+ "tracing-subscriber",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
