@@ -376,3 +376,50 @@ async fn fetches_products_reports_with_its_own_token_and_base_path() {
         handle.join().unwrap();
     }
 }
+
+#[tokio::test]
+async fn fetches_training_reports_with_its_own_token_and_base_path() {
+    let (url, handle) = fixture_path(
+        200,
+        REPORT,
+        "training-token",
+        Duration::ZERO,
+        "/prefix/api/reporting/database-tables",
+    );
+    let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+        .unwrap()
+        .with_training(&format!("{url}/prefix"), "training-token");
+    assert_eq!(
+        clients.training_report().await.unwrap().tables[0].row_count,
+        12
+    );
+    handle.join().unwrap();
+    for (status, body, expected) in [
+        (
+            200,
+            r#"{"generated_at":"2026-10-19T12:00:00Z","command_entries":[],"event_entries":[]}"#,
+            None,
+        ),
+        (401, "private", Some(ReportError::Authentication)),
+        (503, "private", Some(ReportError::Unavailable)),
+        (200, "{}", Some(ReportError::Malformed)),
+    ] {
+        let (url, handle) = fixture_path(
+            status,
+            body,
+            "training-token",
+            Duration::ZERO,
+            "/prefix/api/reporting/entry-statuses",
+        );
+        let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+            .unwrap()
+            .with_training(&format!("{url}/prefix"), "training-token");
+        let result = clients.training_entry_statuses().await;
+        if let Some(error) = expected {
+            assert_eq!(result.unwrap_err(), error);
+        } else {
+            assert!(result.unwrap().event_entries.is_empty());
+        }
+        handle.join().unwrap();
+    }
+}

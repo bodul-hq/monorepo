@@ -103,6 +103,8 @@ pub(super) struct ReportingClients {
     entries: Result<Endpoint, ReportError>,
     products: Result<Endpoint, ReportError>,
     products_entries: Result<Endpoint, ReportError>,
+    training: Result<Endpoint, ReportError>,
+    training_entries: Result<Endpoint, ReportError>,
     offers: Result<Endpoint, ReportError>,
     offers_entries: Result<Endpoint, ReportError>,
     customer_facing: Result<Endpoint, ReportError>,
@@ -124,6 +126,10 @@ impl ReportingClients {
                 .with_products(
                     &env("PRODUCTS_URL", "http://localhost:3006"),
                     &env("PRODUCTS_TOKEN", "products-development-token"),
+                )
+                .with_training(
+                    &env("TRAINING_URL", "http://localhost:3007"),
+                    &env("TRAINING_TOKEN", "training-development-token"),
                 )
                 .with_offers(
                     &env("OFFERS_URL", "http://172.28.100.41:3000"),
@@ -152,6 +158,8 @@ impl ReportingClients {
             customer_facing_entries: Err(ReportError::Configuration),
             products: Err(ReportError::Configuration),
             products_entries: Err(ReportError::Configuration),
+            training: Err(ReportError::Configuration),
+            training_entries: Err(ReportError::Configuration),
             offers: Err(ReportError::Configuration),
             offers_entries: Err(ReportError::Configuration),
             sourcing: endpoint(sourcing_url, sourcing_token),
@@ -162,6 +170,11 @@ impl ReportingClients {
     pub(super) fn with_products(mut self, url: &str, token: &str) -> Self {
         self.products = endpoint(url, token);
         self.products_entries = status_endpoint(url, token);
+        self
+    }
+    pub(super) fn with_training(mut self, url: &str, token: &str) -> Self {
+        self.training = endpoint(url, token);
+        self.training_entries = status_endpoint(url, token);
         self
     }
     pub(super) fn with_offers(mut self, url: &str, token: &str) -> Self {
@@ -188,6 +201,12 @@ impl ReportingClients {
     }
     pub(super) async fn products_entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
         self.fetch_entry_statuses(&self.products_entries).await
+    }
+    pub(super) async fn training_report(&self) -> Result<Report, ReportError> {
+        self.fetch(&self.training).await
+    }
+    pub(super) async fn training_entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
+        self.fetch_entry_statuses(&self.training_entries).await
     }
     pub(super) async fn offers_report(&self) -> Result<Report, ReportError> {
         self.fetch(&self.offers).await

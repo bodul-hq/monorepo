@@ -342,12 +342,10 @@ databases and explicit queue runners. Its shell blocks can be syntax-checked
 with bash -n; full execution requires PostgreSQL and permission to open sockets.
 A workflow definition is not evidence of a passing Actions run.
 
-[Products](services/products/README.md) provides an Offers-style service foundation with
-Mulac queues, Testimony persistence and authenticated reporting. Business features
-and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products-training-foundations.md).
-
-[Training](services/training/README.md) provides an Offers-style service foundation with
-Mulac queues, Testimony persistence and authenticated reporting. Business features
-and dashboard integration follow separately. See [ADR 50](docs/adr/0050-products-training-foundations.md).
-
-Products reporting is integrated into the development dashboard.
+Products and Training are Offers-style service foundations with separate PostgreSQL
+databases, persistent Mulac queues, Testimony event stores and authenticated
+reporting. No business commands or event subscribers are registered yet; queue
+processing is explicit and outbox delivery is unconfigured. See the
+[Products setup](services/products/README.md), [Training setup](services/training/README.md)
+and [ADR 50](docs/adr/0050-products-training-foundations.md). The development
+dashboard includes both services; local examples use ports 3006 and 3007.

@@ -30,6 +30,8 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         customer_facing_entries,
         products,
         products_entries,
+        training,
+        training_entries,
     ) = tokio::join!(
         state.clients.reports(),
         state.clients.entry_statuses(),
@@ -39,6 +41,8 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         state.clients.customer_facing_entry_statuses(),
         state.clients.products_report(),
         state.clients.products_entry_statuses(),
+        state.clients.training_report(),
+        state.clients.training_entry_statuses(),
     );
     let mut response = Html(render(
         sourcing,
@@ -47,7 +51,7 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         offers,
         offers_entries,
         (customer_facing, customer_facing_entries),
-        [(products, products_entries)],
+        [(products, products_entries), (training, training_entries)],
     ))
     .into_response();
     response
@@ -68,10 +72,10 @@ fn render(
     offers: Result<Report, ReportError>,
     offers_entries: Result<EntryStatuses, ReportError>,
     customer_facing: ServiceReport,
-    foundations: [ServiceReport; 1],
+    foundations: [ServiceReport; 2],
 ) -> String {
     let (customer_facing, customer_facing_entries) = customer_facing;
-    let [(products, products_entries)] = foundations;
+    let [(products, products_entries), (training, training_entries)] = foundations;
     let reports = [
         (&sourcing, "Retailer Sourcing", "Pipeline metadata", "01"),
         (&storage, "Object Storage", "Stored artifacts", "02"),
@@ -85,7 +89,10 @@ fn render(
     ];
     let reports = reports
         .into_iter()
-        .chain([(&products, "Products", "Product service", "05")])
+        .chain([
+            (&products, "Products", "Product service", "05"),
+            (&training, "Training", "Training service", "06"),
+        ])
         .collect::<Vec<_>>();
     let service_count = reports.len();
     let available = reports.iter().filter(|(r, _, _, _)| r.is_ok()).count();
@@ -121,6 +128,7 @@ fn render(
         customer_facing_entries,
     );
     render_entries(&mut html, "Products", "products", products_entries);
+    render_entries(&mut html, "Training", "training", training_entries);
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(

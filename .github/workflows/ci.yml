@@ -154,16 +154,17 @@ jobs:
           wait_http -H "Authorization: Bearer $OBJECT_STORAGE_TOKEN" http://localhost:3410/api/health
           for port in 3411 3412 3413 3416 3417; do wait_http "http://localhost:$port/api/health"; done
           wait_http http://localhost:3414/
-          PRODUCTS_URL=http://localhost:3416 OFFERS_URL=http://localhost:3411 RETAILER_SOURCING_URL=http://localhost:3413 PORT=3415 make -C monorepo/apps/development serve >smoke-logs/development.log 2>&1 &
+          PRODUCTS_URL=http://localhost:3416 TRAINING_URL=http://localhost:3417 OFFERS_URL=http://localhost:3411 RETAILER_SOURCING_URL=http://localhost:3413 PORT=3415 make -C monorepo/apps/development serve >smoke-logs/development.log 2>&1 &
           pids+=("$!")
           wait_http http://localhost:3415/
-          for spec in products:3416; do
+          for spec in products:3416 training:3417; do
             service="${spec%:*}"
             port="${spec#*:}"
             curl -fsS -H "Authorization: Bearer $service-development-token" "http://localhost:$port/api/reporting/database-tables" | jq -e '.tables | any(.table_name == "event_store")'
           done
           curl -fsS http://localhost:3415/dashboard >smoke-logs/dashboard.html
           grep -q '<h2>Products</h2>' smoke-logs/dashboard.html
+          grep -q '<h2>Training</h2>' smoke-logs/dashboard.html
           curl -fsS -H 'Content-Type: application/json' -d '{"retailer_code":"ankerau","title":"CI region fixture","url":"https://example.com/ci-region","price_amount":1999,"currency":"AUD","localization":{"target_market":{"kind":"region","label":"European Union"},"language":"en"}}' http://localhost:3411/api/tmp-import
           for queue in inbox commands events outbox; do
             curl -fsS -H 'Content-Type: application/json' -d '{"limit":100}' "http://localhost:3411/api/$queue/run"
