@@ -28,6 +28,8 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         offers_entries,
         customer_facing,
         customer_facing_entries,
+        products,
+        products_entries,
     ) = tokio::join!(
         state.clients.reports(),
         state.clients.entry_statuses(),
@@ -35,6 +37,8 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         state.clients.offers_entry_statuses(),
         state.clients.customer_facing_report(),
         state.clients.customer_facing_entry_statuses(),
+        state.clients.products_report(),
+        state.clients.products_entry_statuses(),
     );
     let mut response = Html(render(
         sourcing,
@@ -42,8 +46,8 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         entries,
         offers,
         offers_entries,
-        customer_facing,
-        customer_facing_entries,
+        (customer_facing, customer_facing_entries),
+        [(products, products_entries)],
     ))
     .into_response();
     response
@@ -52,15 +56,22 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
     response
 }
 
+type ServiceReport = (
+    Result<Report, ReportError>,
+    Result<EntryStatuses, ReportError>,
+);
+
 fn render(
     sourcing: Result<Report, ReportError>,
     storage: Result<Report, ReportError>,
     entries: Result<EntryStatuses, ReportError>,
     offers: Result<Report, ReportError>,
     offers_entries: Result<EntryStatuses, ReportError>,
-    customer_facing: Result<Report, ReportError>,
-    customer_facing_entries: Result<EntryStatuses, ReportError>,
+    customer_facing: ServiceReport,
+    foundations: [ServiceReport; 1],
 ) -> String {
+    let (customer_facing, customer_facing_entries) = customer_facing;
+    let [(products, products_entries)] = foundations;
     let reports = [
         (&sourcing, "Retailer Sourcing", "Pipeline metadata", "01"),
         (&storage, "Object Storage", "Stored artifacts", "02"),
@@ -72,6 +83,10 @@ fn render(
             "04",
         ),
     ];
+    let reports = reports
+        .into_iter()
+        .chain([(&products, "Products", "Product service", "05")])
+        .collect::<Vec<_>>();
     let service_count = reports.len();
     let available = reports.iter().filter(|(r, _, _, _)| r.is_ok()).count();
     let total_bytes: u128 = reports
@@ -105,6 +120,7 @@ fn render(
         "customer-facing",
         customer_facing_entries,
     );
+    render_entries(&mut html, "Products", "products", products_entries);
     html.push_str(r#"<div class="services">"#);
     for (report, title, description, number) in reports {
         let _ = write!(

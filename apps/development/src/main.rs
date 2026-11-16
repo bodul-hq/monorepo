@@ -16,6 +16,7 @@ fn index() -> Html<String> {
 fn service_image(poem::web::Path(name): poem::web::Path<String>) -> poem::Response {
     let svg = match name.as_str() {
         "retailer-sourcing.svg" => include_str!("../assets/retailer-sourcing.svg"),
+        "products.svg" => include_str!("../assets/products.svg"),
         "offers.svg" => include_str!("../assets/offers.svg"),
         "inbox.svg" => include_str!("../assets/inbox.svg"),
         "commands.svg" => include_str!("../assets/commands.svg"),
@@ -116,6 +117,7 @@ mod tests {
         for name in [
             "retailer-sourcing",
             "offers",
+            "products",
             "customer-facing",
             "inbox",
             "commands",

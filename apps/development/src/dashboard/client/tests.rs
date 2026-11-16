@@ -329,3 +329,50 @@ fn new_queue_fields_distinguish_missing_empty_and_malformed() {
     assert!(empty.inbox_entries.unwrap().is_empty());
     assert!(empty.outbox_entries.unwrap().is_empty());
 }
+
+#[tokio::test]
+async fn fetches_products_reports_with_its_own_token_and_base_path() {
+    let (url, handle) = fixture_path(
+        200,
+        REPORT,
+        "products-token",
+        Duration::ZERO,
+        "/prefix/api/reporting/database-tables",
+    );
+    let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+        .unwrap()
+        .with_products(&format!("{url}/prefix"), "products-token");
+    assert_eq!(
+        clients.products_report().await.unwrap().tables[0].row_count,
+        12
+    );
+    handle.join().unwrap();
+    for (status, body, expected) in [
+        (
+            200,
+            r#"{"generated_at":"2026-10-19T12:00:00Z","command_entries":[],"event_entries":[]}"#,
+            None,
+        ),
+        (401, "private", Some(ReportError::Authentication)),
+        (503, "private", Some(ReportError::Unavailable)),
+        (200, "{}", Some(ReportError::Malformed)),
+    ] {
+        let (url, handle) = fixture_path(
+            status,
+            body,
+            "products-token",
+            Duration::ZERO,
+            "/prefix/api/reporting/entry-statuses",
+        );
+        let clients = ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1))
+            .unwrap()
+            .with_products(&format!("{url}/prefix"), "products-token");
+        let result = clients.products_entry_statuses().await;
+        if let Some(error) = expected {
+            assert_eq!(result.unwrap_err(), error);
+        } else {
+            assert!(result.unwrap().event_entries.is_empty());
+        }
+        handle.join().unwrap();
+    }
+}
