@@ -17,6 +17,7 @@ fn service_image(poem::web::Path(name): poem::web::Path<String>) -> poem::Respon
     let svg = match name.as_str() {
         "retailer-sourcing.svg" => include_str!("../assets/retailer-sourcing.svg"),
         "products.svg" => include_str!("../assets/products.svg"),
+        "training.svg" => include_str!("../assets/training.svg"),
         "offers.svg" => include_str!("../assets/offers.svg"),
         "inbox.svg" => include_str!("../assets/inbox.svg"),
         "commands.svg" => include_str!("../assets/commands.svg"),
@@ -118,6 +119,7 @@ mod tests {
             "retailer-sourcing",
             "offers",
             "products",
+            "training",
             "customer-facing",
             "inbox",
             "commands",

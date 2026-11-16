@@ -41,7 +41,7 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
         (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
         std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
-    assert!(html.contains("3<small> / 5</small>"));
+    assert!(html.contains("3<small> / 6</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
     assert!(html.contains("Offers queue status"));
     assert!(html.contains("Retailer Sourcing queue status"));
@@ -212,7 +212,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         (Ok(report()), Ok(empty_entries())),
         std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
-    assert!(html.contains("4<small> / 5</small>"));
+    assert!(html.contains("4<small> / 6</small>"));
     assert!(html.contains("<h2>Customer Facing</h2>"));
     // Each service has separate command and event boxes, including zero counts.
     assert_eq!(html.matches(r#"class="command-boxes""#).count(), 12);
@@ -256,7 +256,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
             (Err(error), Ok(empty_entries())),
             std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
-        assert!(html.contains("3<small> / 5</small>"));
+        assert!(html.contains("3<small> / 6</small>"));
         assert!(html.contains("<h2>Offers</h2>"));
         assert!(html.contains("<strong>6</strong>"));
         assert!(html.contains("Summary totals include available services only"));
@@ -273,7 +273,7 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
             (Ok(customer), Err(error)),
             std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
-        assert!(html.contains("4<small> / 5</small>"));
+        assert!(html.contains("4<small> / 6</small>"));
         assert!(html.contains("&lt;customer-table&gt;"));
         assert!(!html.contains("<customer-table>"));
         assert!(!html.contains("customer-facing-development-token"));
@@ -537,9 +537,14 @@ fn foundation_reports_contribute_independently() {
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
         (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
-        [(Ok(report()), Err(ReportError::Unavailable))],
+        [
+            (Ok(report()), Err(ReportError::Unavailable)),
+            (Ok(report()), Err(ReportError::Authentication)),
+        ],
     );
-    assert!(html.contains("1<small> / 5</small>"));
+    assert!(html.contains("2<small> / 6</small>"));
     assert!(html.contains("<h2>Products</h2>"));
+    assert!(html.contains("<h2>Training</h2>"));
     assert!(html.contains("/assets/products.svg"));
+    assert!(html.contains("/assets/training.svg"));
 }

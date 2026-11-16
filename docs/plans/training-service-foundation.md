@@ -1,6 +1,6 @@
 # Training service foundation
 
-Status: `[~]` service foundation implemented; dashboard integration remains outstanding.
+Status: `[x]` implemented and validated on 2026-11-16.
 
 ## Goal and boundaries
 
@@ -88,3 +88,21 @@ No business HTTP APIs or GraphQL mutations are introduced in this foundation.
 Move this task independently to `[~]` when implementation begins and `[x]` only
 when implementation and validation are complete. These plans authorize no
 production database resets or deployments.
+
+
+## Implementation verification
+
+- Repository-root `make fmt` and `make ci RUSTC_WRAPPER=` passed, with local
+  socket access enabled for the existing socket-dependent tests.
+- Each new service passed 19 portable tests and all 3 isolated PostgreSQL tests
+  against disposable PostgreSQL 16. Release tests confirmed GraphiQL returns 404.
+- Both services ran through `PORT=<port> make serve`; health and authenticated
+  database/queue reports responded. The development app's live dashboard showed
+  both services available and isolated failures of unavailable existing services.
+- Workflow YAML and embedded shell blocks passed parsing/syntax checks. No hosted
+  GitHub Actions run is claimed.
+- Services `make audit` failed on 9 pre-existing vulnerabilities: rustls
+  RUSTSEC-2026-0346/0347/0348/0349, rustls-webpki RUSTSEC-2026-0382, and zip
+  RUSTSEC-2026-0367/0368/0369/0429. Comparing with the committed pre-change lockfile
+  found no new advisory IDs. Existing warnings also remain; no dependency version
+  was upgraded or advisory suppressed by this implementation.

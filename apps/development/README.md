@@ -60,7 +60,7 @@ inside this app's server binary; service credentials never reach the browser.
 PORT=3005 make serve
 ```
 
-Open `http://localhost:3005/dashboard`. Each page load fetches reports from all five services
+Open `http://localhost:3005/dashboard`. Each page load fetches reports from all six services
 concurrently, with a five-second timeout per service. Use **Refresh reports** to
 reload; there is no background polling. One service can fail without hiding the
 other services’ reports.
@@ -175,8 +175,12 @@ together to 24px (18px on narrow screens), with box labels and zeros visually
 hidden but available to screen readers. The icon column retains its full width
 so status columns align across empty and populated collections.
 
-### Products
+### Products and Training
 
-Products reports and queue panels use PRODUCTS_URL (default http://localhost:3006)
-and PRODUCTS_TOKEN (default products-development-token), configured server-side.
-Its reports contribute to totals, with independent failure handling.
+The dashboard also displays Products and Training table reports and queue status
+panels, with independent failure handling and inclusion in available-service totals.
+Set `PRODUCTS_URL` (default `http://localhost:3006`) and `PRODUCTS_TOKEN` (default
+`products-development-token`), and `TRAINING_URL` (default `http://localhost:3007`)
+and `TRAINING_TOKEN` (default `training-development-token`). Tokens must match each
+service's reporting token and stay in server-side requests. Their SVG headings are
+embedded and served through the existing asset route.
