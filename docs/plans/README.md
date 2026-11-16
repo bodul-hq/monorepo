@@ -5,6 +5,15 @@ clarification extends item 22. Status markers follow the
 [TODO workflow](../../AGENTS.md#todo-workflow): `[ ]` pending, `[.]` planning,
 `[>]` planned, `[~]` implementing, and `[x]` implemented.
 
+## Service foundation plans
+
+- [Products service foundation](products-service-foundation.md): `[>]` planned.
+- [Training service foundation](training-service-foundation.md): `[>]` planned.
+
+Both include Offers-style infrastructure, reporting and development-dashboard
+integration. Business features are deferred. Each task is tracked independently
+in TODO.md; shared dependency, dashboard and ADR edits must be coordinated.
+
 ## Current round and dependencies
 
 [Plan 34: Inbox and outbox statistics](34-inbox-outbox-statistics.md) is implemented
