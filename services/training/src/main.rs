@@ -1,3 +1,23 @@
+use bootstrap::database_pool;
+use env::VarError as EnvVarError;
+use env::var as env_var;
+use io::Error as IoError;
+use io::ErrorKind as IoErrorKind;
+use io::Result as IoResult;
+use kernel::boot;
+#[cfg(not(unix))]
+use std::future::pending;
+use std::io::stderr;
+use tokio::main as tokio_main;
+#[cfg(unix)]
+use tokio::select;
+use tokio::signal::ctrl_c;
+#[cfg(unix)]
+use tokio::signal::unix::SignalKind;
+#[cfg(unix)]
+use tokio::signal::unix::signal as unix_signal;
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt;
 mod app;
 use app::app;
 use reporting::DEFAULT_REPORTING_TOKEN;
@@ -20,22 +40,20 @@ use poem::{Server, listener::TcpListener};
 #[cfg(test)]
 use std::time::Duration;
 use std::{env, io, sync::Arc};
-#[tokio::main]
-async fn main() -> io::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
-        )
-        .with_writer(std::io::stderr)
+#[tokio_main]
+async fn main() -> IoResult<()> {
+    fmt()
+        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()))
+        .with_writer(stderr)
         .init();
-    let port = parse_port(env::var("PORT"))?;
-    let pool = bootstrap::database_pool()?;
+    let port = parse_port(env_var("PORT"))?;
+    let pool = database_pool()?;
     let shutdown = shutdown_signal()?;
 
     // Start persistent queue infrastructure; domain registrations come with future features.
     let (kernel, state) = start_mulac(pool.clone()).map_err(err_kernel_could_not_start)?;
     let token =
-        env::var("TRAINING_REPORTING_TOKEN").unwrap_or_else(|_| DEFAULT_REPORTING_TOKEN.to_owned());
+        env_var("TRAINING_REPORTING_TOKEN").unwrap_or_else(|_| DEFAULT_REPORTING_TOKEN.to_owned());
     let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run_with_graceful_shutdown(app(state, token), shutdown, None)
         .await;
@@ -44,7 +62,7 @@ async fn main() -> io::Result<()> {
 }
 
 pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppState), KernelError> {
-    let kernel = kernel::boot(KernelConfig::default()).start_persistent(pool.clone(), 1)?;
+    let kernel = boot(KernelConfig::default()).start_persistent(pool.clone(), 1)?;
     let inbox = InboxAdapter::new(AsyncInboxService::from_postgres(pool.clone()));
     let commanding = CommandingAdapter::new(AsyncCommandingService::new(kernel.command_consumer()));
     // No domain subscribers are registered by this foundation.
@@ -71,8 +89,8 @@ pub struct AppState {
     pub outbox: OutboxAdapter,
 }
 
-fn err_kernel_could_not_start(error: KernelError) -> io::Error {
-    io::Error::other(format!("Mulac kernel could not start: {error}"))
+fn err_kernel_could_not_start(error: KernelError) -> IoError {
+    IoError::other(format!("Mulac kernel could not start: {error}"))
 }
 
 // A concrete, lazy pool for tests that do not need successful database access.
@@ -96,42 +114,46 @@ fn test_app(pool: DbPool) -> Route {
 
 /// Parses the `PORT` environment variable as returned by `env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, env::VarError>) -> io::Result<u16> {
+fn parse_port(value: Result<String, EnvVarError>) -> IoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            io::Error::new(
-                io::ErrorKind::InvalidInput,
+            IoError::new(
+                IoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+        Err(EnvVarError::NotPresent) => Ok(3000),
+        Err(error) => Err(IoError::new(IoErrorKind::InvalidInput, error)),
     }
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> IoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = unix_signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+        select! {
+            Ok(()) = ctrl_c() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            pending::<()>().await;
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
-    pub(crate) async fn assert_error_response(response: poem::test::TestResponse) {
+    use poem::test::TestResponse;
+    use tokio::test as tokio_test;
+    use uuid::Uuid;
+
+    pub(crate) async fn assert_error_response(response: TestResponse) {
         let body = response.0.into_body().into_string().await.unwrap();
-        assert_eq!(uuid::Uuid::parse_str(&body).unwrap().get_version_num(), 7);
+        assert_eq!(Uuid::parse_str(&body).unwrap().get_version_num(), 7);
     }
 
     use std::{env::VarError, io::ErrorKind};
@@ -141,7 +163,7 @@ mod tests {
 
     use super::{parse_port, test_app as app, test_pool};
 
-    #[tokio::test]
+    #[tokio_test]
     async fn health_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .get("/api/health")
@@ -151,7 +173,7 @@ mod tests {
         response.assert_text("ok").await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_health_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .post("/graphql")
@@ -164,7 +186,7 @@ mod tests {
             .await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_get_query_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .get("/graphql")
@@ -177,7 +199,7 @@ mod tests {
             .await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphiql_is_served_only_in_debug_builds() {
         let response = TestClient::new(app(test_pool()))
             .get("/graphql/ide")
@@ -190,7 +212,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn openapi_spec_matches_routes() {
         let client = TestClient::new(app(test_pool()));
         let response = client.get("/api/openapi.json").send().await;
@@ -241,7 +263,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn swagger_ui_is_served() {
         let response = TestClient::new(app(test_pool()))
             .get("/api/docs/")
@@ -250,7 +272,7 @@ mod tests {
         response.assert_status_is_ok();
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn queue_routes_validate_requests_and_report_failures() {
         let client = TestClient::new(app(test_pool()));
         for queue in ["inbox", "commands", "events", "outbox"] {
