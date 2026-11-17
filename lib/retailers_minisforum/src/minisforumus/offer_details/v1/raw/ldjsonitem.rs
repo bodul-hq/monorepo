@@ -1,7 +1,8 @@
 //! The theme's own `ld+json` scripts. Review apps add more, with an `id` or a `class` on the tag;
 //! the architecture leaves those out.
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     #[serde(rename = "type")]
@@ -9,7 +10,7 @@ pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -19,7 +20,7 @@ pub enum LdJson {
     WebPage(WebPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -39,7 +40,7 @@ pub struct Product {
     pub offers: AggregateOffer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -47,7 +48,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Manufacturer {
     #[serde(rename = "@type")]
@@ -58,7 +59,7 @@ pub struct Manufacturer {
 
 /// Prices are decimal strings in `price_currency`, the market's currency. `low_price` and
 /// `high_price` do not always span every variant, so nothing reads them as the variants' range.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct AggregateOffer {
     #[serde(rename = "@type")]
@@ -73,7 +74,7 @@ pub struct AggregateOffer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Seller {
     #[serde(rename = "@type")]
@@ -82,7 +83,7 @@ pub struct Seller {
 }
 
 /// Rendered twice: once in full, once as just a name and an address.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -100,7 +101,7 @@ pub struct Organization {
     pub knows_about: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ContactPoint {
     #[serde(rename = "@type")]
@@ -110,7 +111,7 @@ pub struct ContactPoint {
     pub available_language: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Country {
     #[serde(rename = "@type")]
@@ -118,7 +119,7 @@ pub struct Country {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -126,7 +127,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -136,7 +137,7 @@ pub struct BreadcrumbItem {
     pub item: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct WebSite {
     #[serde(rename = "@context")]
@@ -146,7 +147,7 @@ pub struct WebSite {
     pub potential_action: SearchAction,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SearchAction {
     #[serde(rename = "@type")]
@@ -156,7 +157,7 @@ pub struct SearchAction {
     pub query_input: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct EntryPoint {
     #[serde(rename = "@type")]
@@ -166,7 +167,7 @@ pub struct EntryPoint {
 }
 
 /// Page-level SEO text does not select product facts.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WebPage {
     #[serde(rename = "@context")]
@@ -178,6 +179,8 @@ pub struct WebPage {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -236,15 +239,14 @@ pub(crate) mod tests {
     #[test]
     fn every_theme_island_deserializes() {
         for island in [product(), organization(), breadcrumbs(), website()] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn an_unseen_type_fails() {
-        let error = serde_json::from_value::<LdJson>(json!({"@type": "FAQPage"}))
-            .expect_err("no FAQPage is typed");
+        let error =
+            from_value::<LdJson>(json!({"@type": "FAQPage"})).expect_err("no FAQPage is typed");
         assert!(error.to_string().contains("unknown variant `FAQPage`"));
     }
 
@@ -253,6 +255,6 @@ pub(crate) mod tests {
         let mut island = product();
         island["gtin13"] = json!("1");
 
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
     }
 }

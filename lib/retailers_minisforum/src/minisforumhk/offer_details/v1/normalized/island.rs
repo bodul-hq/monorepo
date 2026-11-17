@@ -4,6 +4,8 @@
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript};
 use super::NormalizeError;
+use ldjson::Offer;
+use ldjson::Product as LdjsonProduct;
 use retailer_sauce::availability::Availability;
 
 /// The page's `Product` island.
@@ -29,13 +31,13 @@ pub(super) struct IslandOffer {
     pub currency: String,
     pub sku: Option<String>,
     pub in_stock: bool,
-    pub availability: retailer_sauce::availability::Availability,
+    pub availability: Availability,
 }
 
 impl Island {
     /// Exactly one product island: a page without one is not a product page this reads.
     pub(super) fn from_raw(scripts: Vec<LdJsonScript>) -> Result<Island, NormalizeError> {
-        let mut islands: Vec<ldjson::Product> = scripts
+        let mut islands: Vec<LdjsonProduct> = scripts
             .into_iter()
             .filter_map(|script| match script.data {
                 LdJson::Product(product) => Some(*product),
@@ -50,7 +52,7 @@ impl Island {
         }
     }
 
-    fn from_product(product: ldjson::Product) -> Result<Island, NormalizeError> {
+    fn from_product(product: LdjsonProduct) -> Result<Island, NormalizeError> {
         let offers = product
             .offers
             .into_iter()
@@ -75,11 +77,9 @@ impl Island {
 }
 
 impl IslandOffer {
-    fn from_raw(offer: ldjson::Offer, product_path: &str) -> Result<IslandOffer, NormalizeError> {
+    fn from_raw(offer: Offer, product_path: &str) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
-            availability: retailer_sauce::availability::Availability::from_schema_org(
-                offer.availability.clone(),
-            ),
+            availability: Availability::from_schema_org(offer.availability.clone()),
             variant_id: variant_id(&offer.url, product_path)?,
             price: offer.price,
             currency: offer.price_currency,

@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// The variant picker's record of the selected variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantScript {
     #[serde(rename = "type")]
@@ -10,7 +11,7 @@ pub struct VariantScript {
 }
 
 /// `script[data-variants-json]`: the variant picker's records of every variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantsScript {
     #[serde(rename = "type")]
@@ -22,7 +23,7 @@ pub struct VariantsScript {
 
 /// Liquid's `variant | json`. Its amounts are in hundredths of the shop currency, which it does
 /// not name.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -48,7 +49,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -58,6 +59,8 @@ pub struct QuantityRule {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::Variant;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -96,7 +99,7 @@ pub(crate) mod tests {
         single["option3"] = Value::Null;
         single["options"] = json!(["270×175×41mm"]);
 
-        let variant = serde_json::from_value::<Variant>(single).expect("deserializes");
+        let variant = from_value::<Variant>(single).expect("deserializes");
         assert!(variant.option2.is_none() && variant.option3.is_none());
     }
 
@@ -105,7 +108,7 @@ pub(crate) mod tests {
         let mut input = variant(1, 1, "m");
         input["featured_media"] = Value::Null;
 
-        let error = serde_json::from_value::<Variant>(input).expect_err("not in the corpus");
+        let error = from_value::<Variant>(input).expect_err("not in the corpus");
         assert!(error.to_string().contains("unknown field `featured_media`"));
     }
 }

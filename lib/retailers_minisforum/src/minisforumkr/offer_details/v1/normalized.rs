@@ -5,6 +5,8 @@
 //! they agree; what nothing needs stays behind as the commented-out exclusion records in
 //! `product`.
 
+use product::Product as ProductProduct;
+use raw::MinisforumKrRawDocument as RawMinisforumKrRawDocument;
 pub mod product;
 
 use super::raw;
@@ -146,21 +148,24 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinisforumKrNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl MinisforumKrNormalizedDocument {
     pub fn from_raw(
-        raw: raw::MinisforumKrRawDocument,
+        raw: RawMinisforumKrRawDocument,
     ) -> Result<MinisforumKrNormalizedDocument, NormalizeError> {
         Ok(MinisforumKrNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumKrNormalizedDocument, NormalizeError};
     use crate::minisforumkr::offer_details::v1::raw::MinisforumKrRawDocument;
     use crate::minisforumkr::offer_details::v1::raw::ldjsonitem::tests::{organization, product};
@@ -169,13 +174,12 @@ mod tests {
 
     fn normalize(document: Value) -> Result<MinisforumKrNormalizedDocument, NormalizeError> {
         let raw: MinisforumKrRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         MinisforumKrNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn group_mut(document: &mut Value) -> &mut Value {

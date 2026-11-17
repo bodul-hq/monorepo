@@ -5,13 +5,16 @@ use super::{
     variant_gid,
 };
 use money::{Currency, Money};
+use retailer_sauce::availability::Availability;
+use sealproduct::SealProduct;
 use serde::{Deserialize, Serialize};
+use variants::Variant as VariantsVariant;
 
 /// What the page states the product in, each read once.
 pub(super) struct Sources {
-    pub(super) variants: Vec<variants::Variant>,
-    pub(super) selected: variants::Variant,
-    pub(super) seal: sealproduct::SealProduct,
+    pub(super) variants: Vec<VariantsVariant>,
+    pub(super) selected: VariantsVariant,
+    pub(super) seal: SealProduct,
     pub(super) option_names: Vec<OptionName>,
     pub(super) island: Island,
 }
@@ -112,7 +115,7 @@ impl Product {
 
 // The island and `seal_product` are rendered from the same Liquid product, so any disagreement
 // means one of the two was misread.
-fn check_product(island: &Island, seal: &sealproduct::SealProduct) -> Result<(), NormalizeError> {
+fn check_product(island: &Island, seal: &SealProduct) -> Result<(), NormalizeError> {
     if island.product_id != seal.id {
         return Err(NormalizeError::ProductIdMismatch {
             island: island.product_id,
@@ -142,8 +145,8 @@ fn check_product(island: &Island, seal: &sealproduct::SealProduct) -> Result<(),
 // The selected variant is one of the list's and is the same record; the island's product-level SKU
 // is its SKU.
 fn check_selected(
-    selected: &variants::Variant,
-    records: &[variants::Variant],
+    selected: &VariantsVariant,
+    records: &[VariantsVariant],
     island: &Island,
 ) -> Result<(), NormalizeError> {
     let Some(listed) = records.iter().find(|record| record.id == selected.id) else {
@@ -173,7 +176,7 @@ fn check_selected(
 // two was misread.
 fn check_offers(
     island: &Island,
-    records: &[variants::Variant],
+    records: &[VariantsVariant],
     currency: Currency,
 ) -> Result<(), NormalizeError> {
     let island_ids: Vec<u64> = island.offers.iter().map(|offer| offer.variant_id).collect();
@@ -243,7 +246,7 @@ fn check_offers(
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     pub id: String,
     /// The selected values joined with ` / `. `None` where the product has no options to choose:
     /// Liquid names the only variant `Default Title` (3 of the 29 saved pages).
@@ -287,7 +290,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: variants::Variant,
+        raw: VariantsVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

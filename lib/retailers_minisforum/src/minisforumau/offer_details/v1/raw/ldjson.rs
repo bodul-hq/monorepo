@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -9,7 +10,7 @@ pub struct LdJsonScript {
 /// The island types seen in the corpus. A multi-variant product renders a `ProductGroup` (31
 /// pages), a single-variant one a `Product` (3), and a product without a price neither (1).
 /// `minisforumuk`'s `FAQPage` island appears on no saved page, so it is not typed.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -17,7 +18,7 @@ pub enum LdJson {
     Product(Product),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -27,7 +28,7 @@ pub struct Organization {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -45,7 +46,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -59,7 +60,7 @@ pub struct GroupVariant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -76,7 +77,7 @@ pub struct Product {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -84,7 +85,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -102,6 +103,8 @@ pub struct Offer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -170,15 +173,14 @@ pub(crate) mod tests {
         });
 
         for island in [organization(), group, product] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["BreadcrumbList", "FAQPage"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -193,6 +195,6 @@ pub(crate) mod tests {
         let mut island = product_group();
         island["gtin"] = json!("1");
 
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
     }
 }

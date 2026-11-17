@@ -12,25 +12,39 @@
 //! Pages come in pairs, `products-*.html` and `de-products-*.html` (137 each), the same product
 //! in the storefront's two locales.
 
+use ldjson::LdJsonScript;
+use paypal::PayPalMetadata;
+use productjson::ProductJsonScript;
+use serde::Deserialize;
 pub mod ldjson;
 mod metadata;
 pub mod paypal;
 pub mod productjson;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MinisforumEuRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub product_json: productjson::ProductJsonScript,
+    pub product_json: ProductJsonScript,
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::ldjson::tests::feed_product;
+    use super::ldjson::tests::graph;
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product_group;
+    use super::ldjson::tests::reviewed_product;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::productjson::tests::product as tests_product;
+
     use super::MinisforumEuRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -38,17 +52,17 @@ pub(crate) mod tests {
     /// Organization island, the theme's ProductGroup island and the record.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
+            "paypal": tests_metadata(),
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::feed_product()},
+                {"type": "application/ld+json", "data": feed_product()},
                 {
                     "type": "application/ld+json",
                     "data-seoant": "1",
                     "data-seoant-version": "v2",
-                    "data": super::ldjson::tests::graph()
+                    "data": graph()
                 },
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::product_group()}
+                {"type": "application/ld+json", "data": organization()},
+                {"type": "application/ld+json", "data": product_group()}
             ],
             "product_json": {
                 "data-cmp-ab": "1",
@@ -58,7 +72,7 @@ pub(crate) mod tests {
                 "data-uc-allowed": "true",
                 "id": "xcotton_pp_variants",
                 "type": "application/json",
-                "data": super::productjson::tests::product()
+                "data": tests_product()
             }
         })
     }
@@ -68,14 +82,13 @@ pub(crate) mod tests {
         json!({
             "type": "application/ld+json",
             "id": "a2r-03hu34xd-uhj7389-x",
-            "data": super::ldjson::tests::reviewed_product()
+            "data": reviewed_product()
         })
     }
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<MinisforumEuRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<MinisforumEuRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -86,7 +99,7 @@ pub(crate) mod tests {
             .expect("islands")
             .push(reviews_script());
 
-        serde_json::from_value::<MinisforumEuRawDocument>(input)
+        from_value::<MinisforumEuRawDocument>(input)
             .expect("the raw fixture with reviews deserializes");
     }
 
@@ -97,7 +110,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(key);
 
             assert!(
-                serde_json::from_value::<MinisforumEuRawDocument>(input).is_err(),
+                from_value::<MinisforumEuRawDocument>(input).is_err(),
                 "{key}"
             );
         }
@@ -113,7 +126,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<MinisforumEuRawDocument>(input)
+        let error = from_value::<MinisforumEuRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }

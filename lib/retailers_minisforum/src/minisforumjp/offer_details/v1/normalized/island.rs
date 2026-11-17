@@ -6,7 +6,12 @@
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript};
 use super::{NormalizeError, non_empty};
+use ldjson::Offer;
+use ldjson::Product as LdjsonProduct;
+use ldjson::ProductGroup as LdjsonProductGroup;
+use ldjson::ThemeProduct;
 use money::Currency;
+use retailer_sauce::availability::Availability;
 
 /// The page's `ProductGroup` or theme `Product` island.
 pub(super) struct Island {
@@ -28,7 +33,7 @@ pub(super) struct IslandOffer {
     pub currency: String,
     pub sku: Option<String>,
     pub in_stock: bool,
-    pub availability: retailer_sauce::availability::Availability,
+    pub availability: Availability,
 }
 
 impl Island {
@@ -39,11 +44,11 @@ impl Island {
             .into_iter()
             .filter_map(|script| match script.data {
                 LdJson::ProductGroup(group) => Some(Island::from_group(group)),
-                LdJson::Product(ldjson::Product::Theme(product)) => {
+                LdJson::Product(LdjsonProduct::Theme(product)) => {
                     Some(Island::from_product(*product))
                 }
-                LdJson::Product(ldjson::Product::Reviews(_))
-                | LdJson::Product(ldjson::Product::Seo(_))
+                LdJson::Product(LdjsonProduct::Reviews(_))
+                | LdJson::Product(LdjsonProduct::Seo(_))
                 | LdJson::Organization(_)
                 | LdJson::BreadcrumbList(_)
                 | LdJson::WebSite(_)
@@ -57,7 +62,7 @@ impl Island {
         }
     }
 
-    fn from_group(group: ldjson::ProductGroup) -> Result<Island, NormalizeError> {
+    fn from_group(group: LdjsonProductGroup) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: Some(group.product_group_id),
             url: group.url,
@@ -70,7 +75,7 @@ impl Island {
         })
     }
 
-    fn from_product(product: ldjson::ThemeProduct) -> Result<Island, NormalizeError> {
+    fn from_product(product: ThemeProduct) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: None,
             url: product.url,
@@ -81,7 +86,7 @@ impl Island {
 }
 
 impl IslandOffer {
-    fn from_raw(offer: ldjson::Offer, sku: Option<String>) -> Result<IslandOffer, NormalizeError> {
+    fn from_raw(offer: Offer, sku: Option<String>) -> Result<IslandOffer, NormalizeError> {
         let in_stock = match offer.availability.as_str() {
             "http://schema.org/InStock" => true,
             "http://schema.org/OutOfStock" => false,
@@ -94,9 +99,7 @@ impl IslandOffer {
         };
 
         Ok(IslandOffer {
-            availability: retailer_sauce::availability::Availability::from_schema_org(
-                offer.availability.clone(),
-            ),
+            availability: Availability::from_schema_org(offer.availability.clone()),
             variant_id: variant_id(&offer.url)?,
             price: offer.price,
             currency: offer.price_currency,

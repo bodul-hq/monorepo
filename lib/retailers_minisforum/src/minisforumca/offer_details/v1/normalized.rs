@@ -3,6 +3,9 @@
 //! the two agree and keeps from the island only its `category`. What nothing needs stays behind
 //! as the commented-out exclusion records in `product`.
 
+use island::Island;
+use product::Product as ProductProduct;
+use raw::MinisforumCaRawDocument as RawMinisforumCaRawDocument;
 mod island;
 pub mod product;
 
@@ -103,24 +106,27 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinisforumCaNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl MinisforumCaNormalizedDocument {
     pub fn from_raw(
-        raw: raw::MinisforumCaRawDocument,
+        raw: RawMinisforumCaRawDocument,
     ) -> Result<MinisforumCaNormalizedDocument, NormalizeError> {
         let currency = shop_currency(&raw.paypal.currency)?;
-        let island = island::Island::from_raw(raw.ld_json)?;
+        let island = Island::from_raw(raw.ld_json)?;
 
         Ok(MinisforumCaNormalizedDocument {
-            product: product::Product::from_raw(raw.product_json.data, island, currency)?,
+            product: ProductProduct::from_raw(raw.product_json.data, island, currency)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumCaNormalizedDocument, NormalizeError};
     use crate::minisforumca::offer_details::v1::raw::MinisforumCaRawDocument;
     use crate::minisforumca::offer_details::v1::raw::tests::document;
@@ -128,13 +134,12 @@ mod tests {
 
     fn normalize(document: Value) -> Result<MinisforumCaNormalizedDocument, NormalizeError> {
         let raw: MinisforumCaRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         MinisforumCaNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn record_variant_mut(document: &mut Value, index: usize) -> &mut Value {

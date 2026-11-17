@@ -12,7 +12,9 @@
 //! [`raw::productjson::ProductJson`]). `money` stores yen as whole yen (`JPY` has exponent 0), so
 //! the record's amounts are divided by 100 and must divide exactly, as they do on every saved
 //! variant; a remainder would be a price in sen, which the storefront does not sell.
-
+use island::Island;
+use product::Product as ProductProduct;
+use raw::MinisforumJpRawDocument as RawMinisforumJpRawDocument;
 mod island;
 pub mod product;
 
@@ -160,24 +162,30 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinisforumJpNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl MinisforumJpNormalizedDocument {
     pub fn from_raw(
-        raw: raw::MinisforumJpRawDocument,
+        raw: RawMinisforumJpRawDocument,
     ) -> Result<MinisforumJpNormalizedDocument, NormalizeError> {
         let currency = shop_currency(&raw.paypal.currency)?;
-        let island = island::Island::from_raw(raw.ld_json)?;
+        let island = Island::from_raw(raw.ld_json)?;
 
         Ok(MinisforumJpNormalizedDocument {
-            product: product::Product::from_raw(raw.product_json.data, island, currency)?,
+            product: ProductProduct::from_raw(raw.product_json.data, island, currency)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::super::normalize as super_normalize;
+    use crate::minisforumjp::offer_details::v1::raw::ldjson::tests::faq_page;
+    use serde_json::from_str;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumJpNormalizedDocument, NormalizeError, percent_encoded};
     use crate::minisforumjp::offer_details::v1::raw::MinisforumJpRawDocument;
     use crate::minisforumjp::offer_details::v1::raw::tests::document;
@@ -187,40 +195,37 @@ mod tests {
 
     fn normalize(document: Value) -> Result<MinisforumJpNormalizedDocument, NormalizeError> {
         let raw: MinisforumJpRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         MinisforumJpNormalizedDocument::from_raw(raw)
     }
 
     #[test]
     fn current_metadata_does_not_change_variant_facts() {
         let mut input = document();
-        let metadata: Vec<Value> =
-            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        let metadata: Vec<Value> = from_str(include_str!("raw/current-metadata.json")).unwrap();
         input["ld-json"].as_array_mut().unwrap().extend(metadata);
         assert_eq!(normalized(input), normalized(document()));
     }
 
     #[test]
     fn current_metadata_still_rejects_unknown_islands_and_fields() {
-        let metadata: Vec<Value> =
-            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        let metadata: Vec<Value> = from_str(include_str!("raw/current-metadata.json")).unwrap();
         for mut island in metadata {
             island["data"]["unexpected"] = json!(true);
             let mut input = document();
             input["ld-json"].as_array_mut().unwrap().push(island);
-            assert!(super::super::normalize(&input.to_string()).is_err());
+            assert!(super_normalize(&input.to_string()).is_err());
         }
         let mut input = document();
         input["ld-json"]
             .as_array_mut()
             .unwrap()
             .push(json!({"type":"application/ld+json","data":{"@type":"UnknownMetadata"}}));
-        assert!(super::super::normalize(&input.to_string()).is_err());
+        assert!(super_normalize(&input.to_string()).is_err());
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn record_variant_mut(document: &mut Value, index: usize) -> &mut Value {
@@ -403,7 +408,7 @@ mod tests {
             .expect("islands")
             .push(json!({
                 "type": "application/ld+json",
-                "data": crate::minisforumjp::offer_details::v1::raw::ldjson::tests::faq_page()
+                "data": faq_page()
             }));
 
         assert_eq!(normalized(input), normalized(document()));

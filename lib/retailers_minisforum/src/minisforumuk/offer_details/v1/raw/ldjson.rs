@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -8,7 +9,7 @@ pub struct LdJsonScript {
 
 /// The island types seen in the corpus. A multi-variant product renders a `ProductGroup`, a
 /// single-variant one a `Product`, and a product without a price neither.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -18,7 +19,7 @@ pub enum LdJson {
     FaqPage(FaqPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -28,7 +29,7 @@ pub struct Organization {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -46,7 +47,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -60,7 +61,7 @@ pub struct GroupVariant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -77,7 +78,7 @@ pub struct Product {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -85,7 +86,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -101,7 +102,7 @@ pub struct Offer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -110,7 +111,7 @@ pub struct FaqPage {
     pub main_entity: Vec<Question>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Question {
     #[serde(rename = "@type")]
@@ -120,7 +121,7 @@ pub struct Question {
     pub accepted_answer: Answer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Answer {
     #[serde(rename = "@type")]
@@ -130,6 +131,8 @@ pub struct Answer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -187,14 +190,13 @@ pub(crate) mod tests {
                 "acceptedAnswer": {"@type": "Answer", "text": "<p>UK</p>"}}]});
 
         for island in [organization(), product_group(), faq] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn an_unseen_island_type_fails() {
-        let error = serde_json::from_value::<LdJson>(json!({"@type": "BreadcrumbList"}))
+        let error = from_value::<LdJson>(json!({"@type": "BreadcrumbList"}))
             .expect_err("no breadcrumb island is typed");
         assert!(
             error
@@ -208,6 +210,6 @@ pub(crate) mod tests {
         let mut island = product_group();
         island["gtin"] = json!("1");
 
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
     }
 }

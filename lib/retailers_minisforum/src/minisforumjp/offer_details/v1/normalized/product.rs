@@ -5,7 +5,11 @@ use super::{
     percent_encoded, product_gid, variant_gid,
 };
 use money::{Currency, Money};
+use productjson::ProductJson;
+use productjson::Variant as ProductjsonVariant;
+use retailer_sauce::availability::Availability;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Product {
@@ -57,13 +61,13 @@ pub struct Product {
 
 impl Product {
     pub(super) fn from_raw(
-        raw: productjson::ProductJson,
+        raw: ProductJson,
         island: Option<Island>,
         currency: Currency,
     ) -> Result<Product, NormalizeError> {
         let url = format!("{ORIGIN}/products/{}", percent_encoded(&raw.handle));
 
-        let offer_availability: std::collections::BTreeMap<_, _> = island
+        let offer_availability: BTreeMap<_, _> = island
             .as_ref()
             .map(|island| {
                 island
@@ -135,7 +139,7 @@ fn compare_at_price_field(variant_id: u64) -> String {
 // misread.
 fn check_island(
     island: &Island,
-    record: &productjson::ProductJson,
+    record: &ProductJson,
     url: &str,
     currency: Currency,
 ) -> Result<(), NormalizeError> {
@@ -223,7 +227,7 @@ fn check_island(
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title` where the product has no
     /// options to choose.
@@ -269,7 +273,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: productjson::Variant,
+        raw: ProductjsonVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

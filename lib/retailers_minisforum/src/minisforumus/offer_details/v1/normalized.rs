@@ -5,6 +5,9 @@
 //! normalization checks that they agree; what nothing needs stays behind as the commented-out
 //! exclusion records in `product`.
 
+use product::Product as ProductProduct;
+use raw::MinisforumUsRawDocument as RawMinisforumUsRawDocument;
+use raw::ldjsonitem::LdJsonItem;
 pub mod product;
 
 use super::raw;
@@ -90,7 +93,7 @@ fn https_from_protocol_relative(url: String) -> String {
 
 // The theme renders exactly one `Product` island; the organization, breadcrumb and website
 // islands carry nothing about the offer.
-fn product_island(items: Vec<raw::ldjsonitem::LdJsonItem>) -> Result<Island, NormalizeError> {
+fn product_island(items: Vec<LdJsonItem>) -> Result<Island, NormalizeError> {
     let mut products: Vec<Island> = items
         .into_iter()
         .filter_map(|item| match item.data {
@@ -111,23 +114,28 @@ fn product_island(items: Vec<raw::ldjsonitem::LdJsonItem>) -> Result<Island, Nor
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinisforumUsNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl MinisforumUsNormalizedDocument {
     pub fn from_raw(
-        raw: raw::MinisforumUsRawDocument,
+        raw: RawMinisforumUsRawDocument,
     ) -> Result<MinisforumUsNormalizedDocument, NormalizeError> {
         let island = product_island(raw.ld_json)?;
 
         Ok(MinisforumUsNormalizedDocument {
-            product: product::Product::from_raw(raw.product_json.data, island)?,
+            product: ProductProduct::from_raw(raw.product_json.data, island)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::super::normalize as super_normalize;
+    use serde_json::from_str;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumUsNormalizedDocument, NormalizeError};
     use crate::minisforumus::offer_details::v1::raw::MinisforumUsRawDocument;
     use crate::minisforumus::offer_details::v1::raw::ldjsonitem::tests::product as island;
@@ -137,40 +145,37 @@ mod tests {
 
     fn normalize(document: Value) -> Result<MinisforumUsNormalizedDocument, NormalizeError> {
         let raw: MinisforumUsRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         MinisforumUsNormalizedDocument::from_raw(raw)
     }
 
     #[test]
     fn current_metadata_does_not_change_variant_facts() {
         let mut input = document();
-        let metadata: Vec<Value> =
-            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        let metadata: Vec<Value> = from_str(include_str!("raw/current-metadata.json")).unwrap();
         input["ld-json"].as_array_mut().unwrap().extend(metadata);
         assert_eq!(normalized(input), normalized(document()));
     }
 
     #[test]
     fn current_metadata_still_rejects_unknown_islands_and_fields() {
-        let metadata: Vec<Value> =
-            serde_json::from_str(include_str!("raw/current-metadata.json")).unwrap();
+        let metadata: Vec<Value> = from_str(include_str!("raw/current-metadata.json")).unwrap();
         for mut island in metadata {
             island["data"]["unexpected"] = json!(true);
             let mut input = document();
             input["ld-json"].as_array_mut().unwrap().push(island);
-            assert!(super::super::normalize(&input.to_string()).is_err());
+            assert!(super_normalize(&input.to_string()).is_err());
         }
         let mut input = document();
         input["ld-json"]
             .as_array_mut()
             .unwrap()
             .push(json!({"type":"application/ld+json","data":{"@type":"UnknownMetadata"}}));
-        assert!(super::super::normalize(&input.to_string()).is_err());
+        assert!(super_normalize(&input.to_string()).is_err());
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn record_mut(document: &mut Value) -> &mut Value {

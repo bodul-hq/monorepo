@@ -1,12 +1,14 @@
 use html_extractor::serde_json::{self, Value};
+use serde::Deserialize;
 use serde::de::DeserializeOwned;
+use serde_json::from_value as serde_json_from_value;
 
 use super::metadata::{BreadcrumbList, Organization};
 
 /// One `script[type="application/ld+json"]`. The SEO app marks its script with `data-seoant`
 /// attributes (274 of 274 pages) and the reviews app with an `id` (126 pages); the rest carry
 /// only `type`. Each attribute is optional, any other one fails the page.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -34,7 +36,7 @@ pub struct LdJsonScript {
 ///
 /// Not derived as an untagged enum: that reports every failure as "did not match any variant",
 /// where this names the island's own offending field.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(try_from = "Value")]
 pub enum LdJson {
     Graph(Graph),
@@ -52,7 +54,7 @@ impl TryFrom<Value> for LdJson {
 
     fn try_from(island: Value) -> Result<LdJson, String> {
         fn strict<T: DeserializeOwned>(island: Value) -> Result<T, String> {
-            serde_json::from_value(island).map_err(|e| e.to_string())
+            serde_json_from_value(island).map_err(|e| e.to_string())
         }
 
         let Some(object) = island.as_object() else {
@@ -85,7 +87,7 @@ impl TryFrom<Value> for LdJson {
 /// `material` come and go, and its prices are floats, unlike every other island's strings), so
 /// they are carried as raw JSON. Nothing reads them: every fact in them is stated by the record
 /// or by the theme's island, which is checked against the record.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Graph {
     #[serde(rename = "@context")]
@@ -96,7 +98,7 @@ pub struct Graph {
 
 /// The theme's island for a product with a variant list: 248 pages, 48 of them with a single
 /// variant. The product of the 2 pages that has no price (`s5-all-flash-nas`) has none.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -118,7 +120,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -133,7 +135,7 @@ pub struct GroupVariant {
 }
 
 /// The theme's island for a product that is not a variant list: 24 pages, each a single variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -152,7 +154,7 @@ pub struct Product {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -160,7 +162,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -181,7 +183,7 @@ pub struct Offer {
 /// listings take: shipping, returns and a manufacturer, all of them constant across the corpus
 /// and so typed. It is not a source of facts here: its `offers.price` is that variant's, not the
 /// product's, and on 18 pages it is malformed (see [`FeedOffer::price`]).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct FeedProduct {
     #[serde(rename = "@context")]
@@ -207,10 +209,10 @@ pub struct FeedProduct {
 
 /// An `additionalProperty` element; none was ever seen, and this type has no value, so
 /// deserializing one is an error.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub enum UnseenProperty {}
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Manufacturer {
     #[serde(rename = "@type")]
@@ -219,7 +221,7 @@ pub struct Manufacturer {
 }
 
 /// `audienceType` is `null` on all 274 pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Audience {
     #[serde(rename = "@type")]
@@ -227,7 +229,7 @@ pub struct Audience {
     pub audience_type: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct FeedOffer {
     #[serde(rename = "@type")]
@@ -246,7 +248,7 @@ pub struct FeedOffer {
     pub has_merchant_return_policy: ReturnPolicy,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Seller {
     #[serde(rename = "@type")]
@@ -255,7 +257,7 @@ pub struct Seller {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ShippingDetails {
     #[serde(rename = "@type")]
@@ -265,7 +267,7 @@ pub struct ShippingDetails {
 }
 
 /// 25 countries, the same on all 274 pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ShippingDestination {
     #[serde(rename = "@type")]
@@ -273,7 +275,7 @@ pub struct ShippingDestination {
     pub address_country: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DeliveryTime {
     #[serde(rename = "@type")]
@@ -282,7 +284,7 @@ pub struct DeliveryTime {
     pub transit_time: DayRange,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DayRange {
     #[serde(rename = "@type")]
@@ -292,7 +294,7 @@ pub struct DayRange {
     pub unit_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReturnPolicy {
     #[serde(rename = "@type")]
@@ -306,7 +308,7 @@ pub struct ReturnPolicy {
 /// The reviews app's `Product`, on 126 pages: only the reviews matter to it, but it restates
 /// the product and an offer. `aggregateRating` is absent on the 16 of those pages whose
 /// reviews carry no count.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReviewedProduct {
     #[serde(rename = "@context")]
@@ -325,7 +327,7 @@ pub struct ReviewedProduct {
     pub offers: ReviewedOffer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
@@ -335,7 +337,7 @@ pub struct AggregateRating {
     pub review_count: u64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Review {
     #[serde(rename = "@type")]
@@ -345,7 +347,7 @@ pub struct Review {
     pub review_body: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReviewRating {
     #[serde(rename = "@type")]
@@ -353,7 +355,7 @@ pub struct ReviewRating {
     pub rating_value: u32,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Author {
     #[serde(rename = "@type")]
@@ -364,7 +366,7 @@ pub struct Author {
 /// The reviews app's offer: the same keys as the feed app's, less shipping, returns and the
 /// seller's `url`. Its `price` has the same format problem as the feed's on the pages that have
 /// both, and is read by nothing.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReviewedOffer {
     #[serde(rename = "@type")]
@@ -378,7 +380,7 @@ pub struct ReviewedOffer {
     pub seller: ReviewedSeller,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewedSeller {
     #[serde(rename = "@type")]
@@ -388,6 +390,10 @@ pub struct ReviewedSeller {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::Error as SerdeJsonError;
+
     use super::{LdJson, LdJsonScript};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -572,8 +578,8 @@ pub(crate) mod tests {
         })
     }
 
-    fn deserialize(island: &Value) -> Result<LdJson, serde_json::Error> {
-        serde_json::from_value(island.clone())
+    fn deserialize(island: &Value) -> Result<LdJson, SerdeJsonError> {
+        decode_json_value(island.clone())
     }
 
     #[test]
@@ -709,7 +715,7 @@ pub(crate) mod tests {
             for (key, value) in extra.as_object().expect("an object") {
                 script[key] = value.clone();
             }
-            serde_json::from_value::<LdJsonScript>(script)
+            decode_json_value::<LdJsonScript>(script)
         };
 
         assert!(script(json!({})).is_ok());

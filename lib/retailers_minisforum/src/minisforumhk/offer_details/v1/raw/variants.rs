@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// `script#bm_product_variants`: every variant of the product, as a JSON array.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantsScript {
     pub id: String,
@@ -13,7 +14,7 @@ pub struct VariantsScript {
 /// `script#bm_product_selected_or_first_available_variant`: the variant the page opens on, the
 /// one in the URL or else the first available. It equals its entry in the list on all 29 saved
 /// pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedVariantScript {
     pub id: String,
@@ -24,7 +25,7 @@ pub struct SelectedVariantScript {
 
 /// Liquid's `variant | json`. Every amount in it is in hundredths of the shop currency, which it
 /// does not name. 78 variants on the 29 saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -63,7 +64,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -79,7 +80,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -88,7 +89,7 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
     pub aspect_ratio: f64,
@@ -97,7 +98,7 @@ pub struct PreviewImage {
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -107,6 +108,8 @@ pub struct QuantityRule {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{SelectedVariantScript, Variant, VariantsScript};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -165,7 +168,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_variants_deserialize() {
-        let variants = serde_json::from_value::<Vec<Variant>>(variants()).expect("deserializes");
+        let variants = from_value::<Vec<Variant>>(variants()).expect("deserializes");
         assert_eq!(variants.len(), 2);
         assert_eq!(variants[0].options.len(), 2);
     }
@@ -186,7 +189,7 @@ pub(crate) mod tests {
                 "src": "//minisforum.hk/cdn/shop/files/009.jpg?v=1725345882"}
         });
 
-        let variant = serde_json::from_value::<Variant>(input).expect("deserializes");
+        let variant = from_value::<Variant>(input).expect("deserializes");
         assert!(variant.featured_image.is_some() && variant.featured_media.is_some());
     }
 
@@ -195,7 +198,7 @@ pub(crate) mod tests {
         let mut input = variant(1, 100, 100, "A", ["a", "b"]);
         input["unit_price"] = json!(null);
 
-        assert!(serde_json::from_value::<Variant>(input).is_err());
+        assert!(from_value::<Variant>(input).is_err());
     }
 
     #[test]
@@ -203,12 +206,12 @@ pub(crate) mod tests {
         let list = json!({
             "id": "bm_product_variants", "type": "application/json", "data-x": "1", "data": variants()
         });
-        assert!(serde_json::from_value::<VariantsScript>(list).is_err());
+        assert!(from_value::<VariantsScript>(list).is_err());
 
         let selected = json!({
             "id": "bm_product_selected_or_first_available_variant",
             "type": "application/json", "data-x": "1", "data": variant(1, 100, 100, "A", ["a", "b"])
         });
-        assert!(serde_json::from_value::<SelectedVariantScript>(selected).is_err());
+        assert!(from_value::<SelectedVariantScript>(selected).is_err());
     }
 }

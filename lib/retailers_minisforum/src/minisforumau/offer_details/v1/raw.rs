@@ -7,34 +7,45 @@
 //! missing where the product has no price (1 of the 35 saved pages), and the record names no
 //! currency, so the PayPal metadata tag is read for that. The page layout is `minisforumuk`'s.
 
+use ldjson::LdJsonScript;
+use paypal::PayPalMetadata;
+use productjson::ProductJsonScript;
+use serde::Deserialize;
 pub mod ldjson;
 pub mod paypal;
 pub mod productjson;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MinisforumAuRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub product_json: productjson::ProductJsonScript,
+    pub product_json: ProductJsonScript,
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product_group;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::productjson::tests::product as tests_product;
+
     use super::MinisforumAuRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
     /// A two-variant page: the Organization island, a ProductGroup island and the record.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
+            "paypal": tests_metadata(),
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::product_group()}
+                {"type": "application/ld+json", "data": organization()},
+                {"type": "application/ld+json", "data": product_group()}
             ],
             "product_json": {
                 "data-cmp-ab": "1",
@@ -44,15 +55,14 @@ pub(crate) mod tests {
                 "data-uc-allowed": "true",
                 "id": "xcotton_pp_variants",
                 "type": "application/json",
-                "data": super::productjson::tests::product()
+                "data": tests_product()
             }
         })
     }
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<MinisforumAuRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<MinisforumAuRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -62,7 +72,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(key);
 
             assert!(
-                serde_json::from_value::<MinisforumAuRawDocument>(input).is_err(),
+                from_value::<MinisforumAuRawDocument>(input).is_err(),
                 "{key}"
             );
         }
@@ -78,7 +88,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<MinisforumAuRawDocument>(input)
+        let error = from_value::<MinisforumAuRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }

@@ -1,6 +1,8 @@
 use super::super::raw;
 use super::{NormalizeError, ORIGIN, money_from_shopify_cents, shop_currency, variant_gid};
 use money::{Currency, Money};
+use raw::MinisforumRuRawDocument;
+use raw::variant::Variant as VariantVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -36,7 +38,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::MinisforumRuRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: MinisforumRuRawDocument) -> Result<Product, NormalizeError> {
         let currency = shop_currency(&raw.shop.data.currency_code)?;
         let meta = raw.analytics.meta.product;
 
@@ -132,7 +134,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: raw::variant::Variant,
+        raw: VariantVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

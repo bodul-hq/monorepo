@@ -4,6 +4,11 @@
 use super::normalized::{MinisforumHkNormalizedDocument, product};
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
+use product::Product as ProductProduct;
+use product::Variant as ProductVariant;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -40,16 +45,16 @@ impl MinisforumHkDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(
+                    was_price: offer_facts_was_price(
                         variant.price.as_ref(),
                         variant.compare_at_price.as_ref(),
                     ),
                     availability: variant
                         .availability
                         .clone()
-                        .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                        .or_else(|| Some(purchase_available(variant.available))),
                     item_condition: None,
-                    content: offer_facts::content(product.description.as_deref()),
+                    content: offer_facts_content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -93,8 +98,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &product::Product,
-        variant: &product::Variant,
+        product: &ProductProduct,
+        variant: &ProductVariant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -122,6 +127,9 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumHkDocument, StructuralizeError};
     use crate::minisforumhk::offer_details::v1::normalized::MinisforumHkNormalizedDocument;
     use crate::minisforumhk::offer_details::v1::raw::MinisforumHkRawDocument;
@@ -132,21 +140,20 @@ mod tests {
     /// The raw fixture, normalized, as the JSON structuralize reads.
     fn normalized_document() -> Value {
         let raw: MinisforumHkRawDocument =
-            serde_json::from_value(document()).expect("the raw fixture deserializes");
+            from_value(document()).expect("the raw fixture deserializes");
         let normalized =
             MinisforumHkNormalizedDocument::from_raw(raw).expect("the raw fixture normalizes");
-        serde_json::to_value(normalized).expect("serializes")
+        to_value(normalized).expect("serializes")
     }
 
     fn structuralize(input: Value) -> Result<MinisforumHkDocument, StructuralizeError> {
         let normalized: MinisforumHkNormalizedDocument =
-            serde_json::from_value(input).expect("the normalized fixture deserializes");
+            from_value(input).expect("the normalized fixture deserializes");
         MinisforumHkDocument::from_normalized(normalized)
     }
 
     fn structuralized(input: Value) -> Value {
-        serde_json::to_value(structuralize(input).expect("the fixture structuralizes"))
-            .expect("serializes")
+        to_value(structuralize(input).expect("the fixture structuralizes")).expect("serializes")
     }
 
     fn single_variant(mut input: Value) -> Value {

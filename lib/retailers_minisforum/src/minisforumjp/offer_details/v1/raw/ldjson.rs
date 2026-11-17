@@ -1,6 +1,8 @@
+use html_extractor::serde_json::Value as SerdeJsonValue;
+use serde::Deserialize;
 /// One `script[type="application/ld+json"]`. The theme's own scripts carry only the `type`; a
 /// reviews app adds its own with an `id` (`a2r-03hu34xd-uhj7389-x` on all 71 of its islands).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -16,7 +18,7 @@ pub struct LdJsonScript {
 /// (1, `products-exclusive-use-link.html`), and neither for a product the theme renders no offer
 /// for (2). A `FAQPage` appears on 11 pages. The reviews app's `Product` (71 islands on 70 pages)
 /// comes on top of those.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Box<Organization>),
@@ -31,7 +33,7 @@ pub enum LdJson {
 /// Two unrelated islands share the `Product` type: the theme's and the reviews app's. They are
 /// told apart by their keys: the theme's carries `@id`, `url` and `category`, the reviews app's
 /// `review` and `mpn`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum Product {
     Theme(Box<ThemeProduct>),
@@ -39,19 +41,19 @@ pub enum Product {
     Seo(Box<SeoProduct>),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
-    pub address: Option<html_extractor::serde_json::Value>,
+    pub address: Option<SerdeJsonValue>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
     #[serde(rename = "areaServed")]
-    pub area_served: Option<html_extractor::serde_json::Value>,
+    pub area_served: Option<SerdeJsonValue>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
-    pub brand: Option<html_extractor::serde_json::Value>,
+    pub brand: Option<SerdeJsonValue>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
     #[serde(rename = "contactPoint")]
-    pub contact_point: Option<html_extractor::serde_json::Value>,
+    pub contact_point: Option<SerdeJsonValue>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
     pub description: Option<String>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
@@ -59,7 +61,7 @@ pub struct Organization {
     pub founding_date: Option<String>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
     #[serde(rename = "hasOfferCatalog")]
-    pub has_offer_catalog: Option<html_extractor::serde_json::Value>,
+    pub has_offer_catalog: Option<SerdeJsonValue>,
     /// Optional storefront metadata; absent in the older theme and not used for offer facts.
     #[serde(rename = "knowsAbout")]
     pub knows_about: Option<Vec<String>>,
@@ -77,7 +79,7 @@ pub struct Organization {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -98,7 +100,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -113,7 +115,7 @@ pub struct GroupVariant {
 }
 
 /// The theme's `Product` island, rendered for a product with a single variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ThemeProduct {
     #[serde(rename = "@context")]
@@ -136,7 +138,7 @@ pub struct ThemeProduct {
 /// (`https:files/...`), `offers.itemCondition` is `UsedCondition` even on new products, and
 /// `offers.price` is the yen amount with a dot as thousands separator (`51.999` for ¥51,999; 33
 /// islands show two digits before the dot, 19 one, 18 three, 1 none). Nothing is read from it.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewsProduct {
     #[serde(rename = "@context")]
@@ -156,7 +158,7 @@ pub struct ReviewsProduct {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Review {
     #[serde(rename = "@type")]
@@ -168,7 +170,7 @@ pub struct Review {
     pub review_rating: Rating,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Person {
     #[serde(rename = "@type")]
@@ -176,7 +178,7 @@ pub struct Person {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Rating {
     #[serde(rename = "@type")]
@@ -186,14 +188,14 @@ pub struct Rating {
 }
 
 /// A number on every review but one (`products-minisforum-deg2.html` renders `"4"`).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum RatingValue {
     Number(u64),
     Text(String),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
@@ -206,7 +208,7 @@ pub struct AggregateRating {
     pub review_count: u64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewsOffer {
     #[serde(rename = "@type")]
@@ -223,7 +225,7 @@ pub struct ReviewsOffer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Seller {
     #[serde(rename = "@type")]
@@ -232,7 +234,7 @@ pub struct Seller {
 }
 
 /// The FAQ block of 11 saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -241,7 +243,7 @@ pub struct FaqPage {
     pub main_entity: Vec<Question>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Question {
     #[serde(rename = "@type")]
@@ -251,7 +253,7 @@ pub struct Question {
     pub accepted_answer: Answer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Answer {
     #[serde(rename = "@type")]
@@ -259,7 +261,7 @@ pub struct Answer {
     pub text: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -268,7 +270,7 @@ pub struct Brand {
 }
 
 /// The theme's offer.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -285,7 +287,7 @@ pub struct Offer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct WebSite {
     #[serde(rename = "@context")]
@@ -296,7 +298,7 @@ pub struct WebSite {
     pub potential_action: SearchAction,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SearchAction {
     #[serde(rename = "@type")]
@@ -306,7 +308,7 @@ pub struct SearchAction {
     pub query_input: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -314,7 +316,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -326,7 +328,7 @@ pub struct BreadcrumbItem {
 
 /// Supplemental SEO product uses a dotted yen price, like the review app. The theme
 /// product/group and Liquid record supply the checked variant prices instead.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SeoProduct {
     #[serde(rename = "@context")]
@@ -342,7 +344,7 @@ pub struct SeoProduct {
     pub offers: SeoOffer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SeoSeller {
     #[serde(rename = "@type")]
@@ -351,7 +353,7 @@ pub struct SeoSeller {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct SeoOffer {
     #[serde(rename = "@type")]
@@ -364,13 +366,15 @@ pub struct SeoOffer {
     pub item_condition: String,
     pub seller: SeoSeller,
     /// Shipping policy metadata; not a variant price or identifier.
-    pub shipping_details: html_extractor::serde_json::Value,
+    pub shipping_details: SerdeJsonValue,
     /// Returns policy metadata; not a variant price or identifier.
-    pub has_merchant_return_policy: html_extractor::serde_json::Value,
+    pub has_merchant_return_policy: SerdeJsonValue,
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value as decode_json_value;
+
     use super::{LdJson, LdJsonScript, Product, RatingValue};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -504,15 +508,14 @@ pub(crate) mod tests {
             theme_product(),
             faq_page(),
         ] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            decode_json_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn the_two_product_islands_are_told_apart() {
-        let theme = serde_json::from_value::<LdJson>(theme_product()).expect("deserializes");
-        let reviews = serde_json::from_value::<LdJson>(reviews_product()).expect("deserializes");
+        let theme = decode_json_value::<LdJson>(theme_product()).expect("deserializes");
+        let reviews = decode_json_value::<LdJson>(reviews_product()).expect("deserializes");
 
         assert!(matches!(theme, LdJson::Product(Product::Theme(_))));
         assert!(matches!(reviews, LdJson::Product(Product::Reviews(_))));
@@ -527,8 +530,8 @@ pub(crate) mod tests {
             "data": reviews_product()
         });
 
-        let theme = serde_json::from_value::<LdJsonScript>(theme).expect("deserializes");
-        let reviews = serde_json::from_value::<LdJsonScript>(reviews).expect("deserializes");
+        let theme = decode_json_value::<LdJsonScript>(theme).expect("deserializes");
+        let reviews = decode_json_value::<LdJsonScript>(reviews).expect("deserializes");
         assert_eq!(theme.id, None);
         assert_eq!(reviews.id.as_deref(), Some("a2r-03hu34xd-uhj7389-x"));
     }
@@ -537,7 +540,7 @@ pub(crate) mod tests {
     fn a_new_script_attribute_fails() {
         let input = json!({"type": "application/ld+json", "class": "x", "data": organization()});
 
-        assert!(serde_json::from_value::<LdJsonScript>(input).is_err());
+        assert!(decode_json_value::<LdJsonScript>(input).is_err());
     }
 
     #[test]
@@ -549,7 +552,7 @@ pub(crate) mod tests {
         island.insert("review".to_string(), json!([]));
         island.insert("sku".to_string(), Value::Null);
 
-        let Ok(LdJson::Product(Product::Reviews(product))) = serde_json::from_value(input) else {
+        let Ok(LdJson::Product(Product::Reviews(product))) = decode_json_value(input) else {
             panic!("the reviews island deserializes");
         };
         assert!(product.aggregate_rating.is_none());
@@ -561,7 +564,7 @@ pub(crate) mod tests {
         let mut input = reviews_product();
         input["review"][0]["reviewRating"]["ratingValue"] = json!("4");
 
-        let Ok(LdJson::Product(Product::Reviews(product))) = serde_json::from_value(input) else {
+        let Ok(LdJson::Product(Product::Reviews(product))) = decode_json_value(input) else {
             panic!("the reviews island deserializes");
         };
         assert_eq!(
@@ -573,7 +576,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["WebPage", "Service"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = decode_json_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -594,7 +597,7 @@ pub(crate) mod tests {
         ] {
             island["gtin"] = json!("1");
 
-            assert!(serde_json::from_value::<LdJson>(island).is_err());
+            assert!(decode_json_value::<LdJson>(island).is_err());
         }
     }
 }

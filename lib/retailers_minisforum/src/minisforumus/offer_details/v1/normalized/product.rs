@@ -5,6 +5,10 @@ use super::{
     product_gid, variant_gid,
 };
 use money::{Currency, Money};
+use productjson::SellingPlanAllocation;
+use productjson::Variant as ProductjsonVariant;
+use retailer_sauce::availability::Availability;
+use retailer_sauce::item_condition::ItemCondition;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -103,15 +107,9 @@ impl Product {
             .collect::<Result<_, _>>()?;
 
         if let [variant] = variants.as_mut_slice() {
-            variant.availability =
-                Some(retailer_sauce::availability::Availability::from_schema_org(
-                    island.offers.availability,
-                ));
-            variant.item_condition = Some(
-                retailer_sauce::item_condition::ItemCondition::from_schema_org(
-                    island.offers.item_condition,
-                ),
-            );
+            variant.availability = Some(Availability::from_schema_org(island.offers.availability));
+            variant.item_condition =
+                Some(ItemCondition::from_schema_org(island.offers.item_condition));
         }
 
         Ok(Product {
@@ -150,9 +148,9 @@ fn is_default_title(record: &ProductJson) -> bool {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     #[serde(default)]
-    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+    pub item_condition: Option<ItemCondition>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title`.
     pub title: String,
@@ -193,7 +191,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: productjson::Variant,
+        raw: ProductjsonVariant,
         offered: &[String],
         groups: &[SellingPlanGroup],
         currency: Currency,
@@ -288,7 +286,7 @@ pub struct SellingPlan {
 impl SellingPlan {
     fn from_raw(
         variant_id: u64,
-        allocation: productjson::SellingPlanAllocation,
+        allocation: SellingPlanAllocation,
         groups: &[SellingPlanGroup],
         currency: Currency,
     ) -> Result<SellingPlan, NormalizeError> {

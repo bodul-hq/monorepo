@@ -1,7 +1,11 @@
 //! Validated variations from the storefront's normalized product.
+
 use super::normalized::MinisforumRuNormalizedDocument;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -61,13 +65,13 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(
+                was_price: offer_facts_was_price(
                     Some(&variant.price),
                     variant.compare_at_price.as_ref(),
                 ),
-                availability: Some(offer_facts::purchase_available(variant.available)),
+                availability: Some(purchase_available(variant.available)),
                 item_condition: None,
-                content: offer_facts::content(None),
+                content: offer_facts_content(None),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),

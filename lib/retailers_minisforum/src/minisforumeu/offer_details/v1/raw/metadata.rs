@@ -1,10 +1,11 @@
 //! Company and navigation metadata, validated but excluded from the normalized offer.
 
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// The theme's small Organization and the expanded company block coexist on newer pages.
 /// All fields after `url` are absent from the older theme block.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -30,7 +31,7 @@ pub struct Organization {
     pub aggregate_rating: Option<CompanyRating>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Founder {
     #[serde(rename = "@type")]
@@ -38,7 +39,7 @@ pub struct Founder {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PostalAddress {
     #[serde(rename = "@type")]
@@ -48,7 +49,7 @@ pub struct PostalAddress {
     pub address_country: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ContactPoint {
     #[serde(rename = "@type")]
@@ -58,7 +59,7 @@ pub struct ContactPoint {
     pub available_language: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct GeoCircle {
     #[serde(rename = "@type")]
@@ -68,7 +69,7 @@ pub struct GeoCircle {
     pub description: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GeoCoordinates {
     #[serde(rename = "@type")]
@@ -77,7 +78,7 @@ pub struct GeoCoordinates {
     pub longitude: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -87,7 +88,7 @@ pub struct Brand {
 }
 
 /// Company ratings encode their counts as strings; product review counts are numbers.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CompanyRating {
     #[serde(rename = "@type")]
@@ -98,7 +99,7 @@ pub struct CompanyRating {
     pub review_count: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -108,7 +109,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<Breadcrumb>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Breadcrumb {
     #[serde(rename = "@type")]
@@ -120,18 +121,21 @@ pub struct Breadcrumb {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::from_str;
+
     use html_extractor::serde_json::{self, Value, json};
 
     use super::super::ldjson::LdJson;
 
     fn organization() -> Value {
-        serde_json::from_str(include_str!("../fixtures/organization.json")).unwrap()
+        from_str(include_str!("../fixtures/organization.json")).unwrap()
     }
 
     #[test]
     fn expanded_organization_keeps_address_and_company_rating() {
-        let LdJson::Organization(organization) = serde_json::from_value(organization()).unwrap()
-        else {
+        let LdJson::Organization(organization) = decode_json_value(organization()).unwrap() else {
             panic!("an organization");
         };
         assert_eq!(organization.address.unwrap().address_country, "CN");
@@ -144,7 +148,7 @@ mod tests {
         for pointer in ["", "/address", "/contactPoint/0", "/areaServed/geoMidpoint"] {
             let mut input = organization();
             input.pointer_mut(pointer).unwrap()["unexpected"] = json!(true);
-            let error = serde_json::from_value::<LdJson>(input).unwrap_err();
+            let error = decode_json_value::<LdJson>(input).unwrap_err();
             assert!(
                 error.to_string().contains("unknown field `unexpected`"),
                 "{error}"
@@ -152,17 +156,16 @@ mod tests {
         }
         let mut input = organization();
         input["address"]["addressCountry"] = json!(42);
-        assert!(serde_json::from_value::<LdJson>(input).is_err());
+        assert!(decode_json_value::<LdJson>(input).is_err());
     }
 
     #[test]
     fn breadcrumbs_still_reject_unknown_fields() {
-        let fixture: Value =
-            serde_json::from_str(include_str!("../fixtures/breadcrumbs.json")).unwrap();
+        let fixture: Value = from_str(include_str!("../fixtures/breadcrumbs.json")).unwrap();
         for pointer in ["", "/itemListElement/0"] {
             let mut input = fixture.clone();
             input.pointer_mut(pointer).unwrap()["unexpected"] = json!(true);
-            let error = serde_json::from_value::<LdJson>(input).unwrap_err();
+            let error = decode_json_value::<LdJson>(input).unwrap_err();
             assert!(
                 error.to_string().contains("unknown field `unexpected`"),
                 "{error}"

@@ -6,26 +6,30 @@
 //! product without options, a `Product`) island, Shopify's analytics `meta`, and the variant
 //! picker's record of the selected variant; the picker renders no record of the other variants.
 
+use analytics::AnalyticsScript;
+use ldjsonitem::LdJsonScript;
+use serde::Deserialize;
+use variant::VariantScript;
 pub mod analytics;
 pub mod ldjsonitem;
 pub mod variant;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MinisforumKrRawDocument {
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjsonitem::LdJsonScript>,
-    pub analytics: analytics::AnalyticsScript,
+    pub ld_json: Vec<LdJsonScript>,
+    pub analytics: AnalyticsScript,
     /// Absent where the product has no options to pick, and on landing pages.
     pub variant_picker: Option<VariantPicker>,
     pub option_names: Vec<OptionName>,
     /// Absent wherever the variant picker is.
-    pub selected_variant: Option<variant::VariantScript>,
+    pub selected_variant: Option<VariantScript>,
     pub images: Vec<Image>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantPicker {
     pub product_id: String,
@@ -34,14 +38,14 @@ pub struct VariantPicker {
 }
 
 /// A picker fieldset's legend, such as `CPU:`, in the order of the variants' option slots.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OptionName {
     pub text: String,
 }
 
 /// A slide of the main media gallery.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     pub src: String,
@@ -50,6 +54,13 @@ pub struct Image {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjsonitem::tests::organization;
+    use super::ldjsonitem::tests::product_group;
+    use super::variant::tests::variant as tests_variant;
+
     use super::MinisforumKrRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -57,10 +68,10 @@ pub(crate) mod tests {
     pub(crate) fn document() -> Value {
         json!({
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjsonitem::tests::organization()},
-                {"type": "application/ld+json", "data": super::ldjsonitem::tests::product_group()}
+                {"type": "application/ld+json", "data": organization()},
+                {"type": "application/ld+json", "data": product_group()}
             ],
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "analytics": {"meta": tests_meta()},
             "variant_picker": {
                 "product_id": "7128100143150",
                 "product_url": "/products/minisforum-um890-pro"
@@ -68,7 +79,7 @@ pub(crate) mod tests {
             "option_names": [{"text": "CPU:"}, {"text": "Type:"}, {"text": "사양:"}],
             "selected_variant": {
                 "type": "application/json",
-                "data": super::variant::tests::variant()
+                "data": tests_variant()
             },
             "images": [{
                 "src": "//www.minisforum.kr/cdn/shop/files/UM890Pro1.jpg?v=1776075578&width=1946",
@@ -79,8 +90,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<MinisforumKrRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<MinisforumKrRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -91,8 +101,8 @@ pub(crate) mod tests {
         object.remove("selected_variant");
         object.insert("option_names".to_string(), json!([]));
 
-        let raw = serde_json::from_value::<MinisforumKrRawDocument>(input)
-            .expect("the picker islands are optional");
+        let raw =
+            from_value::<MinisforumKrRawDocument>(input).expect("the picker islands are optional");
         assert!(raw.variant_picker.is_none() && raw.selected_variant.is_none());
     }
 
@@ -103,7 +113,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(island);
 
             assert!(
-                serde_json::from_value::<MinisforumKrRawDocument>(input).is_err(),
+                from_value::<MinisforumKrRawDocument>(input).is_err(),
                 "{island}"
             );
         }
@@ -116,7 +126,7 @@ pub(crate) mod tests {
         let ld_json = object.remove("ld-json").expect("ld-json");
         object.insert("ld_json".to_string(), ld_json);
 
-        let error = serde_json::from_value::<MinisforumKrRawDocument>(input)
+        let error = from_value::<MinisforumKrRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }

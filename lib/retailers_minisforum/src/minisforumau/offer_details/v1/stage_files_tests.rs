@@ -7,6 +7,13 @@
 //! Each stage reads the files the previous stage wrote, so the files on disk are exactly what
 //! the next stage was given.
 
+
+use fs::create_dir_all;
+use fs::read_dir;
+use fs::read_to_string;
+use fs::write;
+use serde_json::from_str;
+use serde_json::to_string_pretty;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -28,7 +35,7 @@ fn stage_dir(stage: &str) -> PathBuf {
 
 /// The files in `dir` with `extension`, sorted by name.
 fn files(dir: &Path, extension: &str) -> Vec<PathBuf> {
-    let mut files: Vec<PathBuf> = fs::read_dir(dir)
+    let mut files: Vec<PathBuf> = read_dir(dir)
         .unwrap_or_else(|e| panic!("{}: {e}", dir.display()))
         .map(|entry| entry.expect("read dir entry").path())
         .filter(|path| path.extension().is_some_and(|ext| ext == extension))
@@ -38,19 +45,19 @@ fn files(dir: &Path, extension: &str) -> Vec<PathBuf> {
 }
 
 fn read(path: &Path) -> String {
-    fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+    read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 
 /// Writes `json` pretty-printed to `<dir>/<stem of source>.json`.
 fn write_pretty(dir: &Path, source: &Path, json: &str) {
     let value: Value =
-        serde_json::from_str(json).unwrap_or_else(|e| panic!("{}: {e}", source.display()));
-    let mut pretty = serde_json::to_string_pretty(&value).expect("a JSON value serializes");
+        from_str(json).unwrap_or_else(|e| panic!("{}: {e}", source.display()));
+    let mut pretty = to_string_pretty(&value).expect("a JSON value serializes");
     pretty.push('\n');
 
     let stem = source.file_stem().expect("a file name");
     let path = dir.join(stem).with_extension("json");
-    fs::write(&path, pretty).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    write(&path, pretty).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
 }
 
 /// Runs `stage` over every `extension` file in `from` and writes its output into `to`. Every
@@ -62,7 +69,7 @@ fn run_stage(
     stage: impl Fn(&str) -> Result<String, String>,
 ) {
     let (from, to) = (stage_dir(from), stage_dir(to));
-    fs::create_dir_all(&to).unwrap_or_else(|e| panic!("{}: {e}", to.display()));
+    create_dir_all(&to).unwrap_or_else(|e| panic!("{}: {e}", to.display()));
 
     let inputs = files(&from, extension);
     assert!(

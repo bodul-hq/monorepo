@@ -1,5 +1,6 @@
+use serde::Deserialize;
 /// `script#seal_product`, which a subscriptions app renders on every product page (29 of 29).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SealProductScript {
     pub id: String,
@@ -9,7 +10,7 @@ pub struct SealProductScript {
 }
 
 /// The product id and title, which the variant list does not carry.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SealProduct {
     pub id: u64,
@@ -20,6 +21,8 @@ pub struct SealProduct {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{SealProduct, SealProductScript};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -34,7 +37,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_record_deserializes() {
-        let product = serde_json::from_value::<SealProduct>(seal_product()).expect("deserializes");
+        let product = from_value::<SealProduct>(seal_product()).expect("deserializes");
         assert_eq!(product.id, 8611751919794);
     }
 
@@ -43,7 +46,7 @@ pub(crate) mod tests {
         let mut input = seal_product();
         input["handle"] = json!("minisforum-ms-s1-max");
 
-        assert!(serde_json::from_value::<SealProduct>(input).is_err());
+        assert!(from_value::<SealProduct>(input).is_err());
     }
 
     #[test]
@@ -55,6 +58,6 @@ pub(crate) mod tests {
             "data": seal_product()
         });
 
-        assert!(serde_json::from_value::<SealProductScript>(input).is_err());
+        assert!(from_value::<SealProductScript>(input).is_err());
     }
 }

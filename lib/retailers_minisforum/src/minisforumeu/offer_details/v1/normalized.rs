@@ -13,7 +13,9 @@
 //! The storefront serves every product in two locales, `/products/<handle>` and
 //! `/de/products/<handle>`, from one record. The PayPal metadata tag names the page's locale, and
 //! with it the URL prefix; see [`LOCALES`].
-
+use island::Island;
+use product::Product as ProductProduct;
+use raw::MinisforumEuRawDocument as RawMinisforumEuRawDocument;
 mod island;
 pub mod product;
 
@@ -148,25 +150,29 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MinisforumEuNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl MinisforumEuNormalizedDocument {
     pub fn from_raw(
-        raw: raw::MinisforumEuRawDocument,
+        raw: RawMinisforumEuRawDocument,
     ) -> Result<MinisforumEuNormalizedDocument, NormalizeError> {
         let currency = shop_currency(&raw.paypal.currency)?;
         let prefix = locale_prefix(&raw.paypal.locale)?;
-        let island = island::Island::from_raw(raw.ld_json)?;
+        let island = Island::from_raw(raw.ld_json)?;
 
         Ok(MinisforumEuNormalizedDocument {
-            product: product::Product::from_raw(raw.product_json.data, island, currency, prefix)?,
+            product: ProductProduct::from_raw(raw.product_json.data, island, currency, prefix)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::minisforumeu::offer_details::v1::raw::ldjson::tests::product as tests_product;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{MinisforumEuNormalizedDocument, NormalizeError, locale_prefix, product_url};
     use crate::minisforumeu::offer_details::v1::raw::MinisforumEuRawDocument;
     use crate::minisforumeu::offer_details::v1::raw::tests::{document, reviews_script};
@@ -177,13 +183,12 @@ mod tests {
 
     fn normalize(document: Value) -> Result<MinisforumEuNormalizedDocument, NormalizeError> {
         let raw: MinisforumEuRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         MinisforumEuNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn record_variant_mut(document: &mut Value, index: usize) -> &mut Value {
@@ -284,8 +289,7 @@ mod tests {
             .as_array_mut()
             .expect("variants")
             .truncate(1);
-        *island_mut(&mut input) =
-            crate::minisforumeu::offer_details::v1::raw::ldjson::tests::product();
+        *island_mut(&mut input) = tests_product();
 
         let product = &normalized(input)["product"];
         assert_eq!(product["category"], json!("Hard Drives"));

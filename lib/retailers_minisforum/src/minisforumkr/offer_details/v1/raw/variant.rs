@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// The variant picker's record of the selected variant: the variant the page opens on.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantScript {
     #[serde(rename = "type")]
@@ -11,7 +12,7 @@ pub struct VariantScript {
 
 /// Liquid's `variant | json`. Its amounts are in hundredths of the shop currency, which it does
 /// not name.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -40,7 +41,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -55,7 +56,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -64,7 +65,7 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
     pub aspect_ratio: f64,
@@ -73,7 +74,7 @@ pub struct PreviewImage {
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -83,6 +84,8 @@ pub struct QuantityRule {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::Variant;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -144,7 +147,7 @@ pub(crate) mod tests {
             .expect("an object")
             .remove("featured_media");
 
-        let variant = serde_json::from_value::<Variant>(input).expect("deserializes");
+        let variant = from_value::<Variant>(input).expect("deserializes");
         assert!(variant.featured_image.is_none() && variant.featured_media.is_none());
     }
 
@@ -153,7 +156,7 @@ pub(crate) mod tests {
         let mut input = variant();
         input["unit_price"] = json!(1);
 
-        let error = serde_json::from_value::<Variant>(input).expect_err("not in the corpus");
+        let error = from_value::<Variant>(input).expect_err("not in the corpus");
         assert!(error.to_string().contains("unknown field `unit_price`"));
     }
 }

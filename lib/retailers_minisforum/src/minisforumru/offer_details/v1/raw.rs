@@ -5,32 +5,37 @@
 //! The storefront is a Shopify Horizon theme that renders no `Product` ld+json island, so the
 //! product is read from the islands the theme and Shopify's own scripts leave on the page.
 
+use analytics::AnalyticsScript;
+use serde::Deserialize;
+use shop::ShopScript;
+use variant::VariantScript;
+use variant::VariantsScript;
 pub mod analytics;
 pub mod shop;
 pub mod variant;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MinisforumRuRawDocument {
-    pub shop: shop::ShopScript,
-    pub analytics: analytics::AnalyticsScript,
+    pub shop: ShopScript,
+    pub analytics: AnalyticsScript,
     pub title: Title,
     pub variant_picker: VariantPicker,
     pub option_names: Vec<OptionName>,
-    pub selected_variant: variant::VariantScript,
+    pub selected_variant: VariantScript,
     /// Only rendered when the product has more than one variant.
-    pub variants: Option<variant::VariantsScript>,
+    pub variants: Option<VariantsScript>,
     pub images: Vec<Image>,
 }
 
 /// The product page's only `h1`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Title {
     pub text: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantPicker {
     pub product_id: String,
@@ -38,14 +43,14 @@ pub struct VariantPicker {
 }
 
 /// A picker fieldset's legend, such as `CPU:`, in the order of the variants' option slots.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OptionName {
     pub text: String,
 }
 
 /// A slide of the main media gallery.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     pub src: String,
@@ -54,6 +59,12 @@ pub struct Image {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::shop::tests::data as tests_data;
+    use super::variant::tests::variant as tests_variant;
+
     use super::MinisforumRuRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -63,9 +74,9 @@ pub(crate) mod tests {
             "shop": {
                 "id": "apple-pay-shop-capabilities",
                 "type": "application/json",
-                "data": super::shop::tests::data()
+                "data": tests_data()
             },
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "analytics": {"meta": tests_meta()},
             "title": {"text": "MINISFORUM MS-S1 MAX"},
             "variant_picker": {
                 "product_id": "8640842891442",
@@ -74,14 +85,14 @@ pub(crate) mod tests {
             "option_names": [{"text": "CPU:"}, {"text": "Type:"}, {"text": "Adapter:"}],
             "selected_variant": {
                 "type": "application/json",
-                "data": super::variant::tests::variant(47567232336050, 259900, "64GB RAM+2TB SSD")
+                "data": tests_variant(47567232336050, 259900, "64GB RAM+2TB SSD")
             },
             "variants": {
                 "type": "application/json",
                 "data-variants-json": "",
                 "data": [
-                    super::variant::tests::variant(47567232336050, 259900, "64GB RAM+2TB SSD"),
-                    super::variant::tests::variant(47567232368818, 299900, "128GB RAM+2TB SSD")
+                    tests_variant(47567232336050, 259900, "64GB RAM+2TB SSD"),
+                    tests_variant(47567232368818, 299900, "128GB RAM+2TB SSD")
                 ]
             },
             "images": [{
@@ -93,8 +104,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<MinisforumRuRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<MinisforumRuRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -102,8 +112,8 @@ pub(crate) mod tests {
         let mut input = document();
         input.as_object_mut().expect("an object").remove("variants");
 
-        let raw = serde_json::from_value::<MinisforumRuRawDocument>(input)
-            .expect("the variants island is optional");
+        let raw =
+            from_value::<MinisforumRuRawDocument>(input).expect("the variants island is optional");
         assert!(raw.variants.is_none());
     }
 
@@ -120,7 +130,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(island);
 
             assert!(
-                serde_json::from_value::<MinisforumRuRawDocument>(input).is_err(),
+                from_value::<MinisforumRuRawDocument>(input).is_err(),
                 "{island}"
             );
         }
@@ -131,7 +141,7 @@ pub(crate) mod tests {
         let mut input = document();
         input["ld-json"] = json!([]);
 
-        let error = serde_json::from_value::<MinisforumRuRawDocument>(input)
+        let error = from_value::<MinisforumRuRawDocument>(input)
             .expect_err("this storefront renders no product ld+json");
         assert!(error.to_string().contains("unknown field `ld-json`"));
     }

@@ -18,32 +18,38 @@
 //! segment of the product path), the vendor and product type, tags, a gallery beyond the primary
 //! image, and the publish dates.
 
+use ldjson::LdJsonScript;
+use paypal::PayPalMetadata;
+use sealproduct::SealProductScript;
+use serde::Deserialize;
+use variants::SelectedVariantScript;
+use variants::VariantsScript;
 pub mod ldjson;
 pub mod paypal;
 pub mod sealproduct;
 pub mod variants;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MinisforumHkRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub variants: variants::VariantsScript,
+    pub variants: VariantsScript,
 
-    pub selected_variant: variants::SelectedVariantScript,
+    pub selected_variant: SelectedVariantScript,
 
-    pub seal_product: sealproduct::SealProductScript,
+    pub seal_product: SealProductScript,
 
     /// The variant selector's labels, such as `處理器:`, in the order of the variants' option
     /// slots. Empty on the 3 saved pages whose product has no options to choose.
     pub option_names: Vec<OptionName>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OptionName {
     pub text: String,
@@ -51,32 +57,41 @@ pub struct OptionName {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::ldjson::tests::breadcrumbs;
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product as tests_product;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::sealproduct::tests::seal_product as tests_seal_product;
+    use super::variants::tests::variants as tests_variants;
+
     use super::MinisforumHkRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
     /// A two-variant page, trimmed from `products-minisforum-ms-s1-max.html`.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
+            "paypal": tests_metadata(),
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::product()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::breadcrumbs()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()}
+                {"type": "application/ld+json", "data": tests_product()},
+                {"type": "application/ld+json", "data": breadcrumbs()},
+                {"type": "application/ld+json", "data": organization()}
             ],
             "variants": {
                 "id": "bm_product_variants",
                 "type": "application/json",
-                "data": super::variants::tests::variants()
+                "data": tests_variants()
             },
             "selected_variant": {
                 "id": "bm_product_selected_or_first_available_variant",
                 "type": "application/json",
-                "data": super::variants::tests::variants()[0]
+                "data": tests_variants()[0]
             },
             "seal_product": {
                 "id": "seal_product",
                 "type": "application/json",
-                "data": super::sealproduct::tests::seal_product()
+                "data": tests_seal_product()
             },
             "option_names": [{"text": "CPU:"}, {"text": "規格:"}]
         })
@@ -84,8 +99,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<MinisforumHkRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<MinisforumHkRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -102,7 +116,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(key);
 
             assert!(
-                serde_json::from_value::<MinisforumHkRawDocument>(input).is_err(),
+                from_value::<MinisforumHkRawDocument>(input).is_err(),
                 "{key}"
             );
         }
@@ -113,8 +127,8 @@ pub(crate) mod tests {
         let mut input = document();
         input["option_names"] = json!([]);
 
-        let raw = serde_json::from_value::<MinisforumHkRawDocument>(input)
-            .expect("the option names may be empty");
+        let raw =
+            from_value::<MinisforumHkRawDocument>(input).expect("the option names may be empty");
         assert!(raw.option_names.is_empty());
     }
 
@@ -128,7 +142,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<MinisforumHkRawDocument>(input)
+        let error = from_value::<MinisforumHkRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -138,6 +152,6 @@ pub(crate) mod tests {
         let mut input = document();
         input["product_json"] = json!({});
 
-        assert!(serde_json::from_value::<MinisforumHkRawDocument>(input).is_err());
+        assert!(from_value::<MinisforumHkRawDocument>(input).is_err());
     }
 }

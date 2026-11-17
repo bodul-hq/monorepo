@@ -1,14 +1,16 @@
 use html_extractor::serde_json::Value;
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
 
 /// `script#xcotton_pp_variants`: an app's rendering of Liquid's `product | json`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJsonItem {
     pub data: ProductJson,
 }
 
 /// Every amount in it is in hundredths of the market's currency, which it does not name.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJson {
     pub id: u64,
@@ -40,7 +42,7 @@ pub struct ProductJson {
     pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -67,7 +69,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -76,7 +78,7 @@ pub struct QuantityRule {
 }
 
 /// A variant's price under one of the product's selling plans.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanAllocation {
     pub price_adjustments: Vec<Value>,
@@ -87,7 +89,7 @@ pub struct SellingPlanAllocation {
     pub selling_plan_group_id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanGroup {
     pub id: String,
@@ -97,7 +99,7 @@ pub struct SellingPlanGroup {
     pub app_id: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanGroupOption {
     pub name: String,
@@ -105,7 +107,7 @@ pub struct SellingPlanGroupOption {
     pub values: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlan {
     pub id: u64,
@@ -117,7 +119,7 @@ pub struct SellingPlan {
     pub checkout_charge: CheckoutCharge,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanOption {
     pub name: String,
@@ -125,24 +127,24 @@ pub struct SellingPlanOption {
     pub value: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CheckoutCharge {
     pub value_type: String,
     pub value: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub aspect_ratio: f64,
     pub height: i64,
     pub width: i64,
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "media_type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Media {
     Image {
@@ -150,7 +152,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         height: i64,
         width: i64,
@@ -161,7 +163,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         duration: i64,
         sources: Vec<VideoSource>,
@@ -171,14 +173,14 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         external_id: String,
         host: String,
     },
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VideoSource {
     pub format: String,
@@ -190,6 +192,8 @@ pub struct VideoSource {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{Media, ProductJson};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -283,7 +287,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_record_deserializes() {
-        let product = serde_json::from_value::<ProductJson>(product()).expect("deserializes");
+        let product = from_value::<ProductJson>(product()).expect("deserializes");
         assert_eq!(product.variants.len(), 2);
     }
 
@@ -292,7 +296,7 @@ pub(crate) mod tests {
         let mut input = product();
         input["selling_plan_groups"] = json!([preorder_group(10215063797)]);
 
-        serde_json::from_value::<ProductJson>(input).expect("selling plans are typed");
+        from_value::<ProductJson>(input).expect("selling plans are typed");
     }
 
     #[test]
@@ -301,7 +305,7 @@ pub(crate) mod tests {
             "preview_image": {"aspect_ratio": 1.0, "height": 1, "width": 1, "src": "s"},
             "aspect_ratio": 1.0});
 
-        let error = serde_json::from_value::<Media>(model).expect_err("no model media is typed");
+        let error = from_value::<Media>(model).expect_err("no model media is typed");
         assert!(error.to_string().contains("unknown variant `model`"));
     }
 }

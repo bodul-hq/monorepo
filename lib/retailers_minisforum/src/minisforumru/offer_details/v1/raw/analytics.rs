@@ -1,19 +1,20 @@
+use serde::Deserialize;
 /// The inline script ahead of `script.analytics`, which assigns Shopify's analytics `meta`
 /// object. It is the only island that carries the product's id, handle, vendor and type.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnalyticsScript {
     pub meta: Meta,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Meta {
     pub product: Product,
     pub page: Page,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     pub id: u64,
@@ -27,7 +28,7 @@ pub struct Product {
 }
 
 /// A summary of a variant record; every field restates `variant::Variant`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -37,7 +38,7 @@ pub struct Variant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Page {
     pub page_type: String,
@@ -48,6 +49,8 @@ pub struct Page {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::Meta;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -82,7 +85,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_meta_object_deserializes() {
-        let meta = serde_json::from_value::<Meta>(meta()).expect("deserializes");
+        let meta = from_value::<Meta>(meta()).expect("deserializes");
         assert_eq!(meta.product.variants.len(), 2);
     }
 }

@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -10,7 +12,7 @@ pub struct LdJsonScript {
 /// order Product, BreadcrumbList, Organization. Unlike the other Minisforum shops' Shopify
 /// themes, a multi-variant product is a `Product` with one offer per variant, not a
 /// `ProductGroup`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     #[serde(rename = "FAQPage")]
@@ -20,7 +22,7 @@ pub enum LdJson {
     Organization(Organization),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -48,7 +50,7 @@ pub struct Product {
     pub image: Image,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     #[serde(rename = "@type")]
@@ -63,7 +65,7 @@ pub struct Image {
     pub height: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -73,7 +75,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
@@ -82,7 +84,7 @@ pub struct Offer {
     pub name: String,
     pub availability: String,
     /// A number in major units, such as `2199.0`.
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -96,7 +98,7 @@ pub struct Offer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
@@ -113,7 +115,7 @@ pub struct AggregateRating {
 }
 
 /// Always two entries on the saved pages: the shop (empty name) and the product.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -122,7 +124,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<ListItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ListItem {
     #[serde(rename = "@type")]
@@ -132,7 +134,7 @@ pub struct ListItem {
     pub item: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -143,7 +145,7 @@ pub struct Organization {
 }
 
 /// The FAQ block of 11 saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -152,7 +154,7 @@ pub struct FaqPage {
     pub main_entity: Vec<Question>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Question {
     #[serde(rename = "@type")]
@@ -162,7 +164,7 @@ pub struct Question {
     pub accepted_answer: Answer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Answer {
     #[serde(rename = "@type")]
@@ -172,6 +174,8 @@ pub struct Answer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value as decode_json_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -255,8 +259,7 @@ pub(crate) mod tests {
     #[test]
     fn every_island_type_deserializes() {
         for island in [product(), breadcrumbs(), organization()] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            decode_json_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
@@ -270,7 +273,7 @@ pub(crate) mod tests {
             .expect("an offer")
             .remove("sku");
 
-        let LdJson::Product(product) = serde_json::from_value(input).expect("deserializes") else {
+        let LdJson::Product(product) = decode_json_value(input).expect("deserializes") else {
             panic!("a product");
         };
         assert!(product.aggregate_rating.is_none());
@@ -280,7 +283,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["ProductGroup", "WebPage"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = decode_json_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -296,7 +299,7 @@ pub(crate) mod tests {
             let mut island = island;
             island["gtin"] = json!("1");
 
-            assert!(serde_json::from_value::<LdJson>(island).is_err());
+            assert!(decode_json_value::<LdJson>(island).is_err());
         }
     }
 
@@ -305,6 +308,6 @@ pub(crate) mod tests {
         let mut input = product();
         input["offers"][0]["itemCondition"] = json!("https://schema.org/NewCondition");
 
-        assert!(serde_json::from_value::<LdJson>(input).is_err());
+        assert!(decode_json_value::<LdJson>(input).is_err());
     }
 }

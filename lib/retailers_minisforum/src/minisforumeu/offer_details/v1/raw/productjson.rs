@@ -1,7 +1,9 @@
 use html_extractor::serde_json::Value;
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
 
 /// `script#xcotton_pp_variants`, which carries the app's consent-manager opt-outs as attributes.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJsonScript {
     pub id: String,
@@ -24,7 +26,7 @@ pub struct ProductJsonScript {
 /// it does not name. The `/products/` and the `/de/products/` page of a product render the same
 /// record, translated: ids, handle, prices, SKUs and availability are equal across all 137
 /// pairs of saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJson {
     pub id: u64,
@@ -57,7 +59,7 @@ pub struct ProductJson {
     pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -86,7 +88,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -101,7 +103,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -110,17 +112,17 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub aspect_ratio: f64,
     pub height: i64,
     pub width: i64,
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -131,7 +133,7 @@ pub struct QuantityRule {
 /// The product's media, in three shapes: 1938 images, 6 hosted videos and 2 videos hosted on
 /// YouTube, the 8 videos on 8 pages. `images` on the product is exactly the images' `src`s, in
 /// order, on every page.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "media_type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Media {
     Image {
@@ -139,7 +141,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         height: i64,
         width: i64,
@@ -151,7 +153,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         /// In milliseconds.
         duration: u64,
@@ -163,14 +165,14 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         external_id: String,
         host: String,
     },
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VideoSource {
     pub format: String,
@@ -182,6 +184,8 @@ pub struct VideoSource {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{Media, ProductJson};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -285,7 +289,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_record_deserializes() {
-        let product = serde_json::from_value::<ProductJson>(product()).expect("deserializes");
+        let product = from_value::<ProductJson>(product()).expect("deserializes");
         assert_eq!(product.variants.len(), 2);
     }
 
@@ -294,7 +298,7 @@ pub(crate) mod tests {
         let mut input = product();
         input.as_object_mut().expect("an object").remove("media");
 
-        assert!(serde_json::from_value::<ProductJson>(input).is_err());
+        assert!(from_value::<ProductJson>(input).is_err());
     }
 
     #[test]
@@ -304,7 +308,7 @@ pub(crate) mod tests {
             input["media"].as_array_mut().expect("media").push(video);
         }
 
-        let product = serde_json::from_value::<ProductJson>(input).expect("deserializes");
+        let product = from_value::<ProductJson>(input).expect("deserializes");
         assert!(matches!(product.media[0], Media::Image { .. }));
         assert!(matches!(product.media[1], Media::ExternalVideo { .. }));
         assert!(matches!(product.media[2], Media::Video { .. }));
@@ -314,7 +318,7 @@ pub(crate) mod tests {
     fn an_unseen_media_type_fails() {
         for media_type in ["model", "3d_model"] {
             let media = json!({"media_type": media_type, "alt": null, "id": 1, "position": 1});
-            let error = serde_json::from_value::<Media>(media).expect_err("the type is not typed");
+            let error = from_value::<Media>(media).expect_err("the type is not typed");
             assert!(
                 error
                     .to_string()
@@ -327,7 +331,7 @@ pub(crate) mod tests {
     fn an_unknown_key_on_a_video_fails() {
         for mut video in videos() {
             video["captions"] = json!([]);
-            assert!(serde_json::from_value::<Media>(video).is_err());
+            assert!(from_value::<Media>(video).is_err());
         }
     }
 }

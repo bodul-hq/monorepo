@@ -11,7 +11,11 @@ use crate::minisforumfr::offer_details::v1::normalized::{
 };
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
+use raw::MinisforumFrRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 use structuralize::MinisforumFrDocument;
 
 pub mod normalized;
@@ -52,32 +56,33 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::MinisforumFrRawDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: MinisforumFrRawDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = MinisforumFrNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: MinisforumFrNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: MinisforumFrNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         MinisforumFrDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use std::path::{Path, PathBuf};
 
     use html_extractor::Backend;
@@ -97,7 +102,7 @@ mod tests {
             eprintln!("skipping: {} not found", dir.display());
             return None;
         }
-        let mut pages: Vec<PathBuf> = std::fs::read_dir(dir)
+        let mut pages: Vec<PathBuf> = read_dir(dir)
             .expect("read data dir")
             .map(|entry| entry.expect("read data dir entry").path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "html"))
@@ -108,7 +113,7 @@ mod tests {
     }
 
     fn read(page: &Path) -> String {
-        std::fs::read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
+        read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
     }
 
     #[test]

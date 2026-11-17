@@ -28,7 +28,11 @@ use crate::minisforumeu::offer_details::v1::normalized::{
 };
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
+use raw::MinisforumEuRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 use structuralize::MinisforumEuDocument;
 
 pub mod normalized;
@@ -70,32 +74,37 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::MinisforumEuRawDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: MinisforumEuRawDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = MinisforumEuNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: MinisforumEuNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: MinisforumEuNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         MinisforumEuDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
 
 #[cfg(test)]
 mod tests {
+    use super::raw::tests::document as tests_document;
+    use serde_json::Value;
+    use serde_json::from_str;
+    use serde_json::json as serde_json_json;
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use std::path::{Path, PathBuf};
 
     use html_extractor::Backend;
@@ -106,7 +115,7 @@ mod tests {
     /// retrieved on 2026-10-25. Both blocks accompany the older theme Organization.
     #[test]
     fn expanded_organization_and_breadcrumbs_preserve_the_offer() {
-        let mut document = super::raw::tests::document();
+        let mut document = tests_document();
         let baseline = normalize(&document.to_string())
             .unwrap()
             .document_json
@@ -115,10 +124,10 @@ mod tests {
             include_str!("fixtures/organization.json"),
             include_str!("fixtures/breadcrumbs.json"),
         ] {
-            let data: serde_json::Value = serde_json::from_str(fixture).unwrap();
+            let data: Value = from_str(fixture).unwrap();
             document["ld-json"].as_array_mut().unwrap().insert(
                 0,
-                serde_json::json!({"type": "application/ld+json", "data": data}),
+                serde_json_json!({"type": "application/ld+json", "data": data}),
             );
         }
         let actual = normalize(&document.to_string())
@@ -145,7 +154,7 @@ mod tests {
             eprintln!("skipping: {} not found", dir.display());
             return None;
         }
-        let mut pages: Vec<PathBuf> = std::fs::read_dir(dir)
+        let mut pages: Vec<PathBuf> = read_dir(dir)
             .expect("read data dir")
             .map(|entry| entry.expect("read data dir entry").path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "html"))
@@ -156,7 +165,7 @@ mod tests {
     }
 
     fn read(page: &Path) -> String {
-        std::fs::read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
+        read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
     }
 
     #[test]

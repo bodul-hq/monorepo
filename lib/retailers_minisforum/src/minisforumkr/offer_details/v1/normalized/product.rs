@@ -4,6 +4,12 @@ use super::{
     NormalizeError, ORIGIN, currency, money_from_offer, money_from_shopify_cents, variant_gid,
 };
 use money::{Currency, Money};
+use raw::MinisforumKrRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::ldjsonitem::LdJsonScript;
+use raw::ldjsonitem::Product as LdjsonitemProduct;
+use raw::ldjsonitem::ProductGroup as LdjsonitemProductGroup;
+use raw::variant::Variant as VariantVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -41,7 +47,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::MinisforumKrRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: MinisforumKrRawDocument) -> Result<Product, NormalizeError> {
         let meta = raw.analytics.meta.product;
         let island = ProductIsland::from_raw(raw.ld_json)?;
 
@@ -159,9 +165,7 @@ struct IslandVariant {
 }
 
 impl ProductIsland {
-    fn from_raw(
-        scripts: Vec<raw::ldjsonitem::LdJsonScript>,
-    ) -> Result<Option<Self>, NormalizeError> {
+    fn from_raw(scripts: Vec<LdJsonScript>) -> Result<Option<Self>, NormalizeError> {
         let mut islands: Vec<ProductIsland> = scripts
             .into_iter()
             .filter_map(|script| match script.data {
@@ -178,7 +182,7 @@ impl ProductIsland {
         }
     }
 
-    fn from_group(group: raw::ldjsonitem::ProductGroup) -> Result<ProductIsland, NormalizeError> {
+    fn from_group(group: LdjsonitemProductGroup) -> Result<ProductIsland, NormalizeError> {
         let variants = group
             .has_variant
             .into_iter()
@@ -203,7 +207,7 @@ impl ProductIsland {
         })
     }
 
-    fn from_product(product: raw::ldjsonitem::Product) -> Result<ProductIsland, NormalizeError> {
+    fn from_product(product: LdjsonitemProduct) -> Result<ProductIsland, NormalizeError> {
         let variants = vec![IslandVariant {
             id: offer_variant_id(&product.offers.url)?,
             image: product.image,
@@ -275,9 +279,9 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: raw::analytics::Variant,
+        raw: AnalyticsVariant,
         island: Option<&IslandVariant>,
-        selected: Option<&raw::variant::Variant>,
+        selected: Option<&VariantVariant>,
         offered: &[String],
         currency: Option<Currency>,
     ) -> Result<Variant, NormalizeError> {
@@ -395,7 +399,7 @@ pub struct SelectedVariant {
 
 impl SelectedVariant {
     fn from_raw(
-        raw: &raw::variant::Variant,
+        raw: &VariantVariant,
         analytics_cents: i64,
         offered: &[String],
         currency: Option<Currency>,
