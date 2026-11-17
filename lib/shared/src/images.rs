@@ -1,11 +1,13 @@
 //! Exact URL validation shared by image producers and consumers.
+
 use std::collections::HashSet;
+use url::Url;
 
 pub fn is_valid(value: &str) -> bool {
     value.len() <= 2048
         && value.trim() == value
         && !value.chars().any(char::is_control)
-        && url::Url::parse(value).is_ok_and(|url| {
+        && Url::parse(value).is_ok_and(|url| {
             matches!(url.scheme(), "http" | "https")
                 && url.has_host()
                 && url.username().is_empty()

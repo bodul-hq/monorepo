@@ -1,9 +1,12 @@
 //! Retailer identity definitions, adapted from bodul_shared 0.1.1.
 //! Original copyright/license: ../LICENSE-MIT.
 
+use serde::Deserialize;
+use serde::Serialize;
+use std::str::FromStr as StrFromStr;
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RetailerCode {
     #[serde(alias = "MinisForumEu")]
@@ -260,7 +263,7 @@ impl TryFrom<String> for RetailerCode {
     }
 }
 
-impl std::str::FromStr for RetailerCode {
+impl StrFromStr for RetailerCode {
     type Err = String;
     fn from_str(slug: &str) -> Result<Self, Self::Err> {
         Self::try_from(slug).map_err(|error| error.to_string())
@@ -352,6 +355,12 @@ impl RetailerCode {
 }
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use super::RETAILERS as SUPER_RETAILERS;
+    use serde_json::json;
+    use serde_json::to_value;
+
     use super::code_for_name;
 
     #[test]
@@ -362,12 +371,9 @@ mod tests {
         {
             let historical = format!("{code:?}");
             let slug = code.as_str();
-            assert_eq!(serde_json::to_value(code).unwrap(), slug);
+            assert_eq!(to_value(code).unwrap(), slug);
             for spelling in [&historical, &slug] {
-                assert_eq!(
-                    serde_json::from_value::<RetailerCode>(serde_json::json!(spelling)).unwrap(),
-                    code
-                );
+                assert_eq!(from_value::<RetailerCode>(json!(spelling)).unwrap(), code);
             }
             for invalid in [
                 slug.to_uppercase(),
@@ -376,19 +382,15 @@ mod tests {
                 format!("{slug} "),
             ] {
                 assert!(
-                    serde_json::from_value::<RetailerCode>(serde_json::json!(invalid)).is_err(),
+                    from_value::<RetailerCode>(json!(invalid)).is_err(),
                     "{invalid}"
                 );
             }
             // Slug parsing remains lowercase-only, independently of Serde aliases.
             assert!(RetailerCode::try_from(historical.as_str()).is_err());
         }
-        for invalid in [
-            serde_json::json!("unknown"),
-            serde_json::json!(null),
-            serde_json::json!(42),
-        ] {
-            assert!(serde_json::from_value::<RetailerCode>(invalid).is_err());
+        for invalid in [json!("unknown"), json!(null), json!(42)] {
+            assert!(from_value::<RetailerCode>(invalid).is_err());
         }
     }
 
@@ -404,25 +406,22 @@ mod tests {
             assert_eq!(RetailerCode::try_from(slug).unwrap(), code);
             assert_eq!(code_for_name(wire), Some(code));
             assert_eq!(code.as_str(), slug);
-            assert_eq!(serde_json::to_value(code).unwrap(), slug);
-            assert_eq!(
-                serde_json::from_value::<RetailerCode>(serde_json::json!(wire)).unwrap(),
-                code
-            );
+            assert_eq!(to_value(code).unwrap(), slug);
+            assert_eq!(from_value::<RetailerCode>(json!(wire)).unwrap(), code);
             assert_eq!(RetailerCode::ALL.iter().filter(|v| **v == code).count(), 1);
             assert_eq!(
-                super::RETAILERS.iter().filter(|(_, v)| *v == code).count(),
+                SUPER_RETAILERS.iter().filter(|(_, v)| *v == code).count(),
                 1
             );
         }
         let legacy = RetailerCode::AnkerNordicsCom;
         assert_eq!(RetailerCode::try_from("ankernordicscom").unwrap(), legacy);
         assert_eq!(
-            serde_json::from_value::<RetailerCode>(serde_json::json!("AnkerNordicsCom")).unwrap(),
+            from_value::<RetailerCode>(json!("AnkerNordicsCom")).unwrap(),
             legacy
         );
         assert!(!RetailerCode::ALL.contains(&legacy));
-        assert!(!super::RETAILERS.iter().any(|(_, code)| *code == legacy));
+        assert!(!SUPER_RETAILERS.iter().any(|(_, code)| *code == legacy));
     }
 
     #[test]
