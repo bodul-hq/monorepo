@@ -1,6 +1,10 @@
 //! Localized offer content. Source/export description observations keep their
 //! separate `structuralized::content` contract.
 
+use crate::localization::validate_language;
+use crate::observation::object;
+use crate::observation::required_nullable as observation_required_nullable;
+use serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -12,17 +16,17 @@ pub struct Content {
 }
 
 impl<'de> Deserialize<'de> for Content {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         #[derive(Deserialize)]
         #[serde(deny_unknown_fields)]
         struct Fields {
-            #[serde(deserialize_with = "crate::observation::required_nullable")]
+            #[serde(deserialize_with = "observation_required_nullable")]
             language: Option<String>,
             title: String,
-            #[serde(deserialize_with = "crate::observation::required_nullable")]
+            #[serde(deserialize_with = "observation_required_nullable")]
             description: Option<String>,
         }
-        let fields: Fields = crate::observation::object(deserializer)?;
+        let fields: Fields = object(deserializer)?;
         Ok(Self {
             language: fields.language,
             title: fields.title,
@@ -34,7 +38,7 @@ impl<'de> Deserialize<'de> for Content {
 impl Content {
     pub fn guard(&self) -> Result<(), String> {
         if let Some(language) = &self.language {
-            crate::localization::validate_language(language)?;
+            validate_language(language)?;
         }
         if self.title.trim().is_empty() || self.title.contains('\0') {
             return Err(err_title());
@@ -176,6 +180,10 @@ fn err_missing_selection() -> String {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use serde_json::to_value;
+
     use super::*;
     use serde_json::json;
 
@@ -214,7 +222,7 @@ mod tests {
             [None, Some("en-US"), Some("fr")]
         );
         assert_eq!(
-            serde_json::from_value::<Content>(serde_json::to_value(&unknown[0]).unwrap()).unwrap(),
+            from_value::<Content>(to_value(&unknown[0]).unwrap()).unwrap(),
             unknown[0]
         );
     }
@@ -260,7 +268,7 @@ mod tests {
             json!({"title":"T"}),
             json!({"language":null,"title":"T","description":null,"extra":1}),
         ] {
-            assert!(serde_json::from_value::<Content>(value).is_err());
+            assert!(from_value::<Content>(value).is_err());
         }
         for (language, title, description) in [
             (Some("en_US".into()), "T", None),

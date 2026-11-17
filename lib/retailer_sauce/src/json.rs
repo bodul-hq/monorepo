@@ -9,7 +9,7 @@ use serde::{Deserialize, Deserializer, de::Error};
 /// derived enum deserializer use serde_json's private map representation. Reading
 /// through `Number` understands that representation as well as ordinary numeric
 /// tokens. Direct `f64` deserialization instead reports "invalid type: map".
-/// Use with `#[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]`.
+/// Use with `#[serde(deserialize_with = "deserialize_f64")]`.
 pub fn deserialize_f64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64, D::Error> {
     Number::deserialize(deserializer)?
         .as_f64()
@@ -19,6 +19,12 @@ pub fn deserialize_f64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
+    use serde_json::from_value;
+
+    use serde_json::Value;
+
     use super::*;
 
     #[derive(Debug, PartialEq, Deserialize)]
@@ -60,7 +66,7 @@ mod tests {
             let input = format!(
                 r#"{{"@type":"Product","price":{price},"preview":{{"aspect_ratio":1.333}}}}"#
             );
-            let from_text: Island = serde_json::from_str(&input).unwrap();
+            let from_text: Island = decode_json_str(&input).unwrap();
             assert_eq!(
                 from_text,
                 Island::Product(ProductIsland::Offer(Offer {
@@ -70,8 +76,8 @@ mod tests {
                     },
                 }))
             );
-            let value: serde_json::Value = serde_json::from_str(&input).unwrap();
-            assert_eq!(serde_json::from_value::<Island>(value).unwrap(), from_text);
+            let value: Value = decode_json_str(&input).unwrap();
+            assert_eq!(from_value::<Island>(value).unwrap(), from_text);
         }
     }
 
@@ -89,10 +95,10 @@ mod tests {
             let input = format!(
                 r#"{{"@type":"Product","price":{price},"preview":{{"aspect_ratio":1.333}}}}"#
             );
-            assert!(serde_json::from_str::<Island>(&input).is_err(), "{price}");
+            assert!(decode_json_str::<Island>(&input).is_err(), "{price}");
         }
         let unknown =
             r#"{"@type":"Product","price":1.5,"preview":{"aspect_ratio":1.333},"extra":1}"#;
-        assert!(serde_json::from_str::<Island>(unknown).is_err());
+        assert!(decode_json_str::<Island>(unknown).is_err());
     }
 }

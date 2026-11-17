@@ -33,6 +33,10 @@ impl ItemCondition {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use serde_json::to_value;
+
     use super::ItemCondition;
     use html_extractor::serde_json::{self, json};
 
@@ -49,13 +53,10 @@ mod tests {
         ] {
             let condition = ItemCondition::from_schema_org(input);
 
-            assert_eq!(serde_json::to_value(&condition).unwrap(), expected);
+            assert_eq!(to_value(&condition).unwrap(), expected);
             // The structuralize stage reads a normalized document back off disk, so this has to
             // survive the round trip rather than only render.
-            assert_eq!(
-                serde_json::from_value::<ItemCondition>(expected).unwrap(),
-                condition
-            );
+            assert_eq!(from_value::<ItemCondition>(expected).unwrap(), condition);
         }
     }
 }

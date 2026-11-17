@@ -1,4 +1,9 @@
 //! A missing legacy field is different from a fresh observation of an unknown value.
+
+use html_extractor::serde_json::Value;
+use html_extractor::serde_json::from_value;
+use serde::de::DeserializeOwned;
+use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -63,42 +68,43 @@ where
 pub fn object<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
-    let value = html_extractor::serde_json::Value::deserialize(deserializer)?;
+    let value = Value::deserialize(deserializer)?;
     if !value.is_object() {
-        return Err(serde::de::Error::custom("expected a JSON object"));
+        return Err(DeError::custom("expected a JSON object"));
     }
-    html_extractor::serde_json::from_value(value).map_err(serde::de::Error::custom)
+    from_value(value).map_err(DeError::custom)
 }
 
 pub fn nullable_object<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     D: Deserializer<'de>,
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
-    let value = html_extractor::serde_json::Value::deserialize(deserializer)?;
+    let value = Value::deserialize(deserializer)?;
     if value.is_null() {
         return Ok(None);
     }
     if !value.is_object() {
-        return Err(serde::de::Error::custom("expected a JSON object or null"));
+        return Err(DeError::custom("expected a JSON object or null"));
     }
-    html_extractor::serde_json::from_value(value)
-        .map(Some)
-        .map_err(serde::de::Error::custom)
+    from_value(value).map(Some).map_err(DeError::custom)
 }
 
 pub fn object_observation<'de, D, T>(deserializer: D) -> Result<Observation<T>, D::Error>
 where
     D: Deserializer<'de>,
-    T: serde::de::DeserializeOwned,
+    T: DeserializeOwned,
 {
     nullable_object(deserializer).map(Observation::Observed)
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+    use serde_json::to_string;
+
     use super::*;
     #[derive(Serialize, Deserialize)]
     struct Example {
@@ -115,9 +121,9 @@ mod tests {
                 Observation::Observed(Some("value".into())),
             ),
         ] {
-            let value: Example = serde_json::from_str(wire).unwrap();
+            let value: Example = from_str(wire).unwrap();
             assert_eq!(value.field, expected);
-            assert_eq!(serde_json::to_string(&value).unwrap(), wire);
+            assert_eq!(to_string(&value).unwrap(), wire);
         }
     }
 }

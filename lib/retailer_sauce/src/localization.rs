@@ -1,6 +1,14 @@
 //! Selected facts from the downloaded page, independent of extraction diagnostics.
+
 use everyday::prelude::CountryCode;
+use icu_locale_core::Locale;
+use serde::Deserializer;
+use serde::de::MapAccess;
+use serde::de::Visitor;
+use serde::de::value::StringDeserializer;
 use serde::{Deserialize, Serialize};
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 /// Stable identifiers for supported regional markets (not country codes).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -32,17 +40,14 @@ pub enum TargetMarket {
     },
 }
 impl<'de> Deserialize<'de> for TargetMarket {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         struct MarketVisitor;
-        impl<'de> serde::de::Visitor<'de> for MarketVisitor {
+        impl<'de> Visitor<'de> for MarketVisitor {
             type Value = TargetMarket;
-            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            fn expecting(&self, f: &mut Formatter) -> FmtResult {
                 f.write_str("a market with kind and exactly one code or label")
             }
-            fn visit_map<M: serde::de::MapAccess<'de>>(
-                self,
-                mut map: M,
-            ) -> Result<Self::Value, M::Error> {
+            fn visit_map<M: MapAccess<'de>>(self, mut map: M) -> Result<Self::Value, M::Error> {
                 use serde::de::Error;
                 let (mut kind, mut code, mut label) = (None, None, None);
                 while let Some(key) = map.next_key::<String>()? {
@@ -64,7 +69,7 @@ impl<'de> Deserialize<'de> for TargetMarket {
                             return Err(M::Error::unknown_field("label", &["kind", "code"]));
                         }
                         let code = code.ok_or_else(|| M::Error::missing_field("code"))?;
-                        let decoder = serde::de::value::StringDeserializer::<M::Error>::new(code);
+                        let decoder = StringDeserializer::<M::Error>::new(code);
                         CountryCode::deserialize(decoder).map(|code| TargetMarket::Country { code })
                     }
                     "region" => match (code, label) {
@@ -72,8 +77,7 @@ impl<'de> Deserialize<'de> for TargetMarket {
                             "region must contain code or label, not both",
                         )),
                         (Some(code), None) => {
-                            let decoder =
-                                serde::de::value::StringDeserializer::<M::Error>::new(code);
+                            let decoder = StringDeserializer::<M::Error>::new(code);
                             RegionCode::deserialize(decoder)
                                 .map(|code| TargetMarket::Region { code })
                         }
@@ -174,7 +178,7 @@ pub fn validate_language(value: &str) -> Result<(), String> {
     parse_language(value).map(|_| ())
 }
 
-fn parse_language(value: &str) -> Result<icu_locale_core::Locale, String> {
+fn parse_language(value: &str) -> Result<Locale, String> {
     if value.len() > 128 || value.contains('_') {
         return Err("unsupported or malformed language tag".into());
     }
@@ -205,7 +209,7 @@ pub fn source_locale(value: &str) -> Result<SourceLocale, String> {
 }
 
 /// Missing imports mean no observation. An explicit null object is invalid.
-pub fn observation<'de, D: serde::Deserializer<'de>>(
+pub fn observation<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<Localization>, D::Error> {
     Localization::deserialize(deserializer).map(Some)
@@ -213,30 +217,38 @@ pub fn observation<'de, D: serde::Deserializer<'de>>(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::json as serde_json_json;
+
     use super::*;
     #[test]
     fn observations_preserve_full_tags_and_validate_market_scope() {
         for value in [
-            serde_json::json!({"target_market":{"kind":"country","code":"CA"},"language":"en-AU"}),
-            serde_json::json!({"target_market":{"kind":"region","label":"Europe"},"language":null}),
-            serde_json::json!({}),
+            serde_json_json!({"target_market":{"kind":"country","code":"CA"},"language":"en-AU"}),
+            serde_json_json!({"target_market":{"kind":"region","label":"Europe"},"language":null}),
+            serde_json_json!({}),
         ] {
-            let parsed: Localization = serde_json::from_value(value).unwrap();
+            let parsed: Localization = decode_json_value(value).unwrap();
             parsed.guard().unwrap();
         }
         for value in [
-            serde_json::json!(null),
-            serde_json::json!({"language":"fr_FR"}),
-            serde_json::json!({"target_market":{"kind":"country","code":"EU"}}),
-            serde_json::json!({"target_market":{"kind":"region","label":"\0"}}),
+            serde_json_json!(null),
+            serde_json_json!({"language":"fr_FR"}),
+            serde_json_json!({"target_market":{"kind":"country","code":"EU"}}),
+            serde_json_json!({"target_market":{"kind":"region","label":"\0"}}),
         ] {
-            assert!(serde_json::from_value::<Localization>(value).is_err());
+            assert!(decode_json_value::<Localization>(value).is_err());
         }
     }
 }
 
 #[cfg(test)]
 mod source_locale_tests {
+    use serde_json::from_value as serde_json_from_value;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value;
+
     use super::*;
 
     #[test]
@@ -293,30 +305,34 @@ mod source_locale_tests {
 
     #[test]
     fn deserialization_never_reinterprets_historical_observations() {
-        let old = serde_json::json!({"target_market":null,"language":"IT-it"});
-        let value: Localization = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(serde_json::to_value(value).unwrap(), old);
+        let old = serde_json_json!({"target_market":null,"language":"IT-it"});
+        let value: Localization = serde_json_from_value(old.clone()).unwrap();
+        assert_eq!(to_value(value).unwrap(), old);
     }
 }
 
 #[cfg(test)]
 mod region_tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::to_value;
+
     use super::*;
     use serde_json::json;
 
     #[test]
     fn code_and_legacy_contracts_are_distinct_and_round_trip() {
         let old = json!({"kind":"region","label":"European Union"});
-        let market: TargetMarket = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(serde_json::to_value(&market).unwrap(), old);
+        let market: TargetMarket = decode_json_value(old.clone()).unwrap();
+        assert_eq!(to_value(&market).unwrap(), old);
         let current = market.canonicalized();
         assert_eq!(
-            serde_json::to_value(&current).unwrap(),
+            to_value(&current).unwrap(),
             json!({"kind":"region","code":"eu"})
         );
         assert_eq!(current.legacy(), market);
         let europe: TargetMarket =
-            serde_json::from_value(json!({"kind":"region","label":"Europe"})).unwrap();
+            decode_json_value(json!({"kind":"region","label":"Europe"})).unwrap();
         assert_eq!(europe.canonicalized(), europe);
         let unsupported = Localization {
             target_market: Some(europe),
@@ -331,13 +347,15 @@ mod region_tests {
             json!({"kind":"region","code":"eu","label":"European Union"}),
             json!({"kind":"country","code":"EU"}),
         ] {
-            assert!(serde_json::from_value::<TargetMarket>(value).is_err());
+            assert!(decode_json_value::<TargetMarket>(value).is_err());
         }
     }
 }
 
 #[cfg(test)]
 mod decoder_errors {
+    use serde_json::from_str;
+
     use super::*;
     #[test]
     fn errors_identify_invalid_fields_and_values() {
@@ -355,9 +373,7 @@ mod decoder_errors {
             (r#"{"code":"eu"}"#, "kind"),
             (r#"{"kind":"region"}"#, "requires"),
         ] {
-            let error = serde_json::from_str::<TargetMarket>(input)
-                .unwrap_err()
-                .to_string();
+            let error = from_str::<TargetMarket>(input).unwrap_err().to_string();
             assert!(error.contains(detail), "{input}: {error}");
         }
     }

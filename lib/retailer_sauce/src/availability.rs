@@ -42,6 +42,10 @@ impl Availability {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use serde_json::to_value;
+
     use super::Availability;
     use html_extractor::serde_json::{self, json};
 
@@ -61,13 +65,10 @@ mod tests {
         ] {
             let availability = Availability::from_schema_org(input);
 
-            assert_eq!(serde_json::to_value(&availability).unwrap(), expected);
+            assert_eq!(to_value(&availability).unwrap(), expected);
             // The structuralize stage reads a normalized document back off disk, so this has to
             // survive the round trip rather than only render.
-            assert_eq!(
-                serde_json::from_value::<Availability>(expected).unwrap(),
-                availability
-            );
+            assert_eq!(from_value::<Availability>(expected).unwrap(), availability);
         }
     }
 }

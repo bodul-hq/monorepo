@@ -9,6 +9,8 @@
 //!
 //! Each serializes as its bare string, not as an object holding `value`.
 
+use serde::Deserializer;
+use serde::de::Error as DeError;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -322,14 +324,14 @@ fn guard_nul(value: &str) -> Result<(), String> {
     }
 }
 
-pub fn external_object<'de, D: serde::Deserializer<'de>>(
+pub fn external_object<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<ExternalIdentifiers>, D::Error> {
     ExternalIdentifiers::deserialize(deserializer).map(Some)
 }
 
 /// Change events replace the complete set, so omitted fields are not legacy defaults.
-pub fn complete_identifiers<'de, D: serde::Deserializer<'de>>(
+pub fn complete_identifiers<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<ProductIdentifiers, D::Error> {
     #[derive(Deserialize)]
@@ -346,35 +348,36 @@ pub fn complete_identifiers<'de, D: serde::Deserializer<'de>>(
         sku: value.sku,
         external_identifiers: value.external_identifiers,
     };
-    identifiers.guard().map_err(serde::de::Error::custom)?;
+    identifiers.guard().map_err(DeError::custom)?;
     Ok(identifiers)
 }
 
 #[cfg(test)]
 mod propagation_tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::json;
+    use serde_json::to_value;
+
     use super::*;
     #[test]
     fn exact_strings_enrich_without_clearing_and_bad_present_values_fail() {
-        let initial: ProductIdentifiers = serde_json::from_value(serde_json::json!({"gtin":"0012345678905","sku":"A1-BLACK","external_identifiers":{"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}})).unwrap();
+        let initial: ProductIdentifiers = decode_json_value(json!({"gtin":"0012345678905","sku":"A1-BLACK","external_identifiers":{"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}})).unwrap();
         assert_eq!(initial.enriched(&Default::default()), initial);
-        assert_eq!(
-            serde_json::to_value(&initial).unwrap()["gtin"],
-            "0012345678905"
-        );
-        let partial: ProductIdentifiers =
-            serde_json::from_value(serde_json::json!({"sku":"A1-WHITE"})).unwrap();
+        assert_eq!(to_value(&initial).unwrap()["gtin"], "0012345678905");
+        let partial: ProductIdentifiers = decode_json_value(json!({"sku":"A1-WHITE"})).unwrap();
         let merged = initial.enriched(&partial);
         assert_eq!(merged.sku.unwrap().value, "A1-WHITE");
         assert_eq!(merged.gtin, initial.gtin);
         assert_eq!(merged.external_identifiers, initial.external_identifiers);
         for value in [
-            serde_json::json!({"gtin":""}),
-            serde_json::json!({"sku":"\0"}),
-            serde_json::json!({"gtin":123}),
-            serde_json::json!({"external_identifiers":null}),
-            serde_json::json!({"external_identifiers":{"shopify_handle":""}}),
+            json!({"gtin":""}),
+            json!({"sku":"\0"}),
+            json!({"gtin":123}),
+            json!({"external_identifiers":null}),
+            json!({"external_identifiers":{"shopify_handle":""}}),
         ] {
-            assert!(serde_json::from_value::<ProductIdentifiers>(value).is_err());
+            assert!(decode_json_value::<ProductIdentifiers>(value).is_err());
         }
         // Construction bypassing transparent deserialization is still rejected by guards.
         let invalid = ProductIdentifiers {

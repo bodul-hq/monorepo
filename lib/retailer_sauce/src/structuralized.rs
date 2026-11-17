@@ -10,6 +10,8 @@
 //! both on the page, both cross into [`Offer`] under names that say where they came from; see
 //! [`Price`] and [`Offer::available_for_sale`].
 
+use content::Content as ContentContent;
+use product::Product as ProductProduct;
 use serde::Serialize;
 
 /// What one call to a retailer's structuralizer hands back.
@@ -36,8 +38,8 @@ impl StructuralizedData {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Offer {
-    pub product: product::Product,
-    pub content: content::Content,
+    pub product: ProductProduct,
+    pub content: ContentContent,
 }
 
 pub mod product {
@@ -55,6 +57,11 @@ pub mod product {
     pub struct Brand {}
 }
 pub mod content {
+    use crate::observation::required_nullable as observation_required_nullable;
+
+    use crate::observation::object;
+    use serde::Deserializer;
+
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Clone, PartialEq, Default, Serialize)]
@@ -63,14 +70,14 @@ pub mod content {
     }
 
     impl<'de> Deserialize<'de> for Content {
-        fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
             #[derive(Deserialize)]
             #[serde(deny_unknown_fields)]
             struct Fields {
-                #[serde(deserialize_with = "crate::observation::required_nullable")]
+                #[serde(deserialize_with = "observation_required_nullable")]
                 description: Option<String>,
             }
-            let fields: Fields = crate::observation::object(deserializer)?;
+            let fields: Fields = object(deserializer)?;
             Ok(Self {
                 description: fields.description,
             })
@@ -90,7 +97,7 @@ pub mod content {
         }
     }
 
-    pub fn observation<'de, D: serde::Deserializer<'de>>(
+    pub fn observation<'de, D: Deserializer<'de>>(
         deserializer: D,
     ) -> Result<Option<Content>, D::Error> {
         Content::deserialize(deserializer).map(Some)
@@ -99,6 +106,10 @@ pub mod content {
 
 #[cfg(test)]
 mod content_tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::to_value;
+
     use super::content::Content;
     use serde_json::json;
     #[test]
@@ -111,12 +122,12 @@ mod content_tests {
             json!({"description":7}),
             json!({"description":null,"title":"moved"}),
         ] {
-            assert!(serde_json::from_value::<Content>(invalid).is_err());
+            assert!(decode_json_value::<Content>(invalid).is_err());
         }
         for description in [None, Some(""), Some(" \n\t"), Some(" <p> ž &amp; </p> ")] {
             let value = json!({"description":description});
-            let content: Content = serde_json::from_value(value.clone()).unwrap();
-            assert_eq!(serde_json::to_value(content).unwrap(), value);
+            let content: Content = decode_json_value(value.clone()).unwrap();
+            assert_eq!(to_value(content).unwrap(), value);
         }
     }
 }
