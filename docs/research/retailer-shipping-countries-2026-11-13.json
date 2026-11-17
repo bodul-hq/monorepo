@@ -1,0 +1,3647 @@
+{
+  "query": "query ShippingDestinations { shop { name primaryDomain { host url } shipsToCountries } }",
+  "records": [
+    {
+      "retailer_code": "ankerau",
+      "storefront_url": "https://www.anker.com/au",
+      "previous_shipping_countries": "AU",
+      "graphql_endpoint": "https://oneanker-au.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:29.331886+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker AU",
+              "primaryDomain": {
+                "host": "au.store.anker.com",
+                "url": "https://au.store.anker.com"
+              },
+              "shipsToCountries": [
+                "AU"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AU"
+      ]
+    },
+    {
+      "retailer_code": "ankerca",
+      "storefront_url": "https://www.anker.com/ca",
+      "previous_shipping_countries": "CA",
+      "graphql_endpoint": "https://anker-canada.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:30.501939+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker Canada",
+              "primaryDomain": {
+                "host": "ca.store.anker.com",
+                "url": "https://ca.store.anker.com"
+              },
+              "shipsToCountries": [
+                "CA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "CA"
+      ]
+    },
+    {
+      "retailer_code": "ankerde",
+      "storefront_url": "https://www.anker.com/de",
+      "previous_shipping_countries": "DE",
+      "graphql_endpoint": "https://oneanker-de.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:31.656259+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker",
+              "primaryDomain": {
+                "host": "de.store.anker.com",
+                "url": "https://de.store.anker.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "DE",
+                "LI",
+                "LU",
+                "NL"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "DE",
+        "LI",
+        "LU",
+        "NL"
+      ]
+    },
+    {
+      "retailer_code": "ankereu",
+      "storefront_url": "https://www.anker.com/eu-en",
+      "previous_shipping_countries": "AT, BE, BG, CZ, DE, DK, EE, ES, FI, FR, GR, HR, HU, IT, LT, LU, LV, NL, PL, PT, RO, SE, SI, SK",
+      "graphql_endpoint": "https://ankereu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:32.793867+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker",
+              "primaryDomain": {
+                "host": "eu.anker.com",
+                "url": "https://eu.anker.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "BG",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "ES",
+                "FI",
+                "FR",
+                "GR",
+                "HR",
+                "HU",
+                "IT",
+                "LT",
+                "LU",
+                "LV",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE",
+                "SI",
+                "SK"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "BG",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GR",
+        "HR",
+        "HU",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK"
+      ]
+    },
+    {
+      "retailer_code": "ankerkr",
+      "storefront_url": "https://ankerkorea.co.kr/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "Unknown",
+      "endpoint_source": "inventory",
+      "status": "not Shopify: storefront exposes Cafe24 indicators; no Shopify endpoint established"
+    },
+    {
+      "retailer_code": "ankercom",
+      "storefront_url": "https://www.anker.com/",
+      "previous_shipping_countries": "US",
+      "graphql_endpoint": "https://ankerus.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:33.924924+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker-US",
+              "primaryDomain": {
+                "host": "us.anker.com",
+                "url": "https://us.anker.com"
+              },
+              "shipsToCountries": [
+                "AC",
+                "AD",
+                "AE",
+                "AF",
+                "AG",
+                "AI",
+                "AL",
+                "AM",
+                "AO",
+                "AR",
+                "AT",
+                "AU",
+                "AW",
+                "AX",
+                "AZ",
+                "BA",
+                "BB",
+                "BD",
+                "BE",
+                "BF",
+                "BG",
+                "BH",
+                "BI",
+                "BJ",
+                "BL",
+                "BM",
+                "BN",
+                "BO",
+                "BQ",
+                "BR",
+                "BS",
+                "BT",
+                "BW",
+                "BY",
+                "BZ",
+                "CA",
+                "CC",
+                "CD",
+                "CF",
+                "CG",
+                "CH",
+                "CI",
+                "CK",
+                "CL",
+                "CM",
+                "CN",
+                "CO",
+                "CR",
+                "CV",
+                "CW",
+                "CX",
+                "CY",
+                "CZ",
+                "DE",
+                "DJ",
+                "DK",
+                "DM",
+                "DO",
+                "DZ",
+                "EC",
+                "EE",
+                "EG",
+                "EH",
+                "ER",
+                "ES",
+                "ET",
+                "FI",
+                "FJ",
+                "FK",
+                "FO",
+                "FR",
+                "GA",
+                "GB",
+                "GD",
+                "GE",
+                "GF",
+                "GG",
+                "GH",
+                "GI",
+                "GL",
+                "GM",
+                "GN",
+                "GP",
+                "GQ",
+                "GR",
+                "GS",
+                "GT",
+                "GW",
+                "GY",
+                "HK",
+                "HN",
+                "HR",
+                "HT",
+                "HU",
+                "ID",
+                "IE",
+                "IL",
+                "IM",
+                "IN",
+                "IO",
+                "IQ",
+                "IS",
+                "IT",
+                "JE",
+                "JM",
+                "JO",
+                "JP",
+                "KE",
+                "KG",
+                "KH",
+                "KI",
+                "KM",
+                "KN",
+                "KR",
+                "KW",
+                "KY",
+                "KZ",
+                "LA",
+                "LB",
+                "LC",
+                "LI",
+                "LK",
+                "LR",
+                "LS",
+                "LT",
+                "LU",
+                "LV",
+                "LY",
+                "MA",
+                "MC",
+                "MD",
+                "ME",
+                "MF",
+                "MG",
+                "MK",
+                "ML",
+                "MM",
+                "MN",
+                "MO",
+                "MQ",
+                "MR",
+                "MS",
+                "MT",
+                "MU",
+                "MV",
+                "MW",
+                "MX",
+                "MY",
+                "MZ",
+                "NA",
+                "NC",
+                "NE",
+                "NF",
+                "NG",
+                "NI",
+                "NL",
+                "NO",
+                "NP",
+                "NR",
+                "NU",
+                "NZ",
+                "OM",
+                "PA",
+                "PE",
+                "PF",
+                "PG",
+                "PH",
+                "PK",
+                "PL",
+                "PM",
+                "PN",
+                "PS",
+                "PT",
+                "PY",
+                "QA",
+                "RE",
+                "RO",
+                "RS",
+                "RU",
+                "RW",
+                "SA",
+                "SB",
+                "SC",
+                "SD",
+                "SE",
+                "SG",
+                "SH",
+                "SI",
+                "SJ",
+                "SK",
+                "SL",
+                "SM",
+                "SN",
+                "SO",
+                "SR",
+                "SS",
+                "ST",
+                "SV",
+                "SX",
+                "SZ",
+                "TA",
+                "TC",
+                "TD",
+                "TF",
+                "TG",
+                "TH",
+                "TJ",
+                "TK",
+                "TL",
+                "TM",
+                "TN",
+                "TO",
+                "TR",
+                "TT",
+                "TV",
+                "TW",
+                "TZ",
+                "UA",
+                "UG",
+                "UM",
+                "US",
+                "UY",
+                "UZ",
+                "VA",
+                "VC",
+                "VE",
+                "VG",
+                "VN",
+                "VU",
+                "WF",
+                "WS",
+                "XK",
+                "YE",
+                "YT",
+                "ZA",
+                "ZM",
+                "ZW"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AC",
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "AI",
+        "AL",
+        "AM",
+        "AO",
+        "AR",
+        "AT",
+        "AU",
+        "AW",
+        "AX",
+        "AZ",
+        "BA",
+        "BB",
+        "BD",
+        "BE",
+        "BF",
+        "BG",
+        "BH",
+        "BI",
+        "BJ",
+        "BL",
+        "BM",
+        "BN",
+        "BO",
+        "BQ",
+        "BR",
+        "BS",
+        "BT",
+        "BW",
+        "BY",
+        "BZ",
+        "CA",
+        "CC",
+        "CD",
+        "CF",
+        "CG",
+        "CH",
+        "CI",
+        "CK",
+        "CL",
+        "CM",
+        "CN",
+        "CO",
+        "CR",
+        "CV",
+        "CW",
+        "CX",
+        "CY",
+        "CZ",
+        "DE",
+        "DJ",
+        "DK",
+        "DM",
+        "DO",
+        "DZ",
+        "EC",
+        "EE",
+        "EG",
+        "EH",
+        "ER",
+        "ES",
+        "ET",
+        "FI",
+        "FJ",
+        "FK",
+        "FO",
+        "FR",
+        "GA",
+        "GB",
+        "GD",
+        "GE",
+        "GF",
+        "GG",
+        "GH",
+        "GI",
+        "GL",
+        "GM",
+        "GN",
+        "GP",
+        "GQ",
+        "GR",
+        "GS",
+        "GT",
+        "GW",
+        "GY",
+        "HK",
+        "HN",
+        "HR",
+        "HT",
+        "HU",
+        "ID",
+        "IE",
+        "IL",
+        "IM",
+        "IN",
+        "IO",
+        "IQ",
+        "IS",
+        "IT",
+        "JE",
+        "JM",
+        "JO",
+        "JP",
+        "KE",
+        "KG",
+        "KH",
+        "KI",
+        "KM",
+        "KN",
+        "KR",
+        "KW",
+        "KY",
+        "KZ",
+        "LA",
+        "LB",
+        "LC",
+        "LI",
+        "LK",
+        "LR",
+        "LS",
+        "LT",
+        "LU",
+        "LV",
+        "LY",
+        "MA",
+        "MC",
+        "MD",
+        "ME",
+        "MF",
+        "MG",
+        "MK",
+        "ML",
+        "MM",
+        "MN",
+        "MO",
+        "MQ",
+        "MR",
+        "MS",
+        "MT",
+        "MU",
+        "MV",
+        "MW",
+        "MX",
+        "MY",
+        "MZ",
+        "NA",
+        "NC",
+        "NE",
+        "NF",
+        "NG",
+        "NI",
+        "NL",
+        "NO",
+        "NP",
+        "NR",
+        "NU",
+        "NZ",
+        "OM",
+        "PA",
+        "PE",
+        "PF",
+        "PG",
+        "PH",
+        "PK",
+        "PL",
+        "PM",
+        "PN",
+        "PS",
+        "PT",
+        "PY",
+        "QA",
+        "RE",
+        "RO",
+        "RS",
+        "RU",
+        "RW",
+        "SA",
+        "SB",
+        "SC",
+        "SD",
+        "SE",
+        "SG",
+        "SH",
+        "SI",
+        "SJ",
+        "SK",
+        "SL",
+        "SM",
+        "SN",
+        "SO",
+        "SR",
+        "SS",
+        "ST",
+        "SV",
+        "SX",
+        "SZ",
+        "TA",
+        "TC",
+        "TD",
+        "TF",
+        "TG",
+        "TH",
+        "TJ",
+        "TK",
+        "TL",
+        "TM",
+        "TN",
+        "TO",
+        "TR",
+        "TT",
+        "TV",
+        "TW",
+        "TZ",
+        "UA",
+        "UG",
+        "UM",
+        "US",
+        "UY",
+        "UZ",
+        "VA",
+        "VC",
+        "VE",
+        "VG",
+        "VN",
+        "VU",
+        "WF",
+        "WS",
+        "XK",
+        "YE",
+        "YT",
+        "ZA",
+        "ZM",
+        "ZW"
+      ]
+    },
+    {
+      "retailer_code": "ankerpl",
+      "storefront_url": "https://www.anker.com/eu-pl",
+      "previous_shipping_countries": "AT, BE, BG, HR, CZ, DK, EE, FI, FR, GR, ES, NL, LT, LU, DE, PL, PT, RO, SE, SK, SI, HU, IT, LV",
+      "graphql_endpoint": "https://ankereu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:32.793867+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker",
+              "primaryDomain": {
+                "host": "eu.anker.com",
+                "url": "https://eu.anker.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "BG",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "ES",
+                "FI",
+                "FR",
+                "GR",
+                "HR",
+                "HU",
+                "IT",
+                "LT",
+                "LU",
+                "LV",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE",
+                "SI",
+                "SK"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "BG",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GR",
+        "HR",
+        "HU",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK"
+      ]
+    },
+    {
+      "retailer_code": "ankerfr",
+      "storefront_url": "https://www.anker.com/fr",
+      "previous_shipping_countries": "FR, IT, ES",
+      "graphql_endpoint": "https://ankerfra.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:35.062921+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker FR",
+              "primaryDomain": {
+                "host": "fr.anker.com",
+                "url": "https://fr.anker.com"
+              },
+              "shipsToCountries": [
+                "DE",
+                "ES",
+                "FR",
+                "IT"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DE",
+        "ES",
+        "FR",
+        "IT"
+      ]
+    },
+    {
+      "retailer_code": "ankernz",
+      "storefront_url": "https://www.anker.com/nz",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ankernz.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:36.226213+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NZ",
+              "primaryDomain": {
+                "host": "ankernz.myshopify.com",
+                "url": "https://ankernz.myshopify.com"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "HK",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PL",
+                "PT",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "HK",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PL",
+        "PT",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "ankeruk",
+      "storefront_url": "https://www.anker.com/uk",
+      "previous_shipping_countries": "GB",
+      "graphql_endpoint": "https://oneanker-uk.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:37.401985+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker UK",
+              "primaryDomain": {
+                "host": "uk.store.anker.com",
+                "url": "https://uk.store.anker.com"
+              },
+              "shipsToCountries": [
+                "GB"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "GB"
+      ]
+    },
+    {
+      "retailer_code": "ankervn",
+      "storefront_url": "https://www.anker.com/vn",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ankervnm.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:38.528986+00:00",
+        "error": "HTTP Error 400: Bad Request",
+        "response": {
+          "errors": [
+            {
+              "message": "Online Store channel is locked.",
+              "extensions": {
+                "code": "BAD_REQUEST"
+              }
+            }
+          ]
+        }
+      },
+      "status": "unresolved"
+    },
+    {
+      "retailer_code": "ankeritalycom",
+      "storefront_url": "https://www.ankeritaly.com/",
+      "previous_shipping_countries": "IT, FR, ES, DE, MT",
+      "graphql_endpoint": "https://anker-italy.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:39.668755+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker IT",
+              "primaryDomain": {
+                "host": "it.ankeritaly.com",
+                "url": "https://it.ankeritaly.com"
+              },
+              "shipsToCountries": [
+                "DE",
+                "ES",
+                "FR",
+                "IT",
+                "NL",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DE",
+        "ES",
+        "FR",
+        "IT",
+        "NL",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankerjapancom",
+      "storefront_url": "https://www.ankerjapan.com/",
+      "previous_shipping_countries": "JP",
+      "graphql_endpoint": "https://anker-japan-official-site.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:40.823082+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker Japan \u516c\u5f0f\u30aa\u30f3\u30e9\u30a4\u30f3\u30b9\u30c8\u30a2",
+              "primaryDomain": {
+                "host": "www.ankerjapan.com",
+                "url": "https://www.ankerjapan.com"
+              },
+              "shipsToCountries": [
+                "JP"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "JP"
+      ]
+    },
+    {
+      "retailer_code": "ankernordicscom",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankerse",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankerno",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankerfi",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankeris",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ankerdk",
+      "storefront_url": "https://www.ankernordics.com/",
+      "previous_shipping_countries": "SE, NO, DK, FI, IS",
+      "graphql_endpoint": "https://ankerneu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:41.982261+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Anker NEU",
+              "primaryDomain": {
+                "host": "checkout.ankernordics.com",
+                "url": "https://checkout.ankernordics.com"
+              },
+              "shipsToCountries": [
+                "DK",
+                "FI",
+                "IS",
+                "NO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "DK",
+        "FI",
+        "IS",
+        "NO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "minisforumau",
+      "storefront_url": "https://au.minisforum.com/",
+      "previous_shipping_countries": "AU",
+      "graphql_endpoint": "https://j94nqi-71.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:43.143564+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum AU",
+              "primaryDomain": {
+                "host": "au.minisforum.com",
+                "url": "https://au.minisforum.com"
+              },
+              "shipsToCountries": [
+                "AU",
+                "NZ"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AU",
+        "NZ"
+      ]
+    },
+    {
+      "retailer_code": "minisforumca",
+      "storefront_url": "https://ca.minisforum.com/",
+      "previous_shipping_countries": "CA",
+      "graphql_endpoint": "https://seaminisforum.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:44.308320+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum CA",
+              "primaryDomain": {
+                "host": "ca.minisforum.com",
+                "url": "https://ca.minisforum.com"
+              },
+              "shipsToCountries": [
+                "CA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "CA"
+      ]
+    },
+    {
+      "retailer_code": "minisforumhk",
+      "storefront_url": "https://minisforum.hk/",
+      "previous_shipping_countries": "HK",
+      "graphql_endpoint": "https://minisforumcn.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:45.479563+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum HK",
+              "primaryDomain": {
+                "host": "minisforum.hk",
+                "url": "https://minisforum.hk"
+              },
+              "shipsToCountries": [
+                "HK",
+                "MO",
+                "SG",
+                "TW"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "HK",
+        "MO",
+        "SG",
+        "TW"
+      ]
+    },
+    {
+      "retailer_code": "minisforumkr",
+      "storefront_url": "https://minisforum.kr/",
+      "previous_shipping_countries": "KR",
+      "graphql_endpoint": "https://minisforumkr.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:46.639804+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum KR",
+              "primaryDomain": {
+                "host": "www.minisforum.kr",
+                "url": "https://www.minisforum.kr"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PL",
+                "PT",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PL",
+        "PT",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "minisforumru",
+      "storefront_url": "https://minisforum.ru/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://store-minisforum-ru.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:47.803498+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum RU",
+              "primaryDomain": {
+                "host": "minisforum.ru",
+                "url": "https://minisforum.ru"
+              },
+              "shipsToCountries": [
+                "AD",
+                "AT",
+                "BE",
+                "BG",
+                "BY",
+                "CH",
+                "CN",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "GR",
+                "HK",
+                "HR",
+                "HU",
+                "IE",
+                "IS",
+                "IT",
+                "JP",
+                "LT",
+                "LU",
+                "LV",
+                "MC",
+                "MO",
+                "NL",
+                "NO",
+                "PH",
+                "PL",
+                "PT",
+                "RS",
+                "RU",
+                "SE",
+                "SI",
+                "TR",
+                "TW",
+                "UA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AD",
+        "AT",
+        "BE",
+        "BG",
+        "BY",
+        "CH",
+        "CN",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "GR",
+        "HK",
+        "HR",
+        "HU",
+        "IE",
+        "IS",
+        "IT",
+        "JP",
+        "LT",
+        "LU",
+        "LV",
+        "MC",
+        "MO",
+        "NL",
+        "NO",
+        "PH",
+        "PL",
+        "PT",
+        "RS",
+        "RU",
+        "SE",
+        "SI",
+        "TR",
+        "TW",
+        "UA"
+      ]
+    },
+    {
+      "retailer_code": "minisforumeu",
+      "storefront_url": "https://minisforumpc.eu/",
+      "previous_shipping_countries": "CZ, DK, AT, BE, BG, HR, EE, FI, FR, DE, GR, IE, IT, LV, LT, LU, NL, PL, PT, RO, SK, SI, ES, SE, HU, CH, AL, BY, MK, IS, BA, VA, LI, MC, SM",
+      "graphql_endpoint": "https://minisforum-eu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:48.988827+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum EU",
+              "primaryDomain": {
+                "host": "minisforumpc.eu",
+                "url": "https://minisforumpc.eu"
+              },
+              "shipsToCountries": [
+                "AD",
+                "AL",
+                "AT",
+                "BA",
+                "BE",
+                "BG",
+                "BY",
+                "CH",
+                "CY",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "ES",
+                "FI",
+                "FR",
+                "GR",
+                "HR",
+                "HU",
+                "IE",
+                "IL",
+                "IS",
+                "IT",
+                "LI",
+                "LT",
+                "LU",
+                "LV",
+                "MC",
+                "MD",
+                "ME",
+                "MK",
+                "MT",
+                "NL",
+                "NO",
+                "PL",
+                "PT",
+                "RO",
+                "RS",
+                "SE",
+                "SI",
+                "SK",
+                "SM",
+                "VA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AD",
+        "AL",
+        "AT",
+        "BA",
+        "BE",
+        "BG",
+        "BY",
+        "CH",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GR",
+        "HR",
+        "HU",
+        "IE",
+        "IL",
+        "IS",
+        "IT",
+        "LI",
+        "LT",
+        "LU",
+        "LV",
+        "MC",
+        "MD",
+        "ME",
+        "MK",
+        "MT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "RO",
+        "RS",
+        "SE",
+        "SI",
+        "SK",
+        "SM",
+        "VA"
+      ]
+    },
+    {
+      "retailer_code": "minisforumfr",
+      "storefront_url": "https://minisforumpc.fr/",
+      "previous_shipping_countries": "BE, FR, LU",
+      "graphql_endpoint": "https://minisforum-fr.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:50.129584+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum FR",
+              "primaryDomain": {
+                "host": "minisforumpc.fr",
+                "url": "https://minisforumpc.fr"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "HK",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "LU",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PL",
+                "PT",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "HK",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "LU",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PL",
+        "PT",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "minisforumus",
+      "storefront_url": "https://store.minisforum.com/",
+      "previous_shipping_countries": "US, CA, AE, AU, SA, PH, NZ, AG, BS, BB, BZ, BM, KY, DO, EC, SV, GD, HN, JM, LR, MX, NI, PA, KN, LC, TT, TC, VE, FJ, PG, WS, SB, TO, VU, SG, ID, MY, IL, KW",
+      "graphql_endpoint": "https://minisforum.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:51.264807+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum",
+              "primaryDomain": {
+                "host": "store.minisforum.com",
+                "url": "https://store.minisforum.com"
+              },
+              "shipsToCountries": [
+                "AD",
+                "AE",
+                "AG",
+                "AL",
+                "AT",
+                "AU",
+                "BB",
+                "BE",
+                "BG",
+                "BM",
+                "BS",
+                "BZ",
+                "CA",
+                "CH",
+                "CY",
+                "CZ",
+                "DE",
+                "DK",
+                "DO",
+                "EC",
+                "EE",
+                "ES",
+                "FI",
+                "FJ",
+                "FR",
+                "GB",
+                "GD",
+                "GR",
+                "HN",
+                "HR",
+                "ID",
+                "IE",
+                "IL",
+                "IS",
+                "IT",
+                "JM",
+                "JP",
+                "KN",
+                "KW",
+                "KY",
+                "LC",
+                "LI",
+                "LR",
+                "LT",
+                "LU",
+                "LV",
+                "MC",
+                "MK",
+                "MT",
+                "MX",
+                "MY",
+                "NI",
+                "NL",
+                "NO",
+                "NZ",
+                "PA",
+                "PE",
+                "PG",
+                "PH",
+                "PK",
+                "PL",
+                "PT",
+                "RO",
+                "RS",
+                "RU",
+                "SA",
+                "SB",
+                "SE",
+                "SG",
+                "SI",
+                "SK",
+                "SM",
+                "SV",
+                "TC",
+                "TH",
+                "TO",
+                "TT",
+                "TW",
+                "US",
+                "VA",
+                "VE",
+                "VN",
+                "VU",
+                "WS"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AD",
+        "AE",
+        "AG",
+        "AL",
+        "AT",
+        "AU",
+        "BB",
+        "BE",
+        "BG",
+        "BM",
+        "BS",
+        "BZ",
+        "CA",
+        "CH",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "DO",
+        "EC",
+        "EE",
+        "ES",
+        "FI",
+        "FJ",
+        "FR",
+        "GB",
+        "GD",
+        "GR",
+        "HN",
+        "HR",
+        "ID",
+        "IE",
+        "IL",
+        "IS",
+        "IT",
+        "JM",
+        "JP",
+        "KN",
+        "KW",
+        "KY",
+        "LC",
+        "LI",
+        "LR",
+        "LT",
+        "LU",
+        "LV",
+        "MC",
+        "MK",
+        "MT",
+        "MX",
+        "MY",
+        "NI",
+        "NL",
+        "NO",
+        "NZ",
+        "PA",
+        "PE",
+        "PG",
+        "PH",
+        "PK",
+        "PL",
+        "PT",
+        "RO",
+        "RS",
+        "RU",
+        "SA",
+        "SB",
+        "SE",
+        "SG",
+        "SI",
+        "SK",
+        "SM",
+        "SV",
+        "TC",
+        "TH",
+        "TO",
+        "TT",
+        "TW",
+        "US",
+        "VA",
+        "VE",
+        "VN",
+        "VU",
+        "WS"
+      ]
+    },
+    {
+      "retailer_code": "minisforumjp",
+      "storefront_url": "https://www.minisforum.jp/",
+      "previous_shipping_countries": "JP",
+      "graphql_endpoint": "https://minisforum-jp.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:52.407066+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum JP",
+              "primaryDomain": {
+                "host": "www.minisforum.jp",
+                "url": "https://www.minisforum.jp"
+              },
+              "shipsToCountries": [
+                "JP"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "JP"
+      ]
+    },
+    {
+      "retailer_code": "minisforumuk",
+      "storefront_url": "https://www.minisforum.uk/",
+      "previous_shipping_countries": "IE, GB",
+      "graphql_endpoint": "https://minisforum-uk.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:53.563396+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Minisforum UK",
+              "primaryDomain": {
+                "host": "www.minisforum.uk",
+                "url": "https://www.minisforum.uk"
+              },
+              "shipsToCountries": [
+                "GB",
+                "IE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "GB",
+        "IE"
+      ]
+    },
+    {
+      "retailer_code": "ugreenca",
+      "storefront_url": "https://ca.ugreen.com/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ugreen-ca.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:54.731522+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN CA",
+              "primaryDomain": {
+                "host": "ca.ugreen.com",
+                "url": "https://ca.ugreen.com"
+              },
+              "shipsToCountries": [
+                "CA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "CA"
+      ]
+    },
+    {
+      "retailer_code": "ugreende",
+      "storefront_url": "https://de.ugreen.com/",
+      "previous_shipping_countries": "DE, AT, DK, FR, NL, PL",
+      "graphql_endpoint": "https://ugreen-de.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:55.873259+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN DE",
+              "primaryDomain": {
+                "host": "de.ugreen.com",
+                "url": "https://de.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "DE",
+                "DK",
+                "FR",
+                "LU",
+                "NL",
+                "PL"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "DE",
+        "DK",
+        "FR",
+        "LU",
+        "NL",
+        "PL"
+      ]
+    },
+    {
+      "retailer_code": "ugreeneu",
+      "storefront_url": "https://eu.ugreen.com/",
+      "previous_shipping_countries": "BG, HR, EE, HU, PT, RO, SI, SE, AT, BE, CZ, FR, DE, IT, MT, NL, PL, ES, DK, LV, FI, LU, SK, CY, LT, CH",
+      "graphql_endpoint": "https://ugreen-eu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:57.012321+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN EU",
+              "primaryDomain": {
+                "host": "eu.ugreen.com",
+                "url": "https://eu.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "BG",
+                "CH",
+                "CN",
+                "CY",
+                "CZ",
+                "DE",
+                "DK",
+                "EE",
+                "ES",
+                "FI",
+                "FR",
+                "GR",
+                "HK",
+                "HR",
+                "HU",
+                "IT",
+                "LT",
+                "LU",
+                "LV",
+                "MO",
+                "MT",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE",
+                "SI",
+                "SK",
+                "TW"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "BG",
+        "CH",
+        "CN",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GR",
+        "HK",
+        "HR",
+        "HU",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "MO",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK",
+        "TW"
+      ]
+    },
+    {
+      "retailer_code": "ugreenfr",
+      "storefront_url": "https://fr.ugreen.com/",
+      "previous_shipping_countries": "FR, AT, BE, DE, IT, ES",
+      "graphql_endpoint": "https://ugreen-fr.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:58.149803+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN FR",
+              "primaryDomain": {
+                "host": "fr.ugreen.com",
+                "url": "https://fr.ugreen.com"
+              },
+              "shipsToCountries": [
+                "FR"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "FR"
+      ]
+    },
+    {
+      "retailer_code": "ugreenkr",
+      "storefront_url": "https://kr.ugreen.com/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ugreen-kr.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:02:59.299607+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN KR",
+              "primaryDomain": {
+                "host": "kr.ugreen.com",
+                "url": "https://kr.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "HK",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PL",
+                "PT",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "HK",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PL",
+        "PT",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasau",
+      "storefront_url": "https://nas-au.ugreen.com/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://nas-ugreen-au.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:00.486060+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT AU",
+              "primaryDomain": {
+                "host": "ai-au.ugreen.com",
+                "url": "https://ai-au.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AU"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AU"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasca",
+      "storefront_url": "https://nas-ca.ugreen.com/",
+      "previous_shipping_countries": "CA",
+      "graphql_endpoint": "https://ugreen-nas-ca.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:01.664662+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT CA",
+              "primaryDomain": {
+                "host": "ai-ca.ugreen.com",
+                "url": "https://ai-ca.ugreen.com"
+              },
+              "shipsToCountries": [
+                "CA"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "CA"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasde",
+      "storefront_url": "https://nas-de.ugreen.com/",
+      "previous_shipping_countries": "DE, AT",
+      "graphql_endpoint": "https://ugreen-de-nas.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:02.818008+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT DE",
+              "primaryDomain": {
+                "host": "ai-de.ugreen.com",
+                "url": "https://ai-de.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "CH",
+                "DE",
+                "NL"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "CH",
+        "DE",
+        "NL"
+      ]
+    },
+    {
+      "retailer_code": "ugreennases",
+      "storefront_url": "https://nas-es.ugreen.com/",
+      "previous_shipping_countries": "ES",
+      "graphql_endpoint": "https://ugreen-nas-es.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:03.974954+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT ES",
+              "primaryDomain": {
+                "host": "ai-es.ugreen.com",
+                "url": "https://ai-es.ugreen.com"
+              },
+              "shipsToCountries": [
+                "ES"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "ES"
+      ]
+    },
+    {
+      "retailer_code": "ugreennaseu",
+      "storefront_url": "https://nas-eu.ugreen.com/",
+      "previous_shipping_countries": "DE, FR, IT, NL, ES, BE, PT, RO, CZ, PL, HR, AT, BG, LT, IE, SE, GR",
+      "graphql_endpoint": "https://ugreen-nas-eu.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:05.137830+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT EU",
+              "primaryDomain": {
+                "host": "ai-eu.ugreen.com",
+                "url": "https://ai-eu.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "BE",
+                "BG",
+                "CZ",
+                "DE",
+                "ES",
+                "FR",
+                "GR",
+                "HR",
+                "IE",
+                "IT",
+                "LT",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "BE",
+        "BG",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GR",
+        "HR",
+        "IE",
+        "IT",
+        "LT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasfr",
+      "storefront_url": "https://nas-fr.ugreen.com/",
+      "previous_shipping_countries": "FR",
+      "graphql_endpoint": "https://nas-ugreen-fr.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:06.273629+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT FR",
+              "primaryDomain": {
+                "host": "ai-fr.ugreen.com",
+                "url": "https://ai-fr.ugreen.com"
+              },
+              "shipsToCountries": [
+                "FR"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "FR"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasit",
+      "storefront_url": "https://nas-it.ugreen.com/",
+      "previous_shipping_countries": "IT",
+      "graphql_endpoint": "https://ugreen-nas-it.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:07.426959+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN NAS IT",
+              "primaryDomain": {
+                "host": "ai-it.ugreen.com",
+                "url": "https://ai-it.ugreen.com"
+              },
+              "shipsToCountries": [
+                "IT"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "IT"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasuk",
+      "storefront_url": "https://nas-uk.ugreen.com/",
+      "previous_shipping_countries": "GB",
+      "graphql_endpoint": "https://ugreen-nas-uk.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:08.586295+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT UK",
+              "primaryDomain": {
+                "host": "ai-uk.ugreen.com",
+                "url": "https://ai-uk.ugreen.com"
+              },
+              "shipsToCountries": [
+                "GB"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "GB"
+      ]
+    },
+    {
+      "retailer_code": "ugreennas",
+      "storefront_url": "https://nas.ugreen.com/",
+      "previous_shipping_countries": "US",
+      "graphql_endpoint": "https://ugreen-nas.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:09.748251+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN AIoT US",
+              "primaryDomain": {
+                "host": "ai.ugreen.com",
+                "url": "https://ai.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AT",
+                "AU",
+                "BE",
+                "BG",
+                "CA",
+                "DE",
+                "ES",
+                "FR",
+                "GB",
+                "GR",
+                "HR",
+                "IE",
+                "IT",
+                "LT",
+                "NL",
+                "PL",
+                "PT",
+                "RO",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AT",
+        "AU",
+        "BE",
+        "BG",
+        "CA",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "GR",
+        "HR",
+        "IE",
+        "IT",
+        "LT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "ugreennasjp",
+      "storefront_url": "https://nas.ugreen.jp/",
+      "previous_shipping_countries": "JP",
+      "graphql_endpoint": "https://ugreen-nas-jp.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:10.906501+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN NAS JP",
+              "primaryDomain": {
+                "host": "store.ugreen.jp",
+                "url": "https://store.ugreen.jp"
+              },
+              "shipsToCountries": [
+                "JP"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "JP"
+      ]
+    },
+    {
+      "retailer_code": "ugreennl",
+      "storefront_url": "https://nl.ugreen.com/",
+      "previous_shipping_countries": "NL, BE, FR, DE, ES",
+      "graphql_endpoint": "https://ugreen-nl.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:12.113753+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN NL",
+              "primaryDomain": {
+                "host": "nl.ugreen.com",
+                "url": "https://nl.ugreen.com"
+              },
+              "shipsToCountries": [
+                "BE",
+                "DE",
+                "ES",
+                "FR",
+                "NL"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "BE",
+        "DE",
+        "ES",
+        "FR",
+        "NL"
+      ]
+    },
+    {
+      "retailer_code": "ugreenjp",
+      "storefront_url": "https://ugreen.jp/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ugreen-jp.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:13.275158+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "\u682a\u5f0f\u4f1a\u793e\u30e6\u30fc\u30b0\u30ea\u30fc\u30f3\u30fb\u30b8\u30e3\u30d1\u30f3",
+              "primaryDomain": {
+                "host": "ugreen.jp",
+                "url": "https://ugreen.jp"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "HK",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PL",
+                "PT",
+                "SE",
+                "SG",
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "HK",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PL",
+        "PT",
+        "SE",
+        "SG",
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "ugreenuk",
+      "storefront_url": "https://uk.ugreen.com/",
+      "previous_shipping_countries": "GB",
+      "graphql_endpoint": "https://ugreen-uk.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "lib/retailers_ugreen/src/ugreenuk/initial_fill/v1/mod.rs",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:14.464634+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN UK",
+              "primaryDomain": {
+                "host": "uk.ugreen.com",
+                "url": "https://uk.ugreen.com"
+              },
+              "shipsToCountries": [
+                "GB"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "GB"
+      ]
+    },
+    {
+      "retailer_code": "ugreenus",
+      "storefront_url": "https://us.ugreen.com/",
+      "previous_shipping_countries": "US",
+      "graphql_endpoint": "https://ugreenmall.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "lib/retailers_ugreen/src/ugreenus/initial_fill/v1/mod.rs",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:15.605170+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN US",
+              "primaryDomain": {
+                "host": "us.ugreen.com",
+                "url": "https://us.ugreen.com"
+              },
+              "shipsToCountries": [
+                "US"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "US"
+      ]
+    },
+    {
+      "retailer_code": "ugreencom",
+      "storefront_url": "https://www.ugreen.com/",
+      "previous_shipping_countries": "Unknown",
+      "graphql_endpoint": "https://ugreen-brandsite.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:16.756710+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "UGREEN Official Site",
+              "primaryDomain": {
+                "host": "www.ugreen.com",
+                "url": "https://www.ugreen.com"
+              },
+              "shipsToCountries": [
+                "AE",
+                "AT",
+                "AU",
+                "BE",
+                "CA",
+                "CH",
+                "CZ",
+                "DE",
+                "DK",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "HK",
+                "IE",
+                "IL",
+                "IT",
+                "JP",
+                "KR",
+                "MY",
+                "NL",
+                "NO",
+                "NZ",
+                "PH",
+                "PL",
+                "PT",
+                "SA",
+                "SE",
+                "SG",
+                "TH",
+                "US",
+                "VN"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AE",
+        "AT",
+        "AU",
+        "BE",
+        "CA",
+        "CH",
+        "CZ",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "HK",
+        "IE",
+        "IL",
+        "IT",
+        "JP",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "NZ",
+        "PH",
+        "PL",
+        "PT",
+        "SA",
+        "SE",
+        "SG",
+        "TH",
+        "US",
+        "VN"
+      ]
+    },
+    {
+      "retailer_code": "ugreenin",
+      "storefront_url": "https://www.ugreenindia.com/",
+      "previous_shipping_countries": "IN",
+      "graphql_endpoint": "https://990f9c-b7.myshopify.com/api/2026-10/graphql.json",
+      "endpoint_source": "inventory",
+      "observation": {
+        "checked_at": "2026-11-13T20:03:17.910352+00:00",
+        "http_status": 200,
+        "response": {
+          "data": {
+            "shop": {
+              "name": "Ugreen India",
+              "primaryDomain": {
+                "host": "ugreenindia.com",
+                "url": "https://ugreenindia.com"
+              },
+              "shipsToCountries": [
+                "AC",
+                "AD",
+                "AE",
+                "AF",
+                "AG",
+                "AI",
+                "AL",
+                "AM",
+                "AO",
+                "AR",
+                "AT",
+                "AU",
+                "AW",
+                "AX",
+                "AZ",
+                "BA",
+                "BB",
+                "BD",
+                "BE",
+                "BF",
+                "BG",
+                "BH",
+                "BI",
+                "BJ",
+                "BL",
+                "BM",
+                "BN",
+                "BO",
+                "BQ",
+                "BR",
+                "BS",
+                "BT",
+                "BW",
+                "BY",
+                "BZ",
+                "CA",
+                "CC",
+                "CD",
+                "CF",
+                "CG",
+                "CH",
+                "CI",
+                "CK",
+                "CL",
+                "CM",
+                "CN",
+                "CO",
+                "CR",
+                "CV",
+                "CW",
+                "CX",
+                "CY",
+                "CZ",
+                "DE",
+                "DJ",
+                "DK",
+                "DM",
+                "DO",
+                "DZ",
+                "EC",
+                "EE",
+                "EG",
+                "EH",
+                "ER",
+                "ES",
+                "ET",
+                "FI",
+                "FJ",
+                "FK",
+                "FO",
+                "FR",
+                "GA",
+                "GB",
+                "GD",
+                "GE",
+                "GF",
+                "GG",
+                "GH",
+                "GI",
+                "GL",
+                "GM",
+                "GN",
+                "GP",
+                "GQ",
+                "GR",
+                "GS",
+                "GT",
+                "GW",
+                "GY",
+                "HK",
+                "HN",
+                "HR",
+                "HT",
+                "HU",
+                "ID",
+                "IE",
+                "IL",
+                "IM",
+                "IN",
+                "IO",
+                "IQ",
+                "IS",
+                "IT",
+                "JE",
+                "JM",
+                "JO",
+                "JP",
+                "KE",
+                "KG",
+                "KH",
+                "KI",
+                "KM",
+                "KN",
+                "KR",
+                "KW",
+                "KY",
+                "KZ",
+                "LA",
+                "LB",
+                "LC",
+                "LI",
+                "LK",
+                "LR",
+                "LS",
+                "LT",
+                "LU",
+                "LV",
+                "LY",
+                "MA",
+                "MC",
+                "MD",
+                "ME",
+                "MF",
+                "MG",
+                "MK",
+                "ML",
+                "MM",
+                "MN",
+                "MO",
+                "MQ",
+                "MR",
+                "MS",
+                "MT",
+                "MU",
+                "MV",
+                "MW",
+                "MX",
+                "MY",
+                "MZ",
+                "NA",
+                "NC",
+                "NE",
+                "NF",
+                "NG",
+                "NI",
+                "NL",
+                "NO",
+                "NP",
+                "NR",
+                "NU",
+                "NZ",
+                "OM",
+                "PA",
+                "PE",
+                "PF",
+                "PG",
+                "PH",
+                "PK",
+                "PL",
+                "PM",
+                "PN",
+                "PS",
+                "PT",
+                "PY",
+                "QA",
+                "RE",
+                "RO",
+                "RS",
+                "RU",
+                "RW",
+                "SA",
+                "SB",
+                "SC",
+                "SD",
+                "SE",
+                "SG",
+                "SH",
+                "SI",
+                "SJ",
+                "SK",
+                "SL",
+                "SM",
+                "SN",
+                "SO",
+                "SR",
+                "SS",
+                "ST",
+                "SV",
+                "SX",
+                "SZ",
+                "TA",
+                "TC",
+                "TD",
+                "TF",
+                "TG",
+                "TH",
+                "TJ",
+                "TK",
+                "TL",
+                "TM",
+                "TN",
+                "TO",
+                "TR",
+                "TT",
+                "TV",
+                "TW",
+                "TZ",
+                "UA",
+                "UG",
+                "UM",
+                "US",
+                "UY",
+                "UZ",
+                "VA",
+                "VC",
+                "VE",
+                "VG",
+                "VN",
+                "VU",
+                "WF",
+                "WS",
+                "XK",
+                "YE",
+                "YT",
+                "ZA",
+                "ZM",
+                "ZW"
+              ]
+            }
+          },
+          "extensions": {
+            "cost": {
+              "requestedQueryCost": 2
+            }
+          }
+        }
+      },
+      "status": "verified",
+      "shipping_countries": [
+        "AC",
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "AI",
+        "AL",
+        "AM",
+        "AO",
+        "AR",
+        "AT",
+        "AU",
+        "AW",
+        "AX",
+        "AZ",
+        "BA",
+        "BB",
+        "BD",
+        "BE",
+        "BF",
+        "BG",
+        "BH",
+        "BI",
+        "BJ",
+        "BL",
+        "BM",
+        "BN",
+        "BO",
+        "BQ",
+        "BR",
+        "BS",
+        "BT",
+        "BW",
+        "BY",
+        "BZ",
+        "CA",
+        "CC",
+        "CD",
+        "CF",
+        "CG",
+        "CH",
+        "CI",
+        "CK",
+        "CL",
+        "CM",
+        "CN",
+        "CO",
+        "CR",
+        "CV",
+        "CW",
+        "CX",
+        "CY",
+        "CZ",
+        "DE",
+        "DJ",
+        "DK",
+        "DM",
+        "DO",
+        "DZ",
+        "EC",
+        "EE",
+        "EG",
+        "EH",
+        "ER",
+        "ES",
+        "ET",
+        "FI",
+        "FJ",
+        "FK",
+        "FO",
+        "FR",
+        "GA",
+        "GB",
+        "GD",
+        "GE",
+        "GF",
+        "GG",
+        "GH",
+        "GI",
+        "GL",
+        "GM",
+        "GN",
+        "GP",
+        "GQ",
+        "GR",
+        "GS",
+        "GT",
+        "GW",
+        "GY",
+        "HK",
+        "HN",
+        "HR",
+        "HT",
+        "HU",
+        "ID",
+        "IE",
+        "IL",
+        "IM",
+        "IN",
+        "IO",
+        "IQ",
+        "IS",
+        "IT",
+        "JE",
+        "JM",
+        "JO",
+        "JP",
+        "KE",
+        "KG",
+        "KH",
+        "KI",
+        "KM",
+        "KN",
+        "KR",
+        "KW",
+        "KY",
+        "KZ",
+        "LA",
+        "LB",
+        "LC",
+        "LI",
+        "LK",
+        "LR",
+        "LS",
+        "LT",
+        "LU",
+        "LV",
+        "LY",
+        "MA",
+        "MC",
+        "MD",
+        "ME",
+        "MF",
+        "MG",
+        "MK",
+        "ML",
+        "MM",
+        "MN",
+        "MO",
+        "MQ",
+        "MR",
+        "MS",
+        "MT",
+        "MU",
+        "MV",
+        "MW",
+        "MX",
+        "MY",
+        "MZ",
+        "NA",
+        "NC",
+        "NE",
+        "NF",
+        "NG",
+        "NI",
+        "NL",
+        "NO",
+        "NP",
+        "NR",
+        "NU",
+        "NZ",
+        "OM",
+        "PA",
+        "PE",
+        "PF",
+        "PG",
+        "PH",
+        "PK",
+        "PL",
+        "PM",
+        "PN",
+        "PS",
+        "PT",
+        "PY",
+        "QA",
+        "RE",
+        "RO",
+        "RS",
+        "RU",
+        "RW",
+        "SA",
+        "SB",
+        "SC",
+        "SD",
+        "SE",
+        "SG",
+        "SH",
+        "SI",
+        "SJ",
+        "SK",
+        "SL",
+        "SM",
+        "SN",
+        "SO",
+        "SR",
+        "SS",
+        "ST",
+        "SV",
+        "SX",
+        "SZ",
+        "TA",
+        "TC",
+        "TD",
+        "TF",
+        "TG",
+        "TH",
+        "TJ",
+        "TK",
+        "TL",
+        "TM",
+        "TN",
+        "TO",
+        "TR",
+        "TT",
+        "TV",
+        "TW",
+        "TZ",
+        "UA",
+        "UG",
+        "UM",
+        "US",
+        "UY",
+        "UZ",
+        "VA",
+        "VC",
+        "VE",
+        "VG",
+        "VN",
+        "VU",
+        "WF",
+        "WS",
+        "XK",
+        "YE",
+        "YT",
+        "ZA",
+        "ZM",
+        "ZW"
+      ]
+    }
+  ],
+  "endpoint_verification": [
+    {
+      "retailer_code": "ankerkr",
+      "url": "https://ankerkorea.co.kr/",
+      "http_status": 200,
+      "final_url": "https://ankerkorea.co.kr/",
+      "shopify_shop": [],
+      "platform_indicators": [
+        "cafe24",
+        "Cafe24"
+      ]
+    },
+    {
+      "retailer_code": "ugreenuk",
+      "url": "https://uk.ugreen.com/",
+      "http_status": 200,
+      "final_url": "https://uk.ugreen.com/",
+      "shopify_shop": [
+        "ugreen-uk.myshopify.com"
+      ],
+      "platform_indicators": [
+        "Shopify"
+      ]
+    },
+    {
+      "retailer_code": "ugreenus",
+      "url": "https://us.ugreen.com/",
+      "http_status": 200,
+      "final_url": "https://us.ugreen.com/",
+      "shopify_shop": [
+        "ugreenmall.myshopify.com"
+      ],
+      "platform_indicators": [
+        "Shopify"
+      ]
+    }
+  ],
+  "scope": "Shop-configured shipping countries, not a guarantee of checkout eligibility, active markets, or delivery for every product/address."
+}

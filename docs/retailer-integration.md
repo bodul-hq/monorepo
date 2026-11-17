@@ -4,8 +4,13 @@ How to build, or finish, the integration for one retailer storefront: the code
 that tells the pipeline where a store's sitemaps are, which of their URLs are
 products, and how to turn a product page into structured offer data.
 
-The reference implementation is `ankerau` (`lib/retailers_anker/src/ankerau/`).
+The reference implementation is `ankerau` (`lib_retailers_anker/src/ankerau/`).
 Every step below shows the matching ankerau code. Open it next to this document.
+
+The Anker, Minisforum and Ugreen crates live under `lib/retailers_<brand>`.
+Edit and test them locally; no retailer package publication is required.
+`retailer_sauce` and other supporting crates remain registry dependencies.
+Legacy `lib_retailers_<brand>` references below identify the corresponding local crate.
 
 ## How to use this document
 
@@ -26,9 +31,9 @@ This document is written so an agent can carry it out end to end.
 
 | Input               | Where to find it                                                             | ankerau                                  |
 | ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------- |
-| Retailer slug       | `RetailerCode` in `shared` (see below)                                 | `ankerau` (`RetailerCode::AnkerAu`)      |
-| Crate               | `lib/retailers_<brand>/`                                                     | `lib/retailers_anker/`                   |
-| Storefront folder   | `lib/retailers_<brand>/src/<slug>/`                                          | `lib/retailers_anker/src/ankerau/`       |
+| Retailer slug       | `RetailerCode` in `shared` (see below)                                       | `ankerau` (`RetailerCode::AnkerAu`)      |
+| Crate               | `lib_retailers_<brand>/`                                                     | `lib_retailers_anker/`                   |
+| Storefront folder   | `lib_retailers_<brand>/src/<slug>/`                                          | `lib_retailers_anker/src/ankerau/`       |
 | Platform            | Page source of a product page                                                | Next.js Pages Router (Shopify behind it) |
 | Root sitemap URLs   | `robots.txt` (`Sitemap:` lines) or `/sitemap.xml`                            | `https://www.anker.com/sitemap.xml`      |
 | Saved product pages | `../data/<slug>/offer_details/sources/*.html`, next to the monorepo checkout | `../data/ankerau/offer_details/sources/` |
@@ -71,16 +76,16 @@ done without real pages.
 `retailer_sourcing` runs one feature slice per step. Each slice handles one
 command and emits one event, and the next slice reacts to that event:
 
-| #   | Command              | What it does                                  | Retailer hook it calls                 |
-| --- | -------------------- | --------------------------------------------- | -------------------------------------- |
-| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted` |
-| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted` |
-| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                        |
-| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                   |
-| 5   | `DownloadOfferPage`  | Downloads and validates the source            | `offer_request_for`, `validate_offer_download` |
-| 6   | `ExtractOfferPage`   | Extracts the downloaded source                | `extract_for` (normally uses `architecture`) |
-| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                            |
-| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                        |
+| #   | Command              | What it does                                  | Retailer hook it calls                                     |
+| --- | -------------------- | --------------------------------------------- | ---------------------------------------------------------- |
+| 1   | `RetrieveSitemap`    | Downloads the root and child sitemaps         | `sitemap_config`, `sitemap_greylisted`                     |
+| 2   | `ProcessSitemap`     | Builds one sitemap tree from the stored files | `sitemap_config`, `sitemap_greylisted`                     |
+| 3   | `ConsolidateSitemap` | Sorts each URL into a kind of page            | `classify_link`                                            |
+| 4   | `DiscoverOffers`     | Turns every product URL into an offer         | none                                                       |
+| 5   | `DownloadOfferPage`  | Downloads and validates the source            | `offer_request_for`, `validate_offer_download`             |
+| 6   | `ExtractOfferPage`   | Extracts the downloaded source                | `extract_offer_details_for` (normally uses `architecture`) |
+| 7   | `NormalizeOffer`     | Reads the islands into a typed document       | `normalize`                                                |
+| 8   | `StructuralizeOffer` | Turns that into product variations            | `structuralize`                                            |
 
 The same hooks run offline in the development tools (section 5, step 10), on
 files in the data folder.
@@ -89,7 +94,7 @@ The five Nordic Anker markets use country-context Storefront JSON rather than
 HTML. Their facade path validates and extracts that JSON directly; an HTML
 architecture is not used to obtain market prices. Raw exports still use `.html`
 filenames. For these markets, follow the source contract and fixtures in
-[`retailers_anker`](../lib/retailers_anker/README.md) and
+[`retailers_anker`](https://github.com/bodul-hq/lib_retailers_anker) and
 [ADR 47](adr/0047-nordic-retailer-markets.md), then run the same offline stages.
 
 ### How a call reaches the storefront
@@ -105,13 +110,13 @@ lib/retailer_data_extractor/src/lib.rs          facade: <hook>_for(code, …)
   with `or_else`; the first crate that knows the code answers
         │
         ▼
-lib/retailers_<brand>/src/registry.rs           <hook>_for: one `match RetailerCode` arm per storefront
+lib_retailers_<brand>/src/registry.rs           <hook>_for: one `match RetailerCode` arm per storefront
         │
         ▼
-lib/retailers_<brand>/src/<slug>/prelude.rs     re-exports the v1 functions as <hook>_v1
+lib_retailers_<brand>/src/<slug>/prelude.rs     re-exports the v1 functions as <hook>_v1
         │
         ▼
-lib/retailers_<brand>/src/<slug>/{sitemap,offer_details}/v1/   the implementation
+lib_retailers_<brand>/src/<slug>/{sitemap,offer_details}/v1/   the implementation
 ```
 
 The service and the facade never name a storefront. A storefront is reachable
@@ -121,7 +126,7 @@ once its crate's registry has an arm for it.
 
 | Crate                     | What a storefront uses from it                                                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared`            | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
+| `shared`                  | `RetailerCode`, `SitemapConfig { sitemap_url }`, `NormalizedData`, `link::LinkKind`                                                                                 |
 | `html_extractor`          | `Architecture`, `collection`, `particle`, `trash`, `Attr`; `Backend` in tests; its `serde_json`                                                                     |
 | `retailer_sauce`          | `shopify::shopify_from_location`, `structuralized::StructuralizedData`, `availability::Availability`, `item_condition::ItemCondition`, `identifier::{Gtin, Sku, …}` |
 | `money` (`lib/money`)     | `Money::from_raw(amount, currency)`, stored as minor units                                                                                                          |
@@ -130,7 +135,7 @@ once its crate's registry has an arm for it.
 ## 3. Storefront module layout
 
 ```
-lib/retailers_anker/src/ankerau/
+lib_retailers_anker/src/ankerau/
 ├── mod.rs                      private stage modules plus `pub mod prelude`
 ├── prelude.rs                  the storefront's only public surface: v1 functions renamed to *_v1
 ├── sitemap/
@@ -139,14 +144,13 @@ lib/retailers_anker/src/ankerau/
 ├── offer_details/
 │   ├── mod.rs                  //! Offer details for this retailer.  pub mod v1;
 │   └── v1/
-│       ├── mod.rs              architecture, normalize, structuralize, data-backed tests
+│       ├── mod.rs              architecture, normalize, structuralize, test-module wiring
 │       ├── raw.rs              strict typed form of the extracted JSON (root document)
 │       ├── raw/ldjsonitem.rs   the ld+json island
 │       ├── raw/nextdata.rs     the __NEXT_DATA__ island
 │       ├── raw/nextdata/product.rs
 │       ├── normalized.rs       the normalized document and NormalizeError
-│       ├── structuralize.rs    the structuralized document and StructuralizeError
-│       └── stage_files_tests.rs  optional, see step 9
+│       └── structuralize.rs    the structuralized document and StructuralizeError
 └── catalog_offers/
     ├── mod.rs                  pub mod v1;
     └── v1/mod.rs               //! Version 1 of the catalog offers.  (placeholder, no code yet)
@@ -155,7 +159,7 @@ lib/retailers_anker/src/ankerau/
 Crate-level code shared by a brand's storefronts sits next to them:
 `retailers_anker/src/lib.rs` (`anker_from_location`) and `src/shared.rs`
 (re-exports the identifier newtypes structuralize uses from
-`retailer_sauce::identifier`).
+`retailer_sauce::prelude`).
 
 Rules:
 
@@ -182,18 +186,18 @@ Rules:
 Every storefront implements these in `v1`. The left column is the `v1` name, the
 middle one the prelude name the registry calls.
 
-| `v1` function                                          | Prelude name                    | Returns                                        |
-| ------------------------------------------------------ | ------------------------------- | ---------------------------------------------- |
-| `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                                |
-| `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap     |
-| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service     |
-| `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                     |
-| `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`             |
-| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<shared::NormalizedData, String>` |
-| `offer_details::v1::structuralize(json: &str)`         | `offer_detail_structuralize_v1` | `Result<StructuralizedData, String>`           |
+| `v1` function                                          | Prelude name                    | Returns                                    |
+| ------------------------------------------------------ | ------------------------------- | ------------------------------------------ |
+| `sitemap::v1::sitemap_config()`                        | `sitemap_config_v1`             | `SitemapConfig`                            |
+| `sitemap::v1::sitemap_greylisted(url: &str)`           | `sitemap_greylisted_v1`         | `bool`: `true` downloads the child sitemap |
+| `sitemap::v1::sitemap_pause()`                         | `sitemap_pause_v1`              | Legacy `Duration`; not used by the service |
+| `sitemap::v1::classify_link(url, source, image_count)` | `classify_link_v1`              | `LinkKind`                                 |
+| `offer_details::v1::architecture()`                    | `offer_detail_architecture_v1`  | `html_extractor::io::Architecture`         |
+| `offer_details::v1::normalize(json: &str)`             | `offer_detail_normalize_v1`     | `Result<shared::NormalizedData, String>`   |
+| `offer_details::v1::structuralize(json: &str)`         | `offer_detail_structuralize_v1` | `Result<StructuralizedData, String>`       |
 
 The registry functions wrap each in `Option`, `None` meaning "not my
-storefront". See `lib/retailers_anker/src/registry.rs`.
+storefront". See `lib_retailers_anker/src/registry.rs`.
 
 ## 5. Implementation steps
 
@@ -212,7 +216,7 @@ are expected until step 3.
 
 ### Step 2. Sitemap rules (`sitemap/v1/mod.rs`)
 
-ankerau, `lib/retailers_anker/src/ankerau/sitemap/v1/mod.rs`:
+ankerau, `lib_retailers_anker/src/ankerau/sitemap/v1/mod.rs`:
 
 ```rust
 pub fn sitemap_config() -> SitemapConfig {
@@ -294,10 +298,10 @@ Rules:
     other rule. ankerau's guard is the `starts_with("https://www.anker.com/au/")`
     check.
   - Compare in lowercase.
-  - On Shopify, fall back to `retailer_sauce::shopify::shopify_from_location`
+  - On Shopify, fall back to `retailer_sauce::prelude::shopify_from_location`
     (`/products/`, `/collections/`, `/pages/`, `/blogs/`) after the
     storefront-specific exclusions. See
-    `lib/retailers_minisforum/src/minisforumau/sitemap/v1/mod.rs` for that
+    `lib_retailers_minisforum/src/minisforumau/sitemap/v1/mod.rs` for that
     pattern.
 
 Tests in the same file, at least one per rule: one test per `LinkKind` with real
@@ -312,7 +316,7 @@ For each hook in section 4 that the storefront implements:
 
 1. Re-export it in the storefront's `prelude.rs` under its `_v1` name.
 2. Add an arm to the matching `*_for` function in
-   `lib/retailers_<brand>/src/registry.rs`, in the same position as the other
+   `lib_retailers_<brand>/src/registry.rs`, in the same position as the other
    storefronts:
 
    ```rust
@@ -324,13 +328,13 @@ For each hook in section 4 that the storefront implements:
 
 The facade in `lib/retailer_data_extractor/src/lib.rs` already chains every
 crate for every hook except one: **structuralize**. Only `retailers_anker` and
-`retailers_minisforum` have `structuralize_for` today, and the facade calls only
+`retailers_minisforum` have `structuralize_offer_details_for` today, and the facade calls only
 those two. When a storefront in another crate gets a structuralizer:
 
-- add `structuralize_for` to that crate's `registry.rs` and `prelude.rs`, with
+- add `structuralize_offer_details_for` to that crate's `registry.rs` and `prelude.rs`, with
   the same signature as Anker's (`retailers_minisforum` has one arm per
   storefront that has a structuralizer, and `None` for the rest);
-- chain it in `retailer_data_extractor::structuralize_for` with `or_else`,
+- chain it in `retailer_data_extractor::structuralize_offer_details_for` with `or_else`,
   like the other facade functions, and update that function's doc comment.
 
 **Check:** `cargo test -p retailer_data_extractor` passes. Every hook you wired
@@ -411,7 +415,7 @@ Rules:
   - No data island at all (Cafe24, `ankerkr`): the architecture only trashes
     `svg`, `normalize` checks the extraction is empty and returns
     `NormalizedData::just_document_json(None)`, and the registry's
-    `structuralize_for` arm returns
+    `structuralize_offer_details_for` arm returns
     `Some(Ok(StructuralizedData::just_document_json(None)))`. Stop and ask
     before doing this, because it means the storefront produces no offers.
 
@@ -587,15 +591,15 @@ Rules:
 
 - One `ProductVariation` per variant, carrying the variant's own price.
 - Identifiers go through validating newtypes (`TryFrom<String>`) so a bad
-  GTIN or SKU fails the page. They live in `retailer_sauce::identifier`;
+  GTIN or SKU fails the page. They come from `retailer_sauce::prelude`;
   use them from there rather than copying them.
 - Variation URL: the canonical URL for a single variant, otherwise
   `canonical?variant=<numeric id>`. Don't use the ld+json offer URL: it may
   carry tracking parameters and a different selected variant.
 - `structuralize()` mirrors `normalize()`: parse the normalized document,
   build, serialize, return `StructuralizedData::just_document_json`.
-- Outside Anker and Minisforum, wire `structuralize_for` as described in
-  step 3; in `retailers_minisforum`, add an arm to its `structuralize_for`.
+- Outside Anker and Minisforum, wire `structuralize_offer_details_for` as described in
+  step 3; in `retailers_minisforum`, add an arm to its `structuralize_offer_details_for`.
 
 Tests: the exact output shape for a fixture, identifier failures, per-variant
 URLs, the single-variant URL. ankerau's `structuralize.rs` tests are the
@@ -606,8 +610,12 @@ template.
 
 ### Step 9. Data-backed tests
 
-Unit tests use small inline fixtures. Add the three corpus tests ankerau has at
-the bottom of `offer_details/v1/mod.rs`, adjusted to the storefront:
+Unit tests use small inline fixtures and remain enabled. External HTML corpus
+tests live in the crate's `tests/html/<slug>.rs`; use `tests/html/ankerau.rs` as
+the template. Wire them from `offer_details/v1/mod.rs` with `#[cfg(test)]` and
+`#[path = "../../../../tests/html/<slug>.rs"] mod saved_page_tests;` so they
+retain private parser access. Mark each corpus test with
+`#[ignore = "requires external HTML corpus in ../data"]`.
 
 ```rust
 /// Saved product pages, kept outside the repository next to the monorepo checkout.
@@ -617,9 +625,9 @@ const DATA_DIR: &str = concat!(
 );
 ```
 
-- `pages()` returns `None` and prints `skipping: … not found` when the folder
-  is missing, so CI without the data still passes. It asserts there is at
-  least one `.html` page.
+- `pages()` returns the saved paths and fails if the folder is missing or has
+  no `.html` pages. Normal CI compiles these tests and reports them as ignored;
+  explicitly selecting them must not silently succeed without data.
 - `extracts_product_and_next_data_from_every_page`: every island is present,
   and the key facts (SKU, name, currency, price) are there.
 - `backends_agree_on_every_page`: every `html_extractor::Backend` gives the
@@ -627,12 +635,15 @@ const DATA_DIR: &str = concat!(
 - `normalizes_and_structuralizes_every_page`: runs the whole pipeline and
   collects every failure before asserting, so one run shows all of them.
 
-`stage_files_tests.rs`, which writes each stage's output to the data folder, is
-optional. ankerau keeps it commented out in `mod.rs`; `make
-process-offer-details` does the same job.
+Optional stage writers live in `tests/html/<slug>_stages.rs`, wired as
+`stage_files_tests` and explicitly ignored. Selecting them writes each stage's
+output to the external data folder; `make process-offer-details` does the same
+job. Use the `saved_page_tests` filter for read-only checks.
 
-**Check:** with the data folder present, `cargo test -p retailers_<brand>
-<slug>` runs these tests (no `skipping:` line) and they pass.
+**Check:** with the data folder present, `cargo test -p retailers_<brand> --lib
+<slug>::offer_details::v1::saved_page_tests -- --ignored` runs these tests and
+they pass. The separate `tests/offer_details_v2.rs` integration suite stays
+enabled and uses the checked-in raw/extracted JSON pairs without external data.
 
 ### Step 10. Run the pipeline on real data
 
@@ -713,3 +724,7 @@ Don't copy these:
       `unknown` URL is handled or explained.
 - [ ] `make fmt` leaves no changes and `make ci` in `lib/` passes.
 - [ ] Crate README updated if needed.
+
+## GraphQL initial fills
+
+Each brand owns one `src/graphql` engine, schema, query set and raw model. Storefronts configure endpoints, markets and token policies through thin initial-fill adapters and retain their source fixtures. Add known optional source fields to the brand model; keep unknown-field rejection. HTML models remain storefront-specific. Anker has one complete shared extracted model; see ADR 65. Preserve artifact and command/event formats and test all storefront configurations when changing shared operations. See ADR 64.
