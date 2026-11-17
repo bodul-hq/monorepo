@@ -1,5 +1,11 @@
 //! Event sourced repository module
 
+use std::error::Error as StdErrorError;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as StdFmtResult;
+use std::marker::PhantomData;
+
 use crate::aggregate::Aggregate;
 use crate::error::{EventPublisherError, EventStoreError};
 use crate::event_envelope::HasAggregateId;
@@ -15,8 +21,8 @@ pub enum RepositoryError {
     Publisher(EventPublisherError),
 }
 
-impl std::fmt::Display for RepositoryError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for RepositoryError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> StdFmtResult {
         match self {
             RepositoryError::EventStore(e) => write!(f, "Event store error: {}", e),
             RepositoryError::Publisher(e) => write!(f, "Publisher error: {}", e),
@@ -24,7 +30,7 @@ impl std::fmt::Display for RepositoryError {
     }
 }
 
-impl std::error::Error for RepositoryError {}
+impl StdErrorError for RepositoryError {}
 
 impl From<EventStoreError> for RepositoryError {
     fn from(e: EventStoreError) -> Self {
@@ -61,7 +67,7 @@ pub struct EventSourcedRepository<
 {
     event_store: S,
     event_publisher: P,
-    _phantom_aggregate: std::marker::PhantomData<A>,
+    _phantom_aggregate: PhantomData<A>,
 }
 
 impl<A: Aggregate, S: EventStore<A::Id, A::Event>> EventSourcedRepository<A, S, NoOpEventPublisher>
@@ -74,7 +80,7 @@ where
         EventSourcedRepository {
             event_store,
             event_publisher: NoOpEventPublisher,
-            _phantom_aggregate: std::marker::PhantomData,
+            _phantom_aggregate: PhantomData,
         }
     }
 }
@@ -89,7 +95,7 @@ where
         EventSourcedRepository {
             event_store,
             event_publisher,
-            _phantom_aggregate: std::marker::PhantomData,
+            _phantom_aggregate: PhantomData,
         }
     }
 

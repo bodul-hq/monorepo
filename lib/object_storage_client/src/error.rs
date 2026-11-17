@@ -1,3 +1,5 @@
+use reqwest::Error as ReqwestError;
+
 use serde::Deserialize;
 use serde_json::{Map, Value};
 
@@ -58,7 +60,7 @@ pub enum Error {
     #[error("invalid object storage configuration: {0}")]
     Configuration(&'static str),
     #[error("object storage HTTP request failed")]
-    Transport(#[source] reqwest::Error),
+    Transport(#[source] ReqwestError),
     #[error("object storage returned HTTP {status}")]
     Http {
         status: u16,
@@ -74,8 +76,8 @@ pub enum Error {
     Protocol { status: u16, detail: &'static str },
 }
 
-impl From<reqwest::Error> for Error {
-    fn from(error: reqwest::Error) -> Self {
+impl From<ReqwestError> for Error {
+    fn from(error: ReqwestError) -> Self {
         Self::Transport(error.without_url())
     }
 }

@@ -1,6 +1,9 @@
 //! Authenticated, read-only database reports. No public reporting client.
 mod store;
 
+use self::store::load;
+use crate::store::database_error;
+
 use crate::{error::Error, store::Store};
 use axum::{
     Json, Router,
@@ -14,7 +17,7 @@ pub(crate) fn routes() -> Router<Store> {
 }
 async fn database_tables(State(store): State<Store>) -> Result<Response, Error> {
     let report = store
-        .blocking(|connection| self::store::load(connection).map_err(crate::store::database_error))
+        .blocking(|connection| load(connection).map_err(database_error))
         .await?;
     Ok(([("cache-control", "no-store")], Json(report)).into_response())
 }

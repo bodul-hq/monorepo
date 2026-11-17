@@ -1,3 +1,7 @@
+use async_graphql::Error as AsyncGraphqlError;
+use header::CONTENT_TYPE;
+use header::WWW_AUTHENTICATE;
+
 use async_graphql::ErrorExtensions;
 use axum::{
     Json,
@@ -45,7 +49,7 @@ impl Error {
             Self::MethodNotAllowed => "This method is not supported for this route.",
         }
     }
-    pub fn graphql(self) -> async_graphql::Error {
+    pub fn graphql(self) -> AsyncGraphqlError {
         let code = match self {
             Self::Input(_) => "BAD_USER_INPUT",
             Self::NotFound => "NOT_FOUND",
@@ -53,7 +57,7 @@ impl Error {
             Self::Unavailable => "SERVICE_UNAVAILABLE",
             _ => "INTERNAL_SERVER_ERROR",
         };
-        async_graphql::Error::new(self.detail())
+        AsyncGraphqlError::new(self.detail())
             .extend_with(|_, extensions| extensions.set("code", code))
     }
 }
@@ -63,7 +67,7 @@ impl IntoResponse for Error {
         let status = self.status();
         let mut response = (
             status,
-            [(header::CONTENT_TYPE, "application/problem+json")],
+            [(CONTENT_TYPE, "application/problem+json")],
             Json(json!({
                 "type": "about:blank", "title": status.canonical_reason().unwrap(),
                 "status": status.as_u16(), "detail": self.detail()
@@ -73,7 +77,7 @@ impl IntoResponse for Error {
         if matches!(self, Self::Unauthorized) {
             response
                 .headers_mut()
-                .insert(header::WWW_AUTHENTICATE, "Bearer".parse().unwrap());
+                .insert(WWW_AUTHENTICATE, "Bearer".parse().unwrap());
         }
         response
     }

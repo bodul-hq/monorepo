@@ -1,6 +1,9 @@
 // @generated automatically by Diesel CLI.
 
-diesel::table! {
+use diesel::allow_tables_to_appear_in_same_query;
+use diesel::table;
+
+table! {
     event_store (id) {
         id -> Int8,
         #[max_length = 255]
@@ -14,7 +17,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     inbox_records (id) {
         id -> Uuid,
         payload -> Text,
@@ -28,7 +31,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     outbox_records (id) {
         id -> Uuid,
         payload -> Text,
@@ -43,7 +46,7 @@ diesel::table! {
 }
 
 
-diesel::allow_tables_to_appear_in_same_query!(
+allow_tables_to_appear_in_same_query!(
     event_store,
     inbox_records,
     outbox_records,

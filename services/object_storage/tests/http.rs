@@ -1,4 +1,10 @@
 mod common;
+use header::CONTENT_TYPE;
+use header::WWW_AUTHENTICATE;
+use serde_json::from_slice;
+use std::time::Duration;
+use uuid::Uuid;
+
 use axum::{
     Router,
     http::{StatusCode, header},
@@ -15,7 +21,7 @@ fn offline() -> Router {
     let pool = Pool::builder()
         .max_size(1)
         .min_idle(Some(0))
-        .connection_timeout(std::time::Duration::from_millis(30))
+        .connection_timeout(Duration::from_millis(30))
         .build_unchecked(ConnectionManager::<PgConnection>::new(
             "postgres://127.0.0.1:1/unavailable?connect_timeout=1",
         ));
@@ -43,8 +49,8 @@ async fn all_routes_authenticate_before_processing() {
                 let (status, headers, body) =
                     raw(&app, method, path, token, None, "not JSON").await;
                 assert_eq!(status, StatusCode::UNAUTHORIZED, "{method} {path}");
-                assert_eq!(headers[header::WWW_AUTHENTICATE], "Bearer");
-                problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+                assert_eq!(headers[WWW_AUTHENTICATE], "Bearer");
+                problem(status, &headers, &from_slice(&body).unwrap());
             }
         }
     }
@@ -98,7 +104,7 @@ async fn transport_errors_use_problem_details() {
             let (status, headers, body) =
                 raw(&app, "POST", path, Some(BEARER_TOKEN), content_type, "{").await;
             assert_eq!(status, StatusCode::UNSUPPORTED_MEDIA_TYPE);
-            problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+            problem(status, &headers, &from_slice(&body).unwrap());
         }
         for body in ["{", "[]", "null", "{}"] {
             let (status, headers, body) = raw(
@@ -111,7 +117,7 @@ async fn transport_errors_use_problem_details() {
             )
             .await;
             assert_eq!(status, StatusCode::BAD_REQUEST);
-            problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+            problem(status, &headers, &from_slice(&body).unwrap());
         }
     }
     for body in [
@@ -134,12 +140,12 @@ async fn rest_validates_input_before_storage() {
         json!({"idempotency_key":original["idempotency_key"],"payload":"x"}),
     ];
     for (field, value) in [
-        ("id", json!(uuid::Uuid::now_v7())),
+        ("id", json!(Uuid::now_v7())),
         ("data_id", json!("no")),
         ("created_at", json!("now")),
         ("payload", json!(1)),
         ("payload", json!("x\u{0}y")),
-        ("idempotency_key", json!(uuid::Uuid::new_v4())),
+        ("idempotency_key", json!(Uuid::new_v4())),
         ("metadata", Value::Null),
         ("metadata", json!({"\u{0}":1})),
         ("metadata", json!(["\u{0}"])),
@@ -214,10 +220,7 @@ async fn graphql_request_errors_are_classified_without_execution() {
     for (body, code) in cases {
         let (status, headers, response) = request(&app, "POST", "/graphql", body.clone()).await;
         assert_eq!(status, StatusCode::BAD_REQUEST, "{body}: {response}");
-        assert_eq!(
-            headers[header::CONTENT_TYPE],
-            "application/graphql-response+json"
-        );
+        assert_eq!(headers[CONTENT_TYPE], "application/graphql-response+json");
         assert!(response.get("data").is_none(), "{response}");
         assert_eq!(
             response["errors"][0]["extensions"]["code"], code,

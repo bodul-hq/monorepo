@@ -1,6 +1,14 @@
 //! Explicit opt-in: make test-postgres. Every test owns a random PostgreSQL
 //! schema and removes it on drop; no existing tables or records are touched.
 mod common;
+use chrono::DateTime;
+use header::CONTENT_TYPE;
+use header::LOCATION;
+use object_storage::BEARER_TOKEN;
+use serde_json::from_str;
+use std::env::var;
+use tokio::task::spawn_blocking;
+
 use axum::{
     Router,
     http::{StatusCode, header},
@@ -22,7 +30,7 @@ struct Database {
 }
 impl Database {
     fn new() -> Self {
-        let url = std::env::var("DATABASE_URL_TEST")
+        let url = var("DATABASE_URL_TEST")
             .expect("DATABASE_URL_TEST must point to an available PostgreSQL test database");
         let mut connection =
             PgConnection::establish(&url).expect("DATABASE_URL_TEST is unavailable");
@@ -45,6 +53,8 @@ impl Database {
         }
     }
     fn counts(&self) -> (i64, i64) {
+        use diesel::sql_query;
+
         #[derive(QueryableByName)]
         struct Counts {
             #[diesel(sql_type = BigInt)]
@@ -52,7 +62,7 @@ impl Database {
             #[diesel(sql_type = BigInt)]
             data: i64,
         }
-        let counts: Counts = diesel::sql_query(
+        let counts: Counts = sql_query(
             "SELECT (SELECT count(*) FROM records) AS records, (SELECT count(*) FROM data) AS data",
         )
         .get_result(&mut self.store.0.get().unwrap())
@@ -73,7 +83,7 @@ impl Drop for SchemaGuard {
     }
 }
 async fn database() -> Database {
-    tokio::task::spawn_blocking(Database::new).await.unwrap()
+    spawn_blocking(Database::new).await.unwrap()
 }
 
 #[tokio::test]
@@ -85,16 +95,16 @@ async fn round_trip_all_buckets_through_both_apis() {
         let path = format!("/api/buckets/{bucket}/records");
         let (status, headers, created) = request(&db.app, "POST", &path, body.clone()).await;
         assert_eq!(status, StatusCode::CREATED, "{created}");
-        assert_eq!(headers[header::CONTENT_TYPE], "application/json");
+        assert_eq!(headers[CONTENT_TYPE], "application/json");
         assert_eq!(created.as_object().unwrap().len(), 1);
         let id = created["id"].as_str().unwrap();
         assert_eq!(Uuid::parse_str(id).unwrap().get_version_num(), 7);
         let location = format!("{path}/{id}");
-        assert_eq!(headers[header::LOCATION], location);
+        assert_eq!(headers[LOCATION], location);
         let (status, headers, retry) = request(&db.app, "POST", &path, body.clone()).await;
         assert_eq!(status, StatusCode::OK);
         assert_eq!(retry, created);
-        assert_eq!(headers[header::LOCATION], location);
+        assert_eq!(headers[LOCATION], location);
         let (status, _, record) = request(&db.app, "GET", &location, Value::Null).await;
         assert_eq!(status, StatusCode::OK);
         assert_eq!(record.as_object().unwrap().len(), 6);
@@ -106,14 +116,11 @@ async fn round_trip_all_buckets_through_both_apis() {
             body["idempotency_key"].as_str().unwrap().to_lowercase()
         );
         assert!(record["created_at"].as_str().unwrap().ends_with('Z'));
-        chrono::DateTime::parse_from_rfc3339(record["created_at"].as_str().unwrap()).unwrap();
+        DateTime::parse_from_rfc3339(record["created_at"].as_str().unwrap()).unwrap();
         let (status, headers, gql) =
             request(&db.app, "POST", "/graphql", gql_input(bucket, &body)).await;
         assert_eq!(status, StatusCode::OK);
-        assert_eq!(
-            headers[header::CONTENT_TYPE],
-            "application/graphql-response+json"
-        );
+        assert_eq!(headers[CONTENT_TYPE], "application/graphql-response+json");
         assert_eq!(gql, json!({"data":{"createRecord":created}}));
         let (status, _, gql) = request(&db.app, "POST", "/graphql", json!({"query":"query($bucket:String!, $id:ID!){record(bucket:$bucket,id:$id){id bucket idempotencyKey payload metadata createdAt}}", "variables":{"bucket":bucket,"id":id}})).await;
         assert_eq!(status, StatusCode::OK);
@@ -167,11 +174,16 @@ async fn missing_records_wrong_buckets_and_execution_errors() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 async fn concurrent_cross_api_retries_never_leave_orphans() {
+    use diesel::sql_query as diesel_sql_query;
+    use std::sync::Arc;
+    use tokio::sync::Barrier;
+    use tokio::task::JoinSet;
+
     let db = database().await;
     for conflict in [false, true] {
         let body = input();
-        let barrier = std::sync::Arc::new(tokio::sync::Barrier::new(16));
-        let mut jobs = tokio::task::JoinSet::new();
+        let barrier = Arc::new(Barrier::new(16));
+        let mut jobs = JoinSet::new();
         for i in 0..16 {
             let app = db.app.clone();
             let mut body = body.clone();
@@ -232,7 +244,7 @@ async fn concurrent_cross_api_retries_never_leave_orphans() {
         #[diesel(sql_type = BigInt)]
         count: i64,
     }
-    let unique: Count = diesel::sql_query("SELECT count(DISTINCT data_id) AS count FROM records")
+    let unique: Count = diesel_sql_query("SELECT count(DISTINCT data_id) AS count FROM records")
         .get_result(&mut db.store.0.get().unwrap())
         .unwrap();
     assert_eq!(unique.count, 4);
@@ -245,7 +257,7 @@ async fn concurrent_cross_api_retries_never_leave_orphans() {
 async fn precise_metadata_equality_and_unsupported_values() {
     let db = database().await;
     let key = Uuid::now_v7();
-    let body: Value = serde_json::from_str(&format!(r#"{{"idempotency_key":"{key}","payload":"雪 🌍","metadata":{{"large":1234567890123456789012345678901234567890,"decimal":0.123456789012345678901234567890,"list":[1,2]}}}}"#)).unwrap();
+    let body: Value = from_str(&format!(r#"{{"idempotency_key":"{key}","payload":"雪 🌍","metadata":{{"large":1234567890123456789012345678901234567890,"decimal":0.123456789012345678901234567890,"list":[1,2]}}}}"#)).unwrap();
     let (_, headers, created) = request(
         &db.app,
         "POST",
@@ -253,7 +265,7 @@ async fn precise_metadata_equality_and_unsupported_values() {
         body.clone(),
     )
     .await;
-    let location = headers[header::LOCATION].to_str().unwrap();
+    let location = headers[LOCATION].to_str().unwrap();
     let (_, _, record) = request(&db.app, "GET", location, Value::Null).await;
     assert_eq!(
         record["metadata"]["large"].to_string(),
@@ -264,7 +276,7 @@ async fn precise_metadata_equality_and_unsupported_values() {
         "0.123456789012345678901234567890"
     );
     let mut retry = body.clone();
-    retry["metadata"] = serde_json::from_str(r#"{"list":[1.0,2e0],"decimal":0.1234567890123456789012345678900,"large":1234567890123456789012345678901234567890.0}"#).unwrap();
+    retry["metadata"] = from_str(r#"{"list":[1.0,2e0],"decimal":0.1234567890123456789012345678900,"large":1234567890123456789012345678901234567890.0}"#).unwrap();
     let (_, _, gql) = request(
         &db.app,
         "POST",
@@ -289,8 +301,7 @@ async fn precise_metadata_equality_and_unsupported_values() {
         StatusCode::CONFLICT
     );
     let mut retry = body.clone();
-    retry["metadata"]["decimal"] =
-        serde_json::from_str("0.123456789012345678901234567891").unwrap();
+    retry["metadata"]["decimal"] = from_str("0.123456789012345678901234567891").unwrap();
     let (_, _, gql) = request(
         &db.app,
         "POST",
@@ -303,8 +314,8 @@ async fn precise_metadata_equality_and_unsupported_values() {
         Value::Null,
         json!({"key":"\u{0}"}),
         json!({"\u{0}":true}),
-        serde_json::from_str("1e131072").unwrap(),
-        serde_json::from_str("1e-16384").unwrap(),
+        from_str("1e131072").unwrap(),
+        from_str("1e-16384").unwrap(),
     ] {
         let mut invalid = input();
         invalid["metadata"] = metadata;
@@ -394,7 +405,7 @@ async fn large_bodies_and_transaction_rollback() {
     let (_, _, record) = request(
         &db.app,
         "GET",
-        headers[header::LOCATION].to_str().unwrap(),
+        headers[LOCATION].to_str().unwrap(),
         Value::Null,
     )
     .await;
@@ -470,7 +481,7 @@ async fn every_non_null_json_shape_and_decoded_payloads_round_trip() {
         json!("metadata"),
         json!([null, true, 12]),
         json!(12345),
-        serde_json::from_str("0e131072").unwrap(),
+        from_str("0e131072").unwrap(),
     ] {
         let mut body = input();
         body["metadata"] = metadata.clone();
@@ -484,7 +495,7 @@ async fn every_non_null_json_shape_and_decoded_payloads_round_trip() {
             Value::Null,
         )
         .await;
-        if metadata == serde_json::from_str::<Value>("0e131072").unwrap() {
+        if metadata == from_str::<Value>("0e131072").unwrap() {
             assert_eq!(result["metadata"], json!(0));
         } else {
             assert_eq!(result["metadata"], metadata);
@@ -511,7 +522,7 @@ async fn every_non_null_json_shape_and_decoded_payloads_round_trip() {
         &db.app,
         "POST",
         "/api/buckets/sitemap_raw/records",
-        Some(object_storage::BEARER_TOKEN),
+        Some(BEARER_TOKEN),
         Some("application/json"),
         escaped,
     )
@@ -540,7 +551,7 @@ async fn startup_refuses_failed_migrations() {
         "{}{separator}options=-csearch_path%3D{}",
         db.schema.url, db.schema.schema
     );
-    let result = tokio::task::spawn_blocking(move || Store::connect(&scoped))
+    let result = spawn_blocking(move || Store::connect(&scoped))
         .await
         .unwrap();
     assert!(matches!(result, Err("Database migrations failed.")));
@@ -570,7 +581,7 @@ async fn reporting_covers_active_schema_estimates_and_storage() {
     assert_eq!(headers["cache-control"], "no-store");
     assert_eq!(report["schema_name"], db.schema.schema);
     assert_eq!(report["row_count_kind"], "estimated");
-    assert!(chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
+    assert!(DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
     let tables = report["tables"].as_array().unwrap();
     assert!(
         tables

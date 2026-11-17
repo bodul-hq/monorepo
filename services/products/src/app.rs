@@ -1,3 +1,5 @@
+use shared::health as shared_health;
+
 use crate::AppState;
 use crate::monitoring::health::HealthApi;
 use crate::orchestration::{CommandingApi, EventingApi, InboxApi, OutboxApi};
@@ -12,7 +14,7 @@ struct Query;
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        shared::health()
+        shared_health()
     }
 }
 

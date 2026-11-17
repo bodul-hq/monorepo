@@ -1,3 +1,8 @@
+use header::AUTHORIZATION;
+use header::CONTENT_TYPE;
+use serde_json::from_slice;
+use uuid::Uuid;
+
 use axum::{
     Router,
     body::Body,
@@ -12,7 +17,7 @@ pub const CREATE_QUERY: &str =
     "mutation($input: CreateRecordInput!) { createRecord(input: $input) { id } }";
 
 pub fn input() -> Value {
-    json!({"idempotency_key": uuid::Uuid::now_v7().to_string(), "payload":"Živjo 🌍", "metadata":{"source":"test","ordered":[1,2]}})
+    json!({"idempotency_key": Uuid::now_v7().to_string(), "payload":"Živjo 🌍", "metadata":{"source":"test","ordered":[1,2]}})
 }
 pub fn gql_input(bucket: &str, input: &Value) -> Value {
     json!({"query":CREATE_QUERY, "variables":{"input":{"bucket":bucket,"idempotencyKey":input["idempotency_key"],"payload":input["payload"],"metadata":input["metadata"]}}})
@@ -28,10 +33,10 @@ pub async fn raw(
 ) -> (StatusCode, HeaderMap, Vec<u8>) {
     let mut builder = Request::builder().method(method).uri(path);
     if let Some(token) = token {
-        builder = builder.header(header::AUTHORIZATION, format!("Bearer {token}"));
+        builder = builder.header(AUTHORIZATION, format!("Bearer {token}"));
     }
     if let Some(content_type) = content_type {
-        builder = builder.header(header::CONTENT_TYPE, content_type);
+        builder = builder.header(CONTENT_TYPE, content_type);
     }
     let response = app
         .clone()
@@ -60,7 +65,7 @@ pub async fn request(
         body.to_string(),
     )
     .await;
-    let body = serde_json::from_slice(&body).unwrap_or_else(|_| {
+    let body = from_slice(&body).unwrap_or_else(|_| {
         panic!(
             "Non-JSON response ({status}): {}",
             String::from_utf8_lossy(&body)
@@ -69,7 +74,7 @@ pub async fn request(
     (status, headers, body)
 }
 pub fn problem(status: StatusCode, headers: &HeaderMap, body: &Value) {
-    assert_eq!(headers[header::CONTENT_TYPE], "application/problem+json");
+    assert_eq!(headers[CONTENT_TYPE], "application/problem+json");
     assert_eq!(body["type"], "about:blank");
     assert_eq!(body["title"], status.canonical_reason().unwrap());
     assert_eq!(body["status"], status.as_u16());

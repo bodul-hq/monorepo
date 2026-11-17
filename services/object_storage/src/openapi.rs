@@ -1,5 +1,7 @@
 //! OpenAPI uses JSON Schema directly so unrestricted JSON metadata has no
 //! artificial object shape or numeric bounds imposed by a derive macro.
+use crate::model::BUCKETS;
+
 use serde_json::{Value, json};
 
 pub fn document() -> Value {
@@ -15,7 +17,7 @@ pub fn document() -> Value {
                     "properties":{"idempotency_key":{"type":"string","format":"uuid","description":"UUIDv7"},"payload":{"type":"string"},"metadata":{"not":{"type":"null"}}}},
                 "Created": {"type":"object","additionalProperties":false,"required":["id"],"properties":{"id":{"type":"string","format":"uuid"}}},
                 "Record": {"type":"object","additionalProperties":false,"required":["id","bucket","idempotency_key","payload","metadata","created_at"],"properties":{
-                    "id":{"type":"string","format":"uuid"},"bucket":{"type":"string","enum":crate::model::BUCKETS},
+                    "id":{"type":"string","format":"uuid"},"bucket":{"type":"string","enum":BUCKETS},
                     "idempotency_key":{"type":"string","format":"uuid"},"payload":{"type":"string"},"metadata":{"not":{"type":"null"}},"created_at":{"type":"string","format":"date-time","description":"UTC with Z suffix"}}},
                 "Problem": {"type":"object","required":["type","title","status","detail"],"properties":{"type":{"type":"string","const":"about:blank"},"title":{"type":"string"},"status":{"type":"integer"},"detail":{"type":"string"}}}
             }
@@ -24,7 +26,7 @@ pub fn document() -> Value {
             "/api/health":{"get":{"summary":"Liveness", "responses":{"200":{"description":"Alive","content":{"text/plain":{"schema":{"type":"string","const":"ok"}}}}}}},
             "/api/buckets/{bucket}/records":{"post":{
                 "summary":"Create an immutable record, or retry by idempotency key",
-                "parameters":[{"name":"bucket","in":"path","required":true,"schema":{"type":"string","enum":crate::model::BUCKETS}}],
+                "parameters":[{"name":"bucket","in":"path","required":true,"schema":{"type":"string","enum":BUCKETS}}],
                 "requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CreateRecord"}}}},
                 "responses":{
                     "201":created("New record"),"200":created("Matching retry"),
@@ -33,7 +35,7 @@ pub fn document() -> Value {
             }},
             "/api/buckets/{bucket}/records/{id}":{"get":{
                 "summary":"Retrieve a record within its bucket",
-                "parameters":[{"name":"bucket","in":"path","required":true,"schema":{"type":"string","enum":crate::model::BUCKETS}},{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid","description":"UUIDv7"}}],
+                "parameters":[{"name":"bucket","in":"path","required":true,"schema":{"type":"string","enum":BUCKETS}},{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid","description":"UUIDv7"}}],
                 "responses":{"200":{"description":"Record","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Record"}}}},"400":problem("Invalid bucket or UUIDv7"),"404":problem("No matching record"),"500":problem("Unexpected failure"),"503":problem("Storage temporarily unavailable")}
             }},
             "/api/openapi.json":{"get":{"summary":"OpenAPI document","responses":{"200":{"description":"OpenAPI 3.1 document","content":{"application/json":{"schema":{"type":"object"}}}}}}},

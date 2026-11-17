@@ -1,3 +1,15 @@
+use axum::http::HeaderMap;
+use axum::http::StatusCode;
+use axum::serve as axum_serve;
+use std::net::TcpListener as StdNetTcpListener;
+use tokio::net::TcpListener;
+use tokio::runtime::Runtime;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::task::spawn_blocking;
+use tokio::time::sleep;
+use tokio::time::timeout;
+
 use super::*;
 use axum::{
     Json, Router,
@@ -9,7 +21,7 @@ use std::sync::{Arc, Mutex};
 
 struct TestServer {
     url: String,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 
 impl Drop for TestServer {
@@ -19,10 +31,10 @@ impl Drop for TestServer {
 }
 
 async fn serve(app: Router) -> TestServer {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
+    let task = spawn(async move {
+        axum_serve(listener, app).await.unwrap();
     });
     TestServer { url, task }
 }
@@ -32,14 +44,14 @@ fn submission(message_id: Uuid) -> Value {
 }
 
 async fn submit(client: InboxClient, expected: Uuid) -> Result<(), SubmitError> {
-    tokio::task::spawn_blocking(move || client.submit(&submission(expected), expected))
+    spawn_blocking(move || client.submit(&submission(expected), expected))
         .await
         .unwrap()
 }
 
 #[test]
 fn configuration_accepts_only_origins() {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     for origin in [
         "http://localhost",
         "https://offers.example/",
@@ -98,21 +110,19 @@ async fn posts_the_submission_as_json_and_confirms_the_matching_uuid() {
     let captured = seen.clone();
     let app = Router::new().route(
         "/api/inbox",
-        post(
-            move |headers: axum::http::HeaderMap, Json(body): Json<Value>| {
-                let captured = captured.clone();
-                async move {
-                    let content_type = headers
-                        .get("content-type")
-                        .map(|value| value.to_str().unwrap().to_owned());
-                    captured.lock().unwrap().push((content_type, body.clone()));
-                    (
-                        axum::http::StatusCode::ACCEPTED,
-                        Json(json!({"message_id":body["message_id"]})),
-                    )
-                }
-            },
-        ),
+        post(move |headers: HeaderMap, Json(body): Json<Value>| {
+            let captured = captured.clone();
+            async move {
+                let content_type = headers
+                    .get("content-type")
+                    .map(|value| value.to_str().unwrap().to_owned());
+                captured.lock().unwrap().push((content_type, body.clone()));
+                (
+                    StatusCode::ACCEPTED,
+                    Json(json!({"message_id":body["message_id"]})),
+                )
+            }
+        }),
     );
     let server = serve(app).await;
     let client = InboxClient::new(&server.url, Handle::current()).unwrap();
@@ -145,7 +155,7 @@ async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
                     async move {
                         *captured.lock().unwrap() += 1;
                         (
-                            axum::http::StatusCode::from_u16(status).unwrap(),
+                            StatusCode::from_u16(status).unwrap(),
                             [("location", "/must-not-follow")],
                             "private response body",
                         )
@@ -158,7 +168,7 @@ async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
                     let redirected = redirected.clone();
                     async move {
                         *redirected.lock().unwrap() += 1;
-                        axum::http::StatusCode::OK
+                        StatusCode::OK
                     }
                 }),
             );
@@ -185,7 +195,7 @@ async fn rejects_invalid_oversized_and_mismatched_acknowledgements() {
             "/api/inbox",
             post(move || {
                 let body = body.clone();
-                async move { (axum::http::StatusCode::ACCEPTED, body) }
+                async move { (StatusCode::ACCEPTED, body) }
             }),
         );
         let server = serve(app).await;
@@ -202,21 +212,21 @@ async fn bounds_total_time_and_reports_connection_failure() {
     let server = serve(Router::new().route(
         "/api/inbox",
         post(|| async {
-            tokio::time::sleep(Duration::from_secs(1)).await;
-            axum::http::StatusCode::ACCEPTED.into_response()
+            sleep(Duration::from_secs(1)).await;
+            StatusCode::ACCEPTED.into_response()
         }),
     ))
     .await;
     let client =
         InboxClient::with_timeout(&server.url, Handle::current(), Duration::from_millis(30))
             .unwrap();
-    let outcome = tokio::time::timeout(Duration::from_millis(500), submit(client, Uuid::now_v7()))
+    let outcome = timeout(Duration::from_millis(500), submit(client, Uuid::now_v7()))
         .await
         .expect("client deadline must fire before the delayed response");
     assert!(outcome.is_err());
     drop(server);
     // Release an ephemeral listener so the subsequent connection is refused.
-    let unavailable = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let unavailable = StdNetTcpListener::bind("127.0.0.1:0").unwrap();
     let address = format!("http://{}", unavailable.local_addr().unwrap());
     drop(unavailable);
     let client = InboxClient::new(&address, Handle::current()).unwrap();
@@ -228,10 +238,14 @@ async fn bounds_total_time_and_reports_connection_failure() {
 
 /// Accepts one connection and answers `202` with a chunked body.
 async fn chunked_response(chunks: Vec<(Duration, Vec<u8>)>) -> TestServer {
+    use tokio::net::TcpListener as TokioNetTcpListener;
+    use tokio::spawn as tokio_spawn;
+    use tokio::time::sleep as tokio_time_sleep;
+
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TokioNetTcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
+    let task = tokio_spawn(async move {
         let (mut stream, _) = listener.accept().await.unwrap();
         let mut request = Vec::new();
         let mut buffer = [0_u8; 1024];
@@ -244,7 +258,7 @@ async fn chunked_response(chunks: Vec<(Duration, Vec<u8>)>) -> TestServer {
         }
         if stream.write_all(b"HTTP/1.1 202 Accepted\r\nContent-Type: application/json\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n").await.is_err() { return; }
         for (delay, bytes) in chunks {
-            tokio::time::sleep(delay).await;
+            tokio_time_sleep(delay).await;
             let mut chunk = format!("{:X}\r\n", bytes.len()).into_bytes();
             chunk.extend_from_slice(&bytes);
             chunk.extend_from_slice(b"\r\n");
@@ -282,7 +296,7 @@ async fn deadline_covers_a_slow_acknowledgement_body() {
     let client =
         InboxClient::with_timeout(&server.url, Handle::current(), Duration::from_millis(30))
             .unwrap();
-    let outcome = tokio::time::timeout(Duration::from_millis(500), submit(client, expected))
+    let outcome = timeout(Duration::from_millis(500), submit(client, expected))
         .await
         .expect("the deadline must cover reading a streamed response body");
     assert!(outcome.is_err());

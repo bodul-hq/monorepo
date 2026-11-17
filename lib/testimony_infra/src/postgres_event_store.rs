@@ -4,6 +4,17 @@
 //! Events are stored in an `event_store` table and loaded/appended with proper
 //! sequencing and validation.
 
+use diesel::sql_query;
+use everyday::prelude::DateTime as EverydayDateTime;
+use serde_json::from_value;
+use serde_json::json as serde_json_json;
+use serde_json::to_value;
+use std::any::type_name;
+use std::fmt::Debug as StdFmtDebug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as StdFmtResult;
+
 use chrono::DateTime;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
@@ -83,8 +94,8 @@ impl<Id, E, R> Clone for PostgresEventStore<Id, E, R> {
     }
 }
 
-impl<Id, E, R> std::fmt::Debug for PostgresEventStore<Id, E, R> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<Id, E, R> StdFmtDebug for PostgresEventStore<Id, E, R> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> StdFmtResult {
         f.debug_struct("PostgresEventStore")
             .field("table_name", &self.table_name)
             .finish()
@@ -123,9 +134,9 @@ where
     E: Clone + HasAggregateId,
     R: Serialize + DeserializeOwned + HasAggregateId,
     for<'a> R: TryFrom<&'a E>,
-    for<'a> <R as TryFrom<&'a E>>::Error: std::fmt::Display,
+    for<'a> <R as TryFrom<&'a E>>::Error: Display,
     E: TryFrom<R>,
-    <E as TryFrom<R>>::Error: std::fmt::Display,
+    <E as TryFrom<R>>::Error: Display,
 {
     fn load(&self, id: Id) -> Result<Vec<EventEnvelope<E>>, EventStoreError> {
         let mut conn = self
@@ -154,9 +165,9 @@ where
     E: Clone + HasAggregateId,
     R: Serialize + DeserializeOwned + HasAggregateId,
     for<'a> R: TryFrom<&'a E>,
-    for<'a> <R as TryFrom<&'a E>>::Error: std::fmt::Display,
+    for<'a> <R as TryFrom<&'a E>>::Error: Display,
     E: TryFrom<R>,
-    <E as TryFrom<R>>::Error: std::fmt::Display,
+    <E as TryFrom<R>>::Error: Display,
 {
     fn load(&self, id: Id) -> Result<Vec<EventEnvelope<E>>, EventStoreError> {
         let id_str = id.to_string();
@@ -170,7 +181,7 @@ where
             self.table_name
         );
 
-        let records: Vec<EventStoreRecord> = diesel::sql_query(query)
+        let records: Vec<EventStoreRecord> = sql_query(query)
             .bind::<Text, _>(&id_str)
             .load(&mut **conn)
             .map_err(|e| EventStoreError::LoadFailed(format!("Query failed: {}", e)))?;
@@ -178,7 +189,7 @@ where
         let mut envelopes = Vec::with_capacity(records.len());
 
         for record in records {
-            let event_record: R = serde_json::from_value(record.payload.clone()).map_err(|e| {
+            let event_record: R = from_value(record.payload.clone()).map_err(|e| {
                 EventStoreError::LoadFailed(format!(
                     "Failed to deserialize event {}: {}",
                     record.payload_type, e
@@ -196,7 +207,7 @@ where
                 event,
                 u64::try_from(record.sequence)
                     .map_err(|_| EventStoreError::LoadFailed("negative event sequence".into()))?,
-                everyday::prelude::DateTime::from_timestamp(record.recorded_on.timestamp()),
+                EverydayDateTime::from_timestamp(record.recorded_on.timestamp()),
             );
 
             envelopes.push(envelope);
@@ -238,14 +249,14 @@ where
         let mut conn = self.conn.borrow_mut();
 
         // Get the type name for payload_type column
-        let payload_type = std::any::type_name::<R>();
+        let payload_type = type_name::<R>();
 
         for envelope in events {
             let event = envelope.event();
             let event_record: R = event.try_into().map_err(|e| {
                 EventStoreError::AppendFailed(format!("Failed to convert event to record: {}", e))
             })?;
-            let payload = serde_json::to_value(&event_record).map_err(|e| {
+            let payload = to_value(&event_record).map_err(|e| {
                 EventStoreError::AppendFailed(format!("Failed to serialize event: {}", e))
             })?;
 
@@ -253,7 +264,7 @@ where
                 DateTime::from_timestamp(envelope.recorded_at().timestamp(), 0).unwrap_or_default();
 
             // Serialize envelope metadata for the metadata column
-            let metadata = serde_json::json!({
+            let metadata = serde_json_json!({
                 "sequence": envelope.sequence(),
                 "recorded_at": envelope.recorded_at().timestamp(),
             });
@@ -275,7 +286,7 @@ where
                 self.table_name
             );
 
-            diesel::sql_query(insert_query)
+            sql_query(insert_query)
                 .bind::<Text, _>(&record.agg_id)
                 .bind::<BigInt, _>(record.sequence)
                 .bind::<Text, _>(&record.payload_type)
@@ -294,6 +305,9 @@ where
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as serde_json_from_value;
+    use serde_json::to_value as serde_json_to_value;
+
     use super::*;
     use chrono::Utc;
     use serde::{Deserialize, Serialize};
@@ -319,8 +333,8 @@ mod tests {
             data: "test data".to_string(),
         };
 
-        let payload = serde_json::to_value(&event).unwrap();
-        let restored: TestEvent = serde_json::from_value(payload).unwrap();
+        let payload = serde_json_to_value(&event).unwrap();
+        let restored: TestEvent = serde_json_from_value(payload).unwrap();
 
         assert_eq!(event, restored);
     }
@@ -337,7 +351,7 @@ mod tests {
             Utc::now(),
         );
 
-        let event: TestEvent = serde_json::from_value(record.payload).unwrap();
+        let event: TestEvent = serde_json_from_value(record.payload).unwrap();
 
         assert_eq!(event.id, "agg-1");
         assert_eq!(event.data, "hello");
@@ -345,7 +359,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_wrong_structure_fails() {
-        let result: Result<TestEvent, _> = serde_json::from_value(json!({"wrong": "structure"}));
+        let result: Result<TestEvent, _> = serde_json_from_value(json!({"wrong": "structure"}));
         assert!(result.is_err());
     }
 }

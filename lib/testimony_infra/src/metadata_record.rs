@@ -1,5 +1,8 @@
 //! Database record representation of Metadata for Diesel PostgreSQL storage.
 
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use testimony::prelude::Metadata;
@@ -36,15 +39,14 @@ impl MetadataRecord {
 impl From<Metadata> for MetadataRecord {
     fn from(metadata: Metadata) -> Self {
         let data_json =
-            serde_json::to_string(metadata.as_map()).unwrap_or_else(|_| "{}".to_string());
+            serde_json_to_string(metadata.as_map()).unwrap_or_else(|_| "{}".to_string());
         Self { data_json }
     }
 }
 
 impl From<MetadataRecord> for Metadata {
     fn from(record: MetadataRecord) -> Self {
-        let map: HashMap<String, String> =
-            serde_json::from_str(&record.data_json).unwrap_or_default();
+        let map: HashMap<String, String> = from_str(&record.data_json).unwrap_or_default();
         Metadata::from_map(map)
     }
 }
@@ -52,7 +54,7 @@ impl From<MetadataRecord> for Metadata {
 impl From<&Metadata> for MetadataRecord {
     fn from(metadata: &Metadata) -> Self {
         let data_json =
-            serde_json::to_string(metadata.as_map()).unwrap_or_else(|_| "{}".to_string());
+            serde_json_to_string(metadata.as_map()).unwrap_or_else(|_| "{}".to_string());
         Self { data_json }
     }
 }
@@ -65,6 +67,9 @@ impl Default for MetadataRecord {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as serde_json_from_str;
+    use serde_json::to_string as serde_json_to_string2;
+
     use super::*;
 
     #[test]
@@ -88,7 +93,7 @@ mod tests {
         let record: MetadataRecord = metadata.into();
 
         // Parse the JSON to verify it contains the expected keys
-        let parsed: HashMap<String, String> = serde_json::from_str(record.as_json()).unwrap();
+        let parsed: HashMap<String, String> = serde_json_from_str(record.as_json()).unwrap();
         assert_eq!(parsed.get("correlation_id"), Some(&"abc-123".to_string()));
         assert_eq!(parsed.get("user_id"), Some(&"user-456".to_string()));
     }
@@ -100,7 +105,7 @@ mod tests {
 
         let record: MetadataRecord = (&metadata).into();
 
-        let parsed: HashMap<String, String> = serde_json::from_str(record.as_json()).unwrap();
+        let parsed: HashMap<String, String> = serde_json_from_str(record.as_json()).unwrap();
         assert_eq!(parsed.get("key"), Some(&"value".to_string()));
     }
 
@@ -161,8 +166,8 @@ mod tests {
     fn serde_serialization_works() {
         let record = MetadataRecord::new(r#"{"key":"value"}"#.to_string());
 
-        let serialized = serde_json::to_string(&record).unwrap();
-        let deserialized: MetadataRecord = serde_json::from_str(&serialized).unwrap();
+        let serialized = serde_json_to_string2(&record).unwrap();
+        let deserialized: MetadataRecord = serde_json_from_str(&serialized).unwrap();
 
         assert_eq!(record, deserialized);
     }
