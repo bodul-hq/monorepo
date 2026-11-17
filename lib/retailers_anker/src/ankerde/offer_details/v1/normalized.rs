@@ -2,6 +2,10 @@
 //! the flight payload's product record both cross, because reconciling them is structuralization's
 //! job; what nothing needs stays behind as the commented-out exclusion records.
 
+use chrono::ParseError;
+use ldjson::LdJson;
+use product::ProductRecord;
+use raw::AnkerdeRawDocument;
 pub mod ldjson;
 pub mod product;
 
@@ -27,17 +31,14 @@ pub enum NormalizeError {
     NotMoney { field: String, source: MoneyError },
 
     #[error("publishedAt `{value}` is not an RFC 3339 instant: {source}")]
-    PublishedAtNotAnInstant {
-        value: String,
-        source: chrono::ParseError,
-    },
+    PublishedAtNotAnInstant { value: String, source: ParseError },
 
     #[error("discount `{code}` `{field}` `{value}` is not an RFC 3339 instant: {source}")]
     DiscountInstantNotAnInstant {
         code: String,
         field: String,
         value: String,
-        source: chrono::ParseError,
+        source: ParseError,
     },
 
     #[error("discount `{code}` has an unknown `value_type` `{value_type}`")]
@@ -66,17 +67,15 @@ fn decimal(raw: &str, field: &str) -> Result<f64, NormalizeError> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnkerdeNormalizedDocument {
-    pub ld_json: ldjson::LdJson,
-    pub product: product::ProductRecord,
+    pub ld_json: LdJson,
+    pub product: ProductRecord,
 }
 
 impl AnkerdeNormalizedDocument {
-    pub fn from_raw(
-        raw: raw::AnkerdeRawDocument,
-    ) -> Result<AnkerdeNormalizedDocument, NormalizeError> {
+    pub fn from_raw(raw: AnkerdeRawDocument) -> Result<AnkerdeNormalizedDocument, NormalizeError> {
         Ok(AnkerdeNormalizedDocument {
-            ld_json: ldjson::LdJson::from_raw(raw.ld_json)?,
-            product: product::ProductRecord::from_raw(raw.flight.product)?,
+            ld_json: LdJson::from_raw(raw.ld_json)?,
+            product: ProductRecord::from_raw(raw.flight.product)?,
         })
     }
 }

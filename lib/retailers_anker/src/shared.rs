@@ -1,18 +1,14 @@
 //! Identifier types used by the retailer modules in this crate. They live in `retailer_sauce`, so
 //! storefronts outside this crate build the same ones.
 
+use html_extractor::serde_json::Value;
 pub use retailer_sauce::identifier::*;
 
 /// Old AU/US crawls also saved pages from other regions. Their App Router JSON-LD is an
 /// array and their payload is not readable by these Pages Router integrations. Skip only
 /// documents whose product URLs positively identify another known storefront; malformed or
 /// missing product data must still fail normalization.
-pub(crate) fn is_other_storefront(
-    document: &html_extractor::serde_json::Value,
-    region: &str,
-) -> bool {
-    use html_extractor::serde_json::Value;
-
+pub(crate) fn is_other_storefront(document: &Value, region: &str) -> bool {
     if document.get("next_data").is_some() {
         return false;
     }

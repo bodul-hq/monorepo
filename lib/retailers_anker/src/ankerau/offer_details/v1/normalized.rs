@@ -3,11 +3,20 @@
 //! commented-out types below, kept as exclusion records rather than deleted).
 
 use super::raw;
+use chrono::ParseError;
 use chrono::{DateTime, Utc};
 use html_extractor::serde_json::Value;
+use ldjson::LdJson as LdjsonLdJson;
 use money::{Money, MoneyError};
+use raw::AnkerAuRawDocument;
+use raw::nextdata::product::Image;
+use raw::nextdata::product::OptionValue as ProductOptionValue;
+use raw::nextdata::product::Product as ProductProduct;
+use raw::nextdata::product::ProductOption as ProductProductOption;
+use raw::nextdata::product::Variant as NextdataProductVariant;
 use retailer_sauce::item_condition::ItemCondition;
 use serde::{Deserialize, Serialize};
+use std::mem::take;
 use std::num::ParseFloatError;
 use thiserror::Error;
 
@@ -17,10 +26,7 @@ pub enum NormalizeError {
     MissingProductIsland,
 
     #[error("publishedAt `{value}` is not an RFC 3339 instant: {source}")]
-    PublishedAtNotAnInstant {
-        value: String,
-        source: chrono::ParseError,
-    },
+    PublishedAtNotAnInstant { value: String, source: ParseError },
 
     #[error("`{path}` is not a list")]
     NotAList { path: String },
@@ -46,7 +52,7 @@ pub enum NormalizeError {
     NotAnInstant {
         field: String,
         value: String,
-        source: chrono::ParseError,
+        source: ParseError,
     },
 
     #[error("unknown `value_type` `{value_type}`: {entry}")]
@@ -68,7 +74,7 @@ fn money(amount: f64, currency: &str, field: &str) -> Result<Money, NormalizeErr
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnkerAuNormalizedDocument {
-    pub ld_json: ldjson::LdJson,
+    pub ld_json: LdjsonLdJson,
     pub product: ProductRecord,
     pub variants: Vec<Variant>,
 
@@ -76,14 +82,14 @@ pub struct AnkerAuNormalizedDocument {
 }
 
 impl AnkerAuNormalizedDocument {
-    pub fn from_raw(raw: raw::AnkerAuRawDocument) -> Result<Self, NormalizeError> {
-        let ld_json = ldjson::LdJson::from_raw(raw.ld_json)?;
+    pub fn from_raw(raw: AnkerAuRawDocument) -> Result<Self, NormalizeError> {
+        let ld_json = LdjsonLdJson::from_raw(raw.ld_json)?;
 
         let page_props = raw.next_data.data.props.page_props;
         let canonical_url = page_props.seo.canonical;
 
         let mut raw_product = page_props.product;
-        let variants = variants(std::mem::take(&mut raw_product.variants))?;
+        let variants = variants(take(&mut raw_product.variants))?;
         let product = ProductRecord::from_raw(raw_product, &page_props.metafields)?;
 
         Ok(AnkerAuNormalizedDocument {
@@ -95,11 +101,18 @@ impl AnkerAuNormalizedDocument {
     }
 }
 
-fn variants(raw: Vec<raw::nextdata::product::Variant>) -> Result<Vec<Variant>, NormalizeError> {
+fn variants(raw: Vec<NextdataProductVariant>) -> Result<Vec<Variant>, NormalizeError> {
     raw.into_iter().map(Variant::from_raw).collect()
 }
 
 pub mod ldjson {
+    use super::ItemCondition as SuperItemCondition;
+    use super::money as super_money;
+    use offer::Offer as OfferOffer;
+    use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+    use raw::ldjsonitem::LdJsonItem;
+    use raw::ldjsonitem::Product as LdjsonitemProduct;
+    use retailer_sauce::availability::Availability;
 
     use super::NormalizeError;
     use super::raw;
@@ -111,22 +124,20 @@ pub mod ldjson {
     }
 
     impl LdJson {
-        pub(crate) fn from_raw(
-            items: Vec<raw::ldjsonitem::LdJsonItem>,
-        ) -> Result<LdJson, NormalizeError> {
+        pub(crate) fn from_raw(items: Vec<LdJsonItem>) -> Result<LdJson, NormalizeError> {
             let mut product: Option<Product> = None;
 
             for item in items {
                 match item.data {
-                    raw::ldjsonitem::LdJson::Product(island) => {
+                    LdjsonitemLdJson::Product(island) => {
                         // First island wins; no document in the subset carries two.
                         if product.is_none() {
                             product = Some(Product::from_raw(island)?);
                         }
                     }
-                    raw::ldjsonitem::LdJson::Corporation(_) => {}
-                    raw::ldjsonitem::LdJson::BreadcrumbList(_) => {}
-                    raw::ldjsonitem::LdJson::FaqPage(_) => {}
+                    LdjsonitemLdJson::Corporation(_) => {}
+                    LdjsonitemLdJson::BreadcrumbList(_) => {}
+                    LdjsonitemLdJson::FaqPage(_) => {}
                 }
             }
 
@@ -143,18 +154,16 @@ pub mod ldjson {
         pub images: Vec<String>,
         pub gtin: Option<String>,
         pub sku: String,
-        pub offer: offer::Offer,
+        pub offer: OfferOffer,
     }
 
     impl Product {
-        pub(crate) fn from_raw(raw: raw::ldjsonitem::Product) -> Result<Product, NormalizeError> {
-            let price = super::money(raw.offers.price, &raw.offers.price_currency, "offers.price")?;
+        pub(crate) fn from_raw(raw: LdjsonitemProduct) -> Result<Product, NormalizeError> {
+            let price = super_money(raw.offers.price, &raw.offers.price_currency, "offers.price")?;
 
-            let offer = offer::Offer {
-                availability: Some(retailer_sauce::availability::Availability::from_schema_org(
-                    raw.offers.availability,
-                )),
-                item_condition: super::ItemCondition::from_schema_org(raw.offers.item_condition),
+            let offer = OfferOffer {
+                availability: Some(Availability::from_schema_org(raw.offers.availability)),
+                item_condition: SuperItemCondition::from_schema_org(raw.offers.item_condition),
                 price,
                 url: raw.offers.url,
             };
@@ -172,6 +181,8 @@ pub mod ldjson {
     }
 
     pub mod offer {
+        use retailer_sauce::availability::Availability;
+
         use money::Money;
         pub use retailer_sauce::item_condition::ItemCondition;
         use serde::{Deserialize, Serialize};
@@ -179,7 +190,7 @@ pub mod ldjson {
         #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
         pub struct Offer {
             #[serde(default)]
-            pub availability: Option<retailer_sauce::availability::Availability>,
+            pub availability: Option<Availability>,
             pub item_condition: ItemCondition,
             pub price: Money,
             pub url: String,
@@ -305,10 +316,7 @@ pub struct ProductRecord {
 }
 
 impl ProductRecord {
-    pub fn from_raw(
-        raw: raw::nextdata::product::Product,
-        page_metafields: &Value,
-    ) -> Result<Self, NormalizeError> {
+    pub fn from_raw(raw: ProductProduct, page_metafields: &Value) -> Result<Self, NormalizeError> {
         let price = money(raw.price.value, &raw.price.currency_code, "price.value")?;
 
         let compare_at_price = (raw.list_price > 0.0)
@@ -464,7 +472,7 @@ pub struct ProductImage {
 }
 
 impl ProductImage {
-    fn from_raw(raw: raw::nextdata::product::Image) -> ProductImage {
+    fn from_raw(raw: Image) -> ProductImage {
         ProductImage {
             url: raw.url,
             alt_text: raw.alt_text,
@@ -483,7 +491,7 @@ pub struct ProductOption {
 }
 
 impl ProductOption {
-    fn from_raw(raw: raw::nextdata::product::ProductOption) -> ProductOption {
+    fn from_raw(raw: ProductProductOption) -> ProductOption {
         ProductOption {
             id: raw.id,
             name: raw.name,
@@ -500,7 +508,7 @@ pub struct OptionValue {
 }
 
 impl OptionValue {
-    fn from_raw(raw: raw::nextdata::product::OptionValue) -> OptionValue {
+    fn from_raw(raw: ProductOptionValue) -> OptionValue {
         OptionValue {
             label: raw.label,
             hex_colors: raw.hex_colors,
@@ -567,7 +575,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    pub fn from_raw(raw: raw::nextdata::product::Variant) -> Result<Self, NormalizeError> {
+    pub fn from_raw(raw: NextdataProductVariant) -> Result<Self, NormalizeError> {
         let price = money(raw.price, VARIANT_CURRENCY, "variants[].price")?;
         let compare_at_price = raw
             .list_price
@@ -732,6 +740,22 @@ pub enum DiscountValue {
 
 #[cfg(test)]
 mod tests {
+    use super::discounts as super_discounts;
+    use super::key_features as super_key_features;
+    use super::specifications as super_specifications;
+    use ldjson::LdJson as LdjsonLdJson;
+    use ldjson::Product as LdjsonProduct;
+    use money::MoneyError as MoneyMoneyError;
+    use raw::AnkerAuRawDocument;
+    use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+    use raw::ldjsonitem::LdJsonItem;
+    use raw::nextdata::product::Product as ProductProduct;
+    use raw::nextdata::product::Variant as NextdataProductVariant;
+    use retailer_sauce::availability::Availability;
+    use serde_json::Value as SerdeJsonValue;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, json};
     use ldjson::offer::ItemCondition;
@@ -758,7 +782,7 @@ mod tests {
                 json!({"other": "https://example.com/condition"}),
             ),
         ] {
-            let raw: raw::ldjsonitem::LdJson = serde_json::from_value(json!({
+            let raw: LdjsonitemLdJson = from_value(json!({
                 "@type": "Product", "@context": "https://schema.org",
                 "brand": {"@type": "Brand", "name": "Anker"},
                 "description": "d", "image": ["i"], "name": "n", "sku": "A1",
@@ -769,18 +793,15 @@ mod tests {
                 }
             }))
             .unwrap();
-            let raw::ldjsonitem::LdJson::Product(raw) = raw else {
+            let LdjsonitemLdJson::Product(raw) = raw else {
                 panic!("expected Product");
             };
-            let product = ldjson::Product::from_raw(raw).expect("the island converts");
+            let product = LdjsonProduct::from_raw(raw).expect("the island converts");
             assert_eq!(product.offer.item_condition, expected_condition);
-            let output = serde_json::to_value(product).unwrap();
+            let output = to_value(product).unwrap();
             assert_eq!(
                 output["offer"]["availability"],
-                serde_json::to_value(retailer_sauce::availability::Availability::from_schema_org(
-                    availability
-                ))
-                .unwrap()
+                to_value(Availability::from_schema_org(availability)).unwrap()
             );
             assert_eq!(output["offer"]["item_condition"], serialized);
             assert_eq!(
@@ -790,11 +811,11 @@ mod tests {
         }
     }
 
-    fn islands(bodies: &[serde_json::Value]) -> Vec<raw::ldjsonitem::LdJsonItem> {
+    fn islands(bodies: &[SerdeJsonValue]) -> Vec<LdJsonItem> {
         bodies
             .iter()
             .map(|data| {
-                serde_json::from_value(json!({
+                from_value(json!({
                     "type": "application/ld+json",
                     "data": data,
                 }))
@@ -803,7 +824,7 @@ mod tests {
             .collect()
     }
 
-    fn product_island() -> serde_json::Value {
+    fn product_island() -> SerdeJsonValue {
         json!({
             "@type": "Product", "@context": "https://schema.org",
             "brand": {"@type": "Brand", "name": "Anker"},
@@ -816,7 +837,7 @@ mod tests {
         })
     }
 
-    fn corporation_island() -> serde_json::Value {
+    fn corporation_island() -> SerdeJsonValue {
         json!({
             "@type": "Corporation", "@context": "https://schema.org",
             "@id": "i", "name": "Anker", "legalName": "Anker Innovations",
@@ -826,7 +847,7 @@ mod tests {
 
     #[test]
     fn the_product_island_is_picked_out_of_the_list() {
-        let ld_json = ldjson::LdJson::from_raw(islands(&[corporation_island(), product_island()]))
+        let ld_json = LdjsonLdJson::from_raw(islands(&[corporation_island(), product_island()]))
             .expect("a list carrying a Product island converts");
 
         assert_eq!(ld_json.product.sku, "A1");
@@ -835,7 +856,7 @@ mod tests {
     #[test]
     fn a_list_without_a_product_island_fails_the_document() {
         for bodies in [vec![], vec![corporation_island()]] {
-            let error = ldjson::LdJson::from_raw(islands(&bodies))
+            let error = LdjsonLdJson::from_raw(islands(&bodies))
                 .expect_err("a list with no Product island cannot normalize");
 
             assert_eq!(error, NormalizeError::MissingProductIsland);
@@ -851,7 +872,7 @@ mod tests {
         let mut second = product_island();
         second["sku"] = json!("A2");
 
-        let ld_json = ldjson::LdJson::from_raw(islands(&[product_island(), second]))
+        let ld_json = LdjsonLdJson::from_raw(islands(&[product_island(), second]))
             .expect("two Product islands still convert");
 
         assert_eq!(ld_json.product.sku, "A1");
@@ -887,8 +908,7 @@ mod tests {
     fn a_published_at_that_is_not_an_instant_fails_the_document() {
         let mut raw = raw_product();
         raw["publishedAt"] = json!("1 January 2026");
-        let raw: raw::nextdata::product::Product =
-            serde_json::from_value(raw).expect("the record deserializes");
+        let raw: ProductProduct = from_value(raw).expect("the record deserializes");
         let page_metafields = json!({});
 
         let error = ProductRecord::from_raw(raw, &page_metafields)
@@ -914,8 +934,7 @@ mod tests {
         let mut raw = raw_variant();
         raw["price"] = json!(229.99);
         raw["listPrice"] = json!(279.99);
-        let raw: raw::nextdata::product::Variant =
-            serde_json::from_value(raw).expect("the variant deserializes");
+        let raw: NextdataProductVariant = from_value(raw).expect("the variant deserializes");
 
         let variant = Variant::from_raw(raw).expect("the variant converts");
 
@@ -925,15 +944,15 @@ mod tests {
             Some(Money::from_raw(279.99, "AUD").unwrap())
         );
         assert_eq!(
-            serde_json::to_value(&variant.price).unwrap(),
+            to_value(&variant.price).unwrap(),
             json!({"amount": 22999, "currency": "AUD"})
         );
     }
 
     #[test]
     fn the_document_reads_the_canonical_and_each_metafield_blob_for_its_own_block() {
-        let raw: raw::AnkerAuRawDocument =
-            serde_json::from_value(raw_document()).expect("the document deserializes");
+        let raw: AnkerAuRawDocument =
+            from_value(raw_document()).expect("the document deserializes");
 
         let document = AnkerAuNormalizedDocument::from_raw(raw).expect("the document normalizes");
 
@@ -960,15 +979,14 @@ mod tests {
         assert_eq!(document.variants.len(), 1);
     }
 
-    fn record(raw: serde_json::Value) -> ProductRecord {
-        let raw: raw::nextdata::product::Product =
-            serde_json::from_value(raw).expect("the record deserializes");
+    fn record(raw: SerdeJsonValue) -> ProductRecord {
+        let raw: ProductProduct = from_value(raw).expect("the record deserializes");
         let page_metafields = json!({});
 
         ProductRecord::from_raw(raw, &page_metafields).expect("the record converts")
     }
 
-    fn raw_product() -> serde_json::Value {
+    fn raw_product() -> SerdeJsonValue {
         json!({
             "id": "gid://shopify/Product/1", "handle": "h", "slug": "s", "path": "/p",
             "name": "n", "title": "t", "description": "d", "descriptionHtml": "<p>d</p>",
@@ -982,7 +1000,7 @@ mod tests {
         })
     }
 
-    fn raw_variant() -> serde_json::Value {
+    fn raw_variant() -> SerdeJsonValue {
         json!({
             "id": "gid://shopify/ProductVariant/1", "sku": "A110BH11",
             "barcode": "194644239350", "name": "v", "price": 229.99, "listPrice": null,
@@ -994,7 +1012,7 @@ mod tests {
         })
     }
 
-    fn raw_document() -> serde_json::Value {
+    fn raw_document() -> SerdeJsonValue {
         let mut product = raw_product();
         product["metafields"] = json!({
             "productInfos": {"key_features": {"list": [
@@ -1035,7 +1053,7 @@ mod tests {
     #[test]
     fn a_product_with_no_component_blocks_gets_empty_lists() {
         for components in [None, Some(&json!({})), Some(&json!({"faq": {}}))] {
-            assert_eq!(super::specifications(components).unwrap(), vec![]);
+            assert_eq!(super_specifications(components).unwrap(), vec![]);
         }
     }
 
@@ -1046,7 +1064,7 @@ mod tests {
             "items": [{"name": "Total Capacity", "presentation": "20,100mAh"}]
         }});
 
-        let specs = super::specifications(Some(&components)).expect("the block converts");
+        let specs = super_specifications(Some(&components)).expect("the block converts");
 
         assert_eq!(specs[0].name, "Total Capacity");
         assert_eq!(specs[0].value, "20,100mAh");
@@ -1056,7 +1074,7 @@ mod tests {
     fn the_specs_styling_stub_is_not_read_as_a_specification_block() {
         let components = json!({"specs": {"styles": {"paddingBottom": true}}});
 
-        assert_eq!(super::specifications(Some(&components)).unwrap(), vec![]);
+        assert_eq!(super_specifications(Some(&components)).unwrap(), vec![]);
     }
 
     #[test]
@@ -1079,7 +1097,7 @@ mod tests {
                 r#"a `productSpecs` entry has no string `presentation`: {"name":"n"}"#,
             ),
         ] {
-            let error = super::specifications(Some(&components))
+            let error = super_specifications(Some(&components))
                 .expect_err("a shape never rendered is a finding");
 
             assert_eq!(error, expected);
@@ -1094,14 +1112,14 @@ mod tests {
             json!({"discountCodeApp": []}),
             json!({"infos": {}}),
         ] {
-            assert_eq!(super::discounts(&metafields).unwrap(), vec![]);
+            assert_eq!(super_discounts(&metafields).unwrap(), vec![]);
         }
     }
 
     #[test]
     fn a_percentage_discount_carries_its_rate_price_and_saving() {
         let discounts =
-            super::discounts(&json!({"discountCodeApp": [entry()]})).expect("the entry converts");
+            super_discounts(&json!({"discountCodeApp": [entry()]})).expect("the entry converts");
 
         let [discount] = discounts.as_slice() else {
             panic!("one entry in, one out");
@@ -1120,7 +1138,7 @@ mod tests {
         assert_eq!(discount.variant_shopify_id, 56758478831919);
         assert!(discount.amazon_deal);
 
-        let serialized = serde_json::to_value(discount).unwrap();
+        let serialized = to_value(discount).unwrap();
         for dropped in ["cdi_id", "cdi_updated_at", "value_style"] {
             assert!(serialized.get(dropped).is_none(), "{dropped} crossed");
         }
@@ -1132,7 +1150,7 @@ mod tests {
         raw["value_type"] = json!("fixed_amount");
         raw["value"] = json!("-80.0");
 
-        let discounts = super::discounts(&json!({"discountCodeApp": [raw]})).unwrap();
+        let discounts = super_discounts(&json!({"discountCodeApp": [raw]})).unwrap();
 
         assert_eq!(
             discounts[0].value,
@@ -1146,7 +1164,7 @@ mod tests {
             let mut raw = entry();
             raw["variant_price4wscode"] = spelling.clone();
 
-            let discounts = super::discounts(&json!({"discountCodeApp": [raw]})).unwrap();
+            let discounts = super_discounts(&json!({"discountCodeApp": [raw]})).unwrap();
 
             assert_eq!(discounts[0].price.amount(), expected, "{spelling}");
         }
@@ -1158,7 +1176,7 @@ mod tests {
         raw["variant_shopify_id"] = json!(45066711335215_i64);
         raw["ends_at"] = json!("2025-06-30T08:00:59.000Z");
 
-        let discounts = super::discounts(&json!({"discountCodeApp": [raw]})).unwrap();
+        let discounts = super_discounts(&json!({"discountCodeApp": [raw]})).unwrap();
 
         assert_eq!(discounts[0].variant_shopify_id, 45066711335215);
         assert_eq!(
@@ -1170,8 +1188,8 @@ mod tests {
     #[test]
     fn a_misshapen_entry_fails_the_document() {
         type Case = (
-            serde_json::Value,
-            fn(&serde_json::Value) -> NormalizeError,
+            SerdeJsonValue,
+            fn(&SerdeJsonValue) -> NormalizeError,
             &'static str,
         );
 
@@ -1218,7 +1236,7 @@ mod tests {
                 raw[key] = value.clone();
             }
 
-            let error = super::discounts(&json!({"discountCodeApp": [raw.clone()]}))
+            let error = super_discounts(&json!({"discountCodeApp": [raw.clone()]}))
                 .expect_err("a shape never rendered is a finding");
 
             assert_eq!(error, expected(&raw));
@@ -1229,7 +1247,7 @@ mod tests {
         }
 
         assert_eq!(
-            super::discounts(&json!({"discountCodeApp": {}}))
+            super_discounts(&json!({"discountCodeApp": {}}))
                 .expect_err("an object where the list belongs is a finding"),
             NormalizeError::NotAList {
                 path: "discountCodeApp".to_string(),
@@ -1241,7 +1259,7 @@ mod tests {
     fn a_price_that_is_not_money_names_the_wire_key() {
         let error = NormalizeError::NotMoney {
             field: "variant_price4wscode".to_string(),
-            source: money::MoneyError::InvalidArgument,
+            source: MoneyMoneyError::InvalidArgument,
         };
 
         assert_eq!(
@@ -1250,7 +1268,7 @@ mod tests {
         );
     }
 
-    fn entry() -> serde_json::Value {
+    fn entry() -> SerdeJsonValue {
         json!({
             "title": "WSTDAS25PCTOFF", "starts_at": "2026-08-21T03:48:39.000Z",
             "variant_shopify_id": 56758478831919_i64, "value_type": "percentage",
@@ -1269,7 +1287,7 @@ mod tests {
             ]}}
         });
 
-        let features = super::key_features(&metafields).expect("the list converts");
+        let features = super_key_features(&metafields).expect("the list converts");
 
         assert_eq!(features.len(), 1);
         assert_eq!(features[0].title, "220W Total Output");
@@ -1284,7 +1302,7 @@ mod tests {
             json!({"productInfos": {"subtitle": "s"}}),
             json!({"productInfos": {"key_features": {}}}),
         ] {
-            assert_eq!(super::key_features(&metafields).unwrap(), vec![]);
+            assert_eq!(super_key_features(&metafields).unwrap(), vec![]);
         }
     }
 
@@ -1294,7 +1312,7 @@ mod tests {
             "productInfos": {"key_features": {"list": [{"key": "Headline"}]}}
         });
 
-        let error = super::key_features(&metafields).expect_err("a bodyless entry fails");
+        let error = super_key_features(&metafields).expect_err("a bodyless entry fails");
 
         assert_eq!(
             error,

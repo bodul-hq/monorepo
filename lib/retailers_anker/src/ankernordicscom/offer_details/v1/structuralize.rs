@@ -10,6 +10,11 @@ use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use normalized::ProductRecord;
+use normalized::Variant;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -47,13 +52,13 @@ impl AnkerNordicsComDocument {
             )?;
 
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(
+                was_price: offer_facts_was_price(
                     Some(&variant.price),
                     variant.compare_at_price.as_ref(),
                 ),
-                availability: Some(offer_facts::purchase_available(variant.available_for_sale)),
+                availability: Some(purchase_available(variant.available_for_sale)),
                 item_condition: None,
-                content: offer_facts::content(Some(product.description.as_str())),
+                content: offer_facts_content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -94,8 +99,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &normalized::ProductRecord,
-        variant: &normalized::Variant,
+        product: &ProductRecord,
+        variant: &Variant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -121,6 +126,9 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{AnkerNordicsComDocument, StructuralizeError};
     use crate::ankernordicscom::offer_details::v1::normalized::AnkerNordicsComNormalizedDocument;
     use crate::shared::IdentifierError;
@@ -164,14 +172,13 @@ mod tests {
     }
 
     fn structuralized(input: &Value) -> Value {
-        let normalized: AnkerNordicsComNormalizedDocument =
-            serde_json::from_value(input.clone()).unwrap();
+        let normalized: AnkerNordicsComNormalizedDocument = from_value(input.clone()).unwrap();
 
-        serde_json::to_value(AnkerNordicsComDocument::from_normalized(normalized).unwrap()).unwrap()
+        to_value(AnkerNordicsComDocument::from_normalized(normalized).unwrap()).unwrap()
     }
 
     fn error(input: Value) -> StructuralizeError {
-        let normalized: AnkerNordicsComNormalizedDocument = serde_json::from_value(input).unwrap();
+        let normalized: AnkerNordicsComNormalizedDocument = from_value(input).unwrap();
 
         AnkerNordicsComDocument::from_normalized(normalized).unwrap_err()
     }

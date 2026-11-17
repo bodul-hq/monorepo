@@ -1,5 +1,8 @@
 use super::super::raw;
 use super::NormalizeError;
+use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+use raw::ldjsonitem::LdJsonItem;
+use raw::ldjsonitem::Product as LdjsonitemProduct;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -17,20 +20,18 @@ pub struct LdJson {
 }
 
 impl LdJson {
-    pub(crate) fn from_raw(
-        items: Vec<raw::ldjsonitem::LdJsonItem>,
-    ) -> Result<LdJson, NormalizeError> {
+    pub(crate) fn from_raw(items: Vec<LdJsonItem>) -> Result<LdJson, NormalizeError> {
         let mut product: Option<Product> = None;
 
         for item in items {
             match item.data {
-                raw::ldjsonitem::LdJson::Product(island) => {
+                LdjsonitemLdJson::Product(island) => {
                     product.get_or_insert_with(|| Product::from_raw(island));
                 }
-                raw::ldjsonitem::LdJson::Corporation(_) => {}
-                raw::ldjsonitem::LdJson::BreadcrumbList(_) => {}
-                raw::ldjsonitem::LdJson::ImageObject(_) => {}
-                raw::ldjsonitem::LdJson::FaqPage(_) => {}
+                LdjsonitemLdJson::Corporation(_) => {}
+                LdjsonitemLdJson::BreadcrumbList(_) => {}
+                LdjsonitemLdJson::ImageObject(_) => {}
+                LdjsonitemLdJson::FaqPage(_) => {}
             }
         }
 
@@ -57,7 +58,7 @@ pub struct Product {
 }
 
 impl Product {
-    fn from_raw(raw: raw::ldjsonitem::Product) -> Product {
+    fn from_raw(raw: LdjsonitemProduct) -> Product {
         Product {
             // name: raw.name,
             // description: raw.description,
@@ -215,13 +216,17 @@ impl FaqQuestion {
 
 #[cfg(test)]
 mod tests {
+    use raw::ldjsonitem::LdJsonItem;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, Value, json};
 
-    fn islands(bodies: &[Value]) -> Vec<raw::ldjsonitem::LdJsonItem> {
+    fn islands(bodies: &[Value]) -> Vec<LdJsonItem> {
         bodies
             .iter()
-            .map(|data| serde_json::from_value(json!({ "data": data })).unwrap())
+            .map(|data| from_value(json!({ "data": data })).unwrap())
             .collect()
     }
 
@@ -253,7 +258,7 @@ mod tests {
         let ld_json = LdJson::from_raw(islands(&[product_island()])).unwrap();
 
         assert_eq!(
-            serde_json::to_value(ld_json).unwrap(),
+            to_value(ld_json).unwrap(),
             json!({"product": {"images": ["i1", "i2"]}})
         );
     }

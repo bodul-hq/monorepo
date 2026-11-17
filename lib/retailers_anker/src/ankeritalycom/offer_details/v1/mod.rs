@@ -6,7 +6,11 @@ use crate::ankeritalycom::offer_details::v1::normalized::{
 use crate::ankeritalycom::offer_details::v1::structuralize::AnkerItalyComDocument;
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
+use raw::AnkerItalyComRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 
 pub mod normalized;
 pub mod raw;
@@ -31,32 +35,35 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::AnkerItalyComRawDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: AnkerItalyComRawDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = AnkerItalyComNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: AnkerItalyComNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: AnkerItalyComNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         AnkerItalyComDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::Value;
+    use serde_json::from_str;
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use super::{normalize, structuralize};
     use std::path::Path;
 
@@ -70,7 +77,7 @@ mod tests {
         }
         let mut pages = 0;
         let mut failures = Vec::new();
-        for entry in std::fs::read_dir(&directory).unwrap() {
+        for entry in read_dir(&directory).unwrap() {
             let path = entry.unwrap().path();
             if !path
                 .extension()
@@ -79,8 +86,8 @@ mod tests {
                 continue;
             }
             pages += 1;
-            let input = std::fs::read_to_string(&path).unwrap();
-            let mut input: serde_json::Value = serde_json::from_str(&input).unwrap();
+            let input = read_to_string(&path).unwrap();
+            let mut input: Value = from_str(&input).unwrap();
             // The facade owns this envelope; family normalizers receive its source payload.
             input
                 .as_object_mut()

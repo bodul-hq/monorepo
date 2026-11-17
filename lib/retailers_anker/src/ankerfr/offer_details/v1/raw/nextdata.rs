@@ -1,8 +1,10 @@
+use product::Product;
+use serde::Deserialize;
 pub mod product;
 
 use html_extractor::serde_json::Value;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NextDataScript {
     pub id: String,
@@ -11,7 +13,7 @@ pub struct NextDataScript {
     pub data: NextData,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct NextData {
     pub build_id: String,
@@ -33,7 +35,7 @@ pub struct NextData {
     pub query: Query,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Props {
     #[serde(rename = "__N_SSG")]
@@ -42,13 +44,13 @@ pub struct Props {
     pub page_props: PageProps,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Query {
     pub slug: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PageProps {
     pub slug: String,
@@ -68,7 +70,7 @@ pub struct PageProps {
     pub metafields: Value,
 
     pub payload: Value,
-    pub product: product::Product,
+    pub product: Product,
 
     pub shop: Value,
 
@@ -77,13 +79,13 @@ pub struct PageProps {
     pub legal_guarantee: Value,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BrandEdge {
     pub node: Brand,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Brand {
     pub entity_id: String,
@@ -91,7 +93,7 @@ pub struct Brand {
     pub path: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Seo {
     pub title: String,
@@ -104,14 +106,14 @@ pub struct Seo {
     pub open_graph: OpenGraph,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LanguageAlternate {
     pub href: String,
     pub href_lang: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OpenGraph {
     pub title: String,
@@ -124,7 +126,7 @@ pub struct OpenGraph {
     pub images: Vec<OpenGraphImage>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OpenGraphImage {
     pub url: String,
@@ -133,7 +135,7 @@ pub struct OpenGraphImage {
     pub height: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NavCategory {
     pub id: String,
@@ -143,7 +145,7 @@ pub struct NavCategory {
     pub products: Vec<NavProduct>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NavProduct {
     pub name: String,
@@ -155,7 +157,7 @@ pub struct NavProduct {
     pub metafields: NavProductMetafields,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct NavProductImage {
     pub url: String,
@@ -165,7 +167,7 @@ pub struct NavProductImage {
     pub height: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct NavProductMetafields {
     pub product_note: Option<String>,
@@ -173,12 +175,14 @@ pub struct NavProductMetafields {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
     use super::{NextData, NextDataScript, PageProps};
     use html_extractor::serde_json;
 
     #[test]
     fn the_envelope_is_typed_and_the_large_regions_are_named() {
-        let props: PageProps = serde_json::from_str(PAGE_PROPS).expect("pageProps deserializes");
+        let props: PageProps = decode_json_str(PAGE_PROPS).expect("pageProps deserializes");
 
         assert_eq!(props.page_type, "product");
         assert_eq!(props.brands[0].node.name, "Anker");
@@ -199,12 +203,12 @@ mod tests {
 
     #[test]
     fn the_open_graph_site_name_is_read_from_its_snake_case_key() {
-        let props: PageProps = serde_json::from_str(PAGE_PROPS).expect("pageProps deserializes");
+        let props: PageProps = decode_json_str(PAGE_PROPS).expect("pageProps deserializes");
         assert_eq!(props.seo.open_graph.site_name, "Anker");
 
         let camel = PAGE_PROPS.replace(r#""site_name""#, r#""siteName""#);
         assert!(
-            serde_json::from_str::<PageProps>(&camel).is_err(),
+            decode_json_str::<PageProps>(&camel).is_err(),
             "the camelCase spelling must not be accepted - the wire does not use it"
         );
     }
@@ -218,7 +222,7 @@ mod tests {
                 r#""type":"website""#,
             );
 
-        let props: PageProps = serde_json::from_str(&without).expect("both descriptions optional");
+        let props: PageProps = decode_json_str(&without).expect("both descriptions optional");
         assert!(props.seo.description.is_none());
         assert!(props.seo.open_graph.description.is_none());
     }
@@ -227,7 +231,7 @@ mod tests {
     fn a_gift_card_without_product_copy_still_deserializes() {
         let without = PAGE_PROPS.replace(r#""description":"d","descriptionHtml":"<p>d</p>","#, "");
 
-        let props: PageProps = serde_json::from_str(&without).expect("the copy is optional");
+        let props: PageProps = decode_json_str(&without).expect("the copy is optional");
         assert!(props.product.description.is_none());
         assert!(props.product.description_html.is_none());
     }
@@ -239,7 +243,7 @@ mod tests {
             r#""legalGuarantee":{"A110AH11":[{"imageUrl":"u","type":"annex1"}]}"#,
         );
 
-        let props: PageProps = serde_json::from_str(&with).expect("the notice deserializes");
+        let props: PageProps = decode_json_str(&with).expect("the notice deserializes");
         assert!(props.legal_guarantee["A110AH11"].is_array());
     }
 
@@ -249,7 +253,7 @@ mod tests {
             r#"{{"id":"__NEXT_DATA__","type":"application/json","data":{}}}"#,
             next_data()
         );
-        let script: NextDataScript = serde_json::from_str(&script).expect("script deserializes");
+        let script: NextDataScript = decode_json_str(&script).expect("script deserializes");
 
         assert_eq!(script.id, "__NEXT_DATA__");
         assert_eq!(script.type_, "application/json");
@@ -260,7 +264,7 @@ mod tests {
     #[test]
     fn an_unmodelled_envelope_key_is_rejected() {
         let extra = next_data().replace(r#"{"buildId""#, r#"{"surprise":1,"buildId""#);
-        assert!(serde_json::from_str::<NextData>(&extra).is_err());
+        assert!(decode_json_str::<NextData>(&extra).is_err());
     }
 
     fn next_data() -> String {

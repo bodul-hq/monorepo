@@ -11,6 +11,11 @@ use crate::shared::{
     IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use normalized::product::ProductRecord;
+use normalized::product::ProductVariant as ProductProductVariant;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -45,17 +50,17 @@ impl AnkerCaDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(
+                    was_price: offer_facts_was_price(
                         Some(&variant.price),
                         variant.compare_at_price.as_ref(),
                     ),
                     availability: Some(if variations_count == 1 {
                         island.offer.availability.clone()
                     } else {
-                        offer_facts::purchase_available(variant.available_for_sale)
+                        purchase_available(variant.available_for_sale)
                     }),
                     item_condition: None,
-                    content: offer_facts::content(Some(product.description.as_str())),
+                    content: offer_facts_content(Some(product.description.as_str())),
                     title: island.name.clone(),
                     identifiers,
                     images: gallery(&product),
@@ -98,8 +103,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &normalized::product::ProductRecord,
-        variant: &normalized::product::ProductVariant,
+        product: &ProductRecord,
+        variant: &ProductProductVariant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             sku: (!variant.sku.trim().is_empty())
@@ -113,7 +118,7 @@ impl ProductVariationIdentifier {
 }
 
 // The record's gallery rather than the island's `images`, which despite its name renders one URL.
-fn gallery(product: &normalized::product::ProductRecord) -> Vec<String> {
+fn gallery(product: &ProductRecord) -> Vec<String> {
     product
         .images
         .iter()
@@ -136,6 +141,11 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as decode_json_value;
+
+    use crate::ankerca::offer_details::v1::structuralize as v1_structuralize;
+    use serde_json::from_str;
+
     use super::{AnkerCaDocument, StructuralizeError};
     use crate::ankerca::offer_details::v1::normalized::AnkerCaNormalizedDocument;
     use crate::shared::IdentifierError;
@@ -287,7 +297,7 @@ mod tests {
         let mut input = normalized_document();
         input["ld_json"]["product"] = Value::Null;
 
-        serde_json::from_value::<AnkerCaNormalizedDocument>(input)
+        decode_json_value::<AnkerCaNormalizedDocument>(input)
             .expect_err("normalization requires the island, so it cannot be absent here");
     }
 
@@ -354,18 +364,18 @@ mod tests {
     }
 
     fn structuralized(input: &Value) -> Value {
-        let result = crate::ankerca::offer_details::v1::structuralize(&input.to_string())
-            .expect("the normalized document structuralizes");
+        let result =
+            v1_structuralize(&input.to_string()).expect("the normalized document structuralizes");
 
         let document_json = result
             .document_json
             .expect("ankerca hands over a structuralized document");
 
-        serde_json::from_str(&document_json).expect("the document is JSON")
+        from_str(&document_json).expect("the document is JSON")
     }
 
     fn structuralize_error_message(input: &Value) -> String {
-        match crate::ankerca::offer_details::v1::structuralize(&input.to_string()) {
+        match v1_structuralize(&input.to_string()) {
             Err(message) => message,
             Ok(_) => panic!("the document must fail to structuralize"),
         }
@@ -373,7 +383,7 @@ mod tests {
 
     fn error(input: &Value) -> StructuralizeError {
         let normalized: AnkerCaNormalizedDocument =
-            serde_json::from_value(input.clone()).expect("the fixture is a normalized document");
+            decode_json_value(input.clone()).expect("the fixture is a normalized document");
 
         AnkerCaDocument::from_normalized(normalized)
             .expect_err("the document must fail to structuralize")

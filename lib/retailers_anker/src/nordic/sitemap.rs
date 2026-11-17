@@ -1,5 +1,7 @@
 //! All five markets share the Nordic catalog. Country isolation happens in the
 //! offer request and response; there are no country-prefixed product URLs.
+
+use crate::anker_from_location;
 use ::shared::{SitemapConfig, link::LinkKind};
 use std::time::Duration;
 
@@ -31,6 +33,6 @@ pub fn classify_link(url: &str, source: &str, _images: usize) -> LinkKind {
     match source.to_ascii_lowercase().as_str() {
         "https://www.ankernordics.com/sitemap-0.xml"
         | "https://www.ankernordics.com/server-sitemap-index-pages.xml" => LinkKind::NotInterested,
-        _ => crate::anker_from_location(&url),
+        _ => anker_from_location(&url),
     }
 }

@@ -1,6 +1,10 @@
 use super::super::raw;
 use super::{NormalizeError, money};
 use money::Money;
+use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+use raw::ldjsonitem::LdJsonItem;
+use raw::ldjsonitem::Offer as LdjsonitemOffer;
+use raw::ldjsonitem::Product as LdjsonitemProduct;
 use retailer_sauce::availability::Availability;
 use retailer_sauce::item_condition::ItemCondition;
 use serde::{Deserialize, Serialize};
@@ -20,23 +24,21 @@ pub struct LdJson {
 }
 
 impl LdJson {
-    pub(crate) fn from_raw(
-        items: Vec<raw::ldjsonitem::LdJsonItem>,
-    ) -> Result<LdJson, NormalizeError> {
+    pub(crate) fn from_raw(items: Vec<LdJsonItem>) -> Result<LdJson, NormalizeError> {
         let mut product: Option<Product> = None;
 
         for item in items {
             match item.data {
-                raw::ldjsonitem::LdJson::Product(island) => {
+                LdjsonitemLdJson::Product(island) => {
                     // First island wins; no document in the subset carries two.
                     if product.is_none() {
                         product = Some(Product::from_raw(island)?);
                     }
                 }
-                raw::ldjsonitem::LdJson::Corporation(_) => {}
-                raw::ldjsonitem::LdJson::BreadcrumbList(_) => {}
-                raw::ldjsonitem::LdJson::FaqPage(_) => {}
-                raw::ldjsonitem::LdJson::Organization(_) => {}
+                LdjsonitemLdJson::Corporation(_) => {}
+                LdjsonitemLdJson::BreadcrumbList(_) => {}
+                LdjsonitemLdJson::FaqPage(_) => {}
+                LdjsonitemLdJson::Organization(_) => {}
             }
         }
 
@@ -59,7 +61,7 @@ pub struct Product {
 }
 
 impl Product {
-    fn from_raw(raw: raw::ldjsonitem::Product) -> Result<Product, NormalizeError> {
+    fn from_raw(raw: LdjsonitemProduct) -> Result<Product, NormalizeError> {
         let offer = Offer::from_raw(raw.offers)?;
 
         Ok(Product {
@@ -83,7 +85,7 @@ pub struct Offer {
 }
 
 impl Offer {
-    fn from_raw(raw: raw::ldjsonitem::Offer) -> Result<Offer, NormalizeError> {
+    fn from_raw(raw: LdjsonitemOffer) -> Result<Offer, NormalizeError> {
         let price = money(raw.price, &raw.price_currency, "offers.price")?;
 
         Ok(Offer {
@@ -225,13 +227,17 @@ impl FaqQuestion {
 
 #[cfg(test)]
 mod tests {
+    use raw::ldjsonitem::LdJsonItem;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, Value, json};
 
-    fn islands(bodies: &[Value]) -> Vec<raw::ldjsonitem::LdJsonItem> {
+    fn islands(bodies: &[Value]) -> Vec<LdJsonItem> {
         bodies
             .iter()
-            .map(|data| serde_json::from_value(json!({ "data": data })).unwrap())
+            .map(|data| from_value(json!({ "data": data })).unwrap())
             .collect()
     }
 
@@ -282,7 +288,7 @@ mod tests {
         )]))
         .unwrap();
 
-        let output = serde_json::to_value(ld_json).unwrap();
+        let output = to_value(ld_json).unwrap();
 
         assert!(output["product"].get("name").is_none());
         assert!(!output.to_string().contains("&lt;"));

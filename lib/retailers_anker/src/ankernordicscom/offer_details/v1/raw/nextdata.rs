@@ -1,9 +1,11 @@
+use product::Product;
+use serde::Deserialize;
 pub mod product;
 
 use html_extractor::serde_json::Value;
 use std::collections::BTreeMap;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NextDataScript {
     pub id: String,
@@ -12,7 +14,7 @@ pub struct NextDataScript {
     pub data: NextData,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct NextData {
     pub build_id: String,
@@ -32,7 +34,7 @@ pub struct NextData {
     pub query: Query,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Props {
     #[serde(rename = "__N_SSG")]
@@ -41,20 +43,20 @@ pub struct Props {
     pub page_props: PageProps,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Query {
     pub handle: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PageProps {
     #[serde(rename = "type")]
     pub type_: String,
     pub seo: Seo,
 
-    pub product: product::Product,
+    pub product: Product,
     pub shop: Value,
 
     pub build_props: Value,
@@ -66,7 +68,7 @@ pub struct PageProps {
 
 /// The EU's harmonised guarantee notices, each rendered as an image and named after the annex of
 /// the Commission implementing act that defines it.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase", deny_unknown_fields)]
 pub enum LegalGuarantee {
     /// The notice on the statutory guarantee: the same generic image on every variant.
@@ -83,7 +85,7 @@ pub enum LegalGuarantee {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Seo {
     pub title: String,
@@ -99,14 +101,14 @@ pub struct Seo {
     pub open_graph: OpenGraph,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LanguageAlternate {
     pub href: String,
     pub href_lang: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OpenGraph {
     pub title: String,
@@ -118,7 +120,7 @@ pub struct OpenGraph {
     pub images: Vec<OpenGraphImage>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OpenGraphImage {
     pub url: String,
@@ -129,12 +131,14 @@ pub struct OpenGraphImage {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
     use super::{LegalGuarantee, NextDataScript, PageProps};
     use html_extractor::serde_json;
 
     #[test]
     fn the_seo_region_is_typed_and_the_product_stays_named() {
-        let props: PageProps = serde_json::from_str(PAGE_PROPS).expect("pageProps deserializes");
+        let props: PageProps = decode_json_str(PAGE_PROPS).expect("pageProps deserializes");
 
         assert_eq!(props.type_, "product");
         assert_eq!(props.seo.open_graph.site_name, "Anker");
@@ -148,7 +152,7 @@ mod tests {
 
     #[test]
     fn legal_guarantees_are_keyed_by_variant_sku() {
-        let props: PageProps = serde_json::from_str(&PAGE_PROPS.replace(
+        let props: PageProps = decode_json_str(&PAGE_PROPS.replace(
             r#""legalGuarantee":{}"#,
             r#""legalGuarantee":{"A1":[{"imageUrl":"n","type":"annex1"},
                 {"imageUrl":"l","sku":"B1","type":"annex2"}]}"#,
@@ -171,7 +175,7 @@ mod tests {
 
     #[test]
     fn an_unseen_guarantee_annex_fails() {
-        let error = serde_json::from_str::<LegalGuarantee>(r#"{"imageUrl":"u","type":"annex3"}"#)
+        let error = decode_json_str::<LegalGuarantee>(r#"{"imageUrl":"u","type":"annex3"}"#)
             .expect_err("no third annex is typed");
         assert!(error.to_string().contains("unknown variant `annex3`"));
     }
@@ -180,7 +184,7 @@ mod tests {
     fn the_open_graph_site_name_is_read_from_its_snake_case_key() {
         let camel = PAGE_PROPS.replace(r#""site_name""#, r#""siteName""#);
         assert!(
-            serde_json::from_str::<PageProps>(&camel).is_err(),
+            decode_json_str::<PageProps>(&camel).is_err(),
             "the camelCase spelling must not be accepted - the wire does not use it"
         );
     }
@@ -188,12 +192,12 @@ mod tests {
     #[test]
     fn the_query_is_keyed_by_handle_not_slug() {
         let script = script(r#"{"handle":"h"}"#);
-        let script: NextDataScript = serde_json::from_str(&script).expect("handle deserializes");
+        let script: NextDataScript = decode_json_str(&script).expect("handle deserializes");
         assert_eq!(script.data.query.handle, "h");
         assert_eq!(script.data.page, "/products/[handle]");
 
         assert!(
-            serde_json::from_str::<NextDataScript>(&script_with(r#"{"slug":"s"}"#)).is_err(),
+            decode_json_str::<NextDataScript>(&script_with(r#"{"slug":"s"}"#)).is_err(),
             "the [slug] application's query shape is a different storefront"
         );
     }

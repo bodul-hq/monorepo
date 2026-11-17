@@ -2,33 +2,38 @@
 //! tree is `deny_unknown_fields`, so a key the corpus survey did not see fails a document loudly
 //! instead of being dropped silently.
 
+use ldjsonitem::LdJsonItem;
+use nextdata::NextDataScript;
+use serde::Deserialize;
 pub mod ldjsonitem;
 pub mod nextdata;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnkerAuRawDocument {
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjsonitem::LdJsonItem>,
+    pub ld_json: Vec<LdJsonItem>,
 
-    pub next_data: nextdata::NextDataScript,
+    pub next_data: NextDataScript,
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::AnkerAuRawDocument;
     use html_extractor::serde_json;
 
     #[test]
     fn both_islands_are_required() {
-        assert!(serde_json::from_str::<AnkerAuRawDocument>(r#"{}"#).is_err());
-        assert!(serde_json::from_str::<AnkerAuRawDocument>(r#"{"ld-json":[]}"#).is_err());
+        assert!(from_str::<AnkerAuRawDocument>(r#"{}"#).is_err());
+        assert!(from_str::<AnkerAuRawDocument>(r#"{"ld-json":[]}"#).is_err());
     }
 
     #[test]
     fn the_hyphenated_key_is_what_the_architecture_emits() {
-        let error = serde_json::from_str::<AnkerAuRawDocument>(
+        let error = from_str::<AnkerAuRawDocument>(
             r#"{"ld_json":[],"next_data":{"id":"i","type":"t","data":{}}}"#,
         )
         .expect_err("the underscore spelling is not what extract produces");

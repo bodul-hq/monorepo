@@ -2,6 +2,20 @@ use super::super::raw;
 use super::{NormalizeError, decimal, decimal_money, money};
 use chrono::{DateTime, Utc};
 use money::Money;
+use raw::flight::AllocatedSellingPlan as FlightAllocatedSellingPlan;
+use raw::flight::DiscountCode;
+use raw::flight::DiscountCodeApp;
+use raw::flight::Image;
+use raw::flight::Price;
+use raw::flight::Product as FlightProduct;
+use raw::flight::ProductOption as FlightProductOption;
+use raw::flight::SelectedOption as FlightSelectedOption;
+use raw::flight::SellingPlan as FlightSellingPlan;
+use raw::flight::SellingPlanAllocation as FlightSellingPlanAllocation;
+use raw::flight::SellingPlanGroup as FlightSellingPlanGroup;
+use raw::flight::SellingPlanOption as FlightSellingPlanOption;
+use raw::flight::Seo;
+use raw::flight::Variant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -40,7 +54,7 @@ pub struct ProductRecord {
 }
 
 impl ProductRecord {
-    pub(crate) fn from_raw(raw: raw::flight::Product) -> Result<ProductRecord, NormalizeError> {
+    pub(crate) fn from_raw(raw: FlightProduct) -> Result<ProductRecord, NormalizeError> {
         Ok(ProductRecord {
             id: raw.id,
             handle: raw.handle,
@@ -91,15 +105,12 @@ fn published_at(raw: &str) -> Result<DateTime<Utc>, NormalizeError> {
     Ok(parsed.with_timezone(&Utc))
 }
 
-fn price(raw: &raw::flight::Price, field: &str) -> Result<Money, NormalizeError> {
+fn price(raw: &Price, field: &str) -> Result<Money, NormalizeError> {
     decimal_money(&raw.amount, &raw.currency_code, field)
 }
 
 // `"0.0"` is the storefront's sentinel for "not marked down", rather than a real zero price.
-fn compare_at_price(
-    raw: &raw::flight::Price,
-    field: &str,
-) -> Result<Option<Money>, NormalizeError> {
+fn compare_at_price(raw: &Price, field: &str) -> Result<Option<Money>, NormalizeError> {
     let amount = decimal(&raw.amount, field)?;
 
     (amount != 0.0)
@@ -122,7 +133,7 @@ pub struct ProductImage {
 }
 
 impl ProductImage {
-    fn from_raw(raw: raw::flight::Image) -> ProductImage {
+    fn from_raw(raw: Image) -> ProductImage {
         ProductImage {
             url: raw.url,
             // alt_text: raw.alt_text,
@@ -139,7 +150,7 @@ pub struct ProductSeo {
 }
 
 impl ProductSeo {
-    fn from_raw(raw: raw::flight::Seo) -> ProductSeo {
+    fn from_raw(raw: Seo) -> ProductSeo {
         ProductSeo {
             title: raw.title,
             description: raw.description,
@@ -155,7 +166,7 @@ pub struct ProductOption {
 }
 
 impl ProductOption {
-    fn from_raw(raw: raw::flight::ProductOption) -> ProductOption {
+    fn from_raw(raw: FlightProductOption) -> ProductOption {
         ProductOption {
             id: raw.id,
             name: raw.name,
@@ -187,7 +198,7 @@ pub struct ProductVariant {
 }
 
 impl ProductVariant {
-    fn from_raw(raw: raw::flight::Variant) -> Result<ProductVariant, NormalizeError> {
+    fn from_raw(raw: Variant) -> Result<ProductVariant, NormalizeError> {
         Ok(ProductVariant {
             id: raw.id,
             title: raw.title,
@@ -219,7 +230,7 @@ impl ProductVariant {
     }
 }
 
-fn discounts(raw: Option<raw::flight::DiscountCodeApp>) -> Result<Vec<Discount>, NormalizeError> {
+fn discounts(raw: Option<DiscountCodeApp>) -> Result<Vec<Discount>, NormalizeError> {
     raw.map_or_else(Vec::new, |app| app.data)
         .into_iter()
         .map(Discount::from_raw)
@@ -233,7 +244,7 @@ pub struct SelectedOption {
 }
 
 impl SelectedOption {
-    fn from_raw(raw: raw::flight::SelectedOption) -> SelectedOption {
+    fn from_raw(raw: FlightSelectedOption) -> SelectedOption {
         SelectedOption {
             name: raw.name,
             value: raw.value,
@@ -264,7 +275,7 @@ pub enum DiscountValue {
 }
 
 impl Discount {
-    fn from_raw(raw: raw::flight::DiscountCode) -> Result<Discount, NormalizeError> {
+    fn from_raw(raw: DiscountCode) -> Result<Discount, NormalizeError> {
         let instant = |field: &str, value: &str| {
             DateTime::parse_from_rfc3339(value)
                 .map(|instant| instant.with_timezone(&Utc))
@@ -320,7 +331,7 @@ pub struct SellingPlanAllocation {
 impl SellingPlanAllocation {
     // The `priceAdjustments` each allocation carries are empty everywhere in the corpus - see
     // [`raw::flight::EmptyAdjustment`] - so they carry no information forward here.
-    fn from_raw(raw: raw::flight::SellingPlanAllocation) -> SellingPlanAllocation {
+    fn from_raw(raw: FlightSellingPlanAllocation) -> SellingPlanAllocation {
         SellingPlanAllocation {
             selling_plan: AllocatedSellingPlan::from_raw(raw.selling_plan),
         }
@@ -335,7 +346,7 @@ pub struct AllocatedSellingPlan {
 }
 
 impl AllocatedSellingPlan {
-    fn from_raw(raw: raw::flight::AllocatedSellingPlan) -> AllocatedSellingPlan {
+    fn from_raw(raw: FlightAllocatedSellingPlan) -> AllocatedSellingPlan {
         AllocatedSellingPlan {
             id: raw.id,
             name: raw.name,
@@ -355,7 +366,7 @@ pub struct SellingPlanGroup {
 }
 
 impl SellingPlanGroup {
-    fn from_raw(raw: raw::flight::SellingPlanGroup) -> SellingPlanGroup {
+    fn from_raw(raw: FlightSellingPlanGroup) -> SellingPlanGroup {
         SellingPlanGroup {
             name: raw.name,
             selling_plans: raw
@@ -375,7 +386,7 @@ pub struct SellingPlan {
 }
 
 impl SellingPlan {
-    fn from_raw(raw: raw::flight::SellingPlan) -> SellingPlan {
+    fn from_raw(raw: FlightSellingPlan) -> SellingPlan {
         SellingPlan {
             id: raw.id,
             name: raw.name,
@@ -395,7 +406,7 @@ pub struct SellingPlanOption {
 }
 
 impl SellingPlanOption {
-    fn from_raw(raw: raw::flight::SellingPlanOption) -> SellingPlanOption {
+    fn from_raw(raw: FlightSellingPlanOption) -> SellingPlanOption {
         SellingPlanOption {
             name: raw.name,
             value: raw.value,
@@ -405,6 +416,11 @@ impl SellingPlanOption {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+
     use super::*;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -453,7 +469,7 @@ mod tests {
     }
 
     fn record(raw: Value) -> Result<ProductRecord, NormalizeError> {
-        ProductRecord::from_raw(serde_json::from_value(raw).unwrap())
+        ProductRecord::from_raw(from_value(raw).unwrap())
     }
 
     #[test]
@@ -490,8 +506,7 @@ mod tests {
 
     #[test]
     fn a_fixed_amount_code_crosses_as_money_in_its_own_currency() {
-        let discount =
-            Discount::from_raw(serde_json::from_value(discount_code()).unwrap()).unwrap();
+        let discount = Discount::from_raw(from_value(discount_code()).unwrap()).unwrap();
 
         assert_eq!(discount.code, "WS24A2345GU");
         assert_eq!(discount.kind, "WS24");
@@ -508,7 +523,7 @@ mod tests {
         code["sales_channel"] = json!(["app"]);
         code["ends_at"] = json!(null);
 
-        let discount = Discount::from_raw(serde_json::from_value(code).unwrap()).unwrap();
+        let discount = Discount::from_raw(from_value(code).unwrap()).unwrap();
 
         assert_eq!(discount.sales_channels, Some(vec!["app".to_string()]));
         assert_eq!(discount.ends_at, None);
@@ -519,7 +534,7 @@ mod tests {
         let mut code = discount_code();
         code["value_type"] = json!("buy_x_get_y");
 
-        let error = Discount::from_raw(serde_json::from_value(code).unwrap()).unwrap_err();
+        let error = Discount::from_raw(from_value(code).unwrap()).unwrap_err();
 
         assert_eq!(
             error,
@@ -555,11 +570,8 @@ mod tests {
         ))
         .unwrap();
 
-        let json = serde_json::to_string(&record).unwrap();
+        let json = serde_json_to_string(&record).unwrap();
 
-        assert_eq!(
-            serde_json::from_str::<ProductRecord>(&json).unwrap(),
-            record
-        );
+        assert_eq!(from_str::<ProductRecord>(&json).unwrap(), record);
     }
 }

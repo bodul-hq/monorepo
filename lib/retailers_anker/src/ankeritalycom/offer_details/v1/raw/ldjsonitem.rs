@@ -1,12 +1,13 @@
 use html_extractor::serde_json::Number;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -17,7 +18,7 @@ pub enum LdJson {
     FaqPage(FaqPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -32,7 +33,7 @@ pub struct Product {
     pub offers: Vec<Offer>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -40,7 +41,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
@@ -61,7 +62,7 @@ pub struct Offer {
     pub offer_count: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corporation {
     #[serde(rename = "@context")]
@@ -82,7 +83,7 @@ pub struct Corporation {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -91,7 +92,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -102,7 +103,7 @@ pub struct BreadcrumbItem {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ImageObject {
     #[serde(rename = "@context")]
@@ -117,7 +118,7 @@ pub struct ImageObject {
     pub creator: Creator,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Creator {
     #[serde(rename = "@type")]
@@ -125,7 +126,7 @@ pub struct Creator {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -136,7 +137,7 @@ pub struct FaqPage {
     pub main_entity: Vec<FaqQuestion>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqQuestion {
     #[serde(rename = "@type")]
@@ -147,7 +148,7 @@ pub struct FaqQuestion {
     pub accepted_answer: FaqAnswer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqAnswer {
     #[serde(rename = "@type")]
@@ -157,6 +158,11 @@ pub struct FaqAnswer {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
+    use serde_json::Value;
+    use serde_json::from_value as serde_json_from_value;
+
     use super::LdJson;
     use html_extractor::serde_json;
 
@@ -168,7 +174,7 @@ mod tests {
     #[test]
     fn the_offers_are_a_range_spelled_two_ways() {
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
+            decode_json_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
         else {
             panic!("expected a Product");
         };
@@ -183,9 +189,9 @@ mod tests {
     fn decimal_and_integer_prices_read_from_text_and_values() {
         for price in ["149.99", "149", "0"] {
             let input = PRODUCT.replace("\"price\":1.5", &format!("\"price\":{price}"));
-            let from_text: LdJson = serde_json::from_str(&input).unwrap();
-            let value: serde_json::Value = serde_json::from_str(&input).unwrap();
-            let from_value: LdJson = serde_json::from_value(value).unwrap();
+            let from_text: LdJson = decode_json_str(&input).unwrap();
+            let value: Value = decode_json_str(&input).unwrap();
+            let from_value: LdJson = serde_json_from_value(value).unwrap();
             assert_eq!(from_text, from_value);
             let LdJson::Product(product) = from_text else {
                 panic!("expected a Product");
@@ -198,7 +204,7 @@ mod tests {
     fn non_numeric_prices_still_fail() {
         for price in [r#""149.99""#, "null", "true", "{}", r#"{"amount":149.99}"#] {
             let input = PRODUCT.replace("\"price\":1.5", &format!("\"price\":{price}"));
-            assert!(serde_json::from_str::<LdJson>(&input).is_err(), "{price}");
+            assert!(decode_json_str::<LdJson>(&input).is_err(), "{price}");
         }
     }
 
@@ -207,7 +213,7 @@ mod tests {
         let single = PRODUCT
             .replace("\"offers\":[", "\"offers\":")
             .replace("}],\"url\"", "},\"url\"");
-        assert!(serde_json::from_str::<LdJson>(&single).is_err());
+        assert!(decode_json_str::<LdJson>(&single).is_err());
     }
 
     #[test]
@@ -217,7 +223,7 @@ mod tests {
             "creator":{"@type":"Organization","name":"Anker"},"creditText":"t","license":"l"}"#;
 
         let LdJson::ImageObject(image) =
-            serde_json::from_str::<LdJson>(island).expect("the ImageObject dispatches")
+            decode_json_str::<LdJson>(island).expect("the ImageObject dispatches")
         else {
             panic!("expected an ImageObject");
         };
@@ -227,9 +233,7 @@ mod tests {
 
     #[test]
     fn an_unknown_type_is_rejected_rather_than_ignored() {
-        assert!(
-            serde_json::from_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err()
-        );
+        assert!(decode_json_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err());
     }
 
     #[test]
@@ -237,7 +241,7 @@ mod tests {
         let empty = r#"{"@context":"https://schema.org","@type":"FAQPage"}"#;
 
         let LdJson::FaqPage(faq) =
-            serde_json::from_str::<LdJson>(empty).expect("the empty FAQ island deserializes")
+            decode_json_str::<LdJson>(empty).expect("the empty FAQ island deserializes")
         else {
             panic!("expected a FAQPage");
         };

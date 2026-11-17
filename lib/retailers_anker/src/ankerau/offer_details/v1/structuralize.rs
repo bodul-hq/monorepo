@@ -7,6 +7,12 @@ use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use normalized::ProductRecord;
+use normalized::Variant;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::unique_sku;
+use offer_facts::was_price as offer_facts_was_price;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -45,11 +51,11 @@ impl AnkerAuDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(
+                    was_price: offer_facts_was_price(
                         Some(&variant.price),
                         variant.compare_at_price.as_ref(),
                     ),
-                    availability: if offer_facts::unique_sku(
+                    availability: if unique_sku(
                         &island.sku,
                         &variant.sku,
                         variants.iter().map(|v| v.sku.as_str()),
@@ -58,14 +64,14 @@ impl AnkerAuDocument {
                     } else {
                         None
                     }
-                    .or_else(|| Some(offer_facts::purchase_available(variant.available_for_sale))),
-                    item_condition: (offer_facts::unique_sku(
+                    .or_else(|| Some(purchase_available(variant.available_for_sale))),
+                    item_condition: (unique_sku(
                         &island.sku,
                         &variant.sku,
                         variants.iter().map(|v| v.sku.as_str()),
                     ))
                     .then(|| island.offer.item_condition.clone()),
-                    content: offer_facts::content(product.description.as_deref()),
+                    content: offer_facts_content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: island.images.clone(),
@@ -106,8 +112,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &normalized::ProductRecord,
-        variant: &normalized::Variant,
+        product: &ProductRecord,
+        variant: &Variant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -134,6 +140,11 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use crate::ankerau::offer_details::v1::structuralize as v1_structuralize;
+    use serde_json::Value;
+    use serde_json::from_str;
+    use serde_json::from_value;
+
     use super::{AnkerAuDocument, AnkerAuNormalizedDocument, StructuralizeError};
     use crate::shared::IdentifierError;
     use html_extractor::serde_json::{self, json};
@@ -144,7 +155,7 @@ mod tests {
         input["variants"][0]["sku"] = json!("");
 
         let normalized: AnkerAuNormalizedDocument =
-            serde_json::from_value(input).expect("an empty SKU still deserializes");
+            from_value(input).expect("an empty SKU still deserializes");
 
         let error = AnkerAuDocument::from_normalized(normalized)
             .expect_err("a variant with no SKU cannot structuralize");
@@ -155,7 +166,7 @@ mod tests {
         );
     }
 
-    fn normalized_document() -> serde_json::Value {
+    fn normalized_document() -> Value {
         let price = json!({"amount": 22999, "currency": "AUD"});
         let variant = |id, sku, quantity, available| {
             json!({
@@ -250,7 +261,7 @@ mod tests {
             "https://www.anker.com/au/products/test?utm_source=offline&amp;ref=chargers&amp;variant=99"
         );
 
-        let document = crate::ankerau::offer_details::v1::structuralize(&input.to_string())
+        let document = v1_structuralize(&input.to_string())
             .unwrap()
             .document_json
             .unwrap();
@@ -265,22 +276,20 @@ mod tests {
         let mut input = normalized_document();
         input["variants"][0]["id"] = json!("gid://shopify/ProductVariant/not-a-number");
 
-        let Err(error) = crate::ankerau::offer_details::v1::structuralize(&input.to_string())
-        else {
+        let Err(error) = v1_structuralize(&input.to_string()) else {
             panic!("a malformed variant id cannot build a URL");
         };
 
         assert!(error.contains("does not end in a numeric id"), "{error}");
     }
 
-    fn structuralized(input: &serde_json::Value) -> serde_json::Value {
-        let result = crate::ankerau::offer_details::v1::structuralize(&input.to_string())
-            .expect("the document structuralizes");
+    fn structuralized(input: &Value) -> Value {
+        let result = v1_structuralize(&input.to_string()).expect("the document structuralizes");
 
-        serde_json::from_str(&result.document_json.unwrap()).unwrap()
+        from_str(&result.document_json.unwrap()).unwrap()
     }
 
-    fn urls(output: &serde_json::Value) -> Vec<String> {
+    fn urls(output: &Value) -> Vec<String> {
         output["variations"]
             .as_array()
             .unwrap()

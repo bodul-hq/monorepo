@@ -7,6 +7,12 @@ use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use normalized::ProductRecord;
+use normalized::Variant;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::unique_sku;
+use offer_facts::was_price as offer_facts_was_price;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -44,28 +50,28 @@ impl AnkerEuDocument {
             )?;
 
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(
+                was_price: offer_facts_was_price(
                     Some(&variant.price),
                     variant.compare_at_price.as_ref(),
                 ),
                 availability: Some(
-                    if offer_facts::unique_sku(
+                    if unique_sku(
                         &island.sku,
                         &variant.sku,
                         product.variants.iter().map(|v| v.sku.as_str()),
                     ) {
                         island.offer.availability.clone()
                     } else {
-                        offer_facts::purchase_available(variant.available_for_sale)
+                        purchase_available(variant.available_for_sale)
                     },
                 ),
-                item_condition: (offer_facts::unique_sku(
+                item_condition: (unique_sku(
                     &island.sku,
                     &variant.sku,
                     product.variants.iter().map(|v| v.sku.as_str()),
                 ))
                 .then(|| island.offer.item_condition.clone()),
-                content: offer_facts::content(Some(product.description.as_str())),
+                content: offer_facts_content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -106,8 +112,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &normalized::ProductRecord,
-        variant: &normalized::Variant,
+        product: &ProductRecord,
+        variant: &Variant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -135,6 +141,10 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use crate::ankereu::offer_details::v1::structuralize;
+    use serde_json::from_str;
+    use serde_json::from_value;
+
     use super::{AnkerEuDocument, StructuralizeError};
     use crate::ankereu::offer_details::v1::normalized::AnkerEuNormalizedDocument;
     use crate::shared::IdentifierError;
@@ -185,14 +195,13 @@ mod tests {
     }
 
     fn structuralized(input: &Value) -> Value {
-        let result = crate::ankereu::offer_details::v1::structuralize(&input.to_string())
-            .expect("the document structuralizes");
+        let result = structuralize(&input.to_string()).expect("the document structuralizes");
 
-        serde_json::from_str(&result.document_json.unwrap()).unwrap()
+        from_str(&result.document_json.unwrap()).unwrap()
     }
 
     fn error(input: Value) -> StructuralizeError {
-        let normalized: AnkerEuNormalizedDocument = serde_json::from_value(input).unwrap();
+        let normalized: AnkerEuNormalizedDocument = from_value(input).unwrap();
 
         AnkerEuDocument::from_normalized(normalized).unwrap_err()
     }
@@ -263,11 +272,10 @@ mod tests {
 
     #[test]
     fn the_islands_arrival_url_reaches_nothing() {
-        let document =
-            crate::ankereu::offer_details::v1::structuralize(&normalized_document().to_string())
-                .unwrap()
-                .document_json
-                .unwrap();
+        let document = structuralize(&normalized_document().to_string())
+            .unwrap()
+            .document_json
+            .unwrap();
 
         for leaked in ["&amp;", "utm_source", "variant=1&"] {
             assert!(!document.contains(leaked), "{leaked} survived: {document}");

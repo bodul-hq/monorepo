@@ -4,7 +4,11 @@ use crate::ankerde::offer_details::v1::normalized::{AnkerdeNormalizedDocument, N
 use crate::ankerde::offer_details::v1::structuralize::AnkerDeDocument;
 use html_extractor::io::{Architecture, Attr, collection, next_js_app_router, particle, trash};
 use html_extractor::serde_json;
+use raw::AnkerdeRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 
 pub mod normalized;
 pub mod raw;
@@ -25,25 +29,24 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::AnkerdeRawDocument = serde_json::from_str(json).map_err(|e| e.to_string())?;
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: AnkerdeRawDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = AnkerdeNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: AnkerdeNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: AnkerdeNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         AnkerDeDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }

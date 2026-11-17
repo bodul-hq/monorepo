@@ -11,6 +11,11 @@ use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use normalized::product::ProductRecord;
+use normalized::product::ProductVariant as ProductProductVariant;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -48,13 +53,13 @@ impl AnkerItalyComDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(
+                    was_price: offer_facts_was_price(
                         Some(&variant.price),
                         variant.compare_at_price.as_ref(),
                     ),
-                    availability: Some(offer_facts::purchase_available(variant.available_for_sale)),
+                    availability: Some(purchase_available(variant.available_for_sale)),
                     item_condition: None,
-                    content: offer_facts::content(Some(product.description.as_str())),
+                    content: offer_facts_content(Some(product.description.as_str())),
                     title: product.title.clone(),
                     identifiers,
                     images: gallery(&product),
@@ -95,8 +100,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &normalized::product::ProductRecord,
-        variant: &normalized::product::ProductVariant,
+        product: &ProductRecord,
+        variant: &ProductProductVariant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -122,7 +127,7 @@ fn variation_url(
     Ok(format!("{}?variant={}", canonical_url, gid.numeric_id()?))
 }
 
-fn gallery(product: &normalized::product::ProductRecord) -> Vec<String> {
+fn gallery(product: &ProductRecord) -> Vec<String> {
     product
         .images
         .iter()
@@ -132,6 +137,10 @@ fn gallery(product: &normalized::product::ProductRecord) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use crate::ankeritalycom::offer_details::v1::structuralize;
+    use serde_json::from_str;
+    use serde_json::from_value;
+
     use super::{AnkerItalyComDocument, StructuralizeError};
     use crate::ankeritalycom::offer_details::v1::normalized::AnkerItalyComNormalizedDocument;
     use crate::shared::IdentifierError;
@@ -176,14 +185,13 @@ mod tests {
     }
 
     fn structuralized(input: &Value) -> Value {
-        let result = crate::ankeritalycom::offer_details::v1::structuralize(&input.to_string())
-            .expect("the document structuralizes");
+        let result = structuralize(&input.to_string()).expect("the document structuralizes");
 
-        serde_json::from_str(&result.document_json.unwrap()).unwrap()
+        from_str(&result.document_json.unwrap()).unwrap()
     }
 
     fn error(input: Value) -> StructuralizeError {
-        let normalized: AnkerItalyComNormalizedDocument = serde_json::from_value(input).unwrap();
+        let normalized: AnkerItalyComNormalizedDocument = from_value(input).unwrap();
 
         AnkerItalyComDocument::from_normalized(normalized).unwrap_err()
     }

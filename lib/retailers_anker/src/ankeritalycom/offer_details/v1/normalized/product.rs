@@ -2,6 +2,15 @@ use super::super::raw;
 use super::{NormalizeError, decimal, decimal_money, money};
 use chrono::{DateTime, Utc};
 use money::Money;
+use raw::nextdata::product::DiscountCode;
+use raw::nextdata::product::DiscountCodeApp;
+use raw::nextdata::product::Image;
+use raw::nextdata::product::OptionValue as ProductOptionValue;
+use raw::nextdata::product::Product as ProductProduct;
+use raw::nextdata::product::ProductOption as ProductProductOption;
+use raw::nextdata::product::ProductSeo as ProductProductSeo;
+use raw::nextdata::product::SelectedOption as ProductSelectedOption;
+use raw::nextdata::product::Variant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -42,9 +51,7 @@ pub struct ProductRecord {
 }
 
 impl ProductRecord {
-    pub(crate) fn from_raw(
-        raw: raw::nextdata::product::Product,
-    ) -> Result<ProductRecord, NormalizeError> {
+    pub(crate) fn from_raw(raw: ProductProduct) -> Result<ProductRecord, NormalizeError> {
         let compare_at = raw.compare_at_price_range.min_variant_price;
 
         Ok(ProductRecord {
@@ -109,7 +116,7 @@ pub struct ProductImage {
 }
 
 impl ProductImage {
-    fn from_raw(raw: raw::nextdata::product::Image) -> ProductImage {
+    fn from_raw(raw: Image) -> ProductImage {
         ProductImage {
             url: raw.url,
             // alt_text: raw.alt_text,
@@ -126,7 +133,7 @@ pub struct ProductSeo {
 }
 
 impl ProductSeo {
-    fn from_raw(raw: raw::nextdata::product::ProductSeo) -> ProductSeo {
+    fn from_raw(raw: ProductProductSeo) -> ProductSeo {
         ProductSeo {
             title: raw.title,
             description: raw.description,
@@ -142,7 +149,7 @@ pub struct ProductOption {
 }
 
 impl ProductOption {
-    fn from_raw(raw: raw::nextdata::product::ProductOption) -> ProductOption {
+    fn from_raw(raw: ProductProductOption) -> ProductOption {
         ProductOption {
             id: raw.id,
             name: raw.name,
@@ -158,7 +165,7 @@ pub struct OptionValue {
 }
 
 impl OptionValue {
-    fn from_raw(raw: raw::nextdata::product::OptionValue) -> OptionValue {
+    fn from_raw(raw: ProductOptionValue) -> OptionValue {
         OptionValue {
             label: raw.label,
             hex_colors: raw.hex_colors,
@@ -194,7 +201,7 @@ pub struct ProductVariant {
 }
 
 impl ProductVariant {
-    fn from_raw(raw: raw::nextdata::product::Variant) -> Result<ProductVariant, NormalizeError> {
+    fn from_raw(raw: Variant) -> Result<ProductVariant, NormalizeError> {
         Ok(ProductVariant {
             id: raw.id,
             title: raw.title,
@@ -234,9 +241,7 @@ impl ProductVariant {
     }
 }
 
-fn discounts(
-    raw: Option<raw::nextdata::product::DiscountCodeApp>,
-) -> Result<Vec<Discount>, NormalizeError> {
+fn discounts(raw: Option<DiscountCodeApp>) -> Result<Vec<Discount>, NormalizeError> {
     raw.map_or_else(Vec::new, |app| app.data)
         .into_iter()
         .map(Discount::from_raw)
@@ -250,7 +255,7 @@ pub struct SelectedOption {
 }
 
 impl SelectedOption {
-    fn from_raw(raw: raw::nextdata::product::SelectedOption) -> SelectedOption {
+    fn from_raw(raw: ProductSelectedOption) -> SelectedOption {
         SelectedOption {
             name: raw.name,
             value: raw.value,
@@ -281,7 +286,7 @@ pub enum DiscountValue {
 }
 
 impl Discount {
-    fn from_raw(raw: raw::nextdata::product::DiscountCode) -> Result<Discount, NormalizeError> {
+    fn from_raw(raw: DiscountCode) -> Result<Discount, NormalizeError> {
         let instant = |field: &str, value: &str| {
             DateTime::parse_from_rfc3339(value)
                 .map(|instant| instant.with_timezone(&Utc))
@@ -331,6 +336,12 @@ impl Discount {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -386,7 +397,7 @@ mod tests {
     }
 
     fn record(raw: Value) -> Result<ProductRecord, NormalizeError> {
-        ProductRecord::from_raw(serde_json::from_value(raw).unwrap())
+        ProductRecord::from_raw(from_value(raw).unwrap())
     }
 
     #[test]
@@ -448,7 +459,7 @@ mod tests {
         assert_eq!(variant.discounts[0].ends_at, None);
         assert_eq!(variant.discounts[0].sales_channels, None);
 
-        let output = serde_json::to_value(variant).unwrap();
+        let output = to_value(variant).unwrap();
         for dropped in ["coupons", "product", "options", "metafields"] {
             assert!(output.get(dropped).is_none(), "{dropped} crossed");
         }
@@ -459,11 +470,11 @@ mod tests {
         let mut code = discount_code();
         code["value_type"] = json!("percentage");
         code["value"] = json!("-20.0");
-        let discount = Discount::from_raw(serde_json::from_value(code.clone()).unwrap()).unwrap();
+        let discount = Discount::from_raw(from_value(code.clone()).unwrap()).unwrap();
         assert_eq!(discount.value, DiscountValue::Percentage(-20.0));
 
         code["value_type"] = json!("buy_x_get_y");
-        let error = Discount::from_raw(serde_json::from_value(code).unwrap()).unwrap_err();
+        let error = Discount::from_raw(from_value(code).unwrap()).unwrap_err();
         assert_eq!(
             error,
             NormalizeError::UnknownDiscountValueType {
@@ -484,11 +495,8 @@ mod tests {
         ))
         .unwrap();
 
-        let json = serde_json::to_string(&record).unwrap();
+        let json = serde_json_to_string(&record).unwrap();
 
-        assert_eq!(
-            serde_json::from_str::<ProductRecord>(&json).unwrap(),
-            record
-        );
+        assert_eq!(from_str::<ProductRecord>(&json).unwrap(), record);
     }
 }

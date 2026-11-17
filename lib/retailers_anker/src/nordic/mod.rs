@@ -2,6 +2,12 @@
 //! HTML is Swedish-default even with the site's country cookie. Fetch the public
 //! Storefront API with an explicit country and check its returned localization.
 
+use raw::Price;
+use raw::Response;
+use retailer_sauce::identifier::IdentifierError;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use std::collections::HashSet;
 mod raw;
 pub(crate) mod sitemap;
 #[cfg(test)]
@@ -83,12 +89,12 @@ impl Market {
     pub fn normalize(self, body: &str) -> Result<NormalizedData, String> {
         let document = self.document(body)?;
         Ok(NormalizedData::just_document_json(
-            serde_json::to_string(&document).map_err(|e| e.to_string())?,
+            serde_json_to_string(&document).map_err(|e| e.to_string())?,
         ))
     }
 
     fn document(self, body: &str) -> Result<Document, String> {
-        let response: raw::Response = serde_json::from_str(body).map_err(|e| e.to_string())?;
+        let response: Response = from_str(body).map_err(|e| e.to_string())?;
         if !response.errors.is_empty() {
             return Err("Nordic Storefront API returned GraphQL errors".into());
         }
@@ -130,7 +136,7 @@ impl Market {
             return Err("Nordic canonical URL does not match product handle".into());
         }
         let mut variants = Vec::new();
-        let mut seen = std::collections::HashSet::new();
+        let mut seen = HashSet::new();
         for variant in product.variants.nodes {
             let id = ShopifyProductVariationGid::try_from(variant.id).map_err(|e| e.to_string())?;
             id.numeric_id().map_err(|e| e.to_string())?;
@@ -168,7 +174,7 @@ impl Market {
         })
     }
 
-    fn money(self, price: &raw::Price) -> Result<Money, String> {
+    fn money(self, price: &Price) -> Result<Money, String> {
         if price.currency_code != self.currency().as_str() {
             return Err("Nordic variant currency does not match its market".into());
         }
@@ -196,7 +202,7 @@ impl Market {
     }
 
     pub fn structuralize(self, body: &str) -> Result<StructuralizedData, String> {
-        let document: Document = serde_json::from_str(body).map_err(|e| e.to_string())?;
+        let document: Document = from_str(body).map_err(|e| e.to_string())?;
         if document.country != self.country() || document.language != "en" {
             return Err("normalized Nordic document belongs to another market".into());
         }
@@ -243,7 +249,7 @@ impl Market {
 
 fn optional_identifier<T>(
     value: Option<String>,
-    convert: impl FnOnce(String) -> Result<T, retailer_sauce::identifier::IdentifierError>,
+    convert: impl FnOnce(String) -> Result<T, IdentifierError>,
 ) -> Result<Option<T>, String> {
     value
         .filter(|v| !v.trim().is_empty())

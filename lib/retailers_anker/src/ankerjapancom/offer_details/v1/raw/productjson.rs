@@ -1,6 +1,8 @@
 use html_extractor::serde_json::Value;
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJsonItem {
     pub data: ProductJson,
@@ -8,7 +10,7 @@ pub struct ProductJsonItem {
 
 /// Liquid's `product | json`. Every amount in it is in hundredths of the shop currency, which
 /// it does not name.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJson {
     pub id: u64,
@@ -40,7 +42,7 @@ pub struct ProductJson {
     pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -67,7 +69,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -82,7 +84,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -91,17 +93,17 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub aspect_ratio: f64,
     pub height: i64,
     pub width: i64,
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -109,7 +111,7 @@ pub struct QuantityRule {
     pub increment: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "media_type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Media {
     Image {
@@ -117,7 +119,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         height: i64,
         width: i64,
@@ -128,7 +130,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         duration: i64,
         sources: Vec<VideoSource>,
@@ -138,14 +140,14 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         external_id: String,
         host: String,
     },
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VideoSource {
     pub format: String,
@@ -157,6 +159,8 @@ pub struct VideoSource {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_str;
+
     use super::{Media, ProductJson};
     use html_extractor::serde_json;
 
@@ -165,14 +169,13 @@ pub(crate) mod tests {
         let model = r#"{"media_type":"model","alt":null,"id":1,"position":1,
             "preview_image":{"aspect_ratio":1.0,"height":1,"width":1,"src":"s"},"aspect_ratio":1.0}"#;
 
-        let error = serde_json::from_str::<Media>(model).expect_err("no model media is typed");
+        let error = from_str::<Media>(model).expect_err("no model media is typed");
         assert!(error.to_string().contains("unknown variant `model`"));
     }
 
     #[test]
     fn the_unused_option_slots_read_as_null() {
-        let product =
-            serde_json::from_str::<ProductJson>(PRODUCT).expect("the record deserializes");
+        let product = from_str::<ProductJson>(PRODUCT).expect("the record deserializes");
         let variant = &product.variants[0];
 
         assert_eq!(variant.option1.as_deref(), Some("ブラック"));
@@ -181,10 +184,9 @@ pub(crate) mod tests {
 
     #[test]
     fn a_variant_sku_may_be_null() {
-        let product = serde_json::from_str::<ProductJson>(
-            &PRODUCT.replace(r#""sku":"68ANHUB-B14JA""#, r#""sku":null"#),
-        )
-        .expect("some variants render a null sku");
+        let product =
+            from_str::<ProductJson>(&PRODUCT.replace(r#""sku":"68ANHUB-B14JA""#, r#""sku":null"#))
+                .expect("some variants render a null sku");
         assert!(product.variants[0].sku.is_none());
     }
 

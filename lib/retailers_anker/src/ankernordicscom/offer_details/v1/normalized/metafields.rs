@@ -187,11 +187,14 @@ fn string_field(entry: &Value, field: &str, path: &str) -> Result<String, Normal
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+
     use super::*;
     use html_extractor::serde_json::{self, json};
 
     fn metafields(value: Value) -> ProductMetafields {
-        serde_json::from_value(value).unwrap()
+        from_value(value).unwrap()
     }
 
     fn row(name: &str, value: &str) -> Specification {
@@ -310,7 +313,7 @@ mod tests {
                 row("Battery", "13,000mAh"),
             ]
         );
-        assert!(!serde_json::to_string(&rows).unwrap().contains("T88943W1"));
+        assert!(!serde_json_to_string(&rows).unwrap().contains("T88943W1"));
     }
 
     #[test]

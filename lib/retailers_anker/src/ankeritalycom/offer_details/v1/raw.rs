@@ -1,29 +1,34 @@
+use ldjsonitem::LdJsonItem;
+use nextdata::NextDataScript;
+use serde::Deserialize;
 pub mod ldjsonitem;
 pub mod nextdata;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnkerItalyComRawDocument {
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjsonitem::LdJsonItem>,
+    pub ld_json: Vec<LdJsonItem>,
 
-    pub next_data: nextdata::NextDataScript,
+    pub next_data: NextDataScript,
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::AnkerItalyComRawDocument;
     use html_extractor::serde_json;
 
     #[test]
     fn both_islands_are_required() {
-        assert!(serde_json::from_str::<AnkerItalyComRawDocument>(r#"{}"#).is_err());
-        assert!(serde_json::from_str::<AnkerItalyComRawDocument>(r#"{"ld-json":[]}"#).is_err());
+        assert!(from_str::<AnkerItalyComRawDocument>(r#"{}"#).is_err());
+        assert!(from_str::<AnkerItalyComRawDocument>(r#"{"ld-json":[]}"#).is_err());
     }
 
     #[test]
     fn the_hyphenated_key_is_what_the_architecture_emits() {
-        let error = serde_json::from_str::<AnkerItalyComRawDocument>(
+        let error = from_str::<AnkerItalyComRawDocument>(
             r#"{"ld_json":[],"next_data":{"id":"i","type":"t","data":{}}}"#,
         )
         .expect_err("the underscore spelling is not what extract produces");

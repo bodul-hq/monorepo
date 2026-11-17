@@ -3,6 +3,10 @@
 //! what nothing needs - several duplicate renderings among it - stays behind as the commented-out
 //! exclusion records.
 
+use chrono::ParseError;
+use ldjson::LdJson;
+use product::ProductRecord;
+use raw::AnkerItalyComRawDocument;
 pub mod ldjson;
 pub mod product;
 
@@ -32,7 +36,7 @@ pub enum NormalizeError {
         code: String,
         field: String,
         value: String,
-        source: chrono::ParseError,
+        source: ParseError,
     },
 
     #[error("discount `{code}` has an unknown `value_type` `{value_type}`")]
@@ -63,27 +67,27 @@ fn decimal(raw: &str, field: &str) -> Result<f64, NormalizeError> {
 pub struct AnkerItalyComNormalizedDocument {
     // Commented out: `it` on every page; the retailer code already names the storefront.
     // pub locale: String,
-    pub ld_json: ldjson::LdJson,
+    pub ld_json: LdJson,
     pub canonical_url: String,
     // Commented out: page metadata beyond `canonical`, lifted above; `noindex` is false on every
     // page.
     // pub seo: PageSeo,
-    pub product: product::ProductRecord,
+    pub product: ProductRecord,
 }
 
 impl AnkerItalyComNormalizedDocument {
     pub fn from_raw(
-        raw: raw::AnkerItalyComRawDocument,
+        raw: AnkerItalyComRawDocument,
     ) -> Result<AnkerItalyComNormalizedDocument, NormalizeError> {
         let next_data = raw.next_data.data;
         let page_props = next_data.props.page_props;
 
         Ok(AnkerItalyComNormalizedDocument {
             // locale: next_data.locale,
-            ld_json: ldjson::LdJson::from_raw(raw.ld_json)?,
+            ld_json: LdJson::from_raw(raw.ld_json)?,
             canonical_url: page_props.seo.canonical,
             // seo: PageSeo::from_raw(page_props.seo),
-            product: product::ProductRecord::from_raw(page_props.product)?,
+            product: ProductRecord::from_raw(page_props.product)?,
         })
     }
 }

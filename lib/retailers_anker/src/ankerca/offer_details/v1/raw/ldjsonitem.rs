@@ -1,12 +1,13 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     pub data: Vec<LdJson>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -16,7 +17,7 @@ pub enum LdJson {
     FaqPage(FaqPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -34,7 +35,7 @@ pub struct Product {
     pub offers: Offer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@context")]
@@ -44,7 +45,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@context")]
@@ -59,7 +60,7 @@ pub struct Offer {
     pub price_currency: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corporation {
     #[serde(rename = "@context")]
@@ -84,7 +85,7 @@ pub struct Corporation {
     pub telephone: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -93,7 +94,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@context")]
@@ -109,7 +110,7 @@ pub struct BreadcrumbItem {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -118,7 +119,7 @@ pub struct FaqPage {
     pub main_entity: Vec<FaqQuestion>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqQuestion {
     #[serde(rename = "@context")]
@@ -130,7 +131,7 @@ pub struct FaqQuestion {
     pub accepted_answer: FaqAnswer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqAnswer {
     #[serde(rename = "@context")]
@@ -144,6 +145,8 @@ pub struct FaqAnswer {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
     use super::{FaqAnswer, LdJson, LdJsonScript};
     use html_extractor::serde_json;
 
@@ -154,7 +157,7 @@ mod tests {
             {"@type":"BreadcrumbList","@context":"c","itemListElement":[
                 {"@context":"c","@type":"ListItem","item":"i","name":"Home","position":1}]}]}"#;
 
-        let island: LdJsonScript = serde_json::from_str(island).expect("the array deserializes");
+        let island: LdJsonScript = decode_json_str(island).expect("the array deserializes");
         assert_eq!(island.data.len(), 2);
         assert!(matches!(island.data[0], LdJson::Corporation(_)));
     }
@@ -168,7 +171,7 @@ mod tests {
             "url":"u"}"#;
 
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(product).expect("the Product deserializes")
+            decode_json_str::<LdJson>(product).expect("the Product deserializes")
         else {
             panic!("expected a Product");
         };
@@ -185,7 +188,7 @@ mod tests {
             "url":"u"}"#;
 
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(product).expect("the image-less Product deserializes")
+            decode_json_str::<LdJson>(product).expect("the image-less Product deserializes")
         else {
             panic!("expected a Product");
         };
@@ -198,7 +201,7 @@ mod tests {
             "sameAs":["s"],"url":"u"}"#;
 
         let LdJson::Corporation(corp) =
-            serde_json::from_str::<LdJson>(lean).expect("the lean tier deserializes")
+            decode_json_str::<LdJson>(lean).expect("the lean tier deserializes")
         else {
             panic!("expected a Corporation");
         };
@@ -213,7 +216,7 @@ mod tests {
              "item":"https://www.anker.com/ca-fr/collections/undefined?ref=breadcrumb"}]}"#;
 
         let LdJson::BreadcrumbList(list) =
-            serde_json::from_str::<LdJson>(list).expect("the nameless crumb deserializes")
+            decode_json_str::<LdJson>(list).expect("the nameless crumb deserializes")
         else {
             panic!("expected a BreadcrumbList");
         };
@@ -226,7 +229,7 @@ mod tests {
             "sameAs":[],"url":"u","description":"d","telephone":"+1 (800) 988 7973"}"#;
 
         let LdJson::Corporation(corp) =
-            serde_json::from_str::<LdJson>(soundcore).expect("the soundcore tier deserializes")
+            decode_json_str::<LdJson>(soundcore).expect("the soundcore tier deserializes")
         else {
             panic!("expected a Corporation");
         };
@@ -237,12 +240,11 @@ mod tests {
     #[test]
     fn an_answer_text_is_a_string_or_a_cms_tree() {
         let plain: FaqAnswer =
-            serde_json::from_str(r#"{"@context":"c","@type":"Answer","text":"Yes."}"#)
+            decode_json_str(r#"{"@context":"c","@type":"Answer","text":"Yes."}"#)
                 .expect("plain reads");
-        let rich: FaqAnswer = serde_json::from_str(
-            r#"{"@context":"c","@type":"Answer","text":{"root":{"type":"root"}}}"#,
-        )
-        .expect("the CMS tree reads");
+        let rich: FaqAnswer =
+            decode_json_str(r#"{"@context":"c","@type":"Answer","text":{"root":{"type":"root"}}}"#)
+                .expect("the CMS tree reads");
 
         assert!(plain.text.is_string());
         assert!(rich.text.is_object());

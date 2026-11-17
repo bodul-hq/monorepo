@@ -1,10 +1,11 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     pub data: Vec<LdJson>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -14,7 +15,7 @@ pub enum LdJson {
     FaqPage(FaqPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -31,7 +32,7 @@ pub struct Product {
     pub offers: Offer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@context")]
@@ -41,7 +42,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@context")]
@@ -56,7 +57,7 @@ pub struct Offer {
     pub price_currency: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corporation {
     #[serde(rename = "@context")]
@@ -81,14 +82,14 @@ pub struct Corporation {
     pub telephone: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum StringOrList {
     One(String),
     Many(Vec<String>),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -97,7 +98,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@context")]
@@ -110,7 +111,7 @@ pub struct BreadcrumbItem {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -119,7 +120,7 @@ pub struct FaqPage {
     pub main_entity: Vec<FaqQuestion>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqQuestion {
     #[serde(rename = "@context")]
@@ -131,7 +132,7 @@ pub struct FaqQuestion {
     pub accepted_answer: FaqAnswer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqAnswer {
     #[serde(rename = "@context")]
@@ -143,6 +144,8 @@ pub struct FaqAnswer {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
     use super::{LdJson, LdJsonScript};
     use html_extractor::serde_json;
 
@@ -153,7 +156,7 @@ mod tests {
             {"@type":"BreadcrumbList","@context":"c","itemListElement":[
                 {"@type":"ListItem","item":"i","name":"Home","position":1}]}]}"#;
 
-        let island: LdJsonScript = serde_json::from_str(island).expect("the array deserializes");
+        let island: LdJsonScript = decode_json_str(island).expect("the array deserializes");
         assert_eq!(island.data.len(), 2);
         assert!(matches!(island.data[0], LdJson::Corporation(_)));
     }
@@ -166,7 +169,7 @@ mod tests {
             "url":"u"}"#;
 
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(product).expect("the Product deserializes")
+            decode_json_str::<LdJson>(product).expect("the Product deserializes")
         else {
             panic!("expected a Product");
         };
@@ -183,7 +186,7 @@ mod tests {
             "url":"u"}"#;
 
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(product).expect("the Product deserializes")
+            decode_json_str::<LdJson>(product).expect("the Product deserializes")
         else {
             panic!("expected a Product");
         };
@@ -197,7 +200,7 @@ mod tests {
             "sameAs":["s"],"url":"u"}"#;
 
         let LdJson::Corporation(corp) =
-            serde_json::from_str::<LdJson>(lean).expect("the lean tier deserializes")
+            decode_json_str::<LdJson>(lean).expect("the lean tier deserializes")
         else {
             panic!("expected a Corporation");
         };
@@ -220,7 +223,7 @@ mod tests {
                    "legalName":"L","logo":"l","name":"Anker","sameAs":[],"url":"u"}}"#
             );
             let LdJson::Corporation(corp) =
-                serde_json::from_str::<LdJson>(&island).expect("both spellings read")
+                decode_json_str::<LdJson>(&island).expect("both spellings read")
             else {
                 panic!("expected a Corporation");
             };

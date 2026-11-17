@@ -1,4 +1,8 @@
 use super::*;
+use raw::Price;
+use serde_json::Value;
+use serde_json::from_str;
+use sitemap::classify_link;
 
 const CASES: [(Market, &str, i64); 5] = [
     (Market::Sweden, include_str!("fixtures/se.json"), 49900),
@@ -11,7 +15,7 @@ const URL: &str = "https://www.ankernordics.com/products/t90r0121";
 
 #[test]
 fn variants_retain_independent_prices_comparisons_and_availability() {
-    let mut value: serde_json::Value = serde_json::from_str(CASES[2].1).unwrap();
+    let mut value: Value = from_str(CASES[2].1).unwrap();
     let variants = value["data"]["product"]["variants"]["nodes"]
         .as_array_mut()
         .unwrap();
@@ -32,7 +36,7 @@ fn variants_retain_independent_prices_comparisons_and_availability() {
         .unwrap()
         .document_json
         .unwrap();
-    let result: serde_json::Value = serde_json::from_str(&result).unwrap();
+    let result: Value = from_str(&result).unwrap();
     let variants = result["variations"].as_array().unwrap();
     assert_eq!(variants.len(), 2);
     assert_eq!(variants[0]["was_price"]["amount"], 5499);
@@ -52,8 +56,7 @@ fn variants_retain_independent_prices_comparisons_and_availability() {
 fn real_market_responses_preserve_prices_identifiers_and_localization() {
     for (market, body, amount) in CASES {
         market.validate_download(URL, body).unwrap();
-        let request: serde_json::Value =
-            serde_json::from_str(&market.request(URL).unwrap()).unwrap();
+        let request: Value = from_str(&market.request(URL).unwrap()).unwrap();
         assert_eq!(request["variables"]["country"], market.country());
         assert_eq!(request["variables"]["handle"], "t90r0121");
         let extracted = market.extract(body).unwrap();
@@ -63,7 +66,7 @@ fn real_market_responses_preserve_prices_identifiers_and_localization() {
             .unwrap()
             .document_json
             .unwrap();
-        let value: serde_json::Value = serde_json::from_str(&structuralized).unwrap();
+        let value: Value = from_str(&structuralized).unwrap();
         let variant = &value["variations"][0];
         assert_eq!(
             variant["price"],
@@ -97,11 +100,11 @@ fn real_market_responses_preserve_prices_identifiers_and_localization() {
 
 #[test]
 fn incomplete_wrong_product_and_error_responses_fail_before_storage() {
-    let base: serde_json::Value = serde_json::from_str(CASES[0].1).unwrap();
+    let base: Value = from_str(CASES[0].1).unwrap();
     for (pointer, invalid) in [
         ("/data/localization/country/isoCode", json!("NO")),
         ("/data/localization/language/isoCode", json!("SV")),
-        ("/data/product", serde_json::Value::Null),
+        ("/data/product", Value::Null),
         ("/data/product/handle", json!("another-product")),
         ("/data/product/images/pageInfo/hasNextPage", json!(true)),
         ("/data/product/variants/pageInfo/hasNextPage", json!(true)),
@@ -154,7 +157,7 @@ fn decimal_prices_are_exact_and_checked() {
     ] {
         assert_eq!(
             market
-                .money(&raw::Price {
+                .money(&Price {
                     amount: amount.into(),
                     currency_code: market.currency().as_str().into()
                 })
@@ -173,7 +176,7 @@ fn decimal_prices_are_exact_and_checked() {
     ] {
         assert!(
             Market::Finland
-                .money(&raw::Price {
+                .money(&Price {
                     amount: amount.into(),
                     currency_code: "EUR".into()
                 })
@@ -189,9 +192,9 @@ fn shared_catalog_rejects_foreign_hosts_and_invented_country_paths() {
         "main",
         "https://www.ankernordics.com/server-sitemap-index-products.xml",
     ] {
-        assert_eq!(sitemap::classify_link(URL, source, 0), LinkKind::Product);
+        assert_eq!(classify_link(URL, source, 0), LinkKind::Product);
         assert_eq!(
-            sitemap::classify_link(&URL.to_uppercase(), source, 0),
+            classify_link(&URL.to_uppercase(), source, 0),
             LinkKind::Product
         );
         for foreign in [
@@ -199,15 +202,12 @@ fn shared_catalog_rejects_foreign_hosts_and_invented_country_paths() {
             "https://www.anker.com/se/products/a",
             "https://www.ankernordics.com/no/products/a",
         ] {
-            assert_eq!(
-                sitemap::classify_link(foreign, source, 0),
-                LinkKind::NotInterested
-            );
+            assert_eq!(classify_link(foreign, source, 0), LinkKind::NotInterested);
             assert!(Market::Norway.request(foreign).is_err());
         }
     }
     assert_eq!(
-        sitemap::classify_link(
+        classify_link(
             "https://www.ankernordics.com/collections/solar-panels",
             "main",
             0
@@ -215,7 +215,7 @@ fn shared_catalog_rejects_foreign_hosts_and_invented_country_paths() {
         LinkKind::Catalog
     );
     assert_eq!(
-        sitemap::classify_link("https://www.ankernordics.com/blogs/se/news", "main", 0),
+        classify_link("https://www.ankernordics.com/blogs/se/news", "main", 0),
         LinkKind::Content
     );
 }

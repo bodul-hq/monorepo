@@ -1,10 +1,12 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -15,7 +17,7 @@ pub enum LdJson {
     FaqPage(FaqPage),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -30,7 +32,7 @@ pub struct Product {
     pub offers: Vec<Offer>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -38,13 +40,13 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
     pub kind: String,
 
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -58,7 +60,7 @@ pub struct Offer {
     pub offer_count: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corporation {
     #[serde(rename = "@context")]
@@ -74,7 +76,7 @@ pub struct Corporation {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -83,7 +85,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -94,7 +96,7 @@ pub struct BreadcrumbItem {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ImageObject {
     #[serde(rename = "@context")]
@@ -109,7 +111,7 @@ pub struct ImageObject {
     pub creator: Creator,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Creator {
     #[serde(rename = "@type")]
@@ -117,7 +119,7 @@ pub struct Creator {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -127,7 +129,7 @@ pub struct FaqPage {
     pub main_entity: Option<Vec<FaqQuestion>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqQuestion {
     #[serde(rename = "@type")]
@@ -138,7 +140,7 @@ pub struct FaqQuestion {
     pub accepted_answer: FaqAnswer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqAnswer {
     #[serde(rename = "@type")]
@@ -148,6 +150,8 @@ pub struct FaqAnswer {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::LdJson;
     use html_extractor::serde_json;
 
@@ -159,7 +163,7 @@ mod tests {
     #[test]
     fn the_offers_are_a_range_spelled_two_ways() {
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
+            from_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
         else {
             panic!("expected a Product");
         };
@@ -175,7 +179,7 @@ mod tests {
         let single = PRODUCT
             .replace("\"offers\":[", "\"offers\":")
             .replace("}],\"url\"", "},\"url\"");
-        assert!(serde_json::from_str::<LdJson>(&single).is_err());
+        assert!(from_str::<LdJson>(&single).is_err());
     }
 
     #[test]
@@ -185,7 +189,7 @@ mod tests {
             "creator":{"@type":"Organization","name":"Anker"},"creditText":"t","license":"l"}"#;
 
         let LdJson::ImageObject(image) =
-            serde_json::from_str::<LdJson>(island).expect("the ImageObject dispatches")
+            from_str::<LdJson>(island).expect("the ImageObject dispatches")
         else {
             panic!("expected an ImageObject");
         };
@@ -195,16 +199,14 @@ mod tests {
 
     #[test]
     fn an_unknown_type_is_rejected_rather_than_ignored() {
-        assert!(
-            serde_json::from_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err()
-        );
+        assert!(from_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err());
     }
 
     #[test]
     fn an_empty_faq_island_still_deserializes() {
         let bare = r#"{"@type":"FAQPage","@context":"https://schema.org"}"#;
         let LdJson::FaqPage(faq) =
-            serde_json::from_str::<LdJson>(bare).expect("an empty FAQ island is legal here")
+            from_str::<LdJson>(bare).expect("an empty FAQ island is legal here")
         else {
             panic!("expected a FaqPage");
         };

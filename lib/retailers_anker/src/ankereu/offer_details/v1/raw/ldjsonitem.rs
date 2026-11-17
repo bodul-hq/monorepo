@@ -1,10 +1,12 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -16,7 +18,7 @@ pub enum LdJson {
     Organization(Organization),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -33,7 +35,7 @@ pub struct Organization {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OrganizationLogo {
     #[serde(rename = "@type")]
@@ -41,7 +43,7 @@ pub struct OrganizationLogo {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -58,7 +60,7 @@ pub struct Product {
     pub offers: Offer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -66,7 +68,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
@@ -74,7 +76,7 @@ pub struct Offer {
 
     pub availability: String,
 
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -84,7 +86,7 @@ pub struct Offer {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corporation {
     #[serde(rename = "@context")]
@@ -104,7 +106,7 @@ pub struct Corporation {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -113,7 +115,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -125,7 +127,7 @@ pub struct BreadcrumbItem {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -134,7 +136,7 @@ pub struct FaqPage {
     pub main_entity: Vec<FaqQuestion>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqQuestion {
     #[serde(rename = "@type")]
@@ -145,7 +147,7 @@ pub struct FaqQuestion {
     pub accepted_answer: FaqAnswer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqAnswer {
     #[serde(rename = "@type")]
@@ -155,6 +157,8 @@ pub struct FaqAnswer {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::LdJson;
     use html_extractor::serde_json;
 
@@ -167,7 +171,7 @@ mod tests {
     #[test]
     fn the_tag_is_stripped_before_the_variant_sees_the_object() {
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
+            from_str::<LdJson>(PRODUCT).expect("the Product island deserializes")
         else {
             panic!("expected a Product");
         };
@@ -181,7 +185,7 @@ mod tests {
         for (spelling, expected) in [("99.99", 99.99_f64), ("99", 99.0_f64)] {
             let json = PRODUCT.replace("99.99", spelling);
             let LdJson::Product(product) =
-                serde_json::from_str::<LdJson>(&json).expect("both price spellings read")
+                from_str::<LdJson>(&json).expect("both price spellings read")
             else {
                 panic!("expected a Product");
             };
@@ -196,7 +200,7 @@ mod tests {
             "sameAs":[],"url":"u"}"#;
 
         let LdJson::Organization(org) =
-            serde_json::from_str::<LdJson>(org).expect("the Organization variant dispatches")
+            from_str::<LdJson>(org).expect("the Organization variant dispatches")
         else {
             panic!("expected an Organization");
         };
@@ -206,8 +210,6 @@ mod tests {
 
     #[test]
     fn an_unknown_type_is_rejected_rather_than_ignored() {
-        assert!(
-            serde_json::from_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err()
-        );
+        assert!(from_str::<LdJson>(r#"{"@type":"VideoObject","@context":"c"}"#).is_err());
     }
 }

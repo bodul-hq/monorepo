@@ -3,6 +3,21 @@
 //! repeats, so the island crosses only as the proof that the page is a product; what nothing
 //! needs stays behind as the commented-out exclusion records below.
 
+use chrono::ParseError;
+use ldjson::LdJson;
+use metafields::key_features as metafields_key_features;
+use metafields::specifications as metafields_specifications;
+use raw::AnkerNordicsComRawDocument;
+use raw::nextdata::product::DiscountCode;
+use raw::nextdata::product::DiscountCodeApp;
+use raw::nextdata::product::Image;
+use raw::nextdata::product::OptionValue as ProductOptionValue;
+use raw::nextdata::product::PriceStr;
+use raw::nextdata::product::Product as ProductProduct;
+use raw::nextdata::product::ProductOption as ProductProductOption;
+use raw::nextdata::product::SelectedOption;
+use raw::nextdata::product::Variant as NextdataProductVariant;
+use raw::nextdata::product::VariantOptionRendering;
 pub mod ldjson;
 pub mod metafields;
 
@@ -20,10 +35,7 @@ pub enum NormalizeError {
     MissingProductIsland,
 
     #[error("updatedAt `{value}` is not an RFC 3339 instant: {source}")]
-    UpdatedAtNotAnInstant {
-        value: String,
-        source: chrono::ParseError,
-    },
+    UpdatedAtNotAnInstant { value: String, source: ParseError },
 
     #[error("`{field}` is not money: {source:?}")]
     NotMoney { field: String, source: MoneyError },
@@ -58,7 +70,7 @@ pub enum NormalizeError {
         code: String,
         field: String,
         value: String,
-        source: chrono::ParseError,
+        source: ParseError,
     },
 
     #[error("discount `{code}` has unknown `value_type` `{value_type}`")]
@@ -95,7 +107,7 @@ fn decimal(raw: &str, field: &str) -> Result<f64, NormalizeError> {
 pub struct AnkerNordicsComNormalizedDocument {
     // Commented out: `se` on every page; the retailer code already names the storefront.
     // pub locale: String,
-    pub ld_json: ldjson::LdJson,
+    pub ld_json: LdJson,
     pub canonical_url: String,
     // Commented out: page metadata beyond `canonical`, lifted above. `language_alternates` names
     // the same product under the other Nordic locales, all at the same URL.
@@ -108,14 +120,14 @@ pub struct AnkerNordicsComNormalizedDocument {
 
 impl AnkerNordicsComNormalizedDocument {
     pub fn from_raw(
-        raw: raw::AnkerNordicsComRawDocument,
+        raw: AnkerNordicsComRawDocument,
     ) -> Result<AnkerNordicsComNormalizedDocument, NormalizeError> {
         let next_data = raw.next_data.data;
         let page_props = next_data.props.page_props;
 
         Ok(AnkerNordicsComNormalizedDocument {
             // locale: next_data.locale,
-            ld_json: ldjson::LdJson::from_raw(raw.ld_json)?,
+            ld_json: LdJson::from_raw(raw.ld_json)?,
             canonical_url: page_props.seo.canonical,
             // seo: PageSeo::from_raw(page_props.seo),
             product: ProductRecord::from_raw(page_props.product)?,
@@ -263,7 +275,7 @@ pub struct ProductRecord {
 }
 
 impl ProductRecord {
-    fn from_raw(raw: raw::nextdata::product::Product) -> Result<ProductRecord, NormalizeError> {
+    fn from_raw(raw: ProductProduct) -> Result<ProductRecord, NormalizeError> {
         let currency = raw.price.currency_code.as_str();
 
         Ok(ProductRecord {
@@ -275,8 +287,8 @@ impl ProductRecord {
             description: raw.description,
             // description_html: raw.description_html,
             vendor: raw.vendor,
-            key_features: metafields::key_features(&raw.metafields)?,
-            specifications: metafields::specifications(&raw.metafields)?,
+            key_features: metafields_key_features(&raw.metafields)?,
+            specifications: metafields_specifications(&raw.metafields)?,
             product_type: product_type(raw.product_type),
             updated_at: updated_at(&raw.updated_at)?,
             price: money(raw.price.amount, currency, "price.amount")?,
@@ -320,9 +332,7 @@ fn updated_at(raw: &str) -> Result<DateTime<Utc>, NormalizeError> {
 }
 
 // The range's minimum renders `0.0` rather than being absent when no variant is marked down.
-fn compare_at_price(
-    raw: raw::nextdata::product::PriceStr,
-) -> Result<Option<Money>, NormalizeError> {
+fn compare_at_price(raw: PriceStr) -> Result<Option<Money>, NormalizeError> {
     let price = decimal_money(
         &raw.amount,
         &raw.currency_code,
@@ -341,7 +351,7 @@ pub struct ProductImage {
 }
 
 impl ProductImage {
-    fn from_raw(raw: raw::nextdata::product::Image) -> ProductImage {
+    fn from_raw(raw: Image) -> ProductImage {
         ProductImage {
             url: raw.url,
             alt_text: raw.alt_text,
@@ -396,7 +406,7 @@ pub struct ProductOption {
 }
 
 impl ProductOption {
-    fn from_raw(raw: raw::nextdata::product::ProductOption) -> ProductOption {
+    fn from_raw(raw: ProductProductOption) -> ProductOption {
         ProductOption {
             id: raw.id,
             name: raw.name,
@@ -413,7 +423,7 @@ pub struct OptionValue {
 }
 
 impl OptionValue {
-    fn from_raw(raw: raw::nextdata::product::OptionValue) -> OptionValue {
+    fn from_raw(raw: ProductOptionValue) -> OptionValue {
         OptionValue {
             label: raw.label,
             hex_colors: raw.hex_colors,
@@ -447,7 +457,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn from_raw(raw: raw::nextdata::product::Variant) -> Result<Variant, NormalizeError> {
+    fn from_raw(raw: NextdataProductVariant) -> Result<Variant, NormalizeError> {
         let currency = raw.price.currency_code.clone();
         let options = variant_options(&raw.id, raw.selected_options, raw.options)?;
 
@@ -496,8 +506,8 @@ pub struct VariantOption {
 // only when they name the same option.
 fn variant_options(
     variant_id: &str,
-    selected: Vec<raw::nextdata::product::SelectedOption>,
-    rendered: Vec<raw::nextdata::product::VariantOptionRendering>,
+    selected: Vec<SelectedOption>,
+    rendered: Vec<VariantOptionRendering>,
 ) -> Result<Vec<VariantOption>, NormalizeError> {
     if selected.len() != rendered.len() {
         return Err(NormalizeError::OptionRenderingCountMismatch {
@@ -532,9 +542,7 @@ fn variant_options(
         .collect()
 }
 
-fn discounts(
-    raw: Option<raw::nextdata::product::DiscountCodeApp>,
-) -> Result<Vec<Discount>, NormalizeError> {
+fn discounts(raw: Option<DiscountCodeApp>) -> Result<Vec<Discount>, NormalizeError> {
     raw.map(|app| app.data)
         .unwrap_or_default()
         .into_iter()
@@ -565,7 +573,7 @@ pub enum DiscountValue {
 }
 
 impl Discount {
-    fn from_raw(raw: raw::nextdata::product::DiscountCode) -> Result<Discount, NormalizeError> {
+    fn from_raw(raw: DiscountCode) -> Result<Discount, NormalizeError> {
         let instant = |field: &str, value: &str| {
             DateTime::parse_from_rfc3339(value)
                 .map(|instant| instant.with_timezone(&Utc))
@@ -615,6 +623,12 @@ impl Discount {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -669,7 +683,7 @@ mod tests {
     }
 
     fn record(raw: Value) -> Result<ProductRecord, NormalizeError> {
-        ProductRecord::from_raw(serde_json::from_value(raw).unwrap())
+        ProductRecord::from_raw(from_value(raw).unwrap())
     }
 
     #[test]
@@ -741,7 +755,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(
-            serde_json::to_value(&record.variants[0].options).unwrap(),
+            to_value(&record.variants[0].options).unwrap(),
             json!([{
                 "name": "Color", "display_name": "color",
                 "values": [{"label": "Black", "hex_colors": ["#000000"]}]
@@ -813,11 +827,8 @@ mod tests {
         ))
         .unwrap();
 
-        let json = serde_json::to_string(&record).unwrap();
+        let json = serde_json_to_string(&record).unwrap();
 
-        assert_eq!(
-            serde_json::from_str::<ProductRecord>(&json).unwrap(),
-            record
-        );
+        assert_eq!(from_str::<ProductRecord>(&json).unwrap(), record);
     }
 }

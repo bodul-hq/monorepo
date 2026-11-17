@@ -2,6 +2,16 @@
 //! the `__NEXT_DATA__` record both cross, because reconciling them is structuralization's job;
 //! what nothing needs stays behind as the commented-out exclusion records below.
 
+use chrono::ParseError;
+use ldjson::LdJson;
+use metafields::key_features as metafields_key_features;
+use metafields::specifications as metafields_specifications;
+use raw::AnkerPlRawDocument;
+use raw::nextdata::product::Image;
+use raw::nextdata::product::OptionValue as ProductOptionValue;
+use raw::nextdata::product::Product as ProductProduct;
+use raw::nextdata::product::ProductOption as ProductProductOption;
+use raw::nextdata::product::Variant as NextdataProductVariant;
 pub mod ldjson;
 pub mod metafields;
 
@@ -19,10 +29,7 @@ pub enum NormalizeError {
     MissingProductIsland,
 
     #[error("publishedAt `{value}` is not an RFC 3339 instant: {source}")]
-    PublishedAtNotAnInstant {
-        value: String,
-        source: chrono::ParseError,
-    },
+    PublishedAtNotAnInstant { value: String, source: ParseError },
 
     #[error("`{field}` is not money: {source:?}")]
     NotMoney { field: String, source: MoneyError },
@@ -52,7 +59,7 @@ fn money(amount: f64, currency: &str, field: &str) -> Result<Money, NormalizeErr
 pub struct AnkerPlNormalizedDocument {
     // Commented out: `eu-pl` on every page; the retailer code already names the storefront.
     // pub locale: String,
-    pub ld_json: ldjson::LdJson,
+    pub ld_json: LdJson,
     pub canonical_url: String,
     // Commented out: page metadata beyond `canonical`, lifted above. `language_alternates` names
     // the same product on the other Anker storefronts, should a cross-storefront join need it.
@@ -61,15 +68,13 @@ pub struct AnkerPlNormalizedDocument {
 }
 
 impl AnkerPlNormalizedDocument {
-    pub fn from_raw(
-        raw: raw::AnkerPlRawDocument,
-    ) -> Result<AnkerPlNormalizedDocument, NormalizeError> {
+    pub fn from_raw(raw: AnkerPlRawDocument) -> Result<AnkerPlNormalizedDocument, NormalizeError> {
         let next_data = raw.next_data.data;
         let page_props = next_data.props.page_props;
 
         Ok(AnkerPlNormalizedDocument {
             // locale: next_data.locale,
-            ld_json: ldjson::LdJson::from_raw(raw.ld_json)?,
+            ld_json: LdJson::from_raw(raw.ld_json)?,
             canonical_url: page_props.seo.canonical,
             // seo: PageSeo::from_raw(page_props.seo),
             product: ProductRecord::from_raw(page_props.product, &page_props.metafields)?,
@@ -210,7 +215,7 @@ pub struct ProductRecord {
 
 impl ProductRecord {
     fn from_raw(
-        raw: raw::nextdata::product::Product,
+        raw: ProductProduct,
         page_metafields: &Value,
     ) -> Result<ProductRecord, NormalizeError> {
         let currency = raw.price.currency_code.as_str();
@@ -225,8 +230,8 @@ impl ProductRecord {
             description: raw.description,
             // description_html: raw.description_html,
             // vendor: raw.vendor,
-            key_features: metafields::key_features(&raw.metafields)?,
-            specifications: metafields::specifications(page_metafields)?,
+            key_features: metafields_key_features(&raw.metafields)?,
+            specifications: metafields_specifications(page_metafields)?,
             product_type: raw.product_type,
             published_at: published_at(&raw.published_at)?,
             price: offered_price(raw.price.value, currency, "price.value")?,
@@ -270,7 +275,7 @@ fn compare_at_price(list_price: f64, currency: &str) -> Result<Option<Money>, No
 // Variant prices carry no currency of their own; the record's code, from the same payload, is the
 // nearest statement of one.
 fn variants(
-    raw: Vec<raw::nextdata::product::Variant>,
+    raw: Vec<NextdataProductVariant>,
     currency: &str,
 ) -> Result<Vec<Variant>, NormalizeError> {
     raw.into_iter()
@@ -287,7 +292,7 @@ pub struct ProductImage {
 }
 
 impl ProductImage {
-    fn from_raw(raw: raw::nextdata::product::Image) -> ProductImage {
+    fn from_raw(raw: Image) -> ProductImage {
         ProductImage {
             url: raw.url,
             alt_text: raw.alt_text,
@@ -306,7 +311,7 @@ pub struct ProductOption {
 }
 
 impl ProductOption {
-    fn from_raw(raw: raw::nextdata::product::ProductOption) -> ProductOption {
+    fn from_raw(raw: ProductProductOption) -> ProductOption {
         ProductOption {
             id: raw.id,
             name: raw.name,
@@ -323,7 +328,7 @@ pub struct OptionValue {
 }
 
 impl OptionValue {
-    fn from_raw(raw: raw::nextdata::product::OptionValue) -> OptionValue {
+    fn from_raw(raw: ProductOptionValue) -> OptionValue {
         OptionValue {
             label: raw.label,
             hex_colors: raw.hex_colors,
@@ -394,10 +399,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn from_raw(
-        raw: raw::nextdata::product::Variant,
-        currency: &str,
-    ) -> Result<Variant, NormalizeError> {
+    fn from_raw(raw: NextdataProductVariant, currency: &str) -> Result<Variant, NormalizeError> {
         Ok(Variant {
             id: raw.id,
             sku: raw.sku,
@@ -455,7 +457,7 @@ pub struct VariantOption {
 }
 
 impl VariantOption {
-    fn from_raw(raw: raw::nextdata::product::ProductOption) -> VariantOption {
+    fn from_raw(raw: ProductProductOption) -> VariantOption {
         VariantOption {
             // id: raw.id,
             name: raw.name,
@@ -467,6 +469,12 @@ impl VariantOption {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+    use serde_json::to_value;
+
     use super::*;
     use html_extractor::serde_json::{self, json};
 
@@ -517,7 +525,7 @@ mod tests {
     }
 
     fn record(raw: Value) -> Result<ProductRecord, NormalizeError> {
-        ProductRecord::from_raw(serde_json::from_value(raw).unwrap(), &json!({}))
+        ProductRecord::from_raw(from_value(raw).unwrap(), &json!({}))
     }
 
     #[test]
@@ -628,7 +636,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(
-            serde_json::to_value(&record.variants[0].options[0]).unwrap(),
+            to_value(&record.variants[0].options[0]).unwrap(),
             json!({
                 "name": "Title", "display_name": "title",
                 "values": [{"label": "Midnight Black (6ft)", "hex_colors": null}]
@@ -648,7 +656,7 @@ mod tests {
         }]);
 
         let record = record(product(0.0, vec![variant])).unwrap();
-        let variant = serde_json::to_value(&record.variants[0]).unwrap();
+        let variant = to_value(&record.variants[0]).unwrap();
 
         assert!(variant.get("discounts").is_none());
     }
@@ -657,11 +665,8 @@ mod tests {
     fn the_record_survives_the_round_trip_the_next_stage_makes() {
         let record = record(product(129.0, vec![default_variant(0.0868)])).unwrap();
 
-        let json = serde_json::to_string(&record).unwrap();
+        let json = serde_json_to_string(&record).unwrap();
 
-        assert_eq!(
-            serde_json::from_str::<ProductRecord>(&json).unwrap(),
-            record
-        );
+        assert_eq!(from_str::<ProductRecord>(&json).unwrap(), record);
     }
 }

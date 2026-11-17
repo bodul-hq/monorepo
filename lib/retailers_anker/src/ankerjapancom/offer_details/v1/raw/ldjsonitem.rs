@@ -1,10 +1,12 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Product(Product),
@@ -12,7 +14,7 @@ pub enum LdJson {
     BreadcrumbList(BreadcrumbList),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -31,7 +33,7 @@ pub struct Product {
     pub review: Option<Vec<Review>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -39,14 +41,14 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
     pub kind: String,
     pub availability: String,
 
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -62,12 +64,12 @@ pub struct Offer {
     pub shipping_details: ShippingDetails,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceSpecification {
     #[serde(rename = "@type")]
     pub kind: String,
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -77,7 +79,7 @@ pub struct PriceSpecification {
     pub value_added_tax_included: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MerchantReturnPolicy {
     #[serde(rename = "@type")]
@@ -96,7 +98,7 @@ pub struct MerchantReturnPolicy {
     pub return_fees: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ShippingDetails {
     #[serde(rename = "@type")]
@@ -105,29 +107,29 @@ pub struct ShippingDetails {
     pub shipping_rate: ShippingRate,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ShippingRate {
     #[serde(rename = "@type")]
     pub kind: String,
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub value: f64,
     pub currency: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
     pub kind: String,
     #[serde(rename = "ratingValue")]
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub rating_value: f64,
     #[serde(rename = "reviewCount")]
     pub review_count: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Review {
     #[serde(rename = "@type")]
@@ -141,7 +143,7 @@ pub struct Review {
     pub review_rating: ReviewRating,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Author {
     #[serde(rename = "@type")]
@@ -149,7 +151,7 @@ pub struct Author {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewRating {
     #[serde(rename = "@type")]
@@ -158,7 +160,7 @@ pub struct ReviewRating {
     pub rating_value: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -170,7 +172,7 @@ pub struct Organization {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -179,7 +181,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<BreadcrumbItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbItem {
     #[serde(rename = "@type")]
@@ -192,6 +194,8 @@ pub struct BreadcrumbItem {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::LdJson;
     use html_extractor::serde_json;
 
@@ -202,7 +206,7 @@ mod tests {
             {"@type":"ListItem","name":"This page","position":2}]}"#;
 
         let LdJson::BreadcrumbList(trail) =
-            serde_json::from_str::<LdJson>(trail).expect("a linkless final crumb is the norm here")
+            from_str::<LdJson>(trail).expect("a linkless final crumb is the norm here")
         else {
             panic!("expected a BreadcrumbList");
         };
@@ -215,13 +219,13 @@ mod tests {
         let org = r#"{"@type":"Organization","@context":"c","logo":"l","name":"Anker",
             "sameAs":["s"],"url":"u"}"#;
         assert!(matches!(
-            serde_json::from_str::<LdJson>(org).expect("Organization dispatches"),
+            from_str::<LdJson>(org).expect("Organization dispatches"),
             LdJson::Organization(_)
         ));
 
         let corp = org.replace("Organization", "Corporation");
         assert!(
-            serde_json::from_str::<LdJson>(&corp).is_err(),
+            from_str::<LdJson>(&corp).is_err(),
             "this storefront does not render a Corporation"
         );
     }
@@ -234,7 +238,7 @@ mod tests {
                 &format!(r#""ratingValue":{spelling}"#),
             );
             let LdJson::Product(product) =
-                serde_json::from_str::<LdJson>(&product).expect("both spellings read")
+                from_str::<LdJson>(&product).expect("both spellings read")
             else {
                 panic!("expected a Product");
             };
@@ -246,7 +250,7 @@ mod tests {
     #[test]
     fn the_offer_carries_its_return_policy_and_shipping_rate() {
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(PRODUCT).expect("the Product deserializes")
+            from_str::<LdJson>(PRODUCT).expect("the Product deserializes")
         else {
             panic!("expected a Product");
         };
@@ -260,8 +264,7 @@ mod tests {
     #[test]
     fn an_offer_without_a_sku_still_deserializes() {
         let without = PRODUCT.replace(r#""sku":"A1","#, "");
-        let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(&without).expect("sku is optional")
+        let LdJson::Product(product) = from_str::<LdJson>(&without).expect("sku is optional")
         else {
             panic!("expected a Product");
         };
@@ -277,7 +280,7 @@ mod tests {
                 "valueAddedTaxIncluded":true},"#,
         );
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(&marked_down).expect("priceSpecification reads")
+            from_str::<LdJson>(&marked_down).expect("priceSpecification reads")
         else {
             panic!("expected a Product");
         };
@@ -292,7 +295,7 @@ mod tests {
         );
 
         let LdJson::Product(product) =
-            serde_json::from_str::<LdJson>(PRODUCT).expect("the fixture deserializes")
+            from_str::<LdJson>(PRODUCT).expect("the fixture deserializes")
         else {
             panic!("expected a Product");
         };

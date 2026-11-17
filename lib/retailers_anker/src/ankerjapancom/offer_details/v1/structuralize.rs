@@ -11,6 +11,11 @@ use crate::shared::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
+use record::ProductRecord;
+use record::Variant;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -50,7 +55,7 @@ impl AnkerJapanComDocument {
             )?;
 
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(
+                was_price: offer_facts_was_price(
                     variant.price.as_ref(),
                     variant.compare_at_price.as_ref(),
                 ),
@@ -64,9 +69,9 @@ impl AnkerJapanComDocument {
                             .find(|offer| offer.variant_id == variant.id)
                     })
                     .and_then(|offer| offer.availability.clone())
-                    .or_else(|| Some(offer_facts::purchase_available(variant.available))),
+                    .or_else(|| Some(purchase_available(variant.available))),
                 item_condition: None,
-                content: offer_facts::content(Some(product.description.as_str())),
+                content: offer_facts_content(Some(product.description.as_str())),
                 identifiers,
                 title: product.title.clone(),
                 price: variant.price.clone(),
@@ -111,8 +116,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &record::ProductRecord,
-        variant: &record::Variant,
+        product: &ProductRecord,
+        variant: &Variant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.barcode.clone().map(Gtin::try_from).transpose()?,
@@ -140,6 +145,9 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{AnkerJapanComDocument, StructuralizeError};
     use crate::ankerjapancom::offer_details::v1::normalized::AnkerJapanComNormalizedDocument;
     use crate::shared::IdentifierError;
@@ -186,13 +194,12 @@ mod tests {
 
     fn document(input: &Value) -> Result<AnkerJapanComDocument, StructuralizeError> {
         let normalized: AnkerJapanComNormalizedDocument =
-            serde_json::from_value(input.clone()).expect("the normalized fixture deserializes");
+            from_value(input.clone()).expect("the normalized fixture deserializes");
         AnkerJapanComDocument::from_normalized(normalized)
     }
 
     fn structuralized(input: &Value) -> Value {
-        serde_json::to_value(document(input).expect("the fixture structuralizes"))
-            .expect("serializes")
+        to_value(document(input).expect("the fixture structuralizes")).expect("serializes")
     }
 
     fn variations(output: &Value) -> &Vec<Value> {
@@ -266,13 +273,13 @@ mod tests {
     fn a_product_without_json_ld_uses_its_liquid_handle_for_the_url() {
         let mut input = normalized_document();
         input["ld_json"]["product"] = Value::Null;
-        let output = serde_json::to_value(document(&input).unwrap()).unwrap();
+        let output = to_value(document(&input).unwrap()).unwrap();
         assert_eq!(
             output["variations"][0]["url"],
             "https://www.ankerjapan.com/products/hub?variant=40082645057697"
         );
         single_variant(&mut input);
-        let output = serde_json::to_value(document(&input).unwrap()).unwrap();
+        let output = to_value(document(&input).unwrap()).unwrap();
         assert_eq!(
             output["variations"][0]["url"],
             "https://www.ankerjapan.com/products/hub"

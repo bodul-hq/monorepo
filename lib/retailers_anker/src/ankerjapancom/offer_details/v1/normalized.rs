@@ -2,6 +2,10 @@
 //! Liquid's product record both cross, because choosing between them is structuralization's job;
 //! what nothing needs stays behind as the commented-out exclusion records below.
 
+use chrono::ParseError;
+use ldjson::LdJson;
+use raw::AnkerJapanComRawDocument as RawAnkerJapanComRawDocument;
+use record::ProductRecord;
 pub mod ldjson;
 pub mod record;
 
@@ -32,14 +36,11 @@ pub enum NormalizeError {
     NotAnInstant {
         field: String,
         value: String,
-        source: chrono::ParseError,
+        source: ParseError,
     },
 
     #[error("review `datePublished` `{value}` is not a calendar date: {source}")]
-    NotADate {
-        value: String,
-        source: chrono::ParseError,
-    },
+    NotADate { value: String, source: ParseError },
 
     #[error("offer URL `{url}` names no numeric `variant`")]
     OfferUrlWithoutVariant { url: String },
@@ -121,22 +122,22 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnkerJapanComNormalizedDocument {
-    pub ld_json: ldjson::LdJson,
-    pub product: record::ProductRecord,
+    pub ld_json: LdJson,
+    pub product: ProductRecord,
 }
 
 impl AnkerJapanComNormalizedDocument {
     pub fn from_raw(
-        raw: raw::AnkerJapanComRawDocument,
+        raw: RawAnkerJapanComRawDocument,
     ) -> Result<AnkerJapanComNormalizedDocument, NormalizeError> {
-        let ld_json = ldjson::LdJson::from_raw(raw.ld_json)?;
+        let ld_json = LdJson::from_raw(raw.ld_json)?;
         // Offers state the currency when present. The older PowerBag pages omit Product
         // JSON-LD; their og:price:currency and Shopify.currency still identify this JPY shop.
         let currency = ld_json
             .product
             .as_ref()
             .map_or(Currency::JPY, |p| p.currency);
-        let product = record::ProductRecord::from_raw(raw.product_json.data, currency)?;
+        let product = ProductRecord::from_raw(raw.product_json.data, currency)?;
 
         Ok(AnkerJapanComNormalizedDocument { ld_json, product })
     }
@@ -144,6 +145,11 @@ impl AnkerJapanComNormalizedDocument {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{AnkerJapanComNormalizedDocument, NormalizeError};
     use crate::ankerjapancom::offer_details::v1::raw::AnkerJapanComRawDocument;
     use crate::ankerjapancom::offer_details::v1::raw::productjson::tests::PRODUCT;
@@ -170,19 +176,18 @@ mod tests {
     fn document() -> Value {
         json!({
             "ld-json": [island("JPY")],
-            "product_json": {"data": serde_json::from_str::<Value>(PRODUCT).expect("fixture")}
+            "product_json": {"data": from_str::<Value>(PRODUCT).expect("fixture")}
         })
     }
 
     fn normalize(document: Value) -> Result<AnkerJapanComNormalizedDocument, NormalizeError> {
         let raw: AnkerJapanComRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         AnkerJapanComNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn variant_mut(document: &mut Value) -> &mut Value {

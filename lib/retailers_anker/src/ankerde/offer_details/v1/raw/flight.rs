@@ -1,13 +1,14 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FlightPayload {
     pub product: Product,
     pub shop: Shop,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Product {
     pub id: String,
@@ -43,7 +44,7 @@ pub struct Product {
     pub metafields: ProductMetafields,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Price {
     /// Decimal currency units, e.g. `"99.99"`, rather than an integer minor-unit amount.
@@ -52,7 +53,7 @@ pub struct Price {
     pub currency_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Image {
     pub url: String,
@@ -61,7 +62,7 @@ pub struct Image {
     pub height: Option<i64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Seo {
     pub title: Option<String>,
@@ -71,7 +72,7 @@ pub struct Seo {
 /// One entry of `product.media`, keyed by `mediaContentType`. Shopify also emits `VIDEO` and
 /// `MODEL_3D`, unseen in this corpus; an unrecognized tag fails the document rather than silently
 /// dropping the entry.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(
     tag = "mediaContentType",
     rename_all = "camelCase",
@@ -87,7 +88,7 @@ pub enum Media {
 
 /// The still inside an `IMAGE` media entry. Narrower than [`Image`] - the media list carries
 /// no dimensions.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct MediaImage {
     pub url: String,
@@ -95,7 +96,7 @@ pub struct MediaImage {
 }
 
 /// One product option and the values it offers, e.g. `Farbe` over `["Schwarz", "Weiß"]`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductOption {
     pub id: String,
@@ -106,7 +107,7 @@ pub struct ProductOption {
 /// `product.metafields`. The namespace set is `deny_unknown_fields`, so a new or renamed
 /// namespace fails the document loudly; the content inside each namespace stays `Value` because
 /// it is CMS-authored and open-ended.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductMetafields {
     pub global: Option<Value>,
@@ -117,7 +118,7 @@ pub struct ProductMetafields {
     pub product: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Variant {
     pub id: String,
@@ -141,7 +142,7 @@ pub struct Variant {
 }
 
 /// Which option value this variant is, e.g. `Farbe` / `Schwarz`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedOption {
     pub name: String,
@@ -151,7 +152,7 @@ pub struct SelectedOption {
 /// `product.variants[].metafields`. Every namespace is optional; see [`ProductMetafields`] for
 /// why most contents stay `Value`. The discount app's is typed, because it is an app's record
 /// rather than CMS content.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantMetafields {
     pub global: Option<Value>,
@@ -167,14 +168,14 @@ pub struct VariantMetafields {
     pub track: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCodeApp {
     pub data: Vec<DiscountCode>,
 }
 
 /// One discount code standing against a variant. Snake_case on the wire.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCode {
     pub title: String,
@@ -196,7 +197,7 @@ pub struct DiscountCode {
     pub cdi_updated_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SellingPlanAllocation {
     pub selling_plan: AllocatedSellingPlan,
@@ -205,7 +206,7 @@ pub struct SellingPlanAllocation {
 
 /// The plan an allocation points at. Narrower than [`SellingPlan`]: an allocation's copy
 /// carries no `priceAdjustments` of its own.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AllocatedSellingPlan {
     pub id: String,
@@ -214,14 +215,14 @@ pub struct AllocatedSellingPlan {
 }
 
 /// A named group of selling plans, e.g. a subscribe-and-save offer.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SellingPlanGroup {
     pub name: String,
     pub selling_plans: Vec<SellingPlan>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SellingPlan {
     pub id: String,
@@ -231,7 +232,7 @@ pub struct SellingPlan {
 }
 
 /// A plan's name/value pair, e.g. `Delivery every` / `30 days`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanOption {
     pub name: String,
@@ -240,11 +241,11 @@ pub struct SellingPlanOption {
 
 /// Adjustment lists are empty in the inspected corpus. This placeholder accepts `{}` entries
 /// and rejects objects with fields; it does not enforce an empty list.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct EmptyAdjustment {}
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Shop {
     pub name: String,
@@ -258,21 +259,21 @@ pub struct Shop {
     pub metafields: Value,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PrimaryDomain {
     pub host: String,
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PaymentSettings {
     pub currency_code: String,
     pub enabled_presentment_currencies: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     pub colors: Value,
@@ -281,19 +282,25 @@ pub struct Brand {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+    use serde_json::from_value as decode_json_value;
+
+    use self::variant as self_variant;
+    use html_extractor::serde_json::Value as SerdeJsonValue;
+
     use super::{DiscountCode, FlightPayload, Media, Variant};
     use html_extractor::serde_json::{self, json};
 
     #[test]
     fn money_is_a_decimal_string() {
-        let payload: FlightPayload = serde_json::from_str(PAYLOAD).expect("the payload reads");
+        let payload: FlightPayload = decode_json_str(PAYLOAD).expect("the payload reads");
         assert_eq!(payload.product.price.amount, "99.99");
         assert_eq!(payload.product.price.currency_code, "EUR");
     }
 
     #[test]
     fn the_metafield_namespaces_are_named_and_their_contents_stay_open() {
-        let payload: FlightPayload = serde_json::from_str(PAYLOAD).expect("the payload reads");
+        let payload: FlightPayload = decode_json_str(PAYLOAD).expect("the payload reads");
         assert!(
             payload
                 .product
@@ -305,7 +312,7 @@ mod tests {
         assert!(payload.shop.metafields.is_object());
 
         let renamed = PAYLOAD.replace(r#""global":{}"#, r#""surprise":{}"#);
-        assert!(serde_json::from_str::<FlightPayload>(&renamed).is_err());
+        assert!(decode_json_str::<FlightPayload>(&renamed).is_err());
     }
 
     #[test]
@@ -315,37 +322,37 @@ mod tests {
             r#""metafields":{"global":{},"seo":{"hidden":"1"},
                 "product":{"data":{"scene_app_img":"u"}}}"#,
         );
-        let payload: FlightPayload = serde_json::from_str(&payload).expect("the payload reads");
+        let payload: FlightPayload = decode_json_str(&payload).expect("the payload reads");
         assert!(payload.product.metafields.seo.is_some());
         assert!(payload.product.metafields.product.is_some());
 
         let mut variant = variant();
         variant["metafields"]["filter"] = json!({"capacity": "10.000mAh - 21.000mAh"});
-        let variant: Variant = serde_json::from_value(variant).expect("the variant reads");
+        let variant: Variant = decode_json_value(variant).expect("the variant reads");
         assert!(variant.metafields.filter.is_some());
 
-        let mut variant = self::variant();
+        let mut variant = self_variant();
         variant["metafields"]["track"] = json!({"tags": {"checkout-completed": ["gtag:x"]}});
-        let variant: Variant = serde_json::from_value(variant).expect("the variant reads");
+        let variant: Variant = decode_json_value(variant).expect("the variant reads");
         assert!(variant.metafields.track.is_some());
 
-        let mut variant = self::variant();
+        let mut variant = self_variant();
         variant.as_object_mut().unwrap().remove("image");
-        let variant: Variant = serde_json::from_value(variant).expect("the variant reads");
+        let variant: Variant = decode_json_value(variant).expect("the variant reads");
         assert_eq!(variant.image, None);
     }
 
     #[test]
     fn an_unmodelled_product_key_is_rejected() {
         let extra = PAYLOAD.replace(r#""handle":"h""#, r#""handle":"h","surprise":1"#);
-        let error = serde_json::from_str::<FlightPayload>(&extra)
+        let error = decode_json_str::<FlightPayload>(&extra)
             .expect_err("a new key from the retailer's query must fail the document");
         assert!(error.to_string().contains("unknown field `surprise`"));
     }
 
     #[test]
     fn an_external_video_carries_only_its_id_and_an_unknown_media_type_fails() {
-        let video: Media = serde_json::from_value(json!({
+        let video: Media = decode_json_value(json!({
             "id": "gid://shopify/ExternalVideo/1", "mediaContentType": "EXTERNAL_VIDEO"
         }))
         .expect("an external video reads");
@@ -356,7 +363,7 @@ mod tests {
             }
         );
 
-        let model = serde_json::from_value::<Media>(json!({
+        let model = decode_json_value::<Media>(json!({
             "id": "gid://shopify/Model3d/1", "mediaContentType": "MODEL_3D"
         }));
         assert!(
@@ -367,7 +374,7 @@ mod tests {
 
     #[test]
     fn a_variant_without_a_compare_at_price_reads_and_its_discount_code_is_typed() {
-        let variant: Variant = serde_json::from_value(variant()).expect("the variant reads");
+        let variant: Variant = decode_json_value(variant()).expect("the variant reads");
 
         assert_eq!(variant.compare_at_price, None);
         let codes = variant.metafields.discount_code_app.unwrap().data;
@@ -381,10 +388,10 @@ mod tests {
         let mut code = discount_code();
         code["surprise"] = json!(1);
 
-        assert!(serde_json::from_value::<DiscountCode>(code).is_err());
+        assert!(decode_json_value::<DiscountCode>(code).is_err());
     }
 
-    fn discount_code() -> html_extractor::serde_json::Value {
+    fn discount_code() -> SerdeJsonValue {
         json!({
             "title": "WS24A2345GU", "starts_at": "2026-08-11T06:39:04.000Z", "ends_at": null,
             "variant_shopify_id": 59852742099025i64, "value_type": "fixed_amount",
@@ -394,7 +401,7 @@ mod tests {
         })
     }
 
-    fn variant() -> html_extractor::serde_json::Value {
+    fn variant() -> SerdeJsonValue {
         json!({
             "id": "gid://shopify/ProductVariant/59852742099025", "title": "Schwarz",
             "sku": "A2345341", "availableForSale": true, "requiresShipping": true,

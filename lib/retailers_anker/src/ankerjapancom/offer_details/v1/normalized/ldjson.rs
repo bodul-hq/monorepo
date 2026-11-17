@@ -2,6 +2,17 @@ use super::super::raw;
 use super::{NormalizeError, variant_gid, yen, yen_currency};
 use chrono::NaiveDate;
 use money::{Currency, Money};
+use raw::ldjsonitem::AggregateRating as LdjsonitemAggregateRating;
+use raw::ldjsonitem::BreadcrumbItem;
+use raw::ldjsonitem::BreadcrumbList as LdjsonitemBreadcrumbList;
+use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+use raw::ldjsonitem::LdJsonItem;
+use raw::ldjsonitem::MerchantReturnPolicy as LdjsonitemMerchantReturnPolicy;
+use raw::ldjsonitem::Offer as LdjsonitemOffer;
+use raw::ldjsonitem::Organization as LdjsonitemOrganization;
+use raw::ldjsonitem::Product as LdjsonitemProduct;
+use raw::ldjsonitem::Review as LdjsonitemReview;
+use retailer_sauce::availability::Availability;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,24 +24,22 @@ pub struct LdJson {
 }
 
 impl LdJson {
-    pub(crate) fn from_raw(
-        items: Vec<raw::ldjsonitem::LdJsonItem>,
-    ) -> Result<LdJson, NormalizeError> {
+    pub(crate) fn from_raw(items: Vec<LdJsonItem>) -> Result<LdJson, NormalizeError> {
         let mut product = None;
         let mut organization = None;
         let mut breadcrumb_list = None;
 
         for item in items {
             match item.data {
-                raw::ldjsonitem::LdJson::Product(island) => {
+                LdjsonitemLdJson::Product(island) => {
                     if product.is_none() {
                         product = Some(Product::from_raw(island)?);
                     }
                 }
-                raw::ldjsonitem::LdJson::Organization(raw) => {
+                LdjsonitemLdJson::Organization(raw) => {
                     organization.get_or_insert_with(|| Organization::from_raw(raw));
                 }
-                raw::ldjsonitem::LdJson::BreadcrumbList(raw) => {
+                LdjsonitemLdJson::BreadcrumbList(raw) => {
                     breadcrumb_list.get_or_insert_with(|| BreadcrumbList::from_raw(raw));
                 }
             }
@@ -63,7 +72,7 @@ pub struct Product {
 }
 
 impl Product {
-    fn from_raw(raw: raw::ldjsonitem::Product) -> Result<Product, NormalizeError> {
+    fn from_raw(raw: LdjsonitemProduct) -> Result<Product, NormalizeError> {
         let currency = offer_currency(&raw.offers)?;
 
         Ok(Product {
@@ -87,7 +96,7 @@ impl Product {
     }
 }
 
-fn offer_currency(offers: &[raw::ldjsonitem::Offer]) -> Result<Currency, NormalizeError> {
+fn offer_currency(offers: &[LdjsonitemOffer]) -> Result<Currency, NormalizeError> {
     let mut codes: Vec<String> = offers
         .iter()
         .map(|offer| offer.price_currency.clone())
@@ -109,7 +118,7 @@ pub struct Offer {
     // Commented out: the variant's record `price` in whole yen, on every offer.
     // pub price: Money,
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     // Commented out: the variant's record `sku`, absent where that is empty.
     // pub sku: Option<String>,
     // Commented out: the variant's record `compare_at_price` in whole yen, as a strikethrough
@@ -122,13 +131,11 @@ pub struct Offer {
 }
 
 impl Offer {
-    fn from_raw(raw: raw::ldjsonitem::Offer) -> Result<Offer, NormalizeError> {
+    fn from_raw(raw: LdjsonitemOffer) -> Result<Offer, NormalizeError> {
         let rate = raw.shipping_details.shipping_rate;
 
         Ok(Offer {
-            availability: Some(retailer_sauce::availability::Availability::from_schema_org(
-                raw.availability,
-            )),
+            availability: Some(Availability::from_schema_org(raw.availability)),
             variant_id: variant_gid(offered_variant_id(&raw.url)?),
             return_policy: MerchantReturnPolicy::from_raw(raw.has_merchant_return_policy),
             shipping_rate: yen(rate.value, &rate.currency, "shippingRate.value")?,
@@ -160,7 +167,7 @@ pub struct MerchantReturnPolicy {
 }
 
 impl MerchantReturnPolicy {
-    fn from_raw(raw: raw::ldjsonitem::MerchantReturnPolicy) -> MerchantReturnPolicy {
+    fn from_raw(raw: LdjsonitemMerchantReturnPolicy) -> MerchantReturnPolicy {
         MerchantReturnPolicy {
             applicable_country: raw.applicable_country,
             return_policy_country: raw.return_policy_country,
@@ -179,7 +186,7 @@ pub struct AggregateRating {
 }
 
 impl AggregateRating {
-    fn from_raw(raw: raw::ldjsonitem::AggregateRating) -> AggregateRating {
+    fn from_raw(raw: LdjsonitemAggregateRating) -> AggregateRating {
         AggregateRating {
             rating_value: raw.rating_value,
             review_count: raw.review_count,
@@ -196,7 +203,7 @@ pub struct Review {
 }
 
 impl Review {
-    fn from_raw(raw: raw::ldjsonitem::Review) -> Result<Review, NormalizeError> {
+    fn from_raw(raw: LdjsonitemReview) -> Result<Review, NormalizeError> {
         let date_published =
             NaiveDate::parse_from_str(&raw.date_published, "%Y-%m-%d").map_err(|source| {
                 NormalizeError::NotADate {
@@ -223,7 +230,7 @@ pub struct Organization {
 }
 
 impl Organization {
-    fn from_raw(raw: raw::ldjsonitem::Organization) -> Organization {
+    fn from_raw(raw: LdjsonitemOrganization) -> Organization {
         Organization {
             name: raw.name,
             url: raw.url,
@@ -239,7 +246,7 @@ pub struct BreadcrumbList {
 }
 
 impl BreadcrumbList {
-    fn from_raw(raw: raw::ldjsonitem::BreadcrumbList) -> BreadcrumbList {
+    fn from_raw(raw: LdjsonitemBreadcrumbList) -> BreadcrumbList {
         BreadcrumbList {
             crumbs: raw
                 .item_list_element
@@ -260,7 +267,7 @@ pub struct Breadcrumb {
 }
 
 impl Breadcrumb {
-    fn from_raw(raw: raw::ldjsonitem::BreadcrumbItem) -> Breadcrumb {
+    fn from_raw(raw: BreadcrumbItem) -> Breadcrumb {
         Breadcrumb {
             name: raw.name,
             url: raw.item,

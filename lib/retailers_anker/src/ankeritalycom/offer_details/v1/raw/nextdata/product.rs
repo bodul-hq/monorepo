@@ -1,6 +1,7 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Product {
     pub id: String,
@@ -35,34 +36,34 @@ pub struct Product {
     pub metafields: ProductMetafields,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Price {
     pub amount: f64,
     pub currency_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PriceStr {
     pub amount: String,
     pub currency_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PriceRange {
     pub min_variant_price: PriceStr,
     pub max_variant_price: PriceStr,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CompareAtPriceRange {
     pub min_variant_price: PriceStr,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Image {
     pub url: String,
@@ -72,7 +73,7 @@ pub struct Image {
     pub height: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ProductSeo {
     pub title: Option<String>,
@@ -83,7 +84,7 @@ pub struct ProductSeo {
 /// One entry of `product.media`, keyed by `mediaContentType`. Shopify also emits `VIDEO`,
 /// `EXTERNAL_VIDEO` and `MODEL_3D`, unseen in this corpus; an unrecognized tag fails the document
 /// rather than silently dropping the entry.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(
     tag = "mediaContentType",
     rename_all = "camelCase",
@@ -98,14 +99,14 @@ pub enum Media {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct MediaImage {
     pub url: String,
     pub alt_text: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MediaPresentation {
     pub id: String,
@@ -113,7 +114,7 @@ pub struct MediaPresentation {
 
 /// A product option and the values it offers, e.g. `color` over `Nero` and `Bianco`. Also the
 /// shape of each variant's own `options` entry, where `id` holds the variant's gid instead.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductOption {
     #[serde(rename = "__typename")]
@@ -123,7 +124,7 @@ pub struct ProductOption {
     pub values: Vec<OptionValue>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OptionValue {
     pub label: String,
@@ -133,7 +134,7 @@ pub struct OptionValue {
 /// `product.metafields`. The namespace set is `deny_unknown_fields`, so a new or renamed
 /// namespace fails the document loudly; the content inside each namespace stays `Value` because
 /// it is CMS-authored and open-ended.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductMetafields {
     pub judgeme: Option<Value>,
@@ -145,7 +146,7 @@ pub struct ProductMetafields {
     pub landing: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Variant {
     pub id: String,
@@ -170,7 +171,7 @@ pub struct Variant {
 
 /// Which option value this variant is, e.g. `Color` / `Nero`. The name's case is not the
 /// product option's on every page.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedOption {
     pub name: String,
@@ -180,7 +181,7 @@ pub struct SelectedOption {
 /// `product.variants[].metafields`. Every namespace is optional; see [`ProductMetafields`] for
 /// why most contents stay `Value`. The discount app's is typed, because it is an app's record
 /// rather than CMS content.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantMetafields {
     pub component: Option<Value>,
@@ -192,14 +193,14 @@ pub struct VariantMetafields {
     pub discounts_function: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCodeApp {
     pub data: Vec<DiscountCode>,
 }
 
 /// One discount code standing against a variant. Snake_case on the wire.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCode {
     pub title: String,
@@ -223,6 +224,8 @@ pub struct DiscountCode {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as decode_json_value;
+
     use super::{DiscountCode, Media, ProductMetafields, Variant};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -254,7 +257,7 @@ mod tests {
 
     #[test]
     fn a_variant_reads_with_its_codes_typed_and_no_compare_at_price() {
-        let variant: Variant = serde_json::from_value(variant()).expect("the variant reads");
+        let variant: Variant = decode_json_value(variant()).expect("the variant reads");
 
         assert_eq!(variant.compare_at_price, None);
         assert_eq!(variant.coupons[0].title, "WS24FG3SG6TD");
@@ -269,7 +272,7 @@ mod tests {
         let mut raw = variant();
         raw["compareAtPrice"] = json!({"amount": "69.99", "currencyCode": "EUR"});
 
-        let variant: Variant = serde_json::from_value(raw).expect("the variant reads");
+        let variant: Variant = decode_json_value(raw).expect("the variant reads");
 
         assert_eq!(variant.compare_at_price.unwrap().amount, "69.99");
     }
@@ -279,7 +282,7 @@ mod tests {
         let mut code = discount_code();
         code["surprise"] = json!(1);
 
-        assert!(serde_json::from_value::<DiscountCode>(code).is_err());
+        assert!(decode_json_value::<DiscountCode>(code).is_err());
     }
 
     #[test]
@@ -290,22 +293,22 @@ mod tests {
         });
         let video = json!({"id": "gid://shopify/Video/1", "mediaContentType": "VIDEO"});
 
-        assert!(serde_json::from_value::<Media>(image).is_ok());
-        assert!(serde_json::from_value::<Media>(video).is_err());
+        assert!(decode_json_value::<Media>(image).is_ok());
+        assert!(decode_json_value::<Media>(video).is_err());
     }
 
     #[test]
     fn the_metafield_namespaces_are_named() {
         let named: ProductMetafields =
-            serde_json::from_value(json!({"judgeme": {}, "global": {}})).unwrap();
+            decode_json_value(json!({"judgeme": {}, "global": {}})).unwrap();
         assert!(named.judgeme.is_some());
 
-        let landing: ProductMetafields = serde_json::from_value(
+        let landing: ProductMetafields = decode_json_value(
             json!({"landing": {"url": "/pages/boom2-plus-outdoor-bass-speaker"}}),
         )
         .unwrap();
         assert!(landing.landing.is_some());
 
-        assert!(serde_json::from_value::<ProductMetafields>(json!({"surprise": {}})).is_err());
+        assert!(decode_json_value::<ProductMetafields>(json!({"surprise": {}})).is_err());
     }
 }

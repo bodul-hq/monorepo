@@ -3,11 +3,16 @@
 //! `anker.com/au` is a Next.js Pages Router storefront. Reads the page's two data islands
 //! (`ld+json` and `__NEXT_DATA__`); the rendered DOM is not claimed.
 
+use crate::shared::is_other_storefront;
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
 use normalized::{AnkerAuNormalizedDocument, NormalizeError};
 use raw::AnkerAuRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::from_value;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 use structuralize::AnkerAuDocument;
 
 pub mod normalized;
@@ -41,35 +46,37 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let document = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    if crate::shared::is_other_storefront(&document, "au") {
-        return Ok(shared::NormalizedData::just_document_json(None));
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let document = from_str(json).map_err(|e| e.to_string())?;
+    if is_other_storefront(&document, "au") {
+        return Ok(NormalizedData::just_document_json(None));
     }
-    let raw: AnkerAuRawDocument = serde_json::from_value(document).map_err(|e| e.to_string())?;
+    let raw: AnkerAuRawDocument = from_value(document).map_err(|e| e.to_string())?;
 
     let normalized = AnkerAuNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: AnkerAuNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: AnkerAuNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         AnkerAuDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use std::path::{Path, PathBuf};
 
     use html_extractor::Backend;
@@ -89,7 +96,7 @@ mod tests {
             eprintln!("skipping: {} not found", dir.display());
             return None;
         }
-        let mut pages: Vec<PathBuf> = std::fs::read_dir(dir)
+        let mut pages: Vec<PathBuf> = read_dir(dir)
             .expect("read data dir")
             .map(|entry| entry.expect("read data dir entry").path())
             // Exports name files after the URL path. Older crawls also saved other
@@ -112,7 +119,7 @@ mod tests {
     }
 
     fn read(page: &Path) -> String {
-        std::fs::read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
+        read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
     }
 
     #[test]

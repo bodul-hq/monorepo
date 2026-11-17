@@ -5,6 +5,8 @@ use super::{
 };
 use chrono::{DateTime, Utc};
 use money::{Currency, Money};
+use raw::productjson::ProductJson;
+use raw::productjson::Variant as ProductjsonVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -43,7 +45,7 @@ pub struct ProductRecord {
 
 impl ProductRecord {
     pub(crate) fn from_raw(
-        raw: raw::productjson::ProductJson,
+        raw: ProductJson,
         currency: Currency,
     ) -> Result<ProductRecord, NormalizeError> {
         let options = raw.options;
@@ -122,7 +124,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: raw::productjson::Variant,
+        raw: ProductjsonVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

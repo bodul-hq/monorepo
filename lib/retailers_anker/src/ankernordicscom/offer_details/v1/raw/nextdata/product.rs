@@ -1,6 +1,8 @@
 use html_extractor::serde_json::Value;
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Product {
     pub id: String,
@@ -36,35 +38,35 @@ pub struct Product {
 }
 
 /// A JSON number on the wire: an integer on most pages, a float on some.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Price {
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub amount: f64,
     pub currency_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PriceStr {
     pub amount: String,
     pub currency_code: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PriceRange {
     pub min_variant_price: PriceStr,
     pub max_variant_price: PriceStr,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CompareAtPriceRange {
     pub min_variant_price: PriceStr,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Image {
     pub url: String,
@@ -74,7 +76,7 @@ pub struct Image {
     pub height: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ProductSeo {
     pub title: Option<String>,
@@ -82,7 +84,7 @@ pub struct ProductSeo {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "mediaContentType")]
 pub enum Media {
     #[serde(rename = "IMAGE")]
@@ -91,7 +93,7 @@ pub enum Media {
     Video(MediaVideo),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MediaImage {
     pub id: String,
@@ -99,14 +101,14 @@ pub struct MediaImage {
     pub image: MediaImageSource,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct MediaImageSource {
     pub url: String,
     pub alt_text: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MediaVideo {
     pub id: String,
@@ -114,13 +116,13 @@ pub struct MediaVideo {
     pub sources: Vec<VideoSource>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MediaPresentation {
     pub id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct VideoSource {
     pub url: String,
@@ -132,7 +134,7 @@ pub struct VideoSource {
 
 /// The product-level list. Its names are lowercase (`color`), matching the variant's own
 /// `options` rendering rather than its `selectedOptions`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductOption {
     #[serde(rename = "__typename")]
@@ -142,7 +144,7 @@ pub struct ProductOption {
     pub values: Vec<OptionValue>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct OptionValue {
     pub label: String,
@@ -150,7 +152,7 @@ pub struct OptionValue {
     pub hex_colors: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductMetafields {
     pub product: Option<Value>,
@@ -163,7 +165,7 @@ pub struct ProductMetafields {
     pub seo: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Variant {
     pub id: String,
@@ -186,7 +188,7 @@ pub struct Variant {
 }
 
 /// Its `id` is the variant's own gid, not an option id.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantOptionRendering {
     #[serde(rename = "__typename")]
@@ -196,14 +198,14 @@ pub struct VariantOptionRendering {
     pub values: Vec<OptionValue>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedOption {
     pub name: String,
     pub value: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantMetafields {
     #[serde(rename = "__discountCodeApp")]
@@ -216,14 +218,14 @@ pub struct VariantMetafields {
     pub qty_level: Option<Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCodeApp {
     pub data: Vec<DiscountCode>,
 }
 
 /// One discount code standing against a variant. Snake_case on the wire.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscountCode {
     pub title: String,
@@ -238,7 +240,7 @@ pub struct DiscountCode {
     pub fixed_value: String,
     /// A display label such as `kr20`, not a currency amount.
     pub value_style: String,
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub variant_price4wscode: f64,
     pub discount_type: String,
     pub amazon_deal: bool,
@@ -249,12 +251,14 @@ pub struct DiscountCode {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
     use super::{DiscountCode, Media, Price, ProductMetafields};
     use html_extractor::serde_json;
 
     #[test]
     fn the_landing_and_seo_namespaces_read() {
-        let metafields: ProductMetafields = serde_json::from_str(
+        let metafields: ProductMetafields = decode_json_str(
             r#"{"landing":{"url":"/pages/boom2-plus-outdoor-bass-speaker"},"seo":{}}"#,
         )
         .expect("the namespaces read");
@@ -265,7 +269,7 @@ mod tests {
     #[test]
     fn an_unseen_media_type_fails() {
         assert!(
-            serde_json::from_str::<Media>(
+            decode_json_str::<Media>(
                 r#"{"mediaContentType":"MODEL_3D","id":"m","presentation":null}"#
             )
             .is_err()
@@ -274,7 +278,7 @@ mod tests {
 
     #[test]
     fn a_video_carries_its_sources() {
-        let media: Media = serde_json::from_str(
+        let media: Media = decode_json_str(
             r#"{"mediaContentType":"VIDEO","id":"m","presentation":null,"sources":[
                 {"url":"u","format":"mp4","mimeType":"video/mp4","width":1,"height":1}]}"#,
         )
@@ -285,7 +289,7 @@ mod tests {
 
     #[test]
     fn an_integer_amount_parses() {
-        let price: Price = serde_json::from_str(r#"{"amount":2490,"currencyCode":"SEK"}"#).unwrap();
+        let price: Price = decode_json_str(r#"{"amount":2490,"currencyCode":"SEK"}"#).unwrap();
 
         assert_eq!(price.amount, 2490.0);
     }
@@ -299,10 +303,9 @@ mod tests {
             "amazon_deal":false,"sales_channel":null,"cdi_id":1,
             "cdi_updated_at":"2026-09-07T02:58:48.801Z"}"#;
 
-        assert!(serde_json::from_str::<DiscountCode>(code).is_ok());
+        assert!(decode_json_str::<DiscountCode>(code).is_ok());
         assert!(
-            serde_json::from_str::<DiscountCode>(&code.replace("\"cdi_id\"", "\"other_id\""))
-                .is_err()
+            decode_json_str::<DiscountCode>(&code.replace("\"cdi_id\"", "\"other_id\"")).is_err()
         );
     }
 }

@@ -1,26 +1,30 @@
 use super::raw;
+use chrono::ParseError;
+use ldjson::LdJson as LdjsonLdJson;
+use money::MoneyError;
+use product::ProductRecord as ProductProductRecord;
+use raw::AnkerCaRawDocument;
 use serde::{Deserialize, Serialize};
+use std::num::ParseFloatError;
+use thiserror::Error as ThiserrorError;
 
-#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+#[derive(Debug, Clone, PartialEq, ThiserrorError)]
 pub enum NormalizeError {
     #[error("ld+json offer price `{value}` is not a number: {source}")]
     OfferPriceNotANumber {
         value: String,
-        source: std::num::ParseFloatError,
+        source: ParseFloatError,
     },
 
     #[error("ld+json offer price `{amount}` `{currency}` is not valid money: {source}")]
     OfferPriceNotMoney {
         amount: f64,
         currency: String,
-        source: money::MoneyError,
+        source: MoneyError,
     },
 
     #[error("publishedAt `{value}` is not an RFC 3339 instant: {source}")]
-    PublishedAtNotAnInstant {
-        value: String,
-        source: chrono::ParseError,
-    },
+    PublishedAtNotAnInstant { value: String, source: ParseError },
 
     #[error("no `Product` ld+json island on the document")]
     MissingProductIsland,
@@ -28,20 +32,26 @@ pub enum NormalizeError {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnkerCaNormalizedDocument {
-    pub ld_json: ldjson::LdJson,
-    pub product: product::ProductRecord,
+    pub ld_json: LdjsonLdJson,
+    pub product: ProductProductRecord,
 }
 
 impl AnkerCaNormalizedDocument {
-    pub fn from_raw(raw: raw::AnkerCaRawDocument) -> Result<Self, NormalizeError> {
-        let ld_json = ldjson::LdJson::from_raw(raw.ld_json)?;
-        let product = product::ProductRecord::from_raw(raw.flight.product)?;
+    pub fn from_raw(raw: AnkerCaRawDocument) -> Result<Self, NormalizeError> {
+        let ld_json = LdjsonLdJson::from_raw(raw.ld_json)?;
+        let product = ProductProductRecord::from_raw(raw.flight.product)?;
 
         Ok(AnkerCaNormalizedDocument { ld_json, product })
     }
 }
 
 pub mod ldjson {
+    use money::Money as MoneyMoney;
+    use raw::ldjsonitem::LdJson as LdjsonitemLdJson;
+    use raw::ldjsonitem::LdJsonScript as LdjsonitemLdJsonScript;
+    use raw::ldjsonitem::Offer as LdjsonitemOffer;
+    use raw::ldjsonitem::Product as LdjsonitemProduct;
+    use retailer_sauce::availability::Availability;
 
     use super::NormalizeError;
     use super::raw;
@@ -61,22 +71,22 @@ pub mod ldjson {
 
     impl LdJson {
         pub(crate) fn from_raw(
-            items: Vec<raw::ldjsonitem::LdJsonScript>,
+            items: Vec<LdjsonitemLdJsonScript>,
         ) -> Result<LdJson, NormalizeError> {
             let mut product: Option<Product> = None;
 
             // One script holds an array of islands, not one island.
             for record in items.into_iter().flat_map(|script| script.data) {
                 match record {
-                    raw::ldjsonitem::LdJson::Product(island) => {
+                    LdjsonitemLdJson::Product(island) => {
                         // First island wins; no document in the subset carries two.
                         if product.is_none() {
                             product = Some(Product::from_raw(island)?);
                         }
                     }
-                    raw::ldjsonitem::LdJson::Corporation(_) => {}
-                    raw::ldjsonitem::LdJson::BreadcrumbList(_) => {}
-                    raw::ldjsonitem::LdJson::FaqPage(_) => {}
+                    LdjsonitemLdJson::Corporation(_) => {}
+                    LdjsonitemLdJson::BreadcrumbList(_) => {}
+                    LdjsonitemLdJson::FaqPage(_) => {}
                 }
             }
 
@@ -101,7 +111,7 @@ pub mod ldjson {
     }
 
     impl Product {
-        pub(crate) fn from_raw(raw: raw::ldjsonitem::Product) -> Result<Product, NormalizeError> {
+        pub(crate) fn from_raw(raw: LdjsonitemProduct) -> Result<Product, NormalizeError> {
             let offer = Offer::from_raw(raw.offers)?;
 
             Ok(Product {
@@ -117,25 +127,23 @@ pub mod ldjson {
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct Offer {
-        pub availability: retailer_sauce::availability::Availability,
+        pub availability: Availability,
 
-        pub price: money::Money,
+        pub price: MoneyMoney,
     }
 
     impl Offer {
-        fn from_raw(raw: raw::ldjsonitem::Offer) -> Result<Offer, NormalizeError> {
+        fn from_raw(raw: LdjsonitemOffer) -> Result<Offer, NormalizeError> {
             let price = price(&raw.price, &raw.price_currency)?;
 
             Ok(Offer {
-                availability: retailer_sauce::availability::Availability::from_schema_org(
-                    raw.availability,
-                ),
+                availability: Availability::from_schema_org(raw.availability),
                 price,
             })
         }
     }
 
-    fn price(amount: &str, currency: &str) -> Result<money::Money, NormalizeError> {
+    fn price(amount: &str, currency: &str) -> Result<MoneyMoney, NormalizeError> {
         let amount =
             amount
                 .parse::<f64>()
@@ -144,7 +152,7 @@ pub mod ldjson {
                     source,
                 })?;
 
-        money::Money::from_raw(amount, currency).map_err(|source| {
+        MoneyMoney::from_raw(amount, currency).map_err(|source| {
             NormalizeError::OfferPriceNotMoney {
                 amount,
                 currency: currency.to_string(),
@@ -258,6 +266,19 @@ pub mod ldjson {
 }
 
 pub mod product {
+    use raw::flight::AllocatedSellingPlan as FlightAllocatedSellingPlan;
+    use raw::flight::Image as FlightImage;
+    use raw::flight::Price;
+    use raw::flight::Product as FlightProduct;
+    use raw::flight::ProductOption as FlightProductOption;
+    use raw::flight::SelectedOption as FlightSelectedOption;
+    use raw::flight::SellingPlan as FlightSellingPlan;
+    use raw::flight::SellingPlanAllocation as FlightSellingPlanAllocation;
+    use raw::flight::SellingPlanGroup as FlightSellingPlanGroup;
+    use raw::flight::SellingPlanOption as FlightSellingPlanOption;
+    use raw::flight::Seo;
+    use raw::flight::Variant as FlightVariant;
+
     use super::NormalizeError;
     use super::raw;
     use chrono::{DateTime, Utc};
@@ -302,7 +323,7 @@ pub mod product {
     }
 
     impl ProductRecord {
-        pub fn from_raw(raw: raw::flight::Product) -> Result<Self, NormalizeError> {
+        pub fn from_raw(raw: FlightProduct) -> Result<Self, NormalizeError> {
             let published_at = published_at(&raw.published_at)?;
 
             Ok(ProductRecord {
@@ -355,7 +376,7 @@ pub mod product {
         Ok(parsed.with_timezone(&Utc))
     }
 
-    fn money(raw: raw::flight::Price) -> Money {
+    fn money(raw: Price) -> Money {
         let amount = raw.amount.parse::<f64>().unwrap();
 
         Money::from_raw(amount, &raw.currency_code).unwrap()
@@ -364,7 +385,7 @@ pub mod product {
     // `0.0` is the storefront's sentinel for "not marked down", rather than a real zero price. The
     // product renders it as that zero; a variant omits the key entirely, so both spellings of the
     // same absence go through here.
-    fn compare_at_price(raw: raw::flight::Price) -> Option<Money> {
+    fn compare_at_price(raw: Price) -> Option<Money> {
         let amount = raw.amount.parse::<f64>().unwrap();
 
         (amount != 0.0).then(|| Money::from_raw(amount, &raw.currency_code).unwrap())
@@ -385,7 +406,7 @@ pub mod product {
     }
 
     impl ProductImage {
-        fn from_raw(raw: raw::flight::Image) -> ProductImage {
+        fn from_raw(raw: FlightImage) -> ProductImage {
             ProductImage {
                 url: raw.url,
                 // alt_text: raw.alt_text,
@@ -402,7 +423,7 @@ pub mod product {
     }
 
     impl ProductSeo {
-        fn from_raw(raw: raw::flight::Seo) -> ProductSeo {
+        fn from_raw(raw: Seo) -> ProductSeo {
             ProductSeo {
                 title: raw.title,
                 description: raw.description,
@@ -479,7 +500,7 @@ pub mod product {
     }
 
     impl ProductOption {
-        fn from_raw(raw: raw::flight::ProductOption) -> ProductOption {
+        fn from_raw(raw: FlightProductOption) -> ProductOption {
             ProductOption {
                 id: raw.id,
                 name: raw.name,
@@ -536,7 +557,7 @@ pub mod product {
     }
 
     impl ProductVariant {
-        pub fn from_raw(raw: raw::flight::Variant) -> ProductVariant {
+        pub fn from_raw(raw: FlightVariant) -> ProductVariant {
             ProductVariant {
                 id: raw.id,
                 title: raw.title,
@@ -570,7 +591,7 @@ pub mod product {
     }
 
     impl SelectedOption {
-        fn from_raw(raw: raw::flight::SelectedOption) -> SelectedOption {
+        fn from_raw(raw: FlightSelectedOption) -> SelectedOption {
             SelectedOption {
                 name: raw.name,
                 value: raw.value,
@@ -614,7 +635,7 @@ pub mod product {
     impl SellingPlanAllocation {
         // The `priceAdjustments` each allocation carries are empty everywhere in the corpus - see
         // [`raw::flight::EmptyAdjustment`] - so they carry no information forward here.
-        fn from_raw(raw: raw::flight::SellingPlanAllocation) -> SellingPlanAllocation {
+        fn from_raw(raw: FlightSellingPlanAllocation) -> SellingPlanAllocation {
             SellingPlanAllocation {
                 selling_plan: AllocatedSellingPlan::from_raw(raw.selling_plan),
             }
@@ -629,7 +650,7 @@ pub mod product {
     }
 
     impl AllocatedSellingPlan {
-        fn from_raw(raw: raw::flight::AllocatedSellingPlan) -> AllocatedSellingPlan {
+        fn from_raw(raw: FlightAllocatedSellingPlan) -> AllocatedSellingPlan {
             AllocatedSellingPlan {
                 id: raw.id,
                 name: raw.name,
@@ -649,7 +670,7 @@ pub mod product {
     }
 
     impl SellingPlanGroup {
-        fn from_raw(raw: raw::flight::SellingPlanGroup) -> SellingPlanGroup {
+        fn from_raw(raw: FlightSellingPlanGroup) -> SellingPlanGroup {
             SellingPlanGroup {
                 name: raw.name,
                 selling_plans: raw
@@ -669,7 +690,7 @@ pub mod product {
     }
 
     impl SellingPlan {
-        fn from_raw(raw: raw::flight::SellingPlan) -> SellingPlan {
+        fn from_raw(raw: FlightSellingPlan) -> SellingPlan {
             SellingPlan {
                 id: raw.id,
                 name: raw.name,
@@ -689,7 +710,7 @@ pub mod product {
     }
 
     impl SellingPlanOption {
-        fn from_raw(raw: raw::flight::SellingPlanOption) -> SellingPlanOption {
+        fn from_raw(raw: FlightSellingPlanOption) -> SellingPlanOption {
             SellingPlanOption {
                 name: raw.name,
                 value: raw.value,
@@ -700,6 +721,10 @@ pub mod product {
 
 #[cfg(test)]
 mod tests {
+    use super::raw::ldjsonitem::LdJsonScript as RawLdjsonitemLdJsonScript;
+    use ldjson::LdJson as LdjsonLdJson;
+    use serde_json::from_str;
+
     use super::{NormalizeError, ldjson};
     use html_extractor::serde_json;
 
@@ -710,7 +735,7 @@ mod tests {
             "sameAs":[],"url":"u"}]}]"#,
         );
 
-        let error = ldjson::LdJson::from_raw(scripts)
+        let error = LdjsonLdJson::from_raw(scripts)
             .expect_err("a document with no Product island is not a product page");
 
         assert_eq!(error, NormalizeError::MissingProductIsland);
@@ -735,12 +760,12 @@ mod tests {
              "price":"1.00","priceCurrency":"CAD"}}]}]"#,
         );
 
-        let ld_json = ldjson::LdJson::from_raw(scripts).expect("the island reads");
+        let ld_json = LdjsonLdJson::from_raw(scripts).expect("the island reads");
 
         assert_eq!(ld_json.product.description, "first");
     }
 
-    fn scripts(json: &str) -> Vec<super::raw::ldjsonitem::LdJsonScript> {
-        serde_json::from_str(json).expect("the fixture is a list of ld+json scripts")
+    fn scripts(json: &str) -> Vec<RawLdjsonitemLdJsonScript> {
+        from_str(json).expect("the fixture is a list of ld+json scripts")
     }
 }
