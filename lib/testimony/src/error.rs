@@ -1,5 +1,9 @@
 //! Testimony error types
 
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use std::error::Error as ErrorError;
 use std::fmt;
 
 /// Error type for event store operations.
@@ -13,8 +17,8 @@ pub enum EventStoreError {
     NotFound(String),
 }
 
-impl fmt::Display for EventStoreError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for EventStoreError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             EventStoreError::LoadFailed(msg) => write!(f, "Failed to load events: {}", msg),
             EventStoreError::AppendFailed(msg) => write!(f, "Failed to append events: {}", msg),
@@ -23,7 +27,7 @@ impl fmt::Display for EventStoreError {
     }
 }
 
-impl std::error::Error for EventStoreError {}
+impl ErrorError for EventStoreError {}
 
 /// Error type for aggregate repository operations.
 pub enum AggregateRepositoryError {
@@ -41,8 +45,8 @@ pub enum EventPublisherError {
     SerializationFailed(String),
 }
 
-impl fmt::Display for EventPublisherError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for EventPublisherError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             EventPublisherError::PublishFailed(msg) => {
                 write!(f, "Failed to publish events: {}", msg)
@@ -57,4 +61,4 @@ impl fmt::Display for EventPublisherError {
     }
 }
 
-impl std::error::Error for EventPublisherError {}
+impl ErrorError for EventPublisherError {}

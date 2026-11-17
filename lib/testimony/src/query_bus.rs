@@ -3,9 +3,14 @@
 //! The QueryBus manages query dispatch and handler registration.
 //! Each query type can have exactly one handler registered.
 
+use std::any::type_name as any_type_name;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::error::Error as ErrorError;
 use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 use crate::query_handler::QueryHandler;
 
@@ -20,8 +25,8 @@ pub enum QueryBusError {
     HandlerFailed(String),
 }
 
-impl std::fmt::Display for QueryBusError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for QueryBusError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             QueryBusError::NoHandlerRegistered(query) => {
                 write!(f, "No handler registered for query: {}", query)
@@ -36,7 +41,7 @@ impl std::fmt::Display for QueryBusError {
     }
 }
 
-impl std::error::Error for QueryBusError {}
+impl ErrorError for QueryBusError {}
 
 /// A boxed handler that can handle a specific query type.
 trait BoxedHandler {
@@ -87,7 +92,7 @@ impl QueryBus {
         H: QueryHandler<Q> + 'static,
     {
         let type_id = TypeId::of::<Q>();
-        let type_name = std::any::type_name::<Q>();
+        let type_name = any_type_name::<Q>();
 
         if self.handlers.contains_key(&type_id) {
             return Err(QueryBusError::DuplicateHandler(type_name.to_string()));
@@ -115,7 +120,7 @@ impl QueryBus {
         H::Error: Debug,
     {
         let type_id = TypeId::of::<Q>();
-        let type_name = std::any::type_name::<Q>();
+        let type_name = any_type_name::<Q>();
 
         let boxed = self
             .handlers
