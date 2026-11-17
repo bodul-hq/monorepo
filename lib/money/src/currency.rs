@@ -1,9 +1,12 @@
 //! Supported currencies (TS001 §2.2).
 
+use serde::Deserialize;
+use serde::Serialize;
+use std::str::FromStr;
 /// The currencies supported by this library. Most have a minor-unit exponent of
 /// `2` (100 minor units = 1 major unit); `JPY`, `KRW`, `ISK` and `VND` are zero-decimal
 /// and their minor unit *is* the major one (TS001 §2.2).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Currency {
     /// US Dollar (ISO 840).
     USD,
@@ -84,7 +87,7 @@ impl Currency {
     }
 }
 
-impl std::str::FromStr for Currency {
+impl FromStr for Currency {
     type Err = String;
 
     /// The [`Currency`] for an ISO 4217 alpha code.

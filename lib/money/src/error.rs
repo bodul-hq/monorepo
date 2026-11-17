@@ -4,6 +4,9 @@
 //! sign/parentheses variants only become reachable once Phase 2 adds negative
 //! amounts (TS001 §1.4). `FormatError` is Phase 2 and is intentionally omitted.
 
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use std::error::Error;
 use std::fmt;
 
@@ -60,22 +63,22 @@ pub enum DeserializeError {
     MalformedWireValue,
 }
 
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for ParseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         // TODO(phase-1): human-readable messages per variant.
         write!(f, "{self:?}")
     }
 }
 
-impl fmt::Display for MoneyError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for MoneyError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         // TODO(phase-1): human-readable messages per variant.
         write!(f, "{self:?}")
     }
 }
 
-impl fmt::Display for DeserializeError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for DeserializeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         // TODO(phase-1): human-readable messages per variant.
         write!(f, "{self:?}")
     }

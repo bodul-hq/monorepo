@@ -1,6 +1,7 @@
 //! The `Money` value type, constructors, and accessors (TS001 §2.1, §2.9).
-
 use super::{Currency, MoneyError};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// An exact monetary amount paired with its currency.
 ///
@@ -14,7 +15,7 @@ use super::{Currency, MoneyError};
 /// as a hash key (TS001 §2.6, INV-3). `Display` is intentionally **not**
 /// implemented; human-readable output must go through the Phase 2
 /// `format(money, locale)` function.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Money {
     amount: i64,
     currency: Currency,
