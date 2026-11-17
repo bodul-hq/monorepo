@@ -1,6 +1,9 @@
 //! Regression coverage for structuralization errors and implemented but unregistered stages.
 //! The saved normalized documents live outside the repository and are never modified here.
 
+use serde_json::from_str;
+use std::fs::read_dir;
+use std::fs::read_to_string;
 use std::path::Path;
 
 use html_extractor::serde_json::{self, Value};
@@ -44,7 +47,7 @@ fn reported_storefronts_structuralize_every_saved_normalized_document() {
             eprintln!("skipping: {} not found", directory.display());
             continue;
         }
-        let mut paths: Vec<_> = std::fs::read_dir(&directory)
+        let mut paths: Vec<_> = read_dir(&directory)
             .unwrap()
             .map(|entry| entry.unwrap().path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
@@ -53,11 +56,11 @@ fn reported_storefronts_structuralize_every_saved_normalized_document() {
         assert!(!paths.is_empty(), "{} is empty", directory.display());
         let mut written = 0;
         for path in &paths {
-            let input = std::fs::read_to_string(path).unwrap();
+            let input = read_to_string(path).unwrap();
             match structuralize_for(code, &input).expect("registered structuralizer") {
                 Ok(output) => match output.document_json {
                     Some(json) => {
-                        let json: Value = serde_json::from_str(&json).unwrap();
+                        let json: Value = from_str(&json).unwrap();
                         assert!(
                             json["variations"].is_array(),
                             "{}: no variations array",

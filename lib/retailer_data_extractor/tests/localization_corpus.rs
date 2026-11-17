@@ -1,6 +1,12 @@
 //! Read-only survey; never writes the user's retailer corpus.
+
 use retailer_data_extractor::{extract_for, normalize_for, structuralize_for};
+use serde_json::Value;
+use serde_json::from_str;
+use serde_json::json;
 use shared::prelude::RetailerCode;
+use std::fs::read_dir;
+use std::fs::read_to_string;
 use std::{collections::BTreeMap, path::PathBuf};
 
 #[test]
@@ -11,13 +17,13 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
         return;
     }
     let mut report = BTreeMap::new();
-    for folder in std::fs::read_dir(root).unwrap().flatten() {
+    for folder in read_dir(root).unwrap().flatten() {
         let slug = folder.file_name().to_string_lossy().into_owned();
         let Ok(code) = RetailerCode::try_from(slug.as_str()) else {
             continue;
         };
         let sources = folder.path().join("offer_details/sources");
-        let Ok(files) = std::fs::read_dir(sources) else {
+        let Ok(files) = read_dir(sources) else {
             continue;
         };
         let counts = report.entry(slug.clone()).or_insert([0usize; 5]);
@@ -26,17 +32,17 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
             .filter(|file| file.path().extension().is_some_and(|ext| ext == "html"))
         {
             counts[0] += 1;
-            let html = std::fs::read_to_string(file.path()).unwrap();
+            let html = read_to_string(file.path()).unwrap();
             let Ok(extracted) = extract_for(code, &html) else {
                 counts[4] += 1;
                 continue;
             };
-            let raw: serde_json::Value = serde_json::from_str(&extracted).unwrap();
+            let raw: Value = from_str(&extracted).unwrap();
             let selected = &raw["_localization_evidence"]["selected"];
             if slug == "ankeritalycom" {
                 assert_eq!(
                     selected,
-                    &serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"})
+                    &json!({"target_market":{"kind":"country","code":"IT"},"language":"it"})
                 );
                 assert!(
                     raw["_localization_evidence"]["candidates"]
@@ -51,7 +57,7 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
             if slug == "ankereu" {
                 assert_eq!(
                     selected,
-                    &serde_json::json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
+                    &json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
                 );
                 assert!(
                     raw["_localization_evidence"]["candidates"]
@@ -77,7 +83,7 @@ fn survey_saved_source_evidence_and_facade_pipeline() {
                 continue;
             };
             if let Some(document) = structuralized.document_json {
-                let output: serde_json::Value = serde_json::from_str(&document).unwrap();
+                let output: Value = from_str(&document).unwrap();
                 assert_eq!(&output["_localization_evidence"]["selected"], selected);
                 for variation in output["variations"].as_array().into_iter().flatten() {
                     assert_eq!(&variation["localization"], selected);

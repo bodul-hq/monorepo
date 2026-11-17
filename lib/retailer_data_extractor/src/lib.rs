@@ -1,3 +1,40 @@
+use localization::KEY;
+use localization::attach;
+use localization::extract as localization_extract;
+use localization::split;
+use retailers_anker::prelude::NORDIC_ENDPOINT;
+use retailers_anker::prelude::NordicMarket;
+use retailers_anker::prelude::architecture_for as prelude_architecture_for;
+use retailers_anker::prelude::classify_link_for as prelude_classify_link_for;
+use retailers_anker::prelude::normalize_for as prelude_normalize_for;
+use retailers_anker::prelude::sitemap_config_for as prelude_sitemap_config_for;
+use retailers_anker::prelude::sitemap_greylisted_for as prelude_sitemap_greylisted_for;
+use retailers_anker::prelude::sitemap_pause_for as prelude_sitemap_pause_for;
+use retailers_anker::prelude::structuralize_for as prelude_structuralize_for;
+use retailers_mi::prelude::architecture_for as retailers_mi_prelude_architecture_for;
+use retailers_mi::prelude::classify_link_for as retailers_mi_prelude_classify_link_for;
+use retailers_mi::prelude::normalize_for as retailers_mi_prelude_normalize_for;
+use retailers_mi::prelude::sitemap_config_for as retailers_mi_prelude_sitemap_config_for;
+use retailers_mi::prelude::sitemap_greylisted_for as retailers_mi_prelude_sitemap_greylisted_for;
+use retailers_mi::prelude::sitemap_pause_for as retailers_mi_prelude_sitemap_pause_for;
+use retailers_minisforum::prelude::architecture_for as retailers_minisforum_prelude_architecture_for;
+use retailers_minisforum::prelude::classify_link_for as retailers_minisforum_prelude_classify_link_for;
+use retailers_minisforum::prelude::normalize_for as retailers_minisforum_prelude_normalize_for;
+use retailers_minisforum::prelude::sitemap_config_for as retailers_minisforum_prelude_sitemap_config_for;
+use retailers_minisforum::prelude::sitemap_greylisted_for as retailers_minisforum_prelude_sitemap_greylisted_for;
+use retailers_minisforum::prelude::sitemap_pause_for as retailers_minisforum_prelude_sitemap_pause_for;
+use retailers_minisforum::prelude::structuralize_for as retailers_minisforum_prelude_structuralize_for;
+use retailers_ugreen::prelude::architecture_for as retailers_ugreen_prelude_architecture_for;
+use retailers_ugreen::prelude::classify_link_for as retailers_ugreen_prelude_classify_link_for;
+use retailers_ugreen::prelude::normalize_for as retailers_ugreen_prelude_normalize_for;
+use retailers_ugreen::prelude::offer_download_url as prelude_offer_download_url;
+use retailers_ugreen::prelude::sitemap_config_for as retailers_ugreen_prelude_sitemap_config_for;
+use retailers_ugreen::prelude::sitemap_greylisted_for as retailers_ugreen_prelude_sitemap_greylisted_for;
+use retailers_ugreen::prelude::sitemap_pause_for as retailers_ugreen_prelude_sitemap_pause_for;
+use retailers_ugreen::prelude::structuralize_for as retailers_ugreen_prelude_structuralize_for;
+use serde_json::to_value;
+use std::io::Error as IoError;
+use std::io::ErrorKind;
 mod localization;
 mod pretty;
 
@@ -16,14 +53,14 @@ pub use pretty::pretty_json;
 /// Returns the registered extraction architecture for a retailer.
 ///
 /// Returns an I/O error with kind `NotFound` when no architecture is registered.
-pub fn architecture_for(retailer_code: RetailerCode) -> Result<Architecture, std::io::Error> {
-    let architecture = retailers_anker::prelude::architecture_for(retailer_code)
-        .or_else(|| retailers_mi::prelude::architecture_for(retailer_code))
-        .or_else(|| retailers_minisforum::prelude::architecture_for(retailer_code))
-        .or_else(|| retailers_ugreen::prelude::architecture_for(retailer_code))
+pub fn architecture_for(retailer_code: RetailerCode) -> Result<Architecture, IoError> {
+    let architecture = prelude_architecture_for(retailer_code)
+        .or_else(|| retailers_mi_prelude_architecture_for(retailer_code))
+        .or_else(|| retailers_minisforum_prelude_architecture_for(retailer_code))
+        .or_else(|| retailers_ugreen_prelude_architecture_for(retailer_code))
         .ok_or_else(|| {
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
+            IoError::new(
+                ErrorKind::NotFound,
                 format!("no architecture for retailer {retailer_code:?}"),
             )
         })?;
@@ -35,7 +72,7 @@ pub fn architecture_for(retailer_code: RetailerCode) -> Result<Architecture, std
 ///
 /// Returns an error when no architecture is registered or the page can't be parsed.
 pub fn extract_for(retailer_code: RetailerCode, html: &str) -> Result<String, String> {
-    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+    if let Some(market) = NordicMarket::for_retailer(retailer_code) {
         return market.extract(html);
     }
     let architecture = architecture_for(retailer_code).map_err(|e| e.to_string())?;
@@ -44,8 +81,7 @@ pub fn extract_for(retailer_code: RetailerCode, html: &str) -> Result<String, St
         .map_err(|e| e.to_string())?;
 
     let mut value = extracted.json;
-    value[localization::KEY] =
-        serde_json::to_value(localization::extract(html)).map_err(|error| error.to_string())?;
+    value[KEY] = to_value(localization_extract(html)).map_err(|error| error.to_string())?;
     Ok(value.to_string())
 }
 
@@ -53,21 +89,21 @@ pub fn normalize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<NormalizedData, String>> {
-    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+    if let Some(market) = NordicMarket::for_retailer(retailer_code) {
         return Some(market.normalize(json));
     }
-    let (json, evidence) = match localization::split(json) {
+    let (json, evidence) = match split(json) {
         Ok(value) => value,
         Err(error) => return Some(Err(error)),
     };
     let json = json.as_str();
-    retailers_anker::prelude::normalize_for(retailer_code, json)
-        .or_else(|| retailers_mi::prelude::normalize_for(retailer_code, json))
-        .or_else(|| retailers_minisforum::prelude::normalize_for(retailer_code, json))
-        .or_else(|| retailers_ugreen::prelude::normalize_for(retailer_code, json))
+    prelude_normalize_for(retailer_code, json)
+        .or_else(|| retailers_mi_prelude_normalize_for(retailer_code, json))
+        .or_else(|| retailers_minisforum_prelude_normalize_for(retailer_code, json))
+        .or_else(|| retailers_ugreen_prelude_normalize_for(retailer_code, json))
         .map(|result| {
             result.and_then(|mut data| {
-                localization::attach(&mut data.document_json, evidence, false)?;
+                attach(&mut data.document_json, evidence, false)?;
                 Ok(data)
             })
         })
@@ -78,48 +114,48 @@ pub fn structuralize_for(
     retailer_code: RetailerCode,
     json: &str,
 ) -> Option<Result<StructuralizedData, String>> {
-    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer_code) {
+    if let Some(market) = NordicMarket::for_retailer(retailer_code) {
         return Some(market.structuralize(json));
     }
-    let (json, evidence) = match localization::split(json) {
+    let (json, evidence) = match split(json) {
         Ok(value) => value,
         Err(error) => return Some(Err(error)),
     };
     let json = json.as_str();
-    retailers_anker::prelude::structuralize_for(retailer_code, json)
-        .or_else(|| retailers_minisforum::prelude::structuralize_for(retailer_code, json))
-        .or_else(|| retailers_ugreen::prelude::structuralize_for(retailer_code, json))
+    prelude_structuralize_for(retailer_code, json)
+        .or_else(|| retailers_minisforum_prelude_structuralize_for(retailer_code, json))
+        .or_else(|| retailers_ugreen_prelude_structuralize_for(retailer_code, json))
         .map(|result| {
             result.and_then(|mut data| {
-                localization::attach(&mut data.document_json, evidence, true)?;
+                attach(&mut data.document_json, evidence, true)?;
                 Ok(data)
             })
         })
 }
 
 pub fn sitemap_config_for(retailer_code: &RetailerCode) -> Option<SitemapConfig> {
-    retailers_anker::prelude::sitemap_config_for(retailer_code)
-        .or_else(|| retailers_mi::prelude::sitemap_config_for(retailer_code))
-        .or_else(|| retailers_minisforum::prelude::sitemap_config_for(retailer_code))
-        .or_else(|| retailers_ugreen::prelude::sitemap_config_for(retailer_code))
+    prelude_sitemap_config_for(retailer_code)
+        .or_else(|| retailers_mi_prelude_sitemap_config_for(retailer_code))
+        .or_else(|| retailers_minisforum_prelude_sitemap_config_for(retailer_code))
+        .or_else(|| retailers_ugreen_prelude_sitemap_config_for(retailer_code))
 }
 
 /// Whether `retailer_code`'s crawl downloads the child sitemap at `url`.
 /// Returns `None` for a retailer this crate doesn't know.
 pub fn sitemap_greylisted_for(retailer_code: RetailerCode, url: &str) -> Option<bool> {
-    retailers_anker::prelude::sitemap_greylisted_for(retailer_code, url)
-        .or_else(|| retailers_mi::prelude::sitemap_greylisted_for(retailer_code, url))
-        .or_else(|| retailers_minisforum::prelude::sitemap_greylisted_for(retailer_code, url))
-        .or_else(|| retailers_ugreen::prelude::sitemap_greylisted_for(retailer_code, url))
+    prelude_sitemap_greylisted_for(retailer_code, url)
+        .or_else(|| retailers_mi_prelude_sitemap_greylisted_for(retailer_code, url))
+        .or_else(|| retailers_minisforum_prelude_sitemap_greylisted_for(retailer_code, url))
+        .or_else(|| retailers_ugreen_prelude_sitemap_greylisted_for(retailer_code, url))
 }
 
 /// How long `retailer_code`'s crawl pauses between groups of sitemap
 /// downloads. Returns `None` for a retailer this crate doesn't know.
 pub fn sitemap_pause_for(retailer_code: RetailerCode) -> Option<Duration> {
-    retailers_anker::prelude::sitemap_pause_for(retailer_code)
-        .or_else(|| retailers_mi::prelude::sitemap_pause_for(retailer_code))
-        .or_else(|| retailers_minisforum::prelude::sitemap_pause_for(retailer_code))
-        .or_else(|| retailers_ugreen::prelude::sitemap_pause_for(retailer_code))
+    prelude_sitemap_pause_for(retailer_code)
+        .or_else(|| retailers_mi_prelude_sitemap_pause_for(retailer_code))
+        .or_else(|| retailers_minisforum_prelude_sitemap_pause_for(retailer_code))
+        .or_else(|| retailers_ugreen_prelude_sitemap_pause_for(retailer_code))
 }
 
 pub fn classify_link_for(
@@ -128,26 +164,19 @@ pub fn classify_link_for(
     source: &str,
     image_count: usize,
 ) -> Option<LinkKind> {
-    retailers_anker::prelude::classify_link_for(retailer_code, url, source, image_count)
+    prelude_classify_link_for(retailer_code, url, source, image_count)
+        .or_else(|| retailers_mi_prelude_classify_link_for(retailer_code, url, source, image_count))
         .or_else(|| {
-            retailers_mi::prelude::classify_link_for(retailer_code, url, source, image_count)
+            retailers_minisforum_prelude_classify_link_for(retailer_code, url, source, image_count)
         })
         .or_else(|| {
-            retailers_minisforum::prelude::classify_link_for(
-                retailer_code,
-                url,
-                source,
-                image_count,
-            )
-        })
-        .or_else(|| {
-            retailers_ugreen::prelude::classify_link_for(retailer_code, url, source, image_count)
+            retailers_ugreen_prelude_classify_link_for(retailer_code, url, source, image_count)
         })
 }
 
 /// Resolve explicitly known retired product URLs without changing discovery identity.
 pub fn offer_download_url(retailer_code: RetailerCode, url: &str) -> &str {
-    retailers_ugreen::prelude::offer_download_url(retailer_code, url)
+    prelude_offer_download_url(retailer_code, url)
 }
 
 /// A retailer's source request. A body means a JSON POST; otherwise use GET.
@@ -160,9 +189,9 @@ pub struct OfferRequest {
 }
 
 pub fn offer_request_for(retailer: RetailerCode, url: &str) -> Result<OfferRequest, String> {
-    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer) {
+    if let Some(market) = NordicMarket::for_retailer(retailer) {
         return Ok(OfferRequest {
-            url: retailers_anker::prelude::NORDIC_ENDPOINT.into(),
+            url: NORDIC_ENDPOINT.into(),
             json_body: Some(market.request(url)?),
         });
     }
@@ -179,7 +208,7 @@ pub fn validate_offer_download(
     url: &str,
     body: &str,
 ) -> Result<(), String> {
-    if let Some(market) = retailers_anker::prelude::NordicMarket::for_retailer(retailer) {
+    if let Some(market) = NordicMarket::for_retailer(retailer) {
         market.validate_download(url, body)?;
     }
     Ok(())
@@ -187,6 +216,13 @@ pub fn validate_offer_download(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+
+    use localization::split;
+    use serde_json::Value;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_string as serde_json_to_string;
+
     use super::*;
     use html_extractor::serde_json;
 
@@ -235,8 +271,7 @@ mod tests {
                 Some(LinkKind::Product)
             );
             let request = offer_request_for(code, url).unwrap();
-            let request: serde_json::Value =
-                serde_json::from_str(request.json_body.as_deref().unwrap()).unwrap();
+            let request: Value = decode_json_str(request.json_body.as_deref().unwrap()).unwrap();
             assert_eq!(request["variables"]["country"], country);
             validate_offer_download(code, url, fixture).unwrap();
             let extracted = extract_for(code, fixture).unwrap();
@@ -250,15 +285,14 @@ mod tests {
                 .unwrap()
                 .document_json
                 .unwrap();
-            let value: serde_json::Value = serde_json::from_str(&structuralized).unwrap();
+            let value: Value = decode_json_str(&structuralized).unwrap();
             assert_eq!(
                 value["variations"][0]["localization"]["target_market"]["code"],
                 country
             );
             assert_eq!(RetailerCode::from_str(&code.as_str()).unwrap(), code);
             assert_eq!(
-                serde_json::from_str::<RetailerCode>(&serde_json::to_string(&code).unwrap())
-                    .unwrap(),
+                decode_json_str::<RetailerCode>(&serde_json_to_string(&code).unwrap()).unwrap(),
                 code
             );
         }
@@ -279,10 +313,10 @@ mod tests {
 
         let json = extract_for(RetailerCode::AnkerAu, html).unwrap();
 
-        let (json, _) = localization::split(&json).unwrap();
+        let (json, _) = split(&json).unwrap();
         assert_eq!(
-            serde_json::from_str::<serde_json::Value>(&json).unwrap(),
-            serde_json::from_str::<serde_json::Value>(r#"{"ld-json":[{"data":{"@type":"Product"},"type":"application/ld+json"}],"next_data":{"data":{"page":"/p"},"id":"__NEXT_DATA__","type":"application/json"}}"#).unwrap()
+            decode_json_str::<Value>(&json).unwrap(),
+            decode_json_str::<Value>(r#"{"ld-json":[{"data":{"@type":"Product"},"type":"application/ld+json"}],"next_data":{"data":{"page":"/p"},"id":"__NEXT_DATA__","type":"application/json"}}"#).unwrap()
         );
     }
 
@@ -296,8 +330,8 @@ mod tests {
         ] {
             let extracted =
                 extract_for(code, "<html><body></body></html>").expect("architecture is wired");
-            let value: serde_json::Value = serde_json::from_str(&extracted).unwrap();
-            assert_eq!(value["ld-json"], serde_json::json!([]), "{code:?}");
+            let value: Value = decode_json_str(&extracted).unwrap();
+            assert_eq!(value["ld-json"], serde_json_json!([]), "{code:?}");
             // An incomplete document must report an error through the facade, not panic
             // in an unimplemented storefront hook.
             assert!(

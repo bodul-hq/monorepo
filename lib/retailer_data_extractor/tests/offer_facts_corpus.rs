@@ -1,10 +1,19 @@
 //! Read-only coverage of the canonical offer facts on saved storefront pages.
+
 use retailer_data_extractor::{extract_for, normalize_for, structuralize_for};
 use retailer_sauce::{
     availability::Availability, item_condition::ItemCondition, structuralized::content::Content,
 };
 use serde_json::Value;
+use serde_json::from_str;
+use serde_json::from_value;
+use serde_json::json;
 use shared::prelude::RetailerCode;
+use std::env::var;
+use std::fs::DirEntry;
+use std::fs::read_dir;
+use std::fs::read_to_string;
+use std::thread::scope as thread_scope;
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicUsize, Ordering},
@@ -18,7 +27,7 @@ fn canonical_offer_facts_survive_the_facade_pipeline() {
         eprintln!("saved source corpus unavailable; portable fixtures still run");
         return;
     }
-    let limit = std::env::var("OFFER_FACTS_MAX_PAGES_PER_STOREFRONT")
+    let limit = var("OFFER_FACTS_MAX_PAGES_PER_STOREFRONT")
         .ok()
         .map(|value| {
             let count = value
@@ -27,10 +36,10 @@ fn canonical_offer_facts_survive_the_facade_pipeline() {
             assert!(count > 0, "page limit must be a positive integer");
             count
         });
-    let folders: Vec<_> = std::fs::read_dir(root).unwrap().flatten().collect();
+    let folders: Vec<_> = read_dir(root).unwrap().flatten().collect();
     let next = AtomicUsize::new(0);
     // Bound concurrent HTML trees while independent storefronts share the work.
-    std::thread::scope(|scope| {
+    thread_scope(|scope| {
         let workers: Vec<_> = (0..4)
             .map(|_| {
                 scope.spawn(|| {
@@ -46,7 +55,7 @@ fn canonical_offer_facts_survive_the_facade_pipeline() {
     });
 }
 
-fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
+fn survey_storefront(folder: &DirEntry, limit: Option<usize>) {
     let slug = folder.file_name().to_string_lossy().into_owned();
     if !(slug.starts_with("anker") || slug.starts_with("minisforum") || slug.starts_with("ugreen"))
         || slug == "ankerkr"
@@ -56,7 +65,7 @@ fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
     let Ok(code) = RetailerCode::try_from(slug.as_str()) else {
         return;
     };
-    let Ok(files) = std::fs::read_dir(folder.path().join("offer_details/sources")) else {
+    let Ok(files) = read_dir(folder.path().join("offer_details/sources")) else {
         return;
     };
     // Pages, successful pages, variations, comparison prices, availability, condition,
@@ -69,7 +78,7 @@ fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
     files.sort_by_key(|file| file.file_name());
     for file in files.into_iter().take(limit.unwrap_or(usize::MAX)) {
         counts[0] += 1;
-        let html = std::fs::read_to_string(file.path()).unwrap();
+        let html = read_to_string(file.path()).unwrap();
         let result = (|| {
             let extracted = extract_for(code, &html)?;
             let normalized = normalize_for(code, &extracted)
@@ -81,8 +90,8 @@ fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
                 .document_json
                 .ok_or("no structuralized document")?;
             Ok::<_, String>((
-                serde_json::from_str::<Value>(&normalized).unwrap(),
-                serde_json::from_str::<Value>(&output).unwrap(),
+                from_str::<Value>(&normalized).unwrap(),
+                from_str::<Value>(&output).unwrap(),
             ))
         })();
         let (normalized, output) = match result {
@@ -102,7 +111,7 @@ fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
             }
             assert_eq!(
                 variation["content"],
-                serde_json::json!({"description":description}),
+                json!({"description":description}),
                 "{slug}: description must come only from the primary normalized product"
             );
             if !variation["was_price"].is_null() {
@@ -119,19 +128,19 @@ fn survey_storefront(folder: &std::fs::DirEntry, limit: Option<usize>) {
             }
             if !variation["availability"].is_null() {
                 counts[4] += 1;
-                serde_json::from_value::<Availability>(variation["availability"].clone())
+                from_value::<Availability>(variation["availability"].clone())
                     .unwrap()
                     .guard()
                     .unwrap();
             }
             if !variation["item_condition"].is_null() {
                 counts[5] += 1;
-                serde_json::from_value::<ItemCondition>(variation["item_condition"].clone())
+                from_value::<ItemCondition>(variation["item_condition"].clone())
                     .unwrap()
                     .guard()
                     .unwrap();
             }
-            serde_json::from_value::<Content>(variation["content"].clone())
+            from_value::<Content>(variation["content"].clone())
                 .unwrap()
                 .guard()
                 .unwrap();

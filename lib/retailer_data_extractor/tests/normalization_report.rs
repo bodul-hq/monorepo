@@ -1,6 +1,10 @@
 //! Regressions for normalization failures observed in exported offer details. These tests
 //! read external data only; inline schema tests continue to run when the checkout is absent.
 
+use html_extractor::serde_json::Value;
+use html_extractor::serde_json::from_str;
+use std::fs::read_dir;
+use std::fs::read_to_string;
 use std::path::Path;
 
 use retailer_data_extractor::normalize_for;
@@ -48,7 +52,7 @@ fn reported_storefronts_normalize_the_saved_extractions() {
             continue;
         }
         let code = RetailerCode::from_slug(slug).unwrap();
-        let mut paths: Vec<_> = std::fs::read_dir(&directory)
+        let mut paths: Vec<_> = read_dir(&directory)
             .unwrap()
             .map(|entry| entry.unwrap().path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
@@ -58,11 +62,11 @@ fn reported_storefronts_normalize_the_saved_extractions() {
         let mut normalized = 0;
         let mut without_document = 0;
         for path in &paths {
-            let input = std::fs::read_to_string(path).unwrap();
+            let input = read_to_string(path).unwrap();
             match normalize_for(code, &input).expect("registered normalizer") {
                 Ok(output) => match output.document_json {
                     Some(json) => {
-                        assert!(html_extractor::serde_json::from_str::<html_extractor::serde_json::Value>(&json).unwrap().is_object());
+                        assert!(from_str::<Value>(&json).unwrap().is_object());
                         normalized += 1;
                     }
                     None => {
