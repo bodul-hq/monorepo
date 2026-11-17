@@ -1,6 +1,12 @@
 //! Looks up each retailer in this crate by its `RetailerCode`.
 
 use crate::micom;
+use micom::prelude::classify_link_v1;
+use micom::prelude::offer_detail_architecture_v1;
+use micom::prelude::offer_detail_normalize_v1;
+use micom::prelude::sitemap_config_v1;
+use micom::prelude::sitemap_greylisted_v1;
+use micom::prelude::sitemap_pause_v1;
 use std::time::Duration;
 
 use html_extractor::io::Architecture;
@@ -10,35 +16,35 @@ use shared::prelude::{NormalizedData, RetailerCode};
 
 pub fn architecture_for(retailer: RetailerCode) -> Option<Architecture> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::offer_detail_architecture_v1()),
+        RetailerCode::MiCom => Some(offer_detail_architecture_v1()),
         _ => None,
     }
 }
 
 pub fn normalize_for(retailer: RetailerCode, json: &str) -> Option<Result<NormalizedData, String>> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::offer_detail_normalize_v1(json)),
+        RetailerCode::MiCom => Some(offer_detail_normalize_v1(json)),
         _ => None,
     }
 }
 
 pub fn sitemap_config_for(retailer: &RetailerCode) -> Option<SitemapConfig> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::sitemap_config_v1()),
+        RetailerCode::MiCom => Some(sitemap_config_v1()),
         _ => None,
     }
 }
 
 pub fn sitemap_pause_for(retailer: RetailerCode) -> Option<Duration> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::sitemap_pause_v1()),
+        RetailerCode::MiCom => Some(sitemap_pause_v1()),
         _ => None,
     }
 }
 
 pub fn sitemap_greylisted_for(retailer: RetailerCode, url: &str) -> Option<bool> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::sitemap_greylisted_v1(url)),
+        RetailerCode::MiCom => Some(sitemap_greylisted_v1(url)),
         _ => None,
     }
 }
@@ -50,7 +56,7 @@ pub fn classify_link_for(
     image_count: usize,
 ) -> Option<LinkKind> {
     match retailer {
-        RetailerCode::MiCom => Some(micom::prelude::classify_link_v1(url, source, image_count)),
+        RetailerCode::MiCom => Some(classify_link_v1(url, source, image_count)),
         _ => None,
     }
 }
