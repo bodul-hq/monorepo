@@ -1,27 +1,38 @@
 use super::*;
+use env::temp_dir;
+use fs::read_to_string;
+use fs::remove_dir_all;
+use process::id as process_id;
+use reqwest::Client;
 use serde_json::{Value, json};
+use std::io::ErrorKind;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::thread;
+use std::time::Instant;
+use thread::JoinHandle;
+use thread::sleep;
+use thread::spawn;
+use tokio::test as tokio_test;
 
 const OBJECT_ID: &str = "019a1234-5678-7000-8000-000000000001";
 const EXTERNAL_ID: &str = "019a1234-5678-7000-8000-000000000002";
 const BODY: &str = "<html>ž 🔎</html>";
 
-fn fixture(path: &str, token: &str, status: u16, body: String) -> (String, thread::JoinHandle<()>) {
+fn fixture(path: &str, token: &str, status: u16, body: String) -> (String, JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     listener.set_nonblocking(true).unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     let path = path.to_owned();
     let token = token.to_owned();
-    let handle = thread::spawn(move || {
-        let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    let handle = spawn(move || {
+        let deadline = Instant::now() + Duration::from_secs(5);
         let mut socket = loop {
             match listener.accept() {
                 Ok((socket, _)) => break socket,
-                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
-                    assert!(std::time::Instant::now() < deadline, "request timed out");
-                    thread::sleep(Duration::from_millis(10));
+                Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                    assert!(Instant::now() < deadline, "request timed out");
+                    sleep(Duration::from_millis(10));
                 }
                 Err(error) => panic!("{error}"),
             }
@@ -66,7 +77,7 @@ fn record() -> Value {
         "payload": BODY, "metadata": {}, "created_at": "2026-10-18T00:00:00Z"})
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn downloads_metadata_then_payload_and_skips_older_copies() {
     let (sourcing, sourcing_thread) = fixture(
         "/api/development/offer-details/sources?limit=200&offset=200",
@@ -84,7 +95,7 @@ async fn downloads_metadata_then_payload_and_skips_older_copies() {
         record().to_string(),
     );
     let pages = fetch_page(
-        &reqwest::Client::new(),
+        &Client::new(),
         &format!("{sourcing}/api/development/offer-details/sources"),
         "sourcing-token",
         200,
@@ -93,7 +104,7 @@ async fn downloads_metadata_then_payload_and_skips_older_copies() {
     .unwrap();
     sourcing_thread.join().unwrap();
     let objects = ObjectStorage::new(&storage, "storage-token", Transport::Rest).unwrap();
-    let dir = env::temp_dir().join(format!("dump-offers-success-{}", process::id()));
+    let dir = temp_dir().join(format!("dump-offers-success-{}", process_id()));
     let mut written = HashMap::new();
     let Written::Newest(path) = write_source(&dir, &pages[0], &mut written, &objects)
         .await
@@ -110,11 +121,11 @@ async fn downloads_metadata_then_payload_and_skips_older_copies() {
         Written::Older
     ));
     assert!(path.ends_with("ankerau/offer_details/sources/au-products-a1256.html"));
-    assert_eq!(fs::read_to_string(path).unwrap(), BODY);
-    fs::remove_dir_all(dir).unwrap();
+    assert_eq!(read_to_string(path).unwrap(), BODY);
+    remove_dir_all(dir).unwrap();
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn failed_or_mismatched_objects_do_not_write_files() {
     let mut responses = vec![
         (404, "{}".into()),
@@ -131,7 +142,7 @@ async fn failed_or_mismatched_objects_do_not_write_files() {
         object[field] = json!(value);
         responses.push((200, object.to_string()));
     }
-    let dir = env::temp_dir().join(format!("dump-offers-failures-{}", process::id()));
+    let dir = temp_dir().join(format!("dump-offers-failures-{}", process_id()));
     for (status, body) in responses {
         let (storage, handle) = fixture(
             &format!("/api/buckets/{BUCKET}/records/{OBJECT_ID}"),

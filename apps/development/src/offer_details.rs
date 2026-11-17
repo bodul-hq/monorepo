@@ -7,9 +7,20 @@
 //! document, gets no file, and any file an earlier run left for it is removed.
 //! The rest of the pages carry on, and the failures are reported per retailer.
 
+use env::args as env_args;
+use fs::create_dir_all;
+use fs::read_dir;
+use fs::read_to_string;
+use fs::remove_file;
+use fs::write;
+use process::exit;
+use serde_json::Value;
+use serde_json::from_str;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process, thread};
+use thread::Builder;
+use thread::scope as thread_scope;
 
 use retailer_data_extractor::pretty_json;
 use shared::retailer::RetailerCode;
@@ -46,17 +57,17 @@ pub struct Stage {
 pub fn main(stage: &Stage) {
     match run(stage) {
         Ok(true) => {}
-        Ok(false) => process::exit(1),
+        Ok(false) => exit(1),
         Err(error) => {
             eprintln!("error: {error}");
-            process::exit(2);
+            exit(2);
         }
     }
 }
 
 /// Returns whether every page of every retailer passed.
 fn run(stage: &Stage) -> Result<bool, String> {
-    let mut args = env::args().skip(1);
+    let mut args = env_args().skip(1);
     let data_dir = PathBuf::from(
         args.next()
             .ok_or_else(|| format!("usage: {} <data_dir> [retailer ...]", stage.name))?,
@@ -72,11 +83,11 @@ fn run(stage: &Stage) -> Result<bool, String> {
         ));
     }
 
-    let reports: Vec<Report> = thread::scope(|scope| {
+    let reports: Vec<Report> = thread_scope(|scope| {
         let handles: Vec<_> = retailers
             .iter()
             .map(|(name, code, dir)| {
-                thread::Builder::new()
+                Builder::new()
                     .stack_size(STACK_SIZE)
                     .spawn_scoped(scope, move || process_retailer(stage, name, *code, dir))
                     .expect("spawn a retailer thread")
@@ -104,7 +115,7 @@ fn retailers(
     wanted: &[String],
 ) -> Result<Vec<(String, RetailerCode, PathBuf)>, String> {
     let names: Vec<String> = if wanted.is_empty() {
-        let mut names: Vec<String> = fs::read_dir(data_dir)
+        let mut names: Vec<String> = read_dir(data_dir)
             .map_err(|e| format!("{}: {e}", data_dir.display()))?
             .filter_map(|entry| entry.ok())
             .filter(|entry| {
@@ -176,7 +187,7 @@ fn process_retailer(stage: &Stage, name: &str, code: RetailerCode, dir: &Path) -
     };
 
     let output_dir = dir.join(stage.output);
-    let inputs = fs::create_dir_all(&output_dir)
+    let inputs = create_dir_all(&output_dir)
         .map_err(|e| format!("{}: {e}", output_dir.display()))
         .and_then(|()| files(&dir.join(stage.input), stage.input_extension));
     let inputs = match inputs {
@@ -209,7 +220,7 @@ fn process_retailer(stage: &Stage, name: &str, code: RetailerCode, dir: &Path) -
                 .push(stem),
         }
         // Whatever an earlier run left for this page is stale.
-        let _ = fs::remove_file(&output);
+        let _ = remove_file(&output);
     }
 
     report
@@ -222,14 +233,14 @@ fn process_page(
     input: &Path,
     output: &Path,
 ) -> Result<bool, String> {
-    let text = fs::read_to_string(input).map_err(|e| format!("read: {e}"))?;
+    let text = read_to_string(input).map_err(|e| format!("read: {e}"))?;
     let Some(json) = (stage.process)(code, &text)? else {
         return Ok(false);
     };
-    serde_json::from_str::<serde_json::Value>(&json).map_err(|e| format!("output: {e}"))?;
+    from_str::<Value>(&json).map_err(|e| format!("output: {e}"))?;
     let mut pretty = pretty_json(&json);
     pretty.push('\n');
-    fs::write(output, pretty).map_err(|e| format!("{}: {e}", output.display()))?;
+    write(output, pretty).map_err(|e| format!("{}: {e}", output.display()))?;
     Ok(true)
 }
 
@@ -244,7 +255,7 @@ fn error_key(error: &str) -> String {
 
 /// The files in `dir` with `extension`, sorted by name.
 fn files(dir: &Path, extension: &str) -> Result<Vec<PathBuf>, String> {
-    let mut files: Vec<PathBuf> = fs::read_dir(dir)
+    let mut files: Vec<PathBuf> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok().map(|entry| entry.path()))
         .filter(|path| path.extension().is_some_and(|ext| ext == extension))
@@ -255,11 +266,18 @@ fn files(dir: &Path, extension: &str) -> Result<Vec<PathBuf>, String> {
 
 #[cfg(test)]
 mod tests {
+    use env::temp_dir as env_temp_dir;
+    use fs::create_dir_all;
+    use fs::read_to_string;
+    use fs::remove_dir_all;
+    use fs::write;
+    use process::id;
+
     use super::*;
 
     fn temp_dir(name: &str) -> PathBuf {
-        let dir = env::temp_dir().join(format!("offer-details-{name}-{}", process::id()));
-        let _ = fs::remove_dir_all(&dir);
+        let dir = env_temp_dir().join(format!("offer-details-{name}-{}", id()));
+        let _ = remove_dir_all(&dir);
         dir
     }
 
@@ -282,14 +300,14 @@ mod tests {
     #[test]
     fn writes_documents_and_removes_stale_files() {
         let dir = temp_dir("stage");
-        fs::create_dir_all(dir.join("in")).unwrap();
-        fs::create_dir_all(dir.join("out")).unwrap();
-        fs::write(dir.join("in/a.txt"), r#"{"b":1,"a":[]}"#).unwrap();
-        fs::write(dir.join("in/b.txt"), "none").unwrap();
-        fs::write(dir.join("in/c.txt"), "fail").unwrap();
-        fs::write(dir.join("in/skip.html"), "{}").unwrap();
-        fs::write(dir.join("out/b.json"), "stale").unwrap();
-        fs::write(dir.join("out/c.json"), "stale").unwrap();
+        create_dir_all(dir.join("in")).unwrap();
+        create_dir_all(dir.join("out")).unwrap();
+        write(dir.join("in/a.txt"), r#"{"b":1,"a":[]}"#).unwrap();
+        write(dir.join("in/b.txt"), "none").unwrap();
+        write(dir.join("in/c.txt"), "fail").unwrap();
+        write(dir.join("in/skip.html"), "{}").unwrap();
+        write(dir.join("out/b.json"), "stale").unwrap();
+        write(dir.join("out/c.json"), "stale").unwrap();
 
         let report = process_retailer(&ECHO, "ankerau", RetailerCode::AnkerAu, &dir);
 
@@ -298,25 +316,25 @@ mod tests {
         assert_eq!(report.without_document, 1);
         assert_eq!(report.errors["failed"], ["c"]);
         assert_eq!(
-            fs::read_to_string(dir.join("out/a.json")).unwrap(),
+            read_to_string(dir.join("out/a.json")).unwrap(),
             "{\n  \"b\": 1,\n  \"a\": []\n}\n"
         );
         assert!(!dir.join("out/b.json").exists());
         assert!(!dir.join("out/c.json").exists());
-        fs::remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).unwrap();
     }
 
     #[test]
     fn invalid_json_is_an_error() {
         let dir = temp_dir("invalid");
-        fs::create_dir_all(dir.join("in")).unwrap();
-        fs::write(dir.join("in/a.txt"), "not json").unwrap();
+        create_dir_all(dir.join("in")).unwrap();
+        write(dir.join("in/a.txt"), "not json").unwrap();
 
         let report = process_retailer(&ECHO, "ankerau", RetailerCode::AnkerAu, &dir);
 
         assert_eq!(report.written, 0);
         assert!(report.errors.keys().all(|key| key.starts_with("output: ")));
-        fs::remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).unwrap();
     }
 
     #[test]

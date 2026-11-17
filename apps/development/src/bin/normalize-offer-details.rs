@@ -7,11 +7,12 @@
 //! folder with extracted pages is processed.
 
 use development::offer_details::{self, Stage};
+use offer_details::main as offer_details_main;
 use retailer_data_extractor::normalize_for;
 use shared::retailer::RetailerCode;
 
 fn main() {
-    offer_details::main(&Stage {
+    offer_details_main(&Stage {
         name: "normalize-offer-details",
         input: "extracted",
         input_extension: "json",

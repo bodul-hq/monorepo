@@ -1,10 +1,23 @@
 //! Reporting access stays private to the development server, never in a public client crate.
+
+use chrono::DateTime;
+use chrono::Duration as ChronoDuration;
+use chrono::NaiveDate;
+use chrono::NaiveTime;
+use chrono::Utc;
+use reqwest::Error as ReqwestError;
+use reqwest::redirect::Policy;
+use reqwest::retry::never as retry_never;
 use reqwest::{
     Client, Url,
     header::{AUTHORIZATION, HeaderValue},
 };
 use serde::Deserialize;
+use serde::Deserializer;
+use serde::de::DeserializeOwned;
+use std::env::var;
 use std::time::Duration;
+use tokio::join;
 
 const PATH: &str = "/api/reporting/database-tables";
 const SOURCING_TOKEN: &str = "8bcb74f24405708e90b0aa1be5679f422ea2ba199ae8ab0d0f1e80acd8c9c97d";
@@ -45,34 +58,34 @@ pub(super) struct EntryStatuses {
     pub command_entries: Vec<StatusCount>,
     pub event_entries: Vec<StatusCount>,
 }
-fn present_window_bound<'de, D: serde::Deserializer<'de>>(
+fn present_window_bound<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<String>, D::Error> {
     String::deserialize(deserializer).map(Some)
 }
 
 impl EntryStatuses {
-    pub(super) fn window_date(&self) -> Result<Option<chrono::NaiveDate>, ReportError> {
+    pub(super) fn window_date(&self) -> Result<Option<NaiveDate>, ReportError> {
         let (start, end) = match (&self.window_start, &self.window_end) {
             (None, None) => return Ok(None),
             (Some(start), Some(end)) => (start, end),
             _ => return Err(ReportError::Malformed),
         };
         let parse = |value: &str| {
-            chrono::DateTime::parse_from_rfc3339(value)
-                .map(|time| time.with_timezone(&chrono::Utc))
+            DateTime::parse_from_rfc3339(value)
+                .map(|time| time.with_timezone(&Utc))
                 .map_err(|_| ReportError::Malformed)
         };
         let start = parse(start)?;
         let end = parse(end)?;
-        if start.time() != chrono::NaiveTime::MIN || end - start != chrono::Duration::days(1) {
+        if start.time() != NaiveTime::MIN || end - start != ChronoDuration::days(1) {
             return Err(ReportError::Malformed);
         }
         Ok(Some(start.date_naive()))
     }
 }
 // Missing fields identify older servers; present null or non-array fields are invalid.
-fn present_entries<'de, D: serde::Deserializer<'de>>(
+fn present_entries<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<Vec<StatusCount>>, D::Error> {
     Vec::deserialize(deserializer).map(Some)
@@ -111,9 +124,8 @@ pub(super) struct ReportingClients {
     customer_facing_entries: Result<Endpoint, ReportError>,
 }
 impl ReportingClients {
-    pub(super) fn from_env() -> Result<Self, reqwest::Error> {
-        let env =
-            |name: &str, default: &str| std::env::var(name).unwrap_or_else(|_| default.into());
+    pub(super) fn from_env() -> Result<Self, ReqwestError> {
+        let env = |name: &str, default: &str| var(name).unwrap_or_else(|_| default.into());
         Self::new(
             &env("RETAILER_SOURCING_URL", "http://172.28.100.40:3000"),
             &env("RETAILER_SOURCING_TOKEN", SOURCING_TOKEN),
@@ -147,12 +159,12 @@ impl ReportingClients {
         storage_url: &str,
         storage_token: &str,
         timeout: Duration,
-    ) -> Result<Self, reqwest::Error> {
+    ) -> Result<Self, ReqwestError> {
         Ok(Self {
             http: Client::builder()
                 .timeout(timeout)
-                .redirect(reqwest::redirect::Policy::none())
-                .retry(reqwest::retry::never())
+                .redirect(Policy::none())
+                .retry(retry_never())
                 .build()?,
             customer_facing: Err(ReportError::Configuration),
             customer_facing_entries: Err(ReportError::Configuration),
@@ -217,7 +229,7 @@ impl ReportingClients {
     pub(super) async fn reports(
         &self,
     ) -> (Result<Report, ReportError>, Result<Report, ReportError>) {
-        tokio::join!(self.fetch(&self.sourcing), self.fetch(&self.storage))
+        join!(self.fetch(&self.sourcing), self.fetch(&self.storage))
     }
     pub(super) async fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
         self.fetch_entry_statuses(&self.entries).await
@@ -241,7 +253,7 @@ impl ReportingClients {
         }
         Ok(report)
     }
-    async fn fetch_json<T: serde::de::DeserializeOwned>(
+    async fn fetch_json<T: DeserializeOwned>(
         &self,
         endpoint: &Result<Endpoint, ReportError>,
     ) -> Result<T, ReportError> {

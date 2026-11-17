@@ -7,9 +7,19 @@
 //! Configure the services using `RETAILER_SOURCING_URL`, `RETAILER_SOURCING_TOKEN`,
 //! `OBJECT_STORAGE_URL`, and `OBJECT_STORAGE_TOKEN`; see the app README for defaults.
 
+use env::args;
+use env::var;
+use fs::create_dir_all;
+use fs::write;
+use process::exit;
+use reqwest::Client as ReqwestClient;
+use reqwest::redirect::Policy;
+use reqwest::retry::never;
 use std::collections::HashMap;
+use std::error::Error as ErrorError;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
+use tokio::main as tokio_main;
 
 use object_storage_client::{Client as ObjectStorage, Transport, Uuid};
 use std::time::Duration;
@@ -56,35 +66,34 @@ enum Written {
     Older,
 }
 
-#[tokio::main]
+#[tokio_main]
 async fn main() {
     if let Err(error) = run().await {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 async fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: dump-offer-details <data_dir>")?;
-    let base_url = env::var("RETAILER_SOURCING_URL").unwrap_or_else(|_| DEFAULT_URL.to_string());
-    let token = env::var("RETAILER_SOURCING_TOKEN").unwrap_or_else(|_| DEFAULT_TOKEN.to_string());
+    let base_url = var("RETAILER_SOURCING_URL").unwrap_or_else(|_| DEFAULT_URL.to_string());
+    let token = var("RETAILER_SOURCING_TOKEN").unwrap_or_else(|_| DEFAULT_TOKEN.to_string());
     let endpoint = format!(
         "{}/api/development/offer-details/sources",
         base_url.trim_end_matches('/')
     );
-    let client = reqwest::Client::builder()
+    let client = ReqwestClient::builder()
         .timeout(Duration::from_secs(30))
-        .redirect(reqwest::redirect::Policy::none())
-        .retry(reqwest::retry::never())
+        .redirect(Policy::none())
+        .retry(never())
         .build()
         .map_err(|error| with_causes(&error))?;
-    let storage_url =
-        env::var("OBJECT_STORAGE_URL").unwrap_or_else(|_| DEFAULT_STORAGE_URL.to_string());
+    let storage_url = var("OBJECT_STORAGE_URL").unwrap_or_else(|_| DEFAULT_STORAGE_URL.to_string());
     let storage_token =
-        env::var("OBJECT_STORAGE_TOKEN").unwrap_or_else(|_| DEFAULT_STORAGE_TOKEN.to_string());
+        var("OBJECT_STORAGE_TOKEN").unwrap_or_else(|_| DEFAULT_STORAGE_TOKEN.to_string());
     let objects = ObjectStorage::with_http_client(
         client.clone(),
         &storage_url,
@@ -129,7 +138,7 @@ async fn run() -> Result<(), String> {
 }
 
 async fn fetch_page(
-    client: &reqwest::Client,
+    client: &ReqwestClient,
     endpoint: &str,
     token: &str,
     offset: usize,
@@ -155,7 +164,7 @@ async fn fetch_page(
 
 /// The error followed by each of its causes, since reqwest's own message leaves out why a request
 /// failed, such as the connection being refused.
-fn with_causes(error: &dyn std::error::Error) -> String {
+fn with_causes(error: &dyn ErrorError) -> String {
     let mut message = error.to_string();
     let mut source = error.source();
     while let Some(cause) = source {
@@ -203,8 +212,8 @@ async fn write_source(
     {
         return Err("object storage record does not match its source reference".into());
     }
-    fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    fs::write(&path, &record.payload).map_err(|e| format!("{}: {e}", path.display()))?;
+    create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    write(&path, &record.payload).map_err(|e| format!("{}: {e}", path.display()))?;
     written_urls.insert(path.clone(), source.url.clone());
     Ok(Written::Newest(path))
 }

@@ -1,16 +1,19 @@
 use super::*;
+use serde_json::Value;
+use serde_json::from_value as decode_json_value;
+use serde_json::json as serde_json_json;
 use std::{
     io::{Read, Write},
     net::TcpListener,
     thread,
 };
+use thread::JoinHandle;
+use thread::sleep;
+use thread::spawn;
+use tokio::join as tokio_join;
+use tokio::test as tokio_test;
 
-fn fixture(
-    status: u16,
-    body: &str,
-    token: &str,
-    delay: Duration,
-) -> (String, thread::JoinHandle<()>) {
+fn fixture(status: u16, body: &str, token: &str, delay: Duration) -> (String, JoinHandle<()>) {
     fixture_path(status, body, token, delay, PATH)
 }
 fn fixture_path(
@@ -19,13 +22,13 @@ fn fixture_path(
     token: &str,
     delay: Duration,
     path: &str,
-) -> (String, thread::JoinHandle<()>) {
+) -> (String, JoinHandle<()>) {
     let path = path.to_owned();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     let body = body.to_owned();
     let token = token.to_owned();
-    let handle = thread::spawn(move || {
+    let handle = spawn(move || {
         let (mut socket, _) = listener.accept().unwrap();
         socket
             .set_read_timeout(Some(Duration::from_secs(3)))
@@ -44,7 +47,7 @@ fn fixture_path(
                 .to_ascii_lowercase()
                 .contains(&format!("authorization: bearer {token}"))
         );
-        thread::sleep(delay);
+        sleep(delay);
         let _ = write!(
             socket,
             "HTTP/1.1 {status} Test\r\nContent-Type: application/json\r\nLocation: http://127.0.0.1:1/private\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
@@ -55,7 +58,7 @@ fn fixture_path(
 }
 const REPORT: &str = r#"{"schema_name":"public","generated_at":"2026-10-17T10:30:00Z","row_count_kind":"estimated","tables":[{"table_name":"records","row_count":12,"table_bytes":8192,"index_bytes":4096,"total_bytes":12288}]}"#;
 
-#[tokio::test]
+#[tokio_test]
 async fn authenticates_both_services_and_keeps_partial_results() {
     let (a, ah) = fixture(200, REPORT, "sourcing-token", Duration::ZERO);
     let (b, bh) = fixture(401, "private diagnostics", "storage-token", Duration::ZERO);
@@ -73,7 +76,7 @@ async fn authenticates_both_services_and_keeps_partial_results() {
     ah.join().unwrap();
     bh.join().unwrap();
 }
-#[tokio::test]
+#[tokio_test]
 async fn classifies_failures_without_exposing_upstream_content() {
     for (status, body, error) in [
         (503, "private diagnostics", ReportError::Unavailable),
@@ -93,7 +96,7 @@ async fn classifies_failures_without_exposing_upstream_content() {
         handle.join().unwrap();
     }
 }
-#[tokio::test]
+#[tokio_test]
 async fn times_out_and_rejects_invalid_configuration() {
     let (url, handle) = fixture(200, REPORT, "token", Duration::from_millis(200));
     let clients =
@@ -112,7 +115,7 @@ async fn times_out_and_rejects_invalid_configuration() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn fetches_authenticated_status_counts_and_handles_errors() {
     for (status, body, expected) in [
         (
@@ -149,7 +152,7 @@ async fn fetches_authenticated_status_counts_and_handles_errors() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn fetches_offers_reports_with_its_own_token_and_base_path() {
     let (url, handle) = fixture_path(
         200,
@@ -196,7 +199,7 @@ async fn fetches_offers_reports_with_its_own_token_and_base_path() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn customer_facing_reports_use_their_own_token_and_prefix() {
     for statuses in [false, true] {
         let path = if statuses {
@@ -234,7 +237,7 @@ async fn customer_facing_reports_use_their_own_token_and_prefix() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
     for statuses in [false, true] {
         let path = if statuses {
@@ -284,7 +287,7 @@ async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
                     clients.customer_facing_report().await.map(|_| ())
                 }
             };
-            let ((sourcing, _), customer) = tokio::join!(clients.reports(), customer);
+            let ((sourcing, _), customer) = tokio_join!(clients.reports(), customer);
             assert_eq!(sourcing.unwrap().tables[0].row_count, 12);
             assert_eq!(customer.unwrap_err(), expected);
             handle.join().unwrap();
@@ -306,31 +309,31 @@ async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
 
 #[test]
 fn new_queue_fields_distinguish_missing_empty_and_malformed() {
-    let base = serde_json::json!({"generated_at":"2026-10-29T12:00:00Z",
+    let base = serde_json_json!({"generated_at":"2026-10-29T12:00:00Z",
         "command_entries":[], "event_entries":[]});
-    let old: EntryStatuses = serde_json::from_value(base.clone()).unwrap();
+    let old: EntryStatuses = decode_json_value(base.clone()).unwrap();
     assert!(old.inbox_entries.is_none());
     assert!(old.outbox_entries.is_none());
     for field in ["inbox_entries", "outbox_entries"] {
         for bad in [
-            serde_json::Value::Null,
-            serde_json::json!({}),
-            serde_json::json!([{"status":0,"status_text":"received","count":-1}]),
+            Value::Null,
+            serde_json_json!({}),
+            serde_json_json!([{"status":0,"status_text":"received","count":-1}]),
         ] {
             let mut input = base.clone();
             input[field] = bad;
-            assert!(serde_json::from_value::<EntryStatuses>(input).is_err());
+            assert!(decode_json_value::<EntryStatuses>(input).is_err());
         }
     }
     let mut empty = base;
-    empty["inbox_entries"] = serde_json::json!([]);
-    empty["outbox_entries"] = serde_json::json!([]);
-    let empty: EntryStatuses = serde_json::from_value(empty).unwrap();
+    empty["inbox_entries"] = serde_json_json!([]);
+    empty["outbox_entries"] = serde_json_json!([]);
+    let empty: EntryStatuses = decode_json_value(empty).unwrap();
     assert!(empty.inbox_entries.unwrap().is_empty());
     assert!(empty.outbox_entries.unwrap().is_empty());
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn fetches_products_reports_with_its_own_token_and_base_path() {
     let (url, handle) = fixture_path(
         200,
@@ -377,7 +380,7 @@ async fn fetches_products_reports_with_its_own_token_and_base_path() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn fetches_training_reports_with_its_own_token_and_base_path() {
     let (url, handle) = fixture_path(
         200,
