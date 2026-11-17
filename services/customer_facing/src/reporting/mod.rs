@@ -4,6 +4,14 @@ mod store;
 #[cfg(test)]
 pub(crate) mod tests;
 
+use chrono::DateTime;
+use chrono::Utc;
+use diesel::QueryResult;
+use diesel::sql_query;
+use store::load as store_load;
+use store::load_entry_statuses_at;
+use tokio::task::spawn_blocking;
+
 use std::{sync::Arc, time::Duration};
 
 use diesel::{PgConnection, RunQueryDsl};
@@ -25,23 +33,20 @@ pub trait Repository: Send + Sync {
 
 struct PostgresRepository {
     pool: DbPool,
-    clock: fn() -> chrono::DateTime<chrono::Utc>,
+    clock: fn() -> DateTime<Utc>,
 }
 
 impl PostgresRepository {
     fn read<T>(
         &self,
-        load: impl FnOnce(&mut PgConnection) -> diesel::QueryResult<T>,
+        load: impl FnOnce(&mut PgConnection) -> QueryResult<T>,
     ) -> Result<T, ReportError> {
         let mut connection = self
             .pool
             .get_timeout(Duration::from_secs(3))
             .map_err(|_| ReportError::Unavailable)?;
         load(&mut connection).map_err(|_| {
-            if diesel::sql_query("SELECT 1")
-                .execute(&mut connection)
-                .is_err()
-            {
+            if sql_query("SELECT 1").execute(&mut connection).is_err() {
                 ReportError::Unavailable
             } else {
                 ReportError::Query
@@ -52,11 +57,11 @@ impl PostgresRepository {
 
 impl Repository for PostgresRepository {
     fn database_tables(&self) -> Result<DatabaseTables, ReportError> {
-        self.read(store::load)
+        self.read(store_load)
     }
 
     fn entry_statuses(&self) -> Result<EntryStatuses, ReportError> {
-        self.read(|connection| store::load_entry_statuses_at(connection, (self.clock)()))
+        self.read(|connection| load_entry_statuses_at(connection, (self.clock)()))
     }
 }
 
@@ -69,13 +74,10 @@ impl Reporting {
     }
 
     pub fn postgres(pool: DbPool) -> Self {
-        Self::postgres_with_clock(pool, chrono::Utc::now)
+        Self::postgres_with_clock(pool, Utc::now)
     }
 
-    pub(crate) fn postgres_with_clock(
-        pool: DbPool,
-        clock: fn() -> chrono::DateTime<chrono::Utc>,
-    ) -> Self {
+    pub(crate) fn postgres_with_clock(pool: DbPool, clock: fn() -> DateTime<Utc>) -> Self {
         Self::new(Arc::new(PostgresRepository { pool, clock }))
     }
 
@@ -84,7 +86,7 @@ impl Reporting {
         load: impl FnOnce(&dyn Repository) -> Result<T, ReportError> + Send + 'static,
     ) -> Result<T, ReportError> {
         let repository = self.0.clone();
-        tokio::task::spawn_blocking(move || load(repository.as_ref()))
+        spawn_blocking(move || load(repository.as_ref()))
             .await
             .map_err(|_| ReportError::Query)?
     }

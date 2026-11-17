@@ -1,3 +1,17 @@
+use crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENT_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT;
+use crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT;
+use crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT;
+use crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT;
+use crate::offers::event::OFFER_PRICING_CHANGED_EVENT;
+use diesel::sql_query;
+use serde_json::json as serde_json_json;
+use sql_types::Jsonb;
+use sql_types::Text;
+use sql_types::Uuid;
+use std::fmt::Display;
+
 use diesel::{RunQueryDsl, sql_types};
 use kernel::{EventError, EventSubscriberPort, NewEventEnvelope};
 use testimony_infra::prelude::DbPool;
@@ -26,13 +40,13 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | OFFER_PRICE_CHANGED_EVENT
                 | OFFER_IMAGE_ADDED_EVENT
                 | OFFER_SCRAPED_AT_UPDATED_EVENT
-                | crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT
-                | crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT
-                | crate::offers::event::OFFER_PRICING_CHANGED_EVENT
-                | crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT
-                | crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT
-                | crate::offers::event::OFFER_CONTENT_CHANGED_EVENT
-                | crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT
+                | OFFER_LOCALIZATION_CHANGED_EVENT
+                | OFFER_IDENTIFIERS_CHANGED_EVENT
+                | OFFER_PRICING_CHANGED_EVENT
+                | OFFER_AVAILABILITY_CHANGED_EVENT
+                | OFFER_ITEM_CONDITION_CHANGED_EVENT
+                | OFFER_CONTENT_CHANGED_EVENT
+                | OFFER_CONTENTS_CHANGED_EVENT
         ) {
             return Ok(());
         }
@@ -40,7 +54,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             .metadata
             .as_ref()
             .ok_or_else(err_missing_metadata)?;
-        let mut meta = serde_json::json!({
+        let mut meta = serde_json_json!({
             "event_id": metadata.event_id,
             "message_id": metadata.event_id,
             "correlation_id": metadata.correlation_id,
@@ -51,17 +65,17 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             "content_type": "application/json",
         });
         if let Some(sequence) = metadata.sequence {
-            meta["sequence"] = serde_json::json!(sequence);
+            meta["sequence"] = serde_json_json!(sequence);
         }
         let mut connection = self.pool.get().map_err(err_outbox_write_failed)?;
         // The source event ID makes re-delivery of the same event idempotent.
-        diesel::sql_query(
+        sql_query(
             "INSERT INTO outbox_entries (id, payload, meta) VALUES ($1, $2, $3) \
              ON CONFLICT (id) DO NOTHING",
         )
-        .bind::<sql_types::Uuid, _>(metadata.event_id)
-        .bind::<sql_types::Text, _>(&envelope.payload)
-        .bind::<sql_types::Jsonb, _>(meta)
+        .bind::<Uuid, _>(metadata.event_id)
+        .bind::<Text, _>(&envelope.payload)
+        .bind::<Jsonb, _>(meta)
         .execute(&mut connection)
         .map_err(err_outbox_write_failed)?;
         Ok(())
@@ -74,23 +88,32 @@ fn err_missing_metadata() -> EventError {
     )
 }
 
-fn err_outbox_write_failed(error: impl std::fmt::Display) -> EventError {
+fn err_outbox_write_failed(error: impl Display) -> EventError {
     EventError::SubscriberExecution(format!("customer-facing outbox write failed: {error}"))
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT as OffersEventOFFER_AVAILABILITY_CHANGED_EVENT;
+    use crate::offers::event::OFFER_CONTENT_CHANGED_EVENT as OffersEventOFFER_CONTENT_CHANGED_EVENT;
+    use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT as OffersEventOFFER_CONTENTS_CHANGED_EVENT;
+    use crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT as OffersEventOFFER_ITEM_CONDITION_CHANGED_EVENT;
+    use crate::offers::event::OFFER_PRICING_CHANGED_EVENT as OffersEventOFFER_PRICING_CHANGED_EVENT;
+    use crate::test_pool;
+    use kernel::NewEventMetadata;
+    use uuid::Uuid as UuidUuid;
+
     use super::*;
 
     #[test]
     fn requires_metadata_for_offer_events_and_ignores_unrelated_events() {
-        let subscriber = CustomerFacingSubscriber::new(crate::test_pool());
+        let subscriber = CustomerFacingSubscriber::new(test_pool());
         for event_type in [
-            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
-            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
-            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
-            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
-            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            OffersEventOFFER_PRICING_CHANGED_EVENT,
+            OffersEventOFFER_AVAILABILITY_CHANGED_EVENT,
+            OffersEventOFFER_ITEM_CONDITION_CHANGED_EVENT,
+            OffersEventOFFER_CONTENT_CHANGED_EVENT,
+            OffersEventOFFER_CONTENTS_CHANGED_EVENT,
             OFFER_IMAGE_ADDED_EVENT,
             OFFER_CREATED_EVENT,
             OFFER_TITLE_CHANGED_EVENT,
@@ -118,13 +141,13 @@ mod tests {
 
     #[test]
     fn propagates_outbox_storage_failure() {
-        let subscriber = CustomerFacingSubscriber::new(crate::test_pool());
+        let subscriber = CustomerFacingSubscriber::new(test_pool());
         let envelope = NewEventEnvelope {
             event_type: OFFER_CREATED_EVENT.to_owned(),
             payload: "{}".to_owned(),
-            metadata: Some(kernel::NewEventMetadata {
+            metadata: Some(NewEventMetadata {
                 sequence: None,
-                event_id: uuid::Uuid::new_v4(),
+                event_id: UuidUuid::new_v4(),
                 correlation_id: None,
                 causation_id: None,
                 source: None,

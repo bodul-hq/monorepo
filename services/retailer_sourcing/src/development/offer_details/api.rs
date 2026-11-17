@@ -1,5 +1,8 @@
 //! HTTP entry point: lists downloaded offer metadata, a page at a time.
 
+use diesel::sql_query;
+use tokio::task::spawn_blocking;
+
 use axum::Json;
 use axum::extract::{Query, State};
 use axum::http::StatusCode;
@@ -106,7 +109,7 @@ pub async fn list_sources(State(state): State<AppState>, Query(page): Query<Page
     };
 
     // Diesel's connections block, so query off the async runtime.
-    match tokio::task::spawn_blocking(move || load_sources(&db, &page)).await {
+    match spawn_blocking(move || load_sources(&db, &page)).await {
         Ok(Ok(sources)) => Json(OfferSourcesResponse { sources }).into_response(),
         Ok(Err(message)) => error(StatusCode::INTERNAL_SERVER_ERROR, message),
         Err(join) => error(StatusCode::INTERNAL_SERVER_ERROR, join.to_string()),
@@ -115,7 +118,7 @@ pub async fn list_sources(State(state): State<AppState>, Query(page): Query<Page
 
 fn load_sources(db: &DbPool, page: &Page) -> Result<Vec<OfferSource>, String> {
     let mut connection = db.get().map_err(|error| error.to_string())?;
-    let records = diesel::sql_query(SOURCES_QUERY)
+    let records = sql_query(SOURCES_QUERY)
         .bind::<BigInt, _>(i64::from(page.limit))
         .bind::<BigInt, _>(i64::from(page.offset))
         .load::<SourceRecord>(&mut connection)
@@ -139,6 +142,12 @@ fn error(status: StatusCode, error: String) -> Response {
 
 #[cfg(test)]
 mod postgres_tests {
+    use crate::app as imported_app;
+    use crate::platform::auth::BEARER_TOKEN;
+    use diesel::sql_query as diesel_sql_query;
+    use serde_json::from_slice;
+    use tokio::runtime::Runtime;
+
     use super::*;
     use crate::platform::test_db::Database;
     use axum::body::Body;
@@ -151,7 +160,7 @@ mod postgres_tests {
     #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
     fn source_route_returns_storage_metadata_without_object_storage() {
         let db = Database::new();
-        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let runtime = Runtime::new().unwrap();
         let id = Uuid::now_v7();
         let offer = Uuid::now_v7();
         let body = "<html>ž 🔎</html>";
@@ -161,20 +170,17 @@ mod postgres_tests {
             object_storage_id: Uuid::now_v7(),
             external_id: Uuid::now_v7(),
         };
-        diesel::sql_query("INSERT INTO offer_details_raw (id,offer_id,url,retailer_code,storage) VALUES ($1,$2,'https://shop.test/a','ankerau',$3)")
+        diesel_sql_query("INSERT INTO offer_details_raw (id,offer_id,url,retailer_code,storage) VALUES ($1,$2,'https://shop.test/a','ankerau',$3)")
             .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(offer)
             .bind::<Jsonb,_>(DbJson(storage)).execute(&mut db.pool.get().unwrap()).unwrap();
-        let app = crate::app(AppState {
+        let app = imported_app(AppState {
             db: Some(db.pool.clone()),
             ..Default::default()
         });
         let request = || {
             Request::builder()
                 .uri("/api/development/offer-details/sources?limit=1")
-                .header(
-                    "authorization",
-                    format!("Bearer {}", crate::platform::auth::BEARER_TOKEN),
-                )
+                .header("authorization", format!("Bearer {}", BEARER_TOKEN))
                 .body(Body::empty())
                 .unwrap()
         };
@@ -184,7 +190,7 @@ mod postgres_tests {
             .block_on(response.into_body().collect())
             .unwrap()
             .to_bytes();
-        let value: Value = serde_json::from_slice(&bytes).unwrap();
+        let value: Value = from_slice(&bytes).unwrap();
         assert_eq!(
             value,
             json!({"sources":[{"id":id,"offer_id":offer,"url":"https://shop.test/a","retailer_code":"ankerau","storage":storage}]})

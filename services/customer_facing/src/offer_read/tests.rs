@@ -1,3 +1,8 @@
+use crate::app;
+use crate::queue_tests::state as queue_tests_state;
+use poem::Route;
+use serde_json::to_value;
+
 use super::*;
 use poem::{http::StatusCode, test::TestClient};
 use serde_json::{Value, json};
@@ -68,10 +73,10 @@ fn fixture(index: u128) -> Offer {
     }
 }
 
-fn client(offers: Offers) -> TestClient<poem::Route> {
-    let mut state = crate::queue_tests::state();
+fn client(offers: Offers) -> TestClient<Route> {
+    let mut state = queue_tests_state();
     state.offers = offers;
-    TestClient::new(crate::app(state))
+    TestClient::new(app(state))
 }
 
 #[tokio::test]
@@ -378,7 +383,7 @@ fn current_region_api_uses_code_for_new_and_historical_eu() {
     ] {
         let localization = OfferLocalization::from_record(Some(market), Some("en".into())).unwrap();
         assert_eq!(
-            serde_json::to_value(localization).unwrap(),
+            to_value(localization).unwrap(),
             json!({"target_market":{"kind":"region","code":"eu","label":null},"language":"en"})
         );
     }

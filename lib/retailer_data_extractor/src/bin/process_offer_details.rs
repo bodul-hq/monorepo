@@ -13,12 +13,26 @@
 //! Usage: `process_offer_details <data_dir> [retailer ...]`, where each retailer is a folder
 //! name such as `ankerau`. With none given, every retailer folder in `data_dir` is processed.
 
+use env::args as env_args;
+use fs::create_dir_all;
+use fs::read_dir;
+use fs::read_to_string;
+use fs::remove_file;
+use fs::write;
+use process::exit;
+use serde_json::from_str;
+use thread::Builder;
+use thread::scope as thread_scope;
+
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process, thread};
 
 use html_extractor::serde_json::{self, Value};
-use retailer_data_extractor::{extract_for, normalize_for, pretty_json, structuralize_for};
+use retailer_data_extractor::{
+    extract_offer_details_for, normalize_offer_details_for, pretty_json,
+    structuralize_offer_details_for,
+};
 use shared::prelude::RetailerCode;
 
 const STAGES: [&str; 3] = ["extracted", "normalized", "structurized"];
@@ -35,17 +49,17 @@ const STACK_SIZE: usize = 64 * 1024 * 1024;
 fn main() {
     match run() {
         Ok(true) => {}
-        Ok(false) => process::exit(1),
+        Ok(false) => exit(1),
         Err(error) => {
             eprintln!("error: {error}");
-            process::exit(2);
+            exit(2);
         }
     }
 }
 
 /// Returns whether every page of every retailer passed every stage it has.
 fn run() -> Result<bool, String> {
-    let mut args = env::args().skip(1);
+    let mut args = env_args().skip(1);
     let data_dir = PathBuf::from(
         args.next()
             .ok_or("usage: process_offer_details <data_dir> [retailer ...]")?,
@@ -60,11 +74,11 @@ fn run() -> Result<bool, String> {
         ));
     }
 
-    let reports: Vec<Report> = thread::scope(|scope| {
+    let reports: Vec<Report> = thread_scope(|scope| {
         let handles: Vec<_> = retailers
             .iter()
             .map(|(code, dir)| {
-                thread::Builder::new()
+                Builder::new()
                     .stack_size(STACK_SIZE)
                     .spawn_scoped(scope, move || process_retailer(*code, dir))
                     .expect("spawn a retailer thread")
@@ -87,7 +101,7 @@ fn run() -> Result<bool, String> {
 /// The retailer folders to process, with their codes, sorted by name.
 fn retailers(data_dir: &Path, wanted: &[String]) -> Result<Vec<(RetailerCode, PathBuf)>, String> {
     let names: Vec<String> = if wanted.is_empty() {
-        let mut names: Vec<String> = fs::read_dir(data_dir)
+        let mut names: Vec<String> = read_dir(data_dir)
             .map_err(|e| format!("{}: {e}", data_dir.display()))?
             .filter_map(|entry| entry.ok())
             .filter(|entry| entry.path().join("offer_details/sources").is_dir())
@@ -156,7 +170,7 @@ fn process_retailer(code: RetailerCode, dir: &Path) -> Report {
 
     for stage in STAGES {
         let stage_dir = dir.join(stage);
-        if let Err(e) = fs::create_dir_all(&stage_dir) {
+        if let Err(e) = create_dir_all(&stage_dir) {
             report
                 .errors
                 .entry(format!("{}: {e}", stage_dir.display()))
@@ -188,7 +202,7 @@ fn process_retailer(code: RetailerCode, dir: &Path) -> Report {
         }
         // Whatever an earlier run left for the stages this one did not reach is stale.
         for stage in &STAGES[written.stages..] {
-            let _ = fs::remove_file(dir.join(stage).join(&stem).with_extension("json"));
+            let _ = remove_file(dir.join(stage).join(&stem).with_extension("json"));
         }
         if let Some(error) = written.error {
             report
@@ -220,13 +234,14 @@ struct Written {
 fn process_page(code: RetailerCode, dir: &Path, source: &Path, stem: &str) -> Written {
     let mut stages = 0;
     let error = (|| {
-        let html = fs::read_to_string(source).map_err(|e| format!("read: {e}"))?;
+        let html = read_to_string(source).map_err(|e| format!("read: {e}"))?;
 
-        let extracted = extract_for(code, &html).map_err(|e| format!("extract: {e}"))?;
+        let extracted =
+            extract_offer_details_for(code, &html).map_err(|e| format!("extract: {e}"))?;
         write_pretty(&dir.join("extracted"), stem, &extracted)?;
         stages += 1;
 
-        let Some(normalized) = normalize_for(code, &extracted) else {
+        let Some(normalized) = normalize_offer_details_for(code, &extracted) else {
             return Ok(());
         };
         let normalized = normalized.map_err(|e| format!("normalize: {e}"))?;
@@ -236,7 +251,7 @@ fn process_page(code: RetailerCode, dir: &Path, source: &Path, stem: &str) -> Wr
         write_pretty(&dir.join("normalized"), stem, &normalized)?;
         stages += 1;
 
-        let Some(structuralized) = structuralize_for(code, &normalized) else {
+        let Some(structuralized) = structuralize_offer_details_for(code, &normalized) else {
             return Ok(());
         };
         let structuralized = structuralized.map_err(|e| format!("structuralize: {e}"))?;
@@ -255,7 +270,7 @@ fn process_page(code: RetailerCode, dir: &Path, source: &Path, stem: &str) -> Wr
 
 /// The `.html` files in `dir`, sorted by name.
 fn html_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut files: Vec<PathBuf> = fs::read_dir(dir)
+    let mut files: Vec<PathBuf> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok().map(|entry| entry.path()))
         .filter(|path| path.extension().is_some_and(|ext| ext == "html"))
@@ -266,10 +281,10 @@ fn html_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
 
 /// Writes `json` pretty-printed to `<dir>/<stem>.json`, its keys in the order they arrive.
 fn write_pretty(dir: &Path, stem: &str, json: &str) -> Result<(), String> {
-    serde_json::from_str::<Value>(json).map_err(|e| format!("output: {e}"))?;
+    from_str::<Value>(json).map_err(|e| format!("output: {e}"))?;
     let mut pretty = pretty_json(json);
     pretty.push('\n');
 
     let path = dir.join(stem).with_extension("json");
-    fs::write(&path, pretty).map_err(|e| format!("{}: {e}", path.display()))
+    write(&path, pretty).map_err(|e| format!("{}: {e}", path.display()))
 }

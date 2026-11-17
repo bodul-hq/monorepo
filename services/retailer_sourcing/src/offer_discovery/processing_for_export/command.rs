@@ -1,3 +1,6 @@
+use chrono::DateTime;
+use chrono::Utc;
+
 use serde::{Deserialize, Serialize};
 use shared::retailer::RetailerCode;
 use uuid::Uuid;
@@ -8,7 +11,7 @@ use crate::platform::object_storage::OfferStorageMetadata;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ProcessOfferForExport {
     #[serde(default)]
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
     #[serde(default = "super::entity::legacy_schema_version")]
     pub schema_version: u32,
     pub offer_id: Uuid,

@@ -1,5 +1,10 @@
 //! Explicit queue batches. Mulac owns validation, blocking work, and retries.
 
+use crate::offer_projection::consumer as offer_projection_consumer;
+use crate::offer_read::Offers;
+use crate::reporting::Reporting;
+use kernel::boot;
+
 use commanding::prelude::AsyncCommandingService;
 use commanding::prelude::poem::{CommandingAdapter, RunRequest, RunResponse};
 use eventing::prelude::AsyncEventingService;
@@ -13,8 +18,8 @@ use poem_openapi::{OpenApi, payload::Json};
 
 #[derive(Clone)]
 pub struct AppState {
-    pub reporting: crate::reporting::Reporting,
-    pub offers: crate::offer_read::Offers,
+    pub reporting: Reporting,
+    pub offers: Offers,
     pub inbox: InboxAdapter,
     pub commands: CommandingAdapter,
     pub events: EventingAdapter,
@@ -24,8 +29,8 @@ pub struct AppState {
 impl AppState {
     pub fn from_kernel(pool: DbPool, kernel: &PersistentKernelHandle) -> Self {
         Self {
-            reporting: crate::reporting::Reporting::postgres(pool.clone()),
-            offers: crate::offer_read::Offers::postgres(pool.clone()),
+            reporting: Reporting::postgres(pool.clone()),
+            offers: Offers::postgres(pool.clone()),
             inbox: InboxAdapter::new(AsyncInboxService::from_postgres(pool)),
             commands: CommandingAdapter::new(AsyncCommandingService::new(
                 kernel.command_consumer(),
@@ -37,13 +42,12 @@ impl AppState {
 }
 
 pub fn start_mulac(pool: DbPool) -> Result<(PersistentKernelHandle, AppState), KernelError> {
-    let kernel = kernel::boot(KernelConfig::default()).start_persistent(pool.clone(), 0)?;
+    let kernel = boot(KernelConfig::default()).start_persistent(pool.clone(), 0)?;
     let mut state = AppState::from_kernel(pool.clone(), &kernel);
     // The typed kernel handler wrapper omits incoming metadata. Assemble the
     // same Mulac consumer with an envelope handler to retain the inbox identity.
-    state.commands = CommandingAdapter::new(AsyncCommandingService::new(
-        crate::offer_projection::consumer(pool),
-    ));
+    state.commands =
+        CommandingAdapter::new(AsyncCommandingService::new(offer_projection_consumer(pool)));
     Ok((kernel, state))
 }
 

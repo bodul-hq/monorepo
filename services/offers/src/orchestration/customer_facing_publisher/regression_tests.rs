@@ -1,3 +1,11 @@
+use axum::serve as axum_serve;
+use serde_json::from_slice;
+use serde_json::to_vec;
+use tokio::net::TcpListener;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::task::spawn_blocking;
+
 use super::*;
 use axum::http::StatusCode;
 use axum::{Json, Router, routing::post};
@@ -8,7 +16,7 @@ use uuid::Uuid;
 
 pub(crate) struct TestServer {
     pub url: String,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 
 impl Drop for TestServer {
@@ -18,17 +26,17 @@ impl Drop for TestServer {
 }
 
 pub(crate) async fn serve(app: Router) -> TestServer {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
+    let task = spawn(async move {
+        axum_serve(listener, app).await.unwrap();
     });
     TestServer { url, task }
 }
 
 pub(crate) fn envelope() -> OutboundMessageEnvelope {
     OutboundMessageEnvelope {
-        payload: serde_json::to_vec(&json!({
+        payload: to_vec(&json!({
             "id":Uuid::now_v7(), "created_at":"2026-10-24T12:00:00Z",
             "retailer_code":"AnkerAu", "title":" USB charger ž ",
             "price":{"amount":9007199254740993_i64,"currency":"AUD"},
@@ -53,7 +61,7 @@ async fn publish(
     publisher: CustomerFacingPublisher,
     message: OutboundMessageEnvelope,
 ) -> Result<(), OutboxError> {
-    tokio::task::spawn_blocking(move || publisher.publish(message))
+    spawn_blocking(move || publisher.publish(message))
         .await
         .unwrap()
 }
@@ -86,7 +94,7 @@ async fn preserves_the_command_and_delivery_identity_across_retries() {
     assert_eq!(
         requests[0],
         json!({
-            "payload":serde_json::from_slice::<Value>(&message.payload).unwrap(),
+            "payload":from_slice::<Value>(&message.payload).unwrap(),
             "routing_key":"OfferCreated", "message_id":message.metadata.message_id,
             "correlation_id":message.metadata.correlation_id, "source":"offers"
         })
@@ -116,7 +124,7 @@ async fn all_event_types_preserve_raw_payload_and_metadata() {
     for (event_type, payload) in [
         (
             OFFER_CREATED_EVENT,
-            serde_json::from_slice::<Value>(&envelope().payload).unwrap(),
+            from_slice::<Value>(&envelope().payload).unwrap(),
         ),
         (
             OFFER_TITLE_CHANGED_EVENT,
@@ -129,7 +137,7 @@ async fn all_event_types_preserve_raw_payload_and_metadata() {
     ] {
         let mut message = envelope();
         message.metadata.event_type = event_type.into();
-        message.payload = serde_json::to_vec(&payload).unwrap();
+        message.payload = to_vec(&payload).unwrap();
         message.metadata.source = Some(" original source ".into());
         publish(publisher.clone(), message.clone()).await.unwrap();
         let expected = json!({"routing_key":event_type,"payload":payload,
@@ -167,9 +175,9 @@ fn rejects_unknown_types_and_malformed_event_fields() {
         ("url", json!(true)),
     ] {
         let mut message = envelope();
-        let mut payload: Value = serde_json::from_slice(&message.payload).unwrap();
+        let mut payload: Value = from_slice(&message.payload).unwrap();
         payload[field] = value;
-        message.payload = serde_json::to_vec(&payload).unwrap();
+        message.payload = to_vec(&payload).unwrap();
         assert!(
             CustomerFacingPublisher::submission(message).is_err(),
             "{field}"
@@ -182,13 +190,15 @@ fn rejects_unknown_types_and_malformed_event_fields() {
     ] {
         let mut message = envelope();
         message.metadata.event_type = event_type.into();
-        message.payload = serde_json::to_vec(&json!({"id":Uuid::now_v7()})).unwrap();
+        message.payload = to_vec(&json!({"id":Uuid::now_v7()})).unwrap();
         assert!(CustomerFacingPublisher::submission(message).is_err());
     }
 }
 
 #[test]
 fn fact_event_submissions_preserve_nulls_and_raw_text_and_reject_partial_updates() {
+    use super::testing::envelope as testing_envelope;
+
     use crate::offers::event::{
         OFFER_AVAILABILITY_CHANGED_EVENT, OFFER_CONTENT_CHANGED_EVENT,
         OFFER_ITEM_CONDITION_CHANGED_EVENT, OFFER_PRICING_CHANGED_EVENT,
@@ -228,27 +238,32 @@ fn fact_event_submissions_preserve_nulls_and_raw_text_and_reject_partial_updates
             json!({"id":id,"content":{"description":null}}),
         ),
     ] {
-        let message = super::testing::envelope(event_type, &payload);
+        let message = testing_envelope(event_type, &payload);
         let submission = CustomerFacingPublisher::submission(message).unwrap();
         assert_eq!(submission.routing_key, event_type);
         assert_eq!(submission.payload, Some(payload));
-        let missing = super::testing::envelope(event_type, &json!({"id":id}));
+        let missing = testing_envelope(event_type, &json!({"id":id}));
         assert!(CustomerFacingPublisher::submission(missing).is_err());
     }
     for invalid in [
         json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"}}}),
         json!({"id":id,"pricing":{"price":{"amount":1999,"currency":"AUD"},"was_price":{"amount":2999,"currency":"USD"}}}),
     ] {
-        let message = super::testing::envelope(OFFER_PRICING_CHANGED_EVENT, &invalid);
+        let message = testing_envelope(OFFER_PRICING_CHANGED_EVENT, &invalid);
         assert!(CustomerFacingPublisher::submission(message).is_err());
     }
 }
 
 #[test]
 fn old_and_current_creation_and_contents_keep_raw_json_and_delivery_metadata() {
+    use super::testing::envelope as testing_envelope2;
+    use serde_json::from_slice as serde_json_from_slice;
+    use serde_json::to_value;
+    use serde_json::to_vec as serde_json_to_vec;
+
     use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT;
     let old_message = envelope();
-    let old: Value = serde_json::from_slice(&old_message.payload).unwrap();
+    let old: Value = serde_json_from_slice(&old_message.payload).unwrap();
     let mut new = old.clone();
     new["content"] =
         json!([{"language":null,"title":old["title"],"description":" <p>Exact ž</p>\n"}]);
@@ -261,11 +276,11 @@ fn old_and_current_creation_and_contents_keep_raw_json_and_delivery_metadata() {
         let mut message = old_message.clone();
         message.metadata.event_type = kind.into();
         message.metadata.sequence = Some(17);
-        message.payload = serde_json::to_vec(&payload).unwrap();
+        message.payload = serde_json_to_vec(&payload).unwrap();
         let request = CustomerFacingPublisher::submission(message.clone()).unwrap();
         assert_eq!(request.payload, Some(payload));
         assert_eq!(request.routing_key, kind);
-        let request = serde_json::to_value(request).unwrap();
+        let request = to_value(request).unwrap();
         assert_eq!(request["message_id"], json!(message.metadata.message_id));
         assert_eq!(
             request["correlation_id"],
@@ -278,7 +293,7 @@ fn old_and_current_creation_and_contents_keep_raw_json_and_delivery_metadata() {
         (contents["content"].clone(), json!("fr")),
     ] {
         let invalid = json!({"id":contents["id"],"content":content,"language":language});
-        let message = super::testing::envelope(OFFER_CONTENTS_CHANGED_EVENT, &invalid);
+        let message = testing_envelope2(OFFER_CONTENTS_CHANGED_EVENT, &invalid);
         assert!(CustomerFacingPublisher::submission(message).is_err());
     }
 }

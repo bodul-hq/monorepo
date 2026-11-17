@@ -1,3 +1,9 @@
+use diesel::sql_query;
+use serde_json::Value;
+use serde_json::from_value;
+use std::sync::Barrier;
+use std::thread::scope as std_thread_scope;
+
 use super::entity::ExtractedOffer;
 use super::handler::Store;
 use super::store::PgStore;
@@ -25,7 +31,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let input_storage = objects
         .create_offer(RAW_OFFERS_BUCKET, &input_body)
         .unwrap();
-    diesel::sql_query("INSERT INTO offer_details_raw (id,offer_id,storage,url,retailer_code) VALUES ($1,$2,$3,'https://shop.test/a','ankerau')")
+    sql_query("INSERT INTO offer_details_raw (id,offer_id,storage,url,retailer_code) VALUES ($1,$2,$3,'https://shop.test/a','ankerau')")
         .bind::<SqlUuid,_>(Uuid::now_v7()).bind::<SqlUuid,_>(offer_id)
         .bind::<Jsonb,_>(Json(input_storage)).execute(&mut conn).unwrap();
     let input = store.raw_offer(offer_id, None).unwrap().unwrap();
@@ -35,7 +41,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let replacement = objects
         .create_offer(RAW_OFFERS_BUCKET, "replacement")
         .unwrap();
-    diesel::sql_query("UPDATE offer_details_raw SET storage = $1 WHERE offer_id = $2")
+    sql_query("UPDATE offer_details_raw SET storage = $1 WHERE offer_id = $2")
         .bind::<Jsonb, _>(Json(replacement))
         .bind::<SqlUuid, _>(offer_id)
         .execute(&mut conn)
@@ -58,7 +64,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
         offer_id,
         document: json!({"value":"first ž"}),
     };
-    let mut previous: Option<serde_json::Value> = None;
+    let mut previous: Option<Value> = None;
     for value in [
         json!({"value":"first ž"}),
         json!({"value":"updated 🔎"}),
@@ -72,7 +78,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
             entity.document.to_string().len() as u64
         );
         let row = json_query(&mut conn, ROW);
-        let storage: OfferStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+        let storage: OfferStorageMetadata = from_value(row["storage"].clone()).unwrap();
         assert_eq!(stored.object_storage_id, storage.object_storage_id);
         assert_eq!(row["offer_id"], offer_id.to_string());
         assert_eq!(
@@ -148,7 +154,7 @@ fn postgres_failures_preserve_local_state() {
             .unwrap();
     }
     let storage = objects.create_offer(RAW_OFFERS_BUCKET, "null").unwrap();
-    diesel::sql_query("INSERT INTO offer_details_raw (id,offer_id,storage,url,retailer_code) VALUES ($1,$2,$3,'https://shop.test/a','ankerau')")
+    sql_query("INSERT INTO offer_details_raw (id,offer_id,storage,url,retailer_code) VALUES ($1,$2,$3,'https://shop.test/a','ankerau')")
         .bind::<SqlUuid,_>(Uuid::now_v7()).bind::<SqlUuid,_>(entity.offer_id)
         .bind::<Jsonb,_>(Json(storage)).execute(&mut conn).unwrap();
     for (status, body) in [(404, "{}"), (503, "{}"), (200, "malformed")] {
@@ -175,8 +181,8 @@ fn postgres_concurrent_updates_keep_identity_and_complete_references() {
     };
     store.store_extracted_offer(&entity).unwrap();
     let before = json_query(&mut db.pool.get().unwrap(), ROW);
-    let barrier = std::sync::Barrier::new(2);
-    std::thread::scope(|scope| {
+    let barrier = Barrier::new(2);
+    std_thread_scope(|scope| {
         for value in ["left", "right"] {
             let mut entity = entity.clone();
             entity.document = json!({"value":value});
@@ -190,7 +196,7 @@ fn postgres_concurrent_updates_keep_identity_and_complete_references() {
     });
     let after = json_query(&mut db.pool.get().unwrap(), ROW);
     assert_eq!(before["id"], after["id"]);
-    let storage: OfferStorageMetadata = serde_json::from_value(after["storage"].clone()).unwrap();
+    let storage: OfferStorageMetadata = from_value(after["storage"].clone()).unwrap();
     let body = objects
         .get_offer(EXTRACTED_OFFERS_BUCKET, &storage)
         .unwrap();

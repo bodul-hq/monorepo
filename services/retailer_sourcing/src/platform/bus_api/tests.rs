@@ -1,3 +1,23 @@
+use crate::app as imported_app;
+use crate::tests::assert_batch_errors;
+use crate::tests::assert_error_id;
+use commands::empty_consumer;
+use commands::failing_handler_consumer;
+use commands::failing_reservation_consumer;
+use commands::invalid_run_requests;
+use commands::panicking_consumer;
+use commands::queued_consumer;
+use commands::run_request_error_messages;
+use commands::valid_run_requests;
+use events::empty_consumer as events_empty_consumer;
+use events::failing_reservation_consumer as events_failing_reservation_consumer;
+use events::panicking_consumer as events_panicking_consumer;
+use events::partially_failing_consumer;
+use events::queued_consumer as events_queued_consumer;
+use header::CONTENT_TYPE;
+use serde_json::from_slice;
+use serde_json::from_str;
+
 use std::time::Duration;
 
 use axum::Router;
@@ -34,7 +54,7 @@ fn configured(
     let mut bus = Bus::default().start(pool).unwrap();
     bus.commands = CommandingAdapter::new(commands);
     bus.events = EventingAdapter::new(events);
-    crate::app(AppState {
+    imported_app(AppState {
         bus: Some(bus),
         ..AppState::default()
     })
@@ -48,7 +68,7 @@ pub(super) async fn send(
 ) -> (StatusCode, String) {
     let mut request = Request::post(path);
     if let Some(content_type) = content_type {
-        request = request.header(header::CONTENT_TYPE, content_type);
+        request = request.header(CONTENT_TYPE, content_type);
     }
     let response = app
         .clone()
@@ -64,32 +84,32 @@ pub(super) async fn run(app: &Router, path: &str, limit: usize) -> Value {
     let body = json!({"limit":limit}).to_string();
     let (status, text) = send(app, path, Some("application/json"), body).await;
     assert_eq!(status, StatusCode::OK, "{path}: {text}");
-    serde_json::from_str(&text).unwrap()
+    from_str(&text).unwrap()
 }
 
 #[tokio::test]
 async fn adapters_validate_before_checking_configuration() {
-    let available = configured(commands::empty_consumer(), events::empty_consumer());
-    let unavailable = crate::app(AppState::default());
+    let available = configured(empty_consumer(), events_empty_consumer());
+    let unavailable = imported_app(AppState::default());
     for path in PATHS {
         for app in [&available, &unavailable] {
-            for body in commands::invalid_run_requests() {
+            for body in invalid_run_requests() {
                 let (status, _) = send(app, path, Some("application/json"), body.to_string()).await;
                 assert_eq!(status, StatusCode::BAD_REQUEST, "{path}: {body}");
             }
-            for (body, expected) in commands::run_request_error_messages() {
+            for (body, expected) in run_request_error_messages() {
                 let (status, text) =
                     send(app, path, Some("application/json"), body.to_string()).await;
                 assert_eq!(status, StatusCode::BAD_REQUEST);
                 assert_eq!(text, expected);
             }
         }
-        for body in commands::valid_run_requests() {
+        for body in valid_run_requests() {
             let (status, text) =
                 send(&available, path, Some("application/json"), body.to_string()).await;
             assert_eq!(status, StatusCode::OK);
             assert_eq!(
-                serde_json::from_str::<Value>(&text).unwrap(),
+                from_str::<Value>(&text).unwrap(),
                 json!({"processed":0,"errors":[]})
             );
             let (status, text) = send(
@@ -101,7 +121,7 @@ async fn adapters_validate_before_checking_configuration() {
             .await;
             assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE);
             assert_eq!(
-                serde_json::from_str::<Value>(&text).unwrap(),
+                from_str::<Value>(&text).unwrap(),
                 json!({
                     "error":"the command bus is not running; start the service with DATABASE_URL"
                 })
@@ -112,7 +132,7 @@ async fn adapters_validate_before_checking_configuration() {
 
 #[tokio::test]
 async fn adapters_preserve_body_rejections() {
-    let app = crate::app(AppState::default());
+    let app = imported_app(AppState::default());
     let limited = app.clone().layer(DefaultBodyLimit::max(8));
     for path in PATHS {
         assert_eq!(
@@ -136,7 +156,7 @@ async fn adapters_preserve_body_rejections() {
 
 #[tokio::test]
 async fn each_adapter_processes_only_its_requested_batch() {
-    let app = configured(commands::queued_consumer(3), events::queued_consumer(3));
+    let app = configured(queued_consumer(3), events_queued_consumer(3));
     for path in PATHS {
         for processed in [2, 1, 0] {
             assert_eq!(
@@ -150,32 +170,32 @@ async fn each_adapter_processes_only_its_requested_batch() {
 #[tokio::test]
 async fn consumer_errors_remain_batch_results() {
     let app = configured(
-        commands::failing_reservation_consumer(),
-        events::failing_reservation_consumer(),
+        failing_reservation_consumer(),
+        events_failing_reservation_consumer(),
     );
     for path in PATHS {
-        crate::tests::assert_batch_errors(&run(&app, path, 1).await, 1);
+        assert_batch_errors(&run(&app, path, 1).await, 1);
     }
-    let (event_service, completed) = events::partially_failing_consumer();
-    let app = configured(commands::failing_handler_consumer(), event_service);
-    crate::tests::assert_batch_errors(&run(&app, PATHS[0], 1).await, 1);
-    crate::tests::assert_batch_errors(&run(&app, PATHS[1], 10).await, 1);
+    let (event_service, completed) = partially_failing_consumer();
+    let app = configured(failing_handler_consumer(), event_service);
+    assert_batch_errors(&run(&app, PATHS[0], 1).await, 1);
+    assert_batch_errors(&run(&app, PATHS[1], 10).await, 1);
     assert_eq!(*completed.lock().unwrap(), 2);
 }
 
 #[tokio::test]
 async fn adapter_task_failures_are_sanitized() {
-    let app = configured(commands::panicking_consumer(), events::panicking_consumer());
+    let app = configured(panicking_consumer(), events_panicking_consumer());
     for path in PATHS {
         let (status, text) = send(&app, path, Some("application/json"), r#"{"limit":1}"#).await;
         assert_eq!(status, StatusCode::INTERNAL_SERVER_ERROR);
-        crate::tests::assert_error_id(&text);
+        assert_error_id(&text);
     }
 }
 
 #[tokio::test]
 async fn openapi_uses_shared_schemas_and_documents_error_formats() {
-    let response = crate::app(AppState::default())
+    let response = imported_app(AppState::default())
         .oneshot(
             Request::get("/api/openapi.json")
                 .body(Body::empty())
@@ -184,7 +204,7 @@ async fn openapi_uses_shared_schemas_and_documents_error_formats() {
         .await
         .unwrap();
     let body = response.into_body().collect().await.unwrap().to_bytes();
-    let spec: Value = serde_json::from_slice(&body).unwrap();
+    let spec: Value = from_slice(&body).unwrap();
     for path in ["/commands/run", "/events/run"] {
         let operation = &spec["paths"][path]["post"];
         assert_eq!(

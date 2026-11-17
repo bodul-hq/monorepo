@@ -1,3 +1,7 @@
+use crate::app_with_reporting_token;
+use crate::queue_tests::state as queue_tests_state;
+use poem::Route;
+
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
@@ -62,10 +66,10 @@ const PATHS: [&str; 2] = [
     "/api/reporting/entry-statuses",
 ];
 
-fn client(repository: Arc<Fixture>, token: &str) -> TestClient<poem::Route> {
-    let mut state = crate::queue_tests::state();
+fn client(repository: Arc<Fixture>, token: &str) -> TestClient<Route> {
+    let mut state = queue_tests_state();
     state.reporting = Reporting::new(repository);
-    TestClient::new(crate::app_with_reporting_token(state, token.into()))
+    TestClient::new(app_with_reporting_token(state, token.into()))
 }
 
 #[tokio::test]

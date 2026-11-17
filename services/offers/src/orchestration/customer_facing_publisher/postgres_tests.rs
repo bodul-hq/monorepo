@@ -1,6 +1,17 @@
 //! Delivery from offers' outbox to a separate Mulac inbox, the same inbox
 //! customer-facing serves, each in its own isolated schema.
 
+use crate::app_with_reporting_token;
+use crate::start_mulac;
+use crate::tests::assert_batch_errors;
+use diesel::sql_query;
+use diesel::sql_types::Jsonb;
+use diesel::sql_types::Text;
+use diesel::sql_types::Uuid as DieselSqlTypesUuid;
+use kernel::PersistentKernelHandle;
+use serde_json::from_str;
+use serde_json::to_value;
+
 use std::sync::{
     Arc,
     atomic::{AtomicBool, Ordering},
@@ -46,7 +57,7 @@ struct Sender {
     _schema: TestSchema,
     pool: DbPool,
     client: TestClient<Route>,
-    kernel: Arc<kernel::PersistentKernelHandle>,
+    kernel: Arc<PersistentKernelHandle>,
 }
 
 impl Drop for Sender {
@@ -58,13 +69,13 @@ impl Drop for Sender {
 /// Offers with delivery configured to `url`.
 fn sender(url: &str) -> Sender {
     let (schema, pool) = inbox_test_database();
-    let (kernel, mut state) = crate::start_mulac(pool.clone()).unwrap();
+    let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
     let publisher = CustomerFacingPublisher::new(url, Handle::current()).unwrap();
     state.outbox = OutboxAdapter::new(AsyncOutboxService::from_postgres(
         pool.clone(),
         Arc::new(publisher),
     ));
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     Sender {
         _schema: schema,
         pool,
@@ -86,14 +97,17 @@ async fn run_outbox(sender: &Sender, limit: usize) -> Value {
 
 /// Records the row exactly as `CustomerFacingSubscriber` does for an event.
 fn record(pool: &DbPool, event_type: &str, payload: &Value) -> Uuid {
+    use crate::subscribers::customer_facing::CustomerFacingSubscriber as SubscribersCustomerFacingCustomerFacingSubscriber;
+    use kernel::NewEventEnvelope;
+    use kernel::NewEventMetadata;
+
     use kernel::EventSubscriberPort;
-    let subscriber =
-        crate::subscribers::customer_facing::CustomerFacingSubscriber::new(pool.clone());
+    let subscriber = SubscribersCustomerFacingCustomerFacingSubscriber::new(pool.clone());
     let event_id = Uuid::new_v4();
-    let envelope = kernel::NewEventEnvelope {
+    let envelope = NewEventEnvelope {
         event_type: event_type.into(),
         payload: payload.to_string(),
-        metadata: Some(kernel::NewEventMetadata {
+        metadata: Some(NewEventMetadata {
             sequence: None,
             event_id,
             correlation_id: Some(Uuid::new_v4()),
@@ -134,9 +148,8 @@ async fn postgres_offer_events_reach_the_inbox_with_their_identity_and_payloads(
     run_queue(&sender.client, "commands", 10, 1).await;
     run_queue(&sender.client, "events", 10, 1).await;
     let created = rows(&sender.pool, "outbox_entries");
-    let offer_id = serde_json::from_str::<Value>(created[0]["payload"].as_str().unwrap()).unwrap()
-        ["id"]
-        .clone();
+    let offer_id =
+        from_str::<Value>(created[0]["payload"].as_str().unwrap()).unwrap()["id"].clone();
     record(
         &sender.pool,
         OFFER_TITLE_CHANGED_EVENT,
@@ -187,8 +200,8 @@ async fn postgres_offer_events_reach_the_inbox_with_their_identity_and_payloads(
         };
         assert_eq!(inbox["meta"]["source"], source);
         assert_eq!(
-            serde_json::from_str::<Value>(inbox["payload"].as_str().unwrap()).unwrap(),
-            serde_json::from_str::<Value>(sent["payload"].as_str().unwrap()).unwrap()
+            from_str::<Value>(inbox["payload"].as_str().unwrap()).unwrap(),
+            from_str::<Value>(sent["payload"].as_str().unwrap()).unwrap()
         );
         event_types.push(sent["meta"]["event_type"].as_str().unwrap().to_owned());
     }
@@ -227,16 +240,16 @@ async fn postgres_partial_batch_keeps_deliveries_and_fails_invalid_rows_visibly(
         ))
         .unwrap();
     let malformed = envelope(OFFER_CREATED_EVENT, &json!({"id": "x"}));
-    diesel::sql_query("INSERT INTO outbox_entries (id, payload, meta) VALUES ($1, $2, $3)")
-        .bind::<diesel::sql_types::Uuid, _>(malformed.metadata.message_id)
-        .bind::<diesel::sql_types::Text, _>(String::from_utf8(malformed.payload.clone()).unwrap())
-        .bind::<diesel::sql_types::Jsonb, _>(serde_json::to_value(&malformed.metadata).unwrap())
+    sql_query("INSERT INTO outbox_entries (id, payload, meta) VALUES ($1, $2, $3)")
+        .bind::<DieselSqlTypesUuid, _>(malformed.metadata.message_id)
+        .bind::<Text, _>(String::from_utf8(malformed.payload.clone()).unwrap())
+        .bind::<Jsonb, _>(to_value(&malformed.metadata).unwrap())
         .execute(&mut sender.pool.get().unwrap())
         .unwrap();
 
     let report = run_outbox(&sender, 10).await;
 
-    crate::tests::assert_batch_errors(&report, 2);
+    assert_batch_errors(&report, 2);
     let errors = rows(&sender.pool, "outbox_entries").to_string();
     assert!(errors.contains("event type must be"), "{errors}");
     assert!(
@@ -329,7 +342,7 @@ async fn postgres_lost_acceptance_response_retries_the_same_message() {
     let message_id = record(&sender.pool, OFFER_CREATED_EVENT, &offer_created());
 
     let report = run_outbox(&sender, 1).await;
-    crate::tests::assert_batch_errors(&report, 1);
+    assert_batch_errors(&report, 1);
     let failed = rows(&sender.pool, "outbox_entries");
     assert_eq!(failed[0]["status"], 4);
     let accepted = rows(&receiver_pool, "inbox_entries");

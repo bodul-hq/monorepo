@@ -7,6 +7,17 @@
 //! The executable explicitly starts command workers. The HTTP routes also
 //! delegate bounded batches to Mulac's command and event adapters.
 
+use kernel::boot;
+use kernel::prelude::run_command_worker;
+use serde_json::Error as SerdeJsonError;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use tokio::spawn;
+use tokio::task::JoinError;
+use tokio::task::JoinHandle;
+use tracing::error as tracing_error;
+use tracing::info;
+
 use std::fmt::Display;
 use std::sync::Arc;
 use std::time::Instant;
@@ -115,6 +126,18 @@ impl Bus {
         }));
     }
 
+    /// A replay-safe reaction: each command supplies a stable identity and run correlation.
+    pub fn on_many_keyed<E: Event, C: Command>(
+        &mut self,
+        reaction: fn(&E) -> Vec<KeyedCommand<C>>,
+    ) {
+        self.registrations.push(Box::new(move |kernel| {
+            kernel.event_subscriber_with_command_gateway(E::NAME, C::NAME, move |gateway| {
+                Arc::new(KeyedReaction { gateway, reaction }) as Arc<dyn EventSubscriberPort>
+            })
+        }));
+    }
+
     /// Registers a listener for its event type.
     pub fn listen<L: Listen>(&mut self, listener: L) {
         let port: Arc<dyn EventSubscriberPort> = Arc::new(Listener(listener));
@@ -129,7 +152,7 @@ impl Bus {
         let kernel = self
             .registrations
             .into_iter()
-            .fold(kernel::boot(KernelConfig::default()), |kernel, register| {
+            .fold(boot(KernelConfig::default()), |kernel, register| {
                 register(kernel)
             });
         let handle = kernel.start_persistent(pool, 0)?;
@@ -166,19 +189,19 @@ impl BusHandle {
     pub fn start_command_workers(&self, count: usize) -> CommandWorkers {
         let handles = (0..count)
             .map(|_| {
-                tokio::spawn(kernel::prelude::run_command_worker(
+                spawn(run_command_worker(
                     self.kernel.command_consumer(),
                     self.kernel.child_token(),
                 ))
             })
             .collect();
         if count == 0 {
-            tracing::info!(
+            info!(
                 command_workers = count,
                 "command workers disabled: manual command processing"
             );
         } else {
-            tracing::info!(command_workers = count, "command workers started");
+            info!(command_workers = count, "command workers started");
         }
         CommandWorkers { handles }
     }
@@ -193,22 +216,22 @@ impl BusHandle {
 /// All command loops owned by the executable, joined after HTTP drains.
 #[derive(Default)]
 pub struct CommandWorkers {
-    handles: Vec<tokio::task::JoinHandle<()>>,
+    handles: Vec<JoinHandle<()>>,
 }
 
 impl CommandWorkers {
-    pub async fn join(self) -> Result<(), tokio::task::JoinError> {
+    pub async fn join(self) -> Result<(), JoinError> {
         let count = self.handles.len();
         let mut first_error = None;
         for handle in self.handles {
             if let Err(error) = handle.await {
-                tracing::error!(%error, "command worker failed to join");
+                tracing_error!(%error, "command worker failed to join");
                 if first_error.is_none() {
                     first_error = Some(error);
                 }
             }
         }
-        tracing::info!(command_workers = count, "command workers stopped");
+        info!(command_workers = count, "command workers stopped");
         first_error.map_or(Ok(()), Err)
     }
 }
@@ -250,6 +273,84 @@ impl Dispatcher {
     }
 }
 
+/// A command whose identity survives replay of its triggering event.
+#[derive(Debug)]
+pub struct KeyedCommand<C> {
+    pub id: Uuid,
+    pub run_id: Uuid,
+    pub command: C,
+}
+
+struct KeyedReaction<E, C> {
+    gateway: Arc<CommandGateway>,
+    reaction: fn(&E) -> Vec<KeyedCommand<C>>,
+}
+
+impl<E: Event, C: Command> EventSubscriberPort for KeyedReaction<E, C> {
+    fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
+        let event: E = from_str(&envelope.payload).map_err(subscriber_error)?;
+        let metadata = envelope
+            .metadata
+            .as_ref()
+            .ok_or_else(|| subscriber_error("keyed reaction requires event metadata"))?;
+        let start = Instant::now();
+        let result = (|| {
+            for keyed in (self.reaction)(&event) {
+                let command = command_envelope(
+                    &keyed.command,
+                    NewCommandMetadata {
+                        command_id: keyed.id,
+                        correlation_id: Some(keyed.run_id),
+                        causation_id: Some(metadata.event_id),
+                        source: Some(format!("event:{}", E::NAME)),
+                    },
+                )
+                .map_err(subscriber_error)?;
+                self.gateway.dispatch(command).map_err(subscriber_error)?;
+            }
+            Ok(())
+        })();
+        info!(target: TIMING_TARGET, kind="event", name=E::NAME, reaction=C::NAME, elapsed_ms=start.elapsed().as_millis() as u64, status=if result.is_ok() { "ok" } else { "error" });
+        result
+    }
+}
+
+impl Dispatcher {
+    /// Queues the first command with the API run ID as correlation metadata.
+    pub fn dispatch_run<C: Command>(&self, command: &C, run_id: Uuid) -> Result<(), DispatchError> {
+        let envelope = command_envelope(
+            command,
+            NewCommandMetadata {
+                command_id: run_id,
+                correlation_id: Some(run_id),
+                causation_id: None,
+                source: Some("api".into()),
+            },
+        )
+        .map_err(|error| DispatchError(error.to_string()))?;
+        self.gateway
+            .dispatch(envelope)
+            .map_err(|error| DispatchError(error.to_string()))
+    }
+
+    /// Queues one of several first commands of an API run under its own stable ID.
+    pub fn dispatch_keyed<C: Command>(&self, keyed: &KeyedCommand<C>) -> Result<(), DispatchError> {
+        let envelope = command_envelope(
+            &keyed.command,
+            NewCommandMetadata {
+                command_id: keyed.id,
+                correlation_id: Some(keyed.run_id),
+                causation_id: None,
+                source: Some("api".into()),
+            },
+        )
+        .map_err(|error| DispatchError(error.to_string()))?;
+        self.gateway
+            .dispatch(envelope)
+            .map_err(|error| DispatchError(error.to_string()))
+    }
+}
+
 /// Serializes an event exactly as the feature defined it, tagged with its name.
 #[derive(Serialize)]
 #[serde(transparent)]
@@ -272,12 +373,12 @@ impl<H: Handle> CommandHandlerPort<H::Command, Published<H::Event>> for HandlerP
 
         match result {
             Ok(events) => {
-                tracing::info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "ok");
+                info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "ok");
                 Ok(events.into_iter().map(Published).collect())
             }
             Err(error) => {
-                tracing::info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "error");
-                tracing::error!(command = name, "command failed: {error}");
+                info!(target: TIMING_TARGET, kind = "command", name, elapsed_ms, status = "error");
+                tracing_error!(command = name, "command failed: {error}");
                 // Every failure is reported as a storage error, so Mulac
                 // retries all of them. Splitting retryable from permanent
                 // errors is a follow-up.
@@ -302,7 +403,7 @@ where
         let result = self.react(envelope);
         let elapsed_ms = start.elapsed().as_millis() as u64;
         let status = if result.is_ok() { "ok" } else { "error" };
-        tracing::info!(
+        info!(
             target: TIMING_TARGET,
             kind = "event",
             name = E::NAME,
@@ -311,7 +412,7 @@ where
             status
         );
         if let Err(error) = &result {
-            tracing::error!(
+            tracing_error!(
                 event = E::NAME,
                 reaction = C::NAME,
                 "reaction failed: {error}"
@@ -327,7 +428,7 @@ where
     C: Command,
 {
     fn react(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
-        let event: E = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
+        let event: E = from_str(&envelope.payload).map_err(subscriber_error)?;
         let Some(command) = (self.reaction)(&event) else {
             return Ok(());
         };
@@ -357,7 +458,7 @@ impl<L: Listen> EventSubscriberPort for Listener<L> {
         let result = self.listen(envelope);
         let elapsed_ms = start.elapsed().as_millis() as u64;
         let status = if result.is_ok() { "ok" } else { "error" };
-        tracing::info!(
+        info!(
             target: TIMING_TARGET,
             kind = "event",
             name,
@@ -366,7 +467,7 @@ impl<L: Listen> EventSubscriberPort for Listener<L> {
             status
         );
         if let Err(error) = &result {
-            tracing::error!(event = name, listener = L::NAME, "listener failed: {error}");
+            tracing_error!(event = name, listener = L::NAME, "listener failed: {error}");
         }
         result
     }
@@ -374,7 +475,7 @@ impl<L: Listen> EventSubscriberPort for Listener<L> {
 
 impl<L: Listen> Listener<L> {
     fn listen(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
-        let event: L::Event = serde_json::from_str(&envelope.payload).map_err(subscriber_error)?;
+        let event: L::Event = from_str(&envelope.payload).map_err(subscriber_error)?;
         let metadata = envelope.metadata.as_ref().ok_or_else(|| {
             subscriber_error(format!(
                 "event {} has no envelope metadata",
@@ -394,11 +495,11 @@ impl<L: Listen> Listener<L> {
 fn command_envelope<C: Command>(
     command: &C,
     metadata: NewCommandMetadata,
-) -> Result<NewCommandEnvelope, serde_json::Error> {
+) -> Result<NewCommandEnvelope, SerdeJsonError> {
     Ok(NewCommandEnvelope {
         command: NewCommand {
             command_type: C::NAME.to_string(),
-            payload: serde_json::to_string(command)?,
+            payload: serde_json_to_string(command)?,
         },
         metadata: Some(metadata),
     })
@@ -410,6 +511,10 @@ fn subscriber_error(error: impl Display) -> EventError {
 
 #[cfg(test)]
 mod tests {
+    use kernel::NewEventMetadata;
+    use serde_json::to_string as serde_json_to_string2;
+    use std::sync::Mutex;
+
     use serde::{Deserialize, Serialize};
 
     use super::*;
@@ -447,7 +552,7 @@ mod tests {
         }
     }
 
-    struct Record(std::sync::Mutex<Vec<(u32, EventContext)>>);
+    struct Record(Mutex<Vec<(u32, EventContext)>>);
 
     impl Listen for Record {
         type Event = Ponged;
@@ -463,16 +568,16 @@ mod tests {
         }
     }
 
-    fn ponged(id: u32, metadata: Option<kernel::NewEventMetadata>) -> NewEventEnvelope {
+    fn ponged(id: u32, metadata: Option<NewEventMetadata>) -> NewEventEnvelope {
         NewEventEnvelope {
             event_type: Ponged::NAME.to_string(),
-            payload: serde_json::to_string(&Ponged { id }).unwrap(),
+            payload: serde_json_to_string2(&Ponged { id }).unwrap(),
             metadata,
         }
     }
 
-    fn metadata() -> kernel::NewEventMetadata {
-        kernel::NewEventMetadata {
+    fn metadata() -> NewEventMetadata {
+        NewEventMetadata {
             sequence: None,
             event_id: Uuid::now_v7(),
             correlation_id: Some(Uuid::now_v7()),
@@ -526,7 +631,7 @@ mod tests {
         let events = HandlerPort(Echo).execute(Ping { id: 7 }).unwrap();
 
         assert_eq!(events[0].event_type(), "Ponged");
-        assert_eq!(serde_json::to_string(&events[0]).unwrap(), r#"{"id":7}"#);
+        assert_eq!(serde_json_to_string2(&events[0]).unwrap(), r#"{"id":7}"#);
     }
 
     #[test]
@@ -539,3 +644,22 @@ mod tests {
         );
     }
 }
+
+/// RFC 9562 UUIDv5 for replay-stable command identities. Uses the existing
+/// RustCrypto SHA-1 implementation; these IDs are identifiers, not signatures.
+pub fn stable_command_id(namespace: &Uuid, key: &[u8]) -> Uuid {
+    use uuid::Builder;
+
+    use sha1::{Digest, Sha1};
+    let digest = Sha1::new()
+        .chain_update(namespace.as_bytes())
+        .chain_update(key)
+        .finalize();
+    let mut bytes = [0; 16];
+    bytes.copy_from_slice(&digest[..16]);
+    Builder::from_sha1_bytes(bytes).into_uuid()
+}
+
+#[cfg(test)]
+#[path = "keyed_reaction_tests.rs"]
+mod keyed_reaction_tests;

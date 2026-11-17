@@ -32,6 +32,16 @@ impl InboxApi {
 
 #[cfg(test)]
 mod tests {
+    use crate::app;
+    use crate::app_with_reporting_token;
+    use crate::start_mulac;
+    use crate::test_pool;
+    use crate::tests::assert_error_response;
+    use testing::invalid_submissions;
+    use testing::panicking_parts;
+    use testing::submission_error_messages;
+    use testing::valid_submissions;
+
     use inbox::prelude::poem::InboxAdapter;
     use inbox::prelude::testing;
     use poem::{http::StatusCode, test::TestClient};
@@ -39,12 +49,12 @@ mod tests {
 
     #[tokio::test]
     async fn inbox_rejects_malformed_envelopes() {
-        let client = TestClient::new(crate::app(crate::test_pool()));
-        for body in testing::invalid_submissions() {
+        let client = TestClient::new(app(test_pool()));
+        for body in invalid_submissions() {
             let response = client.post("/api/inbox").body_json(&body).send().await;
             assert_eq!(response.0.status(), StatusCode::BAD_REQUEST, "{body}");
         }
-        for (body, message) in testing::submission_error_messages() {
+        for (body, message) in submission_error_messages() {
             let response = client.post("/api/inbox").body_json(&body).send().await;
             response.assert_status(StatusCode::BAD_REQUEST);
             response.assert_text(message).await;
@@ -60,17 +70,17 @@ mod tests {
 
     #[tokio::test]
     async fn inbox_accepts_arbitrary_json_and_sanitizes_storage_errors() {
-        let client = TestClient::new(crate::app(crate::test_pool()));
-        for body in testing::valid_submissions() {
+        let client = TestClient::new(app(test_pool()));
+        for body in valid_submissions() {
             let response = client.post("/api/inbox").body_json(&body).send().await;
             response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-            crate::tests::assert_error_response(response).await;
+            assert_error_response(response).await;
         }
     }
 
     #[tokio::test]
     async fn inbox_accepts_unknown_fields_duplicate_keys_and_uuid_formats() {
-        let client = TestClient::new(crate::app(crate::test_pool()));
+        let client = TestClient::new(app(test_pool()));
         for body in [
             r#"{"payload":1,"routing_key":"x","source":"crawler","extra":1}"#,
             r#"{"payload":1,"payload":2,"routing_key":"x","source":"crawler"}"#,
@@ -88,7 +98,7 @@ mod tests {
                 .send()
                 .await;
             response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-            crate::tests::assert_error_response(response).await;
+            assert_error_response(response).await;
         }
         let response = client
             .post("/api/inbox")
@@ -101,7 +111,7 @@ mod tests {
 
     #[tokio::test]
     async fn inbox_routes_require_json_content_type() {
-        let client = TestClient::new(crate::app(crate::test_pool()));
+        let client = TestClient::new(app(test_pool()));
         for (path, body) in [
             (
                 "/api/inbox",
@@ -127,7 +137,7 @@ mod tests {
 
     #[tokio::test]
     async fn inbox_run_accepts_limit_bounds_and_unknown_fields() {
-        let client = TestClient::new(crate::app(crate::test_pool()));
+        let client = TestClient::new(app(test_pool()));
         for body in [
             json!({"limit":1}),
             json!({"limit":1000}),
@@ -151,16 +161,16 @@ mod tests {
 
     #[tokio::test]
     async fn inbox_sanitizes_blocking_task_failures() {
-        let (kernel, mut state) = crate::start_mulac(crate::test_pool()).unwrap();
-        state.inbox = InboxAdapter::new(testing::panicking_parts());
-        let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+        let (kernel, mut state) = start_mulac(test_pool()).unwrap();
+        state.inbox = InboxAdapter::new(panicking_parts());
+        let client = TestClient::new(app_with_reporting_token(state, "test".into()));
         let response = client
             .post("/api/inbox")
             .body_json(&json!({"payload":1,"routing_key":"unknown","source":"crawler"}))
             .send()
             .await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-        crate::tests::assert_error_response(response).await;
+        assert_error_response(response).await;
         kernel.shutdown();
     }
 }

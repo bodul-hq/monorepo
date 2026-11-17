@@ -1,8 +1,5 @@
 # retailers_wip
 
-Integration for the WIP retailer.
-
-It has no code yet; its only test is a placeholder.
-
-This crate is part of the `lib` workspace. See the
-[root README](../../README.md) for requirements and Make targets.
+Reserved retailer integration workspace. Inventory, locale request contracts and
+initial-fill interfaces now live in `retailer_sauce`. Shopify GraphQL acquisition
+is implemented by `retailer_sauce::shopify::graphql::Engine`.

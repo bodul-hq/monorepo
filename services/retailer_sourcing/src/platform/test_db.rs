@@ -1,4 +1,9 @@
 //! Isolated PostgreSQL schemas for opt-in service tests.
+use diesel::r2d2::Error;
+use diesel::sql_query;
+use serde_json::Value;
+use std::env::var;
+
 use super::db::DbPool;
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
@@ -10,10 +15,10 @@ const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
 #[derive(Debug)]
 struct SearchPath(String);
-impl CustomizeConnection<PgConnection, diesel::r2d2::Error> for SearchPath {
-    fn on_acquire(&self, conn: &mut PgConnection) -> Result<(), diesel::r2d2::Error> {
+impl CustomizeConnection<PgConnection, Error> for SearchPath {
+    fn on_acquire(&self, conn: &mut PgConnection) -> Result<(), Error> {
         conn.batch_execute(&format!("SET search_path TO {}", self.0))
-            .map_err(diesel::r2d2::Error::QueryError)
+            .map_err(Error::QueryError)
     }
 }
 
@@ -43,7 +48,7 @@ impl Database {
     }
 
     pub fn new() -> Self {
-        let url = std::env::var("DATABASE_URL_TEST")
+        let url = var("DATABASE_URL_TEST")
             .expect("DATABASE_URL_TEST is required; use make test-postgres");
         let mut admin = PgConnection::establish(&url)
             .expect("DATABASE_URL_TEST must point to an available PostgreSQL database");
@@ -92,17 +97,16 @@ impl Drop for Database {
 #[derive(diesel::QueryableByName)]
 struct JsonRow {
     #[diesel(sql_type = diesel::sql_types::Jsonb)]
-    value: serde_json::Value,
+    value: Value,
 }
 
-pub(crate) fn json_query(conn: &mut PgConnection, sql: &str) -> serde_json::Value {
-    diesel::sql_query(sql)
-        .get_result::<JsonRow>(conn)
-        .unwrap()
-        .value
+pub(crate) fn json_query(conn: &mut PgConnection, sql: &str) -> Value {
+    sql_query(sql).get_result::<JsonRow>(conn).unwrap().value
 }
 
 mod postgres_tests {
+    use serde_json::json;
+
     use super::*;
 
     #[test]
@@ -195,7 +199,7 @@ mod postgres_tests {
                     &mut conn,
                     &format!("SELECT to_jsonb(to_regclass('{old}') IS NULL) AS value")
                 ),
-                serde_json::json!(true)
+                json!(true)
             );
         }
         conn.revert_last_migration(MIGRATIONS).unwrap();
@@ -211,7 +215,7 @@ mod postgres_tests {
                     &mut conn,
                     &format!("SELECT to_jsonb(count(*)) AS value FROM {old}_data")
                 ),
-                serde_json::json!(0)
+                json!(0)
             );
         }
     }

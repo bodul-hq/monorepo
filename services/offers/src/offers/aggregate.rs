@@ -1,7 +1,30 @@
+use super::event::OfferAvailabilityChangedEvent;
+use super::event::OfferContentsChangedEvent;
+use super::event::OfferFacts;
+use super::event::OfferIdentifiersChangedEvent;
+use super::event::OfferItemConditionChangedEvent;
+use super::event::OfferLocalizationChangedEvent;
+use super::event::OfferPricingChangedEvent;
+use super::event::OfferScrapedAtUpdatedEvent;
+use super::event::Pricing;
+use super::event::guard_images;
+use super::event::guard_was_price;
+use chrono::DateTime;
+use offer_content::guard as offer_content_guard;
+use offer_content::selected as offer_content_selected;
+use offer_content::singleton;
+use offer_content::sort;
+use offer_content::upsert;
+use retailer_sauce::prelude::legacy_description;
+use retailer_sauce::prelude::legacy_language;
+use retailer_sauce::prelude::legacy_title;
+use shared::images::filter as shared_images_filter;
+use shared::images::is_valid;
+
 use super::command::OfferObservation;
 use chrono::Utc;
 use money::Money;
-use retailer_sauce::offer_content;
+use retailer_sauce::prelude::offer_content;
 use shared::prelude::RetailerCode;
 use testimony::prelude::{Aggregate, EventEnvelope};
 
@@ -62,7 +85,7 @@ impl RetailerOfferAggregate {
         price: Money,
         url: String,
         images: Vec<String>,
-        scraped_at: Option<chrono::DateTime<Utc>>,
+        scraped_at: Option<DateTime<Utc>>,
     ) -> Result<Self, RetailerOfferError> {
         let observation = OfferObservation {
             scraped_at,
@@ -82,24 +105,24 @@ impl RetailerOfferAggregate {
         observation
             .guard()
             .map_err(RetailerOfferError::InvalidObservation)?;
-        super::event::guard_was_price(&price, observation.was_price.value())
+        guard_was_price(&price, observation.was_price.value())
             .map_err(RetailerOfferError::InvalidObservation)?;
         let scraped_at = observation.scraped_at;
-        let (images, skipped) = shared::images::filter(images);
+        let (images, skipped) = shared_images_filter(images);
         if skipped > 0 {
             eprintln!("skipped invalid offer images: {skipped}");
         }
         Self::guard_capacity(0, 0, images.len() as u64, 1)?;
         let localization = observation.localization.unwrap_or_default().canonicalized();
-        let content = offer_content::singleton(
+        let content = singleton(
             title.clone(),
             localization.language.clone(),
             observation.content.and_then(|content| content.description),
         );
-        offer_content::guard(&content, &localization.language)
+        offer_content_guard(&content, &localization.language)
             .map_err(RetailerOfferError::InvalidObservation)?;
         let event = OfferCreatedEvent {
-            facts: super::event::OfferFacts {
+            facts: OfferFacts {
                 was_price: observation.was_price.into_value(),
                 availability: observation.availability.into_value(),
                 item_condition: observation.item_condition.into_value(),
@@ -181,7 +204,7 @@ impl RetailerOfferAggregate {
         title: String,
         price: Money,
         images: Vec<String>,
-        scraped_at: Option<chrono::DateTime<Utc>>,
+        scraped_at: Option<DateTime<Utc>>,
     ) -> Result<(), RetailerOfferError> {
         let observation = OfferObservation {
             scraped_at,
@@ -199,7 +222,7 @@ impl RetailerOfferAggregate {
         observation
             .guard()
             .map_err(RetailerOfferError::InvalidObservation)?;
-        super::event::guard_was_price(&price, observation.was_price.value())
+        guard_was_price(&price, observation.was_price.value())
             .map_err(RetailerOfferError::InvalidObservation)?;
         let scraped_at = observation.scraped_at;
         let identifiers = self.state.identifiers.enriched(&observation.identifiers);
@@ -216,7 +239,7 @@ impl RetailerOfferAggregate {
                 .clone()
                 .canonicalized()
                 .target_market;
-        let content = offer_content::upsert(
+        let content = upsert(
             &self.state.facts.content,
             localization.language.clone(),
             title.clone(),
@@ -225,7 +248,7 @@ impl RetailerOfferAggregate {
         .map_err(RetailerOfferError::InvalidObservation)?;
         let content_changed = content != self.state.facts.content
             || localization.language != self.state.localization.language;
-        let (images, skipped) = shared::images::filter(images);
+        let (images, skipped) = shared_images_filter(images);
         if skipped > 0 {
             eprintln!("skipped invalid offer images: {skipped}");
         }
@@ -234,11 +257,11 @@ impl RetailerOfferAggregate {
             .filter(|image| !self.state.images().contains(image))
             .collect();
         let scrape_changed = scraped_at.is_some() && scraped_at > self.state.scraped_at();
-        let facts = super::event::OfferFacts {
+        let facts = OfferFacts {
             was_price: observation
                 .was_price
                 .resolve(self.state.facts.was_price.clone())
-                .filter(|was| super::event::guard_was_price(&price, Some(was)).is_ok()),
+                .filter(|was| guard_was_price(&price, Some(was)).is_ok()),
             availability: observation
                 .availability
                 .resolve(self.state.facts.availability.clone()),
@@ -267,7 +290,7 @@ impl RetailerOfferAggregate {
         )?;
 
         if content_changed {
-            let event = super::event::OfferContentsChangedEvent {
+            let event = OfferContentsChangedEvent {
                 id: self.state.id().clone(),
                 content: facts.content.clone(),
                 language: localization.language.clone(),
@@ -282,9 +305,9 @@ impl RetailerOfferAggregate {
             ));
         }
         if price_changed {
-            let event = super::event::OfferPricingChangedEvent {
+            let event = OfferPricingChangedEvent {
                 id: self.state.id().clone(),
-                pricing: super::event::Pricing {
+                pricing: Pricing {
                     price,
                     was_price: facts.was_price.clone(),
                 },
@@ -311,7 +334,7 @@ impl RetailerOfferAggregate {
             ));
         }
         if let Some(scraped_at) = scraped_at.filter(|_| scrape_changed) {
-            let event = super::event::OfferScrapedAtUpdatedEvent {
+            let event = OfferScrapedAtUpdatedEvent {
                 id: self.state.id().clone(),
                 scraped_at,
             };
@@ -323,7 +346,7 @@ impl RetailerOfferAggregate {
             ));
         }
         if localization_changed {
-            let event = super::event::OfferLocalizationChangedEvent {
+            let event = OfferLocalizationChangedEvent {
                 id: self.state.id().clone(),
                 localization,
             };
@@ -335,7 +358,7 @@ impl RetailerOfferAggregate {
             ));
         }
         if identifiers_changed {
-            let event = super::event::OfferIdentifiersChangedEvent {
+            let event = OfferIdentifiersChangedEvent {
                 id: self.state.id().clone(),
                 identifiers,
             };
@@ -347,7 +370,7 @@ impl RetailerOfferAggregate {
             ));
         }
         if availability_changed {
-            let event = super::event::OfferAvailabilityChangedEvent {
+            let event = OfferAvailabilityChangedEvent {
                 id: self.state.id().clone(),
                 availability: facts.availability,
             };
@@ -359,7 +382,7 @@ impl RetailerOfferAggregate {
             ));
         }
         if condition_changed {
-            let event = super::event::OfferItemConditionChangedEvent {
+            let event = OfferItemConditionChangedEvent {
                 id: self.state.id().clone(),
                 item_condition: facts.item_condition,
             };
@@ -398,11 +421,11 @@ impl Aggregate for RetailerOfferAggregate {
             "offer history ID must match the requested ID"
         );
 
-        super::event::guard_images(&created.images).expect("invalid creation images in history");
-        offer_content::guard(&created.facts.content, &created.localization.language)
+        guard_images(&created.images).expect("invalid creation images in history");
+        offer_content_guard(&created.facts.content, &created.localization.language)
             .expect("invalid content history");
         assert_eq!(
-            offer_content::selected(&created.facts.content, &created.localization.language)
+            offer_content_selected(&created.facts.content, &created.localization.language)
                 .unwrap()
                 .title,
             created.title,
@@ -475,7 +498,7 @@ impl Aggregate for RetailerOfferAggregate {
                 RetailerOfferEvent::OfferContentChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event.content.guard().expect("invalid content history");
-                    aggregate.state.facts.content = offer_content::legacy_description(
+                    aggregate.state.facts.content = legacy_description(
                         &aggregate.state.facts.content,
                         &aggregate.state.localization.language,
                         event.content.description,
@@ -487,8 +510,8 @@ impl Aggregate for RetailerOfferAggregate {
                     assert_eq!(event.id, id, "offer history ID must match");
                     event.guard().expect("invalid content history");
                     let mut content = event.content;
-                    offer_content::sort(&mut content);
-                    let title = offer_content::selected(&content, &event.language)
+                    sort(&mut content);
+                    let title = offer_content_selected(&content, &event.language)
                         .unwrap()
                         .title
                         .clone();
@@ -510,7 +533,7 @@ impl Aggregate for RetailerOfferAggregate {
                         .localization
                         .guard()
                         .expect("invalid localization history");
-                    aggregate.state.facts.content = offer_content::legacy_language(
+                    aggregate.state.facts.content = legacy_language(
                         &aggregate.state.facts.content,
                         &aggregate.state.localization.language,
                         event.localization.language.clone(),
@@ -528,10 +551,7 @@ impl Aggregate for RetailerOfferAggregate {
                         aggregate.state.images().len() as u64,
                         "image position must be contiguous"
                     );
-                    assert!(
-                        shared::images::is_valid(&event.image_url),
-                        "invalid image history URL"
-                    );
+                    assert!(is_valid(&event.image_url), "invalid image history URL");
                     assert!(
                         !aggregate.state.images().contains(&event.image_url),
                         "duplicate image history URL"
@@ -540,7 +560,7 @@ impl Aggregate for RetailerOfferAggregate {
                 }
                 RetailerOfferEvent::OfferTitleChanged(event) => {
                     assert_eq!(event.id, id, "offer history ID must match the requested ID");
-                    aggregate.state.facts.content = offer_content::legacy_title(
+                    aggregate.state.facts.content = legacy_title(
                         &aggregate.state.facts.content,
                         &aggregate.state.localization.language,
                         event.title.clone(),
@@ -574,6 +594,14 @@ impl Aggregate for RetailerOfferAggregate {
 
 #[cfg(test)]
 mod tests {
+    use super::super::event::OfferFacts as EventOfferFacts;
+    use crate::infra::records::OfferEventRecord as InfraRecordsOfferEventRecord;
+    use offer_content::singleton as offer_content_singleton;
+    use serde_json::from_value;
+    use serde_json::json as serde_json_json2;
+    use serde_json::to_value as serde_json_to_value;
+    use std::panic::catch_unwind;
+
     use super::*;
     use crate::offers::command::ImportOfferDetailsCommand;
     use crate::offers::event::{OfferPriceChangedEvent, OfferTitleChangedEvent};
@@ -726,7 +754,7 @@ mod tests {
 
         for (case, events) in invalid_histories {
             assert!(
-                std::panic::catch_unwind(|| {
+                catch_unwind(|| {
                     RetailerOfferAggregate::from_history(RetailerOfferId::new("offer-1"), events)
                 })
                 .is_err(),
@@ -734,10 +762,7 @@ mod tests {
             );
         }
         assert!(
-            std::panic::catch_unwind(|| {
-                RetailerOfferAggregate::from_history(other_id, history)
-            })
-            .is_err()
+            catch_unwind(|| { RetailerOfferAggregate::from_history(other_id, history) }).is_err()
         );
     }
 
@@ -821,8 +846,8 @@ mod tests {
             panic!("expected an OfferCreated event");
         };
         let expected_event = OfferCreatedEvent {
-            facts: super::super::event::OfferFacts {
-                content: offer_content::singleton("Charger".into(), None, None),
+            facts: EventOfferFacts {
+                content: offer_content_singleton("Charger".into(), None, None),
                 ..Default::default()
             },
             identifiers: Default::default(),
@@ -841,6 +866,10 @@ mod tests {
 
     #[test]
     fn images_append_after_other_changes_and_replay_without_new_events() {
+        use crate::infra::records::OfferEventRecord;
+        use serde_json::json as serde_json_json;
+        use serde_json::to_value;
+
         use kernel::ApplicationEvent;
         let mut offer = aggregate();
         let a = "https://shop.example/A?x=1&y=2".to_owned();
@@ -885,13 +914,13 @@ mod tests {
             ]
         );
         let event = offer.get_just_events().pop().unwrap();
-        let payload = serde_json::to_value(&event).unwrap();
+        let payload = to_value(&event).unwrap();
         assert_eq!(
             payload,
-            serde_json::json!({"id":"offer-1","image_url":c,"position":2})
+            serde_json_json!({"id":"offer-1","image_url":c,"position":2})
         );
-        let record = crate::infra::records::OfferEventRecord::from(&event);
-        let record = serde_json::to_value(record).unwrap();
+        let record = OfferEventRecord::from(&event);
+        let record = to_value(record).unwrap();
         assert_eq!(record["type"], "OfferImageAdded.v1");
         assert_eq!(record["data"], payload);
         let mut replay = RetailerOfferAggregate::from_history(
@@ -939,7 +968,7 @@ mod tests {
                 2,
             ));
             assert!(
-                std::panic::catch_unwind(|| RetailerOfferAggregate::from_history(
+                catch_unwind(|| RetailerOfferAggregate::from_history(
                     offer.state.id().clone(),
                     offer.uncommitted_events
                 ))
@@ -964,7 +993,7 @@ mod tests {
             3,
         ));
         assert!(
-            std::panic::catch_unwind(|| RetailerOfferAggregate::from_history(
+            catch_unwind(|| RetailerOfferAggregate::from_history(
                 offer.state.id().clone(),
                 offer.uncommitted_events
             ))
@@ -1010,12 +1039,12 @@ mod tests {
             panic!("expected only creation");
         };
         assert_eq!(event.images, [a.clone(), b.clone()]);
-        let serialized = serde_json::to_value(crate::infra::records::OfferEventRecord::from(
+        let serialized = serde_json_to_value(InfraRecordsOfferEventRecord::from(
             offer.uncommitted_events[0].event(),
         ))
         .unwrap();
         assert_eq!(serialized["type"], "OfferCreated.v10");
-        assert_eq!(serialized["data"]["images"], serde_json::json!([a, b]));
+        assert_eq!(serialized["data"]["images"], serde_json_json2!([a, b]));
         let replay =
             RetailerOfferAggregate::from_history(id.clone(), offer.uncommitted_events.clone());
         assert_eq!(replay.state, offer.state);
@@ -1050,15 +1079,14 @@ mod tests {
     #[test]
     fn old_created_records_without_images_replay_with_legacy_image_events() {
         let original = aggregate();
-        let mut record = serde_json::to_value(crate::infra::records::OfferEventRecord::from(
+        let mut record = serde_json_to_value(InfraRecordsOfferEventRecord::from(
             original.uncommitted_events[0].event(),
         ))
         .unwrap();
-        record["type"] = serde_json::json!("OfferCreated.v1");
+        record["type"] = serde_json_json2!("OfferCreated.v1");
         record["data"].as_object_mut().unwrap().remove("images");
         record["data"].as_object_mut().unwrap().remove("content");
-        let decoded: crate::infra::records::OfferEventRecord =
-            serde_json::from_value(record.clone()).unwrap();
+        let decoded: InfraRecordsOfferEventRecord = from_value(record.clone()).unwrap();
         let id = original.state.id().clone();
         let image = OfferImageAddedEvent {
             id: id.clone(),
@@ -1073,15 +1101,14 @@ mod tests {
         assert_eq!(replay.state.images(), &["https://shop.example/legacy"]);
         assert!(replay.uncommitted_events.is_empty());
         for images in [
-            serde_json::json!(["/bad"]),
-            serde_json::json!(["https://shop.example/A", "https://shop.example/A"]),
+            serde_json_json2!(["/bad"]),
+            serde_json_json2!(["https://shop.example/A", "https://shop.example/A"]),
         ] {
             record["data"]["images"] = images;
-            let event: crate::infra::records::OfferEventRecord =
-                serde_json::from_value(record.clone()).unwrap();
+            let event: InfraRecordsOfferEventRecord = from_value(record.clone()).unwrap();
             let id = id.clone();
             assert!(
-                std::panic::catch_unwind(|| RetailerOfferAggregate::from_history(
+                catch_unwind(|| RetailerOfferAggregate::from_history(
                     id,
                     vec![EventEnvelope::new(event.into(), 1)]
                 ))
@@ -1093,17 +1120,21 @@ mod tests {
 
 #[cfg(test)]
 mod scrape_tests {
+    use chrono::DateTime as ChronoDateTime;
+    use chrono::Duration;
+    use money::Currency as MoneyCurrency;
+
     use super::*;
     #[test]
     fn scrape_only_updates_are_monotonic_replayable_and_atomic() {
-        let t1 = chrono::DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap();
-        let t2 = t1 + chrono::Duration::seconds(1);
+        let t1 = ChronoDateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap();
+        let t2 = t1 + Duration::seconds(1);
         let id = RetailerOfferId::new("scrape");
         let mut offer = RetailerOfferAggregate::create_with_scrape(
             id.clone(),
             RetailerCode::AnkerAu,
             "Charger".into(),
-            Money::new(100, money::Currency::AUD),
+            Money::new(100, MoneyCurrency::AUD),
             "https://shop.example/a".into(),
             vec![],
             Some(t1),
@@ -1113,7 +1144,7 @@ mod scrape_tests {
         offer
             .update_with_scrape(
                 "Charger".into(),
-                Money::new(100, money::Currency::AUD),
+                Money::new(100, MoneyCurrency::AUD),
                 vec![],
                 Some(t2),
             )
@@ -1127,7 +1158,7 @@ mod scrape_tests {
             offer
                 .update_with_scrape(
                     "Charger".into(),
-                    Money::new(100, money::Currency::AUD),
+                    Money::new(100, MoneyCurrency::AUD),
                     vec![],
                     time,
                 )
@@ -1142,9 +1173,9 @@ mod scrape_tests {
         assert_eq!(
             offer.update_with_scrape(
                 "Changed".into(),
-                Money::new(100, money::Currency::AUD),
+                Money::new(100, MoneyCurrency::AUD),
                 vec![],
-                Some(t2 + chrono::Duration::seconds(1))
+                Some(t2 + Duration::seconds(1))
             ),
             Err(RetailerOfferError::SequenceOverflow)
         );
@@ -1155,6 +1186,8 @@ mod scrape_tests {
 
 #[cfg(test)]
 mod sequence_bound_tests {
+    use money::Currency as MoneyCurrency2;
+
     use super::*;
     #[test]
     fn bigint_limit_rejects_whole_batch_before_mutation() {
@@ -1162,7 +1195,7 @@ mod sequence_bound_tests {
             RetailerOfferId::new("bounded"),
             RetailerCode::AnkerAu,
             "Charger".into(),
-            Money::new(100, money::Currency::AUD),
+            Money::new(100, MoneyCurrency2::AUD),
             "https://shop.example/a".into(),
             vec![],
         )
@@ -1170,13 +1203,13 @@ mod sequence_bound_tests {
         offer.sequence = i64::MAX as u64 - 1;
         let before = format!("{:?}", offer.state);
         assert_eq!(
-            offer.update("Changed".into(), Money::new(200, money::Currency::AUD)),
+            offer.update("Changed".into(), Money::new(200, MoneyCurrency2::AUD)),
             Err(RetailerOfferError::SequenceOverflow)
         );
         assert_eq!(format!("{:?}", offer.state), before);
         assert_eq!(offer.uncommitted_events.len(), 1);
         offer
-            .update("Changed".into(), Money::new(100, money::Currency::AUD))
+            .update("Changed".into(), Money::new(100, MoneyCurrency2::AUD))
             .unwrap();
         assert_eq!(offer.sequence, i64::MAX as u64);
     }
@@ -1184,10 +1217,15 @@ mod sequence_bound_tests {
 
 #[cfg(test)]
 mod localization_tests {
+    use money::Currency as MoneyCurrency3;
+    use retailer_sauce::prelude::Localization;
+    use serde_json::from_value as serde_json_from_value;
+    use serde_json::json as serde_json_json3;
+
     use super::*;
     #[test]
     fn observations_replace_facts_but_omitted_legacy_imports_preserve_them() {
-        let known = retailer_sauce::localization::Localization {
+        let known = Localization {
             target_market: None,
             language: Some("it-IT".into()),
         };
@@ -1200,7 +1238,7 @@ mod localization_tests {
             id.clone(),
             RetailerCode::AnkerAu,
             "Charger".into(),
-            Money::new(100, money::Currency::AUD),
+            Money::new(100, MoneyCurrency3::AUD),
             "https://shop.example/a".into(),
             vec![],
             observation,
@@ -1216,7 +1254,7 @@ mod localization_tests {
             offer
                 .update_with_observation(
                     "Charger".into(),
-                    Money::new(100, money::Currency::AUD),
+                    Money::new(100, MoneyCurrency3::AUD),
                     vec![],
                     observation,
                 )
@@ -1224,8 +1262,8 @@ mod localization_tests {
             assert_eq!(offer.sequence, 1);
             assert_eq!(offer.state.localization, known);
         }
-        let selected: retailer_sauce::localization::Localization = serde_json::from_value(
-            serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
+        let selected: Localization = serde_json_from_value(
+            serde_json_json3!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
         )
         .unwrap();
         for localization in [Some(selected.clone()), Some(selected.clone()), None] {
@@ -1236,7 +1274,7 @@ mod localization_tests {
             offer
                 .update_with_observation(
                     "Charger".into(),
-                    Money::new(100, money::Currency::AUD),
+                    Money::new(100, MoneyCurrency3::AUD),
                     vec![],
                     observation,
                 )
@@ -1254,7 +1292,7 @@ mod localization_tests {
         offer
             .update_with_observation(
                 "Charger".into(),
-                Money::new(100, money::Currency::AUD),
+                Money::new(100, MoneyCurrency3::AUD),
                 vec![],
                 unknown,
             )
@@ -1268,8 +1306,12 @@ mod localization_tests {
 
 #[cfg(test)]
 mod identifiers_tests {
+    use crate::infra::records::OfferEventRecord as InfraRecordsOfferEventRecord2;
+    use money::Currency as MoneyCurrency4;
+    use serde_json::to_value as serde_json_to_value2;
+
     use super::*;
-    use retailer_sauce::identifier::{Gtin, ProductIdentifiers, Sku};
+    use retailer_sauce::prelude::{Gtin, ProductIdentifiers, Sku};
     #[test]
     fn identifiers_enrich_correct_replay_and_leave_offer_identity_unchanged() {
         let initial = ProductIdentifiers {
@@ -1288,7 +1330,7 @@ mod identifiers_tests {
             id.clone(),
             RetailerCode::AnkerAu,
             "Charger".into(),
-            Money::new(100, money::Currency::AUD),
+            Money::new(100, MoneyCurrency4::AUD),
             "https://shop.example/a".into(),
             vec![],
             observation,
@@ -1302,7 +1344,7 @@ mod identifiers_tests {
             offer
                 .update_with_observation(
                     "Charger".into(),
-                    Money::new(100, money::Currency::AUD),
+                    Money::new(100, MoneyCurrency4::AUD),
                     vec![],
                     observation,
                 )
@@ -1320,7 +1362,7 @@ mod identifiers_tests {
         offer
             .update_with_observation(
                 "Charger".into(),
-                Money::new(100, money::Currency::AUD),
+                Money::new(100, MoneyCurrency4::AUD),
                 vec![],
                 observation,
             )
@@ -1331,9 +1373,8 @@ mod identifiers_tests {
         assert_eq!(offer.state.url(), "https://shop.example/a");
         let replay = RetailerOfferAggregate::from_history(id, offer.uncommitted_events.clone());
         assert_eq!(replay.state, offer.state);
-        let event =
-            crate::infra::records::OfferEventRecord::from(offer.uncommitted_events[1].event());
-        let json = serde_json::to_value(event).unwrap();
+        let event = InfraRecordsOfferEventRecord2::from(offer.uncommitted_events[1].event());
+        let json = serde_json_to_value2(event).unwrap();
         assert_eq!(json["type"], "OfferIdentifiersChanged.v1");
         assert_eq!(json["data"]["sku"], "A2");
         assert!(json["data"]["external_identifiers"].is_object());
@@ -1348,6 +1389,10 @@ mod localized_content_tests;
 
 #[cfg(test)]
 mod regional_identity_tests {
+    use money::Currency as MoneyCurrency5;
+    use serde_json::from_value as serde_json_from_value2;
+    use serde_json::json as serde_json_json4;
+
     use super::*;
     #[test]
     fn equivalent_legacy_eu_observation_does_not_create_an_update() {
@@ -1355,13 +1400,13 @@ mod regional_identity_tests {
             RetailerOfferId::new("eu"),
             RetailerCode::AnkerAu,
             "Charger".into(),
-            Money::new(100, money::Currency::AUD),
+            Money::new(100, MoneyCurrency5::AUD),
             "https://example.com/a".into(),
             vec![],
         )
         .unwrap();
         // Replay retains the old in-memory representation; comparison must not emit a spurious change.
-        offer.state.localization = serde_json::from_value(serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":null})).unwrap();
+        offer.state.localization = serde_json_from_value2(serde_json_json4!({"target_market":{"kind":"region","label":"European Union"},"language":null})).unwrap();
         let observation = OfferObservation {
             localization: Some(offer.state.localization.clone().canonicalized()),
             ..Default::default()
@@ -1369,7 +1414,7 @@ mod regional_identity_tests {
         offer
             .update_with_observation(
                 "Charger".into(),
-                Money::new(100, money::Currency::AUD),
+                Money::new(100, MoneyCurrency5::AUD),
                 vec![],
                 observation,
             )

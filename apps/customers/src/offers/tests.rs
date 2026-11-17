@@ -1,3 +1,13 @@
+use super::read_localization;
+use io::ErrorKind;
+use retailer_sauce::prelude::Availability;
+use retailer_sauce::prelude::ItemCondition;
+use serde_json::from_value;
+use serde_json::to_value;
+use thread::JoinHandle;
+use thread::sleep;
+use thread::spawn;
+
 use super::*;
 use serde_json::{Value, json};
 use std::{
@@ -20,11 +30,11 @@ pub(crate) fn fixture(
     body: String,
     expected_path: &str,
     delay: Duration,
-) -> (String, thread::JoinHandle<()>) {
+) -> (String, JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let base = format!("http://{}", listener.local_addr().unwrap());
     let path = expected_path.to_string();
-    let task = thread::spawn(move || {
+    let task = spawn(move || {
         let (mut stream, _) = listener.accept().unwrap();
         stream
             .set_read_timeout(Some(Duration::from_secs(3)))
@@ -41,7 +51,7 @@ pub(crate) fn fixture(
             request.starts_with(&format!("GET {path} HTTP/1.1\r\n")),
             "{request}"
         );
-        thread::sleep(delay);
+        sleep(delay);
         let _ = write!(
             stream,
             "HTTP/1.1 {status} Test\r\nContent-Type: application/json\r\nContent-Length: {}\r\nLocation: http://127.0.0.1:1/private\r\nConnection: close\r\n\r\n{body}",
@@ -146,7 +156,7 @@ fn configuration_defaults_and_invalid_urls() {
                 OffersClient::new(&base, Duration::from_secs(1)).is_err(),
                 "{value}"
             ),
-            Err(error) => assert_eq!(error.kind(), io::ErrorKind::InvalidInput),
+            Err(error) => assert_eq!(error.kind(), ErrorKind::InvalidInput),
         }
     }
     #[cfg(unix)]
@@ -159,7 +169,7 @@ fn configuration_defaults_and_invalid_urls() {
 #[test]
 fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     let mut value = page(1, 0, false)["items"][0].clone();
-    let legacy: Offer = serde_json::from_value(value.clone()).unwrap();
+    let legacy: Offer = from_value(value.clone()).unwrap();
     assert_eq!(legacy.identifiers, Default::default());
     assert_eq!(legacy.localization, Default::default());
     assert!(legacy.was_price.is_none());
@@ -174,7 +184,7 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     value["external_identifiers"] = json!({"shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"});
     value["localization"] =
         json!({"target_market":{"kind":"country","code":"CA","label":null},"language":"fr"});
-    let offer: Offer = serde_json::from_value(value.clone()).unwrap();
+    let offer: Offer = from_value(value.clone()).unwrap();
     assert_eq!(offer.identifiers.gtin.unwrap().value, "0012345678905");
     assert_eq!(offer.localization.language.as_deref(), Some("fr"));
     for (field, invalid) in [
@@ -186,7 +196,7 @@ fn extended_facts_are_data_only_strict_and_compatible_with_old_responses() {
     ] {
         let mut bad = value.clone();
         bad[field] = invalid;
-        assert!(serde_json::from_value::<Offer>(bad).is_err());
+        assert!(from_value::<Offer>(bad).is_err());
     }
 }
 
@@ -198,18 +208,10 @@ fn pricing_and_typed_facts_preserve_values_without_guessing() {
     value["availability"] = json!({"kind":"other","raw":raw});
     value["item_condition"] = json!({"kind":"new","raw":null});
     value["content"] = json!({"description":"<p>Raw &amp; description</p>"});
-    let offer: Offer = serde_json::from_value(value.clone()).unwrap();
+    let offer: Offer = from_value(value.clone()).unwrap();
     assert_eq!(offer.comparable_was_price().unwrap().amount, "2999");
-    assert_eq!(
-        offer.availability,
-        Some(retailer_sauce::availability::Availability::Other(
-            raw.into()
-        ))
-    );
-    assert_eq!(
-        offer.item_condition,
-        Some(retailer_sauce::item_condition::ItemCondition::New)
-    );
+    assert_eq!(offer.availability, Some(Availability::Other(raw.into())));
+    assert_eq!(offer.item_condition, Some(ItemCondition::New));
     assert_eq!(
         offer.content[0].description.as_deref(),
         Some("<p>Raw &amp; description</p>")
@@ -218,7 +220,7 @@ fn pricing_and_typed_facts_preserve_values_without_guessing() {
         let mut other = value.clone();
         other["was_price"] = json!({"amount":amount,"currency":currency});
         assert!(
-            serde_json::from_value::<Offer>(other)
+            from_value::<Offer>(other)
                 .unwrap()
                 .comparable_was_price()
                 .is_none()
@@ -233,7 +235,7 @@ fn pricing_and_typed_facts_preserve_values_without_guessing() {
     ] {
         let mut other = value.clone();
         other["availability"] = json!({"kind":kind,"raw":null});
-        assert!(serde_json::from_value::<Offer>(other).is_ok());
+        assert!(from_value::<Offer>(other).is_ok());
     }
     for (field, bad) in [
         ("availability", json!("in_stock")),
@@ -254,7 +256,7 @@ fn pricing_and_typed_facts_preserve_values_without_guessing() {
     ] {
         let mut other = value.clone();
         other[field] = bad;
-        assert!(serde_json::from_value::<Offer>(other).is_err(), "{field}");
+        assert!(from_value::<Offer>(other).is_err(), "{field}");
     }
 }
 
@@ -296,11 +298,8 @@ fn new_and_historical_localization_observations_are_not_reinterpreted() {
     ] {
         let mut value = page(1, 0, false)["items"][0].clone();
         value["localization"] = localization.clone();
-        let offer: Offer = serde_json::from_value(value).unwrap();
-        assert_eq!(
-            serde_json::to_value(offer.localization).unwrap(),
-            localization
-        );
+        let offer: Offer = from_value(value).unwrap();
+        assert_eq!(to_value(offer.localization).unwrap(), localization);
     }
 }
 
@@ -314,7 +313,7 @@ fn localized_content_accepts_complete_lists_and_rejects_invalid_selections() {
         {"language":"EN-au","title":" Selected ž ","description":" <p>Raw &amp;</p>\n"},
         {"language":null,"title":"Unknown","description":null}
     ]);
-    let parsed: Offer = serde_json::from_value(value.clone()).unwrap();
+    let parsed: Offer = from_value(value.clone()).unwrap();
     assert_eq!(
         parsed
             .content
@@ -341,10 +340,7 @@ fn localized_content_accepts_complete_lists_and_rejects_invalid_selections() {
     ] {
         let mut bad = value.clone();
         bad["content"] = invalid;
-        assert!(
-            serde_json::from_value::<Offer>(bad.clone()).is_err(),
-            "{bad}"
-        );
+        assert!(from_value::<Offer>(bad.clone()).is_err(), "{bad}");
     }
 }
 
@@ -357,7 +353,7 @@ fn localized_urls_preserve_new_values_and_adapt_old_arrays() {
         {"language":"en","title":value["title"],"description":null},
         {"language":"fr","title":"Français","description":null,"url":"https://shop.example/fr"}
     ]);
-    let parsed: Offer = serde_json::from_value(value.clone()).unwrap();
+    let parsed: Offer = from_value(value.clone()).unwrap();
     assert_eq!(parsed.content[0].url, url.as_str().unwrap());
     assert_eq!(parsed.content[1].url, "https://shop.example/fr");
     for invalid in [
@@ -369,10 +365,10 @@ fn localized_urls_preserve_new_values_and_adapt_old_arrays() {
     ] {
         let mut bad = value.clone();
         bad["content"][0]["url"] = invalid;
-        assert!(serde_json::from_value::<Offer>(bad).is_err());
+        assert!(from_value::<Offer>(bad).is_err());
     }
     value["content"][0]["unexpected"] = json!(true);
-    assert!(serde_json::from_value::<Offer>(value).is_err());
+    assert!(from_value::<Offer>(value).is_err());
 }
 
 #[test]
@@ -383,9 +379,9 @@ fn region_inputs_support_current_and_legacy_api_shapes() {
         json!({"kind":"region","label":"European Union","code":null}),
     ] {
         let value = json!({"target_market":market,"language":"en"});
-        let localization = super::read_localization(value).unwrap();
+        let localization = read_localization(value).unwrap();
         assert_eq!(
-            serde_json::to_value(localization).unwrap(),
+            to_value(localization).unwrap(),
             json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
         );
     }

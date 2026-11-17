@@ -9,6 +9,18 @@ mod projection;
 mod reporting;
 mod search;
 
+use crate::app;
+use crate::tests::assert_batch_errors;
+use crate::tests::assert_error_response;
+use bootstrap::MIGRATIONS;
+use bootstrap::migrate as bootstrap_migrate;
+use diesel::sql_query;
+use kernel::boot;
+use poem::Route;
+use serde_json::from_str;
+use std::env::var;
+use url::Url;
+
 use std::sync::{Arc, Mutex};
 
 use diesel::{
@@ -43,7 +55,7 @@ impl Drop for TestSchema {
 }
 
 fn database(migrate: bool) -> (TestSchema, DbPool) {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let connection = PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("could not connect to the test database"));
     let mut schema = TestSchema {
@@ -54,7 +66,7 @@ fn database(migrate: bool) -> (TestSchema, DbPool) {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .expect("create isolated schema");
-    let mut url = url::Url::parse(&database_url)
+    let mut url = Url::parse(&database_url)
         .unwrap_or_else(|_| panic!("DATABASE_URL_TEST must be a PostgreSQL URL"));
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
@@ -63,7 +75,7 @@ fn database(migrate: bool) -> (TestSchema, DbPool) {
         .build(ConnectionManager::<PgConnection>::new(url.to_string()))
         .unwrap_or_else(|_| panic!("could not create the test pool"));
     if migrate {
-        bootstrap::migrate(&pool).unwrap();
+        bootstrap_migrate(&pool).unwrap();
     }
     (schema, pool)
 }
@@ -72,9 +84,7 @@ fn database(migrate: bool) -> (TestSchema, DbPool) {
 fn revert_to(pool: &DbPool, version: &str) {
     let mut connection = pool.get().unwrap();
     while connection.applied_migrations().unwrap()[0].to_string() != version {
-        connection
-            .revert_last_migration(bootstrap::MIGRATIONS)
-            .unwrap();
+        connection.revert_last_migration(MIGRATIONS).unwrap();
     }
 }
 
@@ -85,7 +95,7 @@ struct Snapshot {
 }
 
 fn snapshot(pool: &DbPool, sql: &str) -> Value {
-    diesel::sql_query(sql)
+    sql_query(sql)
         .get_result::<Snapshot>(&mut pool.get().unwrap())
         .unwrap()
         .data
@@ -133,7 +143,7 @@ fn counts(pool: &DbPool) -> Value {
     )
 }
 
-async fn run(client: &TestClient<poem::Route>, queue: &str, limit: usize) -> Value {
+async fn run(client: &TestClient<Route>, queue: &str, limit: usize) -> Value {
     let response = client
         .post(format!("/api/{queue}/run"))
         .body_json(&json!({"limit":limit}))
@@ -176,7 +186,7 @@ impl EventSubscriberPort for ProbeSubscriber {
 async fn queues_advance_only_through_their_own_runner_and_preserve_metadata() {
     let (_schema, pool) = database(true);
     let handled = Arc::new(Mutex::new(Vec::new()));
-    let kernel = kernel::boot(KernelConfig::default())
+    let kernel = boot(KernelConfig::default())
         .command_handler("DevelopmentProbe", Arc::new(ProbeHandler))
         .event_subscriber(
             "DevelopmentProbeFinished",
@@ -185,7 +195,7 @@ async fn queues_advance_only_through_their_own_runner_and_preserve_metadata() {
         )
         .start_persistent(pool.clone(), 0)
         .unwrap();
-    let client = TestClient::new(crate::app(AppState::from_kernel(pool.clone(), &kernel)));
+    let client = TestClient::new(app(AppState::from_kernel(pool.clone(), &kernel)));
     let message_id = Uuid::now_v7();
     let correlation_id = Uuid::now_v7();
     let payload = json!({"value":"unchanged"});
@@ -224,7 +234,7 @@ async fn queues_advance_only_through_their_own_runner_and_preserve_metadata() {
     let command = snapshot(&pool, "SELECT to_jsonb(c) AS data FROM command_entries c");
     assert_eq!(command["command_type"], "DevelopmentProbe");
     assert_eq!(
-        serde_json::from_str::<Value>(command["payload"].as_str().unwrap()).unwrap(),
+        from_str::<Value>(command["payload"].as_str().unwrap()).unwrap(),
         payload
     );
     assert_eq!(
@@ -254,7 +264,7 @@ async fn queues_advance_only_through_their_own_runner_and_preserve_metadata() {
         .lock()
         .unwrap()
         .iter()
-        .map(|body| serde_json::from_str(body).unwrap())
+        .map(|body| from_str(body).unwrap())
         .collect();
     assert_eq!(observed, vec![payload]);
     for queue in ["inbox", "commands", "events"] {
@@ -282,7 +292,7 @@ async fn queues_advance_only_through_their_own_runner_and_preserve_metadata() {
 async fn batch_limits_and_unknown_command_retries_are_durable() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for value in ["one", "two"] {
         client.post("/api/inbox")
             .body_json(&json!({"routing_key":"UnknownDevelopmentProbe","source":"test","payload":{"value":value}}))
@@ -295,7 +305,7 @@ async fn batch_limits_and_unknown_command_retries_are_durable() {
     assert_eq!(counts(&pool), json!({"inbox":2,"commands":1,"events":0}));
     let failed = run(&client, "commands", 1).await;
     assert!(failed["processed"].is_null());
-    crate::tests::assert_batch_errors(&failed, 1);
+    assert_batch_errors(&failed, 1);
     let retry = snapshot(
         &pool,
         "SELECT jsonb_build_object(
@@ -335,7 +345,7 @@ async fn unconfigured_outbox_and_health_do_not_touch_queue_rows() {
         .unwrap();
     let before = snapshot(&pool, "SELECT to_jsonb(o) AS data FROM outbox_entries o");
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     client
         .post("/api/outbox/run")
         .body_json(&json!({"limit":1}))
@@ -356,7 +366,7 @@ async fn unconfigured_outbox_and_health_do_not_touch_queue_rows() {
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    crate::tests::assert_error_response(response).await;
+    assert_error_response(response).await;
     let health = client.get("/api/health").send().await;
     health.assert_status_is_ok();
     health.assert_text("ok").await;
@@ -367,11 +377,11 @@ async fn unconfigured_outbox_and_health_do_not_touch_queue_rows() {
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 fn migrations_round_trip_and_startup_is_idempotent() {
     let (_schema, pool) = database(true);
-    bootstrap::migrate(&pool).unwrap();
+    bootstrap_migrate(&pool).unwrap();
     assert_eq!(counts(&pool), json!({"inbox":0,"commands":0,"events":0}));
     pool.get()
         .unwrap()
-        .revert_all_migrations(bootstrap::MIGRATIONS)
+        .revert_all_migrations(MIGRATIONS)
         .unwrap();
     let tables = snapshot(
         &pool,
@@ -381,7 +391,7 @@ fn migrations_round_trip_and_startup_is_idempotent() {
          'offers','applied_offer_messages')",
     );
     assert_eq!(tables, 0);
-    bootstrap::migrate(&pool).unwrap();
+    bootstrap_migrate(&pool).unwrap();
     assert_eq!(counts(&pool), json!({"inbox":0,"commands":0,"events":0}));
 }
 
@@ -394,7 +404,7 @@ fn migration_failure_aborts_bootstrap_with_a_sanitized_error() {
         .batch_execute("CREATE TABLE inbox_entries (id INT)")
         .unwrap();
     assert_eq!(
-        bootstrap::migrate(&pool).unwrap_err().to_string(),
+        bootstrap_migrate(&pool).unwrap_err().to_string(),
         "customer facing database migrations failed"
     );
 }

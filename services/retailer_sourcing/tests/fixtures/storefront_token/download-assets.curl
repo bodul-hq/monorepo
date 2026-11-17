@@ -1,0 +1,131 @@
+# Run from the repository root. URLs were read from ankerau.html.
+fail
+location
+max-time = 60
+user-agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+
+url = "https://one.anker.com/_next/static/chunks/2jxyuwligt88t.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/00.js"
+
+url = "https://one.anker.com/_next/static/chunks/2gj9_tqkns5ks.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/01.js"
+
+url = "https://one.anker.com/_next/static/chunks/0w4ybm31xrmje.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/02.js"
+
+url = "https://one.anker.com/_next/static/chunks/1j_av2h7eifmm.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/03.js"
+
+url = "https://one.anker.com/_next/static/chunks/04kp2xg1wkk9g.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/04.js"
+
+url = "https://one.anker.com/_next/static/chunks/3uo8jwmzyb9eb.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/05.js"
+
+url = "https://one.anker.com/_next/static/chunks/turbopack-139px754lzivv.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/06.js"
+
+url = "https://one.anker.com/_next/static/chunks/3-oqz7ftzks__.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/07.js"
+
+url = "https://one.anker.com/_next/static/chunks/2nrsncororwj9.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/08.js"
+
+url = "https://one.anker.com/_next/static/chunks/2c5qbhsnj_mk9.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/09.js"
+
+url = "https://one.anker.com/_next/static/chunks/2vdsn5z48xuea.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/10.js"
+
+url = "https://one.anker.com/_next/static/chunks/2149df9e-m6yk.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/11.js"
+
+url = "https://one.anker.com/_next/static/chunks/2p_zo1dqzab-e.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/12.js"
+
+url = "https://one.anker.com/_next/static/chunks/0-yiuy_fve1_p.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/13.js"
+
+url = "https://one.anker.com/_next/static/chunks/053hzl0va-qqx.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/14.js"
+
+url = "https://one.anker.com/_next/static/chunks/1e56j6p0y8d3u.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/15.js"
+
+url = "https://one.anker.com/_next/static/chunks/1b2878kmn7hql.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/16.js"
+
+url = "https://one.anker.com/_next/static/chunks/3riy_qbsg82_d.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/17.js"
+
+url = "https://one.anker.com/_next/static/chunks/1kzcnbpz4nh_z.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/18.js"
+
+url = "https://one.anker.com/_next/static/chunks/2wjrzptnc15kz.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/19.js"
+
+url = "https://one.anker.com/_next/static/chunks/0k631vp4cg2f-.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/20.js"
+
+url = "https://one.anker.com/_next/static/chunks/0cm5l5p9x08l1.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/21.js"
+
+url = "https://one.anker.com/_next/static/chunks/05gpvxss-e_tw.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/22.js"
+
+url = "https://one.anker.com/_next/static/chunks/2fq5_g1a_21ld.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/23.js"
+
+url = "https://one.anker.com/_next/static/chunks/2okyepn4bwdre.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/24.js"
+
+url = "https://one.anker.com/_next/static/chunks/0m49klbco-6nf.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/25.js"
+
+url = "https://one.anker.com/_next/static/chunks/3bfg-cv8cwd38.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/26.js"
+
+url = "https://one.anker.com/_next/static/chunks/34r6ovmv_o5j8.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/27.js"
+
+url = "https://one.anker.com/_next/static/chunks/3_zu7psdkb5jk.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/28.js"
+
+url = "https://one.anker.com/_next/static/chunks/0tzs29ry8srcj.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/29.js"
+
+url = "https://one.anker.com/_next/static/chunks/3qls2gghmbhyh.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/30.js"
+
+url = "https://one.anker.com/_next/static/chunks/0rcf_vbjkjkrs.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/31.js"
+
+url = "https://one.anker.com/_next/static/chunks/3rt74qh1746ls.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/32.js"
+
+url = "https://one.anker.com/_next/static/chunks/1usurzfx9qmlq.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/33.js"
+
+url = "https://one.anker.com/_next/static/chunks/2885ixx1_blup.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/34.js"
+
+url = "https://one.anker.com/_next/static/chunks/2mjlvxj846rj9.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/35.js"
+
+url = "https://one.anker.com/_next/static/chunks/02g6ucy59jla1.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/36.js"
+
+url = "https://one.anker.com/_next/static/chunks/15mmhinionwdp.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/37.js"
+
+url = "https://one.anker.com/_next/static/chunks/1qe0ta0ye-ngt.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/38.js"
+
+url = "https://one.anker.com/_next/static/chunks/0cz1d0mv5g_q7.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/39.js"
+
+url = "https://one.anker.com/_next/static/chunks/20xpj6y6y76y0.js"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/40.js"
+
+url = "https://www.anker.com/.netlify/scripts/rum"
+output = "services/retailer_sourcing/tests/fixtures/storefront_token/assets/41.js"

@@ -1,0 +1,43 @@
+<script>
+        window.MeteorMenu = {
+            // These will get handled by the Meteor class constructor
+            registeredCallbacks: [],
+            api: {
+                on: (eventName, callback) => {
+                    window.MeteorMenu.registeredCallbacks.push([eventName, callback]);
+                }
+            },
+            revisionFileUrl: "\/\/www.ugreenindia.com\/cdn\/shop\/files\/meteor-mega-menus.json?v=5587714315640590196",
+            storefrontAccessToken: "synthetic-ugreenin",
+            localeRootPath: "\/hi",
+            languageCode: "hi".toUpperCase(),
+            countryCode: "IN",
+            shop: {
+                domain: "www.ugreenindia.com",
+                permanentDomain: "990f9c-b7.myshopify.com",
+                moneyFormat: "Rs. {{amount}}",
+                currency: "INR"
+            },
+            options: {
+                desktopSelector: "",
+                mobileSelector: "",
+                disableDesktop: false,
+                disableMobile: false,
+                navigationLinkSpacing: 16,
+                navigationLinkCaretStyle: "outline",
+                menuDisplayAnimation: "none",
+                menuCenterInViewport: false,
+                menuVerticalOffset: 10,
+                menuVerticalPadding: 0,
+                menuJustifyContent: "flex-start",
+                menuFontSize: 16,
+                menuFontWeight: "400",
+                menuTextTransform: "none",
+                menuDisplayAction: "hover",
+                menuDisplayDelay: "0",
+                externalLinksInNewTab: null,
+                mobileBreakpoint: 0,
+                addonsEnabled: false
+            }
+        }
+    </script>

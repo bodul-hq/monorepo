@@ -1,19 +1,39 @@
 mod dashboard;
 mod layout;
+use dashboard::Dashboard;
+use dashboard::page as dashboard_page;
+use layout::Page;
+use layout::end;
+use layout::start;
+use poem::Response;
+use poem::http::StatusCode;
+use poem::web::Path;
+use std::env::VarError as StdEnvVarError;
+use std::env::var;
+#[cfg(not(unix))]
+use std::future::pending;
+use std::io::Error;
+use std::io::ErrorKind as StdIoErrorKind;
+use std::io::Result as StdIoResult;
+use tokio::select;
+use tokio::signal::ctrl_c;
+use tokio::signal::unix::SignalKind;
+use tokio::signal::unix::signal;
+
 use poem::{Endpoint, EndpointExt};
 use poem::{Route, Server, get, handler, listener::TcpListener, web::Html};
 use std::sync::Arc;
 
 #[handler]
 fn index() -> Html<String> {
-    let mut html = layout::start("Development", layout::Page::Home);
+    let mut html = start("Development", Page::Home);
     html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">DEVELOPER TOOLS</p><h1>Development<span class="title-dot">.</span></h1><p class="lede">Tools for inspecting the services in your local workspace.</p></div></div><div class="tools"><a class="service tool" href="/dashboard"><span class="service-number" aria-hidden="true">01</span><h2>Database dashboard</h2><p>Table sizes, estimated rows, and inbox, command, event and outbox status for each service.</p><span class="tool-link">Open dashboard <span aria-hidden="true">→</span></span></a></div></main>"#);
-    layout::end(&mut html);
+    end(&mut html);
     Html(html)
 }
 
 #[handler]
-fn service_image(poem::web::Path(name): poem::web::Path<String>) -> poem::Response {
+fn service_image(Path(name): Path<String>) -> Response {
     let svg = match name.as_str() {
         "retailer-sourcing.svg" => include_str!("../assets/retailer-sourcing.svg"),
         "products.svg" => include_str!("../assets/products.svg"),
@@ -25,43 +45,39 @@ fn service_image(poem::web::Path(name): poem::web::Path<String>) -> poem::Respon
         "outbox.svg" => include_str!("../assets/outbox.svg"),
         "customer-facing.svg" => include_str!("../assets/customer-facing.svg"),
         _ => {
-            return poem::Response::builder()
-                .status(poem::http::StatusCode::NOT_FOUND)
-                .finish();
+            return Response::builder().status(StatusCode::NOT_FOUND).finish();
         }
     };
-    poem::Response::builder()
-        .content_type("image/svg+xml")
-        .body(svg)
+    Response::builder().content_type("image/svg+xml").body(svg)
 }
 
-fn app(state: Arc<dashboard::Dashboard>) -> impl Endpoint {
+fn app(state: Arc<Dashboard>) -> impl Endpoint {
     Route::new()
         .at("/", get(index))
-        .at("/dashboard", get(dashboard::page))
+        .at("/dashboard", get(dashboard_page))
         .at("/assets/:name", get(service_image))
         .data(state)
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16> {
+fn parse_port(value: Result<String, StdEnvVarError>) -> StdIoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            Error::new(
+                StdIoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(std::env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+        Err(StdEnvVarError::NotPresent) => Ok(3000),
+        Err(error) => Err(Error::new(StdIoErrorKind::InvalidInput, error)),
     }
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
-    let port = parse_port(std::env::var("PORT"))?;
-    let state = Arc::new(dashboard::Dashboard::from_env().map_err(std::io::Error::other)?);
+async fn main() -> StdIoResult<()> {
+    let port = parse_port(var("PORT"))?;
+    let state = Arc::new(Dashboard::from_env().map_err(Error::other)?);
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run_with_graceful_shutdown(app(state), shutdown_signal()?, None)
         .await
@@ -69,24 +85,28 @@ async fn main() -> std::io::Result<()> {
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> StdIoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+        select! {
+            Ok(()) = ctrl_c() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            pending::<()>().await;
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::dashboard::Dashboard as DashboardDashboard;
+    use poem::http::StatusCode as PoemHttpStatusCode;
+    use std::sync::Arc as StdSyncArc;
+
     use std::{env::VarError, io::ErrorKind};
 
     use poem::test::TestClient;
@@ -95,8 +115,8 @@ mod tests {
 
     #[tokio::test]
     async fn index_renders_page() {
-        let response = TestClient::new(app(std::sync::Arc::new(
-            crate::dashboard::Dashboard::from_env().unwrap(),
+        let response = TestClient::new(app(StdSyncArc::new(
+            DashboardDashboard::from_env().unwrap(),
         )))
         .get("/")
         .send()
@@ -112,8 +132,8 @@ mod tests {
 
     #[tokio::test]
     async fn service_images_are_served_as_svg() {
-        let client = TestClient::new(app(std::sync::Arc::new(
-            crate::dashboard::Dashboard::from_env().unwrap(),
+        let client = TestClient::new(app(StdSyncArc::new(
+            DashboardDashboard::from_env().unwrap(),
         )));
         for name in [
             "retailer-sourcing",
@@ -136,7 +156,7 @@ mod tests {
             .get("/assets/missing.svg")
             .send()
             .await
-            .assert_status(poem::http::StatusCode::NOT_FOUND);
+            .assert_status(PoemHttpStatusCode::NOT_FOUND);
     }
 
     #[test]

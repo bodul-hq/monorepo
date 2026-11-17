@@ -1,34 +1,49 @@
 mod offers;
 mod page;
 
+use offers::OffersClient;
+use page::index;
+use page::search as page_search;
+use std::env::VarError as StdEnvVarError;
+use std::env::var;
+#[cfg(not(unix))]
+use std::future::pending;
+use std::io::Error;
+use std::io::ErrorKind as StdIoErrorKind;
+use std::io::Result as StdIoResult;
+use tokio::select;
+use tokio::signal::ctrl_c;
+use tokio::signal::unix::SignalKind;
+use tokio::signal::unix::signal;
+
 use poem::{EndpointExt, Route, Server, get, listener::TcpListener};
 use std::sync::Arc;
 
-fn app(client: Arc<offers::OffersClient>) -> Route {
+fn app(client: Arc<OffersClient>) -> Route {
     Route::new()
-        .at("/", get(page::index).data(client.clone()))
-        .at("/search", get(page::search).data(client))
+        .at("/", get(index).data(client.clone()))
+        .at("/search", get(page_search).data(client))
 }
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16> {
+fn parse_port(value: Result<String, StdEnvVarError>) -> StdIoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            Error::new(
+                StdIoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(std::env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+        Err(StdEnvVarError::NotPresent) => Ok(3000),
+        Err(error) => Err(Error::new(StdIoErrorKind::InvalidInput, error)),
     }
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
-    let port = parse_port(std::env::var("PORT"))?;
-    let client = Arc::new(offers::OffersClient::from_env()?);
+async fn main() -> StdIoResult<()> {
+    let port = parse_port(var("PORT"))?;
+    let client = Arc::new(OffersClient::from_env()?);
     Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run_with_graceful_shutdown(app(client), shutdown_signal()?, None)
         .await
@@ -36,18 +51,18 @@ async fn main() -> std::io::Result<()> {
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> StdIoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+        select! {
+            Ok(()) = ctrl_c() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            pending::<()>().await;
         }
     })
 }

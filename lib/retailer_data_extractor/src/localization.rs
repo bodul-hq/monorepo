@@ -1,5 +1,11 @@
 //! Evidence is captured separately after retailer islands, then carried through the facade.
-use retailer_sauce::localization::{Localization, TargetMarket, source_locale};
+use retailer_sauce::prelude::RegionCode;
+use retailer_sauce::prelude::SourceLocale;
+use serde_json::from_str;
+use serde_json::from_value;
+use serde_json::to_value;
+
+use retailer_sauce::prelude::{Localization, TargetMarket, source_locale};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -121,7 +127,7 @@ fn rejected_candidates(document: &Html, candidates: &mut Vec<Candidate>) {
         ),
     ] {
         for node in document.select(&Selector::parse(selector).expect("static selector")) {
-            if let Ok(value) = serde_json::from_str::<Value>(&node.inner_html()) {
+            if let Ok(value) = from_str::<Value>(&node.inner_html()) {
                 for field in fields {
                     if let Some(raw) = value.get(*field) {
                         candidates.push(Candidate {
@@ -208,7 +214,7 @@ fn decision(evidence: &mut Evidence, candidate: Option<usize>, field: &str, reas
 fn apply_selection(
     evidence: &mut Evidence,
     market: Selection<TargetMarket>,
-    locale: Selection<retailer_sauce::localization::SourceLocale>,
+    locale: Selection<SourceLocale>,
 ) {
     let derive_market = matches!(market, Selection::Absent);
     match market {
@@ -255,7 +261,7 @@ fn apply_selection(
                     );
                 } else if locale.region.as_deref() == Some("EU") {
                     evidence.selected.target_market = Some(TargetMarket::Region {
-                        code: retailer_sauce::localization::RegionCode::EuropeanUnion,
+                        code: RegionCode::EuropeanUnion,
                     });
                     decision(
                         evidence,
@@ -406,11 +412,11 @@ fn literal(input: &str) -> Option<(String, usize)> {
 }
 
 pub fn split(json: &str) -> Result<(String, Option<Evidence>), String> {
-    let mut value: Value = serde_json::from_str(json).map_err(|error| error.to_string())?;
+    let mut value: Value = from_str(json).map_err(|error| error.to_string())?;
     let evidence = value
         .as_object_mut()
         .and_then(|object| object.remove(KEY))
-        .map(serde_json::from_value)
+        .map(from_value)
         .transpose()
         .map_err(|error| error.to_string())?;
     Ok((value.to_string(), evidence))
@@ -421,16 +427,16 @@ pub fn attach(
     variations: bool,
 ) -> Result<(), String> {
     if let (Some(json), Some(evidence)) = (json, evidence) {
-        let mut value: Value = serde_json::from_str(json).map_err(|error| error.to_string())?;
+        let mut value: Value = from_str(json).map_err(|error| error.to_string())?;
         if variations
             && let Some(variants) = value.get_mut("variations").and_then(Value::as_array_mut)
         {
             for variant in variants {
                 variant["localization"] =
-                    serde_json::to_value(&evidence.selected).map_err(|error| error.to_string())?;
+                    to_value(&evidence.selected).map_err(|error| error.to_string())?;
             }
         }
-        value[KEY] = serde_json::to_value(evidence).map_err(|error| error.to_string())?;
+        value[KEY] = to_value(evidence).map_err(|error| error.to_string())?;
         *json = value.to_string();
     }
     Ok(())
@@ -438,14 +444,18 @@ pub fn attach(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as serde_json_from_str;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value as serde_json_to_value;
+
     use super::*;
     #[test]
     fn current_page_facts_exclude_payment_widgets_defaults_and_other_scopes() {
         let html = include_str!("../tests/fixtures/localization/ugreen-fr.html");
         let evidence = extract(html);
         assert_eq!(
-            serde_json::to_value(&evidence.selected).unwrap(),
-            serde_json::json!({"target_market":{"kind":"country","code":"CA"},"language":"fr"})
+            serde_json_to_value(&evidence.selected).unwrap(),
+            serde_json_json!({"target_market":{"kind":"country","code":"CA"},"language":"fr"})
         );
         assert!(
             evidence.candidates.iter().any(|candidate| {
@@ -515,7 +525,7 @@ mod tests {
         let (_, evidence) = split(document.as_deref().unwrap()).unwrap();
         let mut structuralized = Some(r#"{"variations":[{},{}]}"#.into());
         attach(&mut structuralized, evidence, true).unwrap();
-        let value: Value = serde_json::from_str(structuralized.as_deref().unwrap()).unwrap();
+        let value: Value = serde_json_from_str(structuralized.as_deref().unwrap()).unwrap();
         assert_eq!(value["variations"][0]["localization"]["language"], "fr");
         assert_eq!(
             value["variations"][0]["localization"],
@@ -526,6 +536,10 @@ mod tests {
 
 #[cfg(test)]
 mod locale_fallback_tests {
+    use serde_json::from_str as serde_json_from_str2;
+    use serde_json::from_value as serde_json_from_value;
+    use serde_json::to_value as serde_json_to_value2;
+
     use super::*;
     use serde_json::json;
 
@@ -595,7 +609,7 @@ mod locale_fallback_tests {
         ] {
             let evidence = extract(html);
             assert_eq!(
-                serde_json::to_value(&evidence.selected).unwrap(),
+                serde_json_to_value2(&evidence.selected).unwrap(),
                 json!({"target_market":country.map(|code|json!({"kind":"country","code":code})),"language":language}),
                 "{html}"
             );
@@ -627,7 +641,7 @@ mod locale_fallback_tests {
         ] {
             let evidence = extract(html);
             assert_eq!(
-                serde_json::to_value(&evidence.selected).unwrap(),
+                serde_json_to_value2(&evidence.selected).unwrap(),
                 json!({"target_market":{"kind":"region","code":"eu"},"language":"en"})
             );
             assert!(evidence.candidates.iter().any(|candidate| {
@@ -688,10 +702,10 @@ mod locale_fallback_tests {
     fn intermediate_stages_preserve_new_and_legacy_selected_facts_and_provenance() {
         let new = extract(include_str!("../tests/fixtures/localization/anker-it.html"));
         let european = extract(include_str!("../tests/fixtures/localization/anker-eu.html"));
-        let old: Evidence = serde_json::from_value(json!({"selected":{"target_market":null,"language":"it-IT"},"candidates":[{"path":"html[lang]","raw":"it-IT","decision":"document language"}]})).unwrap();
-        let old_european: Evidence = serde_json::from_value(json!({"selected":{"target_market":null,"language":"en-EU"},"candidates":[{"path":"html[lang]","raw":"en-EU","decision":"document language"}]})).unwrap();
+        let old: Evidence = serde_json_from_value(json!({"selected":{"target_market":null,"language":"it-IT"},"candidates":[{"path":"html[lang]","raw":"it-IT","decision":"document language"}]})).unwrap();
+        let old_european: Evidence = serde_json_from_value(json!({"selected":{"target_market":null,"language":"en-EU"},"candidates":[{"path":"html[lang]","raw":"en-EU","decision":"document language"}]})).unwrap();
         for evidence in [new, european, old, old_european] {
-            let expected = serde_json::to_value(&evidence).unwrap();
+            let expected = serde_json_to_value2(&evidence).unwrap();
             let mut extracted = Some("{}".into());
             attach(&mut extracted, Some(evidence), false).unwrap();
             let (_, evidence) = split(extracted.as_deref().unwrap()).unwrap();
@@ -700,7 +714,7 @@ mod locale_fallback_tests {
             let (_, evidence) = split(normalized.as_deref().unwrap()).unwrap();
             let mut structuralized = Some(r#"{"variations":[{},{}]}"#.into());
             attach(&mut structuralized, evidence, true).unwrap();
-            let value: Value = serde_json::from_str(structuralized.as_deref().unwrap()).unwrap();
+            let value: Value = serde_json_from_str2(structuralized.as_deref().unwrap()).unwrap();
             assert_eq!(value[KEY], expected);
             for variation in value["variations"].as_array().unwrap() {
                 assert_eq!(variation["localization"], expected["selected"]);

@@ -1,3 +1,14 @@
+use crate::platform::offers_publisher::tests::TestServer;
+use axum::http::StatusCode;
+use diesel::sql_query;
+use serde_json::from_slice;
+use serde_json::from_str;
+use serde_json::to_value;
+use sql_types::Jsonb;
+use sql_types::Text;
+use sql_types::Uuid;
+use tokio::runtime::Handle;
+
 use super::{outbox_tests::run, *};
 use crate::platform::{
     offers_publisher::{
@@ -18,10 +29,10 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 fn seed(db: &Database, message: &OutboundMessageEnvelope) {
-    diesel::sql_query("INSERT INTO outbox_entries(id,payload,meta) VALUES($1,$2,$3)")
-        .bind::<sql_types::Uuid, _>(message.metadata.message_id)
-        .bind::<sql_types::Text, _>(String::from_utf8(message.payload.clone()).unwrap())
-        .bind::<sql_types::Jsonb, _>(serde_json::to_value(&message.metadata).unwrap())
+    sql_query("INSERT INTO outbox_entries(id,payload,meta) VALUES($1,$2,$3)")
+        .bind::<Uuid, _>(message.metadata.message_id)
+        .bind::<Text, _>(String::from_utf8(message.payload.clone()).unwrap())
+        .bind::<Jsonb, _>(to_value(&message.metadata).unwrap())
         .execute(&mut db.pool.get().unwrap())
         .unwrap();
 }
@@ -34,7 +45,7 @@ fn snapshot(db: &Database) -> Value {
 }
 
 pub(crate) fn state(db: &Database, url: &str) -> AppState {
-    let publisher = OffersPublisher::new(url, tokio::runtime::Handle::current()).unwrap();
+    let publisher = OffersPublisher::new(url, Handle::current()).unwrap();
     let service = AsyncOutboxService::from_postgres(db.pool.clone(), Arc::new(publisher));
     AppState {
         outbox: Some(OutboxAdapter::new(service)),
@@ -42,7 +53,7 @@ pub(crate) fn state(db: &Database, url: &str) -> AppState {
     }
 }
 
-pub(crate) async fn inbox(db: &Database) -> crate::platform::offers_publisher::tests::TestServer {
+pub(crate) async fn inbox(db: &Database) -> TestServer {
     let adapter = InboxAdapter::new(AsyncInboxService::from_postgres(db.pool.clone()));
     let app = Router::new()
         .route(
@@ -69,7 +80,7 @@ async fn confirms_durable_acceptance_with_limits_and_duplicate_ids() {
     let before = snapshot(&db);
     assert_eq!(
         run(AppState::default(), json!({"limit":10})).await.0,
-        axum::http::StatusCode::SERVICE_UNAVAILABLE
+        StatusCode::SERVICE_UNAVAILABLE
     );
     assert_eq!(snapshot(&db), before);
     let app_state = state(&db, &server.url);
@@ -102,8 +113,8 @@ async fn confirms_durable_acceptance_with_limits_and_duplicate_ids() {
     assert_eq!(records.as_array().unwrap().len(), 2);
     assert_eq!(records[0]["id"], json!(message.metadata.message_id));
     assert_eq!(
-        serde_json::from_str::<Value>(records[0]["payload"].as_str().unwrap()).unwrap(),
-        serde_json::from_slice::<Value>(&message.payload).unwrap()
+        from_str::<Value>(records[0]["payload"].as_str().unwrap()).unwrap(),
+        from_slice::<Value>(&message.payload).unwrap()
     );
     assert_eq!(records[0]["meta"]["routing_key"], "ImportOfferDetails");
     assert_eq!(
@@ -194,7 +205,7 @@ async fn a_lost_acceptance_response_retries_the_same_inbox_message() {
             async move {
                 let stored = adapter.submit(request).await.unwrap();
                 if first.swap(false, Ordering::SeqCst) {
-                    axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
+                    StatusCode::INTERNAL_SERVER_ERROR.into_response()
                 } else {
                     stored.into_response()
                 }

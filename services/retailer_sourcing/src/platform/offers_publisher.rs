@@ -1,5 +1,11 @@
 //! Temporary HTTP outbox transport. Only durable inbox acceptance completes a row.
 
+use io::Error;
+use io::Result as IoResult;
+use serde_json::Value;
+use serde_json::from_slice;
+use std::env::var;
+
 use std::{env::VarError, io};
 
 use inbox::prelude::SubmitInboxRequest;
@@ -16,11 +22,11 @@ pub struct OffersPublisher {
 }
 
 impl OffersPublisher {
-    pub fn from_env(runtime: Handle) -> io::Result<Option<Self>> {
-        Self::from_value(std::env::var("OFFERS_URL"), runtime)
+    pub fn from_env(runtime: Handle) -> IoResult<Option<Self>> {
+        Self::from_value(var("OFFERS_URL"), runtime)
     }
 
-    fn from_value(value: Result<String, VarError>, runtime: Handle) -> io::Result<Option<Self>> {
+    fn from_value(value: Result<String, VarError>, runtime: Handle) -> IoResult<Option<Self>> {
         InboxClient::from_env_value(value, runtime)
             .map(|client| client.map(|client| Self { client }))
             .map_err(err_configuration)
@@ -28,7 +34,7 @@ impl OffersPublisher {
 
     /// Builds a publisher for `origin`; startup reads it from the environment.
     #[cfg(test)]
-    pub fn new(origin: &str, runtime: Handle) -> io::Result<Self> {
+    pub fn new(origin: &str, runtime: Handle) -> IoResult<Self> {
         InboxClient::new(origin, runtime)
             .map(|client| Self { client })
             .map_err(err_configuration)
@@ -48,8 +54,7 @@ fn submission(envelope: OutboundMessageEnvelope) -> Result<SubmitInboxRequest, O
     if envelope.metadata.routing_key != DESTINATION {
         return Err(err_destination());
     }
-    let payload: serde_json::Value =
-        serde_json::from_slice(&envelope.payload).map_err(|_| err_payload())?;
+    let payload: Value = from_slice(&envelope.payload).map_err(|_| err_payload())?;
     if !payload.is_object() {
         return Err(err_payload());
     }
@@ -69,12 +74,12 @@ fn submission(envelope: OutboundMessageEnvelope) -> Result<SubmitInboxRequest, O
     Ok(request)
 }
 
-fn err_configuration(error: ConfigError) -> io::Error {
+fn err_configuration(error: ConfigError) -> Error {
     match error {
-        ConfigError::InvalidOrigin => io::Error::other(
+        ConfigError::InvalidOrigin => Error::other(
             "OFFERS_URL must be an HTTP(S) origin without credentials, path, query or fragment",
         ),
-        ConfigError::Client => io::Error::other("offers HTTP client could not be configured"),
+        ConfigError::Client => Error::other("offers HTTP client could not be configured"),
     }
 }
 fn err_delivery(error: SubmitError) -> OutboxError {

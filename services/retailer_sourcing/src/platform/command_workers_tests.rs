@@ -1,23 +1,36 @@
 //! Worker lifetime and PostgreSQL queue behavior.
+use tokio::spawn;
+use tokio::sync::oneshot::channel;
+use tokio::task::yield_now;
+
 use super::CommandWorkers;
 
 #[tokio::test]
 async fn joins_every_worker_even_if_an_earlier_worker_panics() {
-    let (release, wait) = tokio::sync::oneshot::channel();
+    let (release, wait) = channel();
     let workers = CommandWorkers {
         handles: vec![
-            tokio::spawn(async { panic!("fixture worker failure") }),
-            tokio::spawn(async { wait.await.unwrap() }),
+            spawn(async { panic!("fixture worker failure") }),
+            spawn(async { wait.await.unwrap() }),
         ],
     };
-    let joined = tokio::spawn(workers.join());
-    tokio::task::yield_now().await;
+    let joined = spawn(workers.join());
+    yield_now().await;
     assert!(!joined.is_finished());
     release.send(()).unwrap();
     assert!(joined.await.unwrap().is_err());
 }
 
 mod postgres_tests {
+    use crate::app;
+    use tokio::spawn as tokio_spawn;
+    use tokio::sync::mpsc::UnboundedReceiver;
+    use tokio::sync::mpsc::UnboundedSender;
+    use tokio::sync::mpsc::unbounded_channel;
+    use tokio::task::yield_now as tokio_task_yield_now;
+    use tokio::time::sleep;
+    use tokio::time::timeout as tokio_time_timeout;
+
     use std::sync::{Arc, Condvar, Mutex};
     use std::time::Duration;
 
@@ -74,7 +87,7 @@ mod postgres_tests {
     }
     struct Handler {
         gate: Arc<Gate>,
-        started: tokio::sync::mpsc::UnboundedSender<usize>,
+        started: UnboundedSender<usize>,
     }
     impl Handle for Handler {
         type Command = Work;
@@ -89,14 +102,8 @@ mod postgres_tests {
         }
     }
 
-    fn setup(
-        db: &Database,
-    ) -> (
-        BusHandle,
-        ReleaseOnDrop,
-        tokio::sync::mpsc::UnboundedReceiver<usize>,
-    ) {
-        let (started, receiver) = tokio::sync::mpsc::unbounded_channel();
+    fn setup(db: &Database) -> (BusHandle, ReleaseOnDrop, UnboundedReceiver<usize>) {
+        let (started, receiver) = unbounded_channel();
         let gate = Arc::new(Gate::default());
         let mut bus = Bus::default();
         bus.handle(Handler {
@@ -126,14 +133,14 @@ mod postgres_tests {
         .unwrap()
         .clone()
     }
-    async fn received(receiver: &mut tokio::sync::mpsc::UnboundedReceiver<usize>) -> usize {
-        tokio::time::timeout(Duration::from_secs(10), receiver.recv())
+    async fn received(receiver: &mut UnboundedReceiver<usize>) -> usize {
+        tokio_time_timeout(Duration::from_secs(10), receiver.recv())
             .await
             .unwrap()
             .unwrap()
     }
     async fn completed(db: &Database, count: usize) {
-        tokio::time::timeout(Duration::from_secs(10), async {
+        tokio_time_timeout(Duration::from_secs(10), async {
             loop {
                 if rows(db, "command_entries")
                     .iter()
@@ -143,7 +150,7 @@ mod postgres_tests {
                 {
                     break;
                 }
-                tokio::time::sleep(Duration::from_millis(20)).await;
+                sleep(Duration::from_millis(20)).await;
             }
         })
         .await
@@ -160,11 +167,11 @@ mod postgres_tests {
             .unwrap();
         let workers = bus.start_command_workers(0);
         // Wait longer than a poll interval: neither Bus::start nor zero workers consume.
-        tokio::time::sleep(Duration::from_millis(1200)).await;
+        sleep(Duration::from_millis(1200)).await;
         assert!(started.try_recv().is_err());
         assert_eq!(rows(&db, "command_entries")[0]["status"], 0);
         gate.0.release();
-        let response = crate::app(AppState {
+        let response = app(AppState {
             bus: Some(bus.clone()),
             ..Default::default()
         })
@@ -228,11 +235,11 @@ mod postgres_tests {
             .dispatch(&Work { value: 2 }, "test")
             .unwrap();
         bus.shutdown();
-        let joined = tokio::spawn(workers.join());
-        tokio::task::yield_now().await;
+        let joined = tokio_spawn(workers.join());
+        tokio_task_yield_now().await;
         assert!(!joined.is_finished());
         gate.0.release();
-        tokio::time::timeout(Duration::from_secs(10), joined)
+        tokio_time_timeout(Duration::from_secs(10), joined)
             .await
             .unwrap()
             .unwrap()

@@ -27,10 +27,7 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | `everyday_infra`          | Serialization and chrono adapters for everyday value types              |
 | `retailer_sauce`          | Retailer integrations                                                   |
 | `retailer_data_extractor` | Extracting data from retailers                                          |
-| `retailers_anker`         | Integration for the Anker retailer                                      |
 | `retailers_mi`            | Integration for the Mi retailer                                         |
-| `retailers_minisforum`    | Integration for the Minisforum retailer                                 |
-| `retailers_ugreen`        | Integration for the Ugreen retailer                                     |
 | `retailers_wip`           | Integration for the WIP retailer                                        |
 | `sitemap`                 | Parsing sitemap XML and building a crawl's sitemap tree                 |
 | `testimony`               | Event sourcing abstractions, aggregate repositories, and query dispatch |
@@ -75,6 +72,13 @@ delivery; preparing them does not contact offers. See
 [ADR 19](docs/adr/0019-immutable-offer-export-preparation.md). The code is organised as feature slices
 ([ADR 4](docs/adr/0004-feature-slices-for-retailer-sourcing.md)), and the
 pipeline runs only when `DATABASE_URL` is set (see below).
+
+`retailer_sourcing` also offers an independent initial fill for all active Anker storefronts except Korea through
+`POST /api/initial-offer-fills`: acquire its public Storefront token, traverse
+catalog identifiers in batches of 500, and fetch complete GraphQL details for
+each product. Details are saved in object storage and produce a terminal event;
+they do not enter the existing normalization/export pipeline. See the
+[initial-fill walkthrough](services/retailer_sourcing/README.md#anker-initial-offer-fill).
 
 `offers` imports retailer page snapshots through Mulac commands, saves Testimony
 history and projects offer events, with initial images in `OfferCreated` and
@@ -127,15 +131,18 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
 - [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.98.0 with clippy and rustfmt, and rustup installs it on the first cargo command.
 - libpq (for example `libpq-dev` on Debian/Ubuntu, `libpq` on macOS with Homebrew). The services and `testimony_infra` depend on diesel with the PostgreSQL backend, which links against it.
 - GNU Make.
-- Nordic Anker market downloads require the site's public browser Storefront
+- Sitemap-driven Nordic Anker downloads require the public browser Storefront
   token in `ANKER_NORDICS_STOREFRONT_TOKEN`; see
   [the sourcing setup](services/retailer_sourcing/README.md) and
-  [ADR 47](docs/adr/0047-nordic-retailer-markets.md).
+  [ADR 47](docs/adr/0047-nordic-retailer-markets.md). Initial fill discovers the
+  browser token automatically, with the same setting available as an override
+  ([ADR 54](docs/adr/0054-anker-browser-token-discovery.md)).
 - Mulac 0.5.0 packages from the `null-labs-hq` Cargo registry at
   `https://null-labs-hq.github.io/crates/`, configured in `.cargo/config.toml`.
   The services lockfile pins resolved versions and checksums; no sibling Mulac
   checkout is required. See [ADR 42](docs/adr/0042-published-mulac-crates.md)
   and the [0.5 integration changes](docs/adr/0043-mulac-0-5-integration.md).
+- Access to the `bodul` Cargo registry for the published `retailer_sauce` 0.3.0 package.
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
 - PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.
@@ -341,6 +348,19 @@ The smoke job in .github/workflows/ci.yml documents the distinct ports, test
 databases and explicit queue runners. Its shell blocks can be syntax-checked
 with bash -n; full execution requires PostgreSQL and permission to open sockets.
 A workflow definition is not evidence of a passing Actions run.
+
+
+Minisforum and Ugreen (including NAS) also support GraphQL initial fills through
+`POST /api/initial-offer-fills`, discovering every advertised country/language
+context per retailer. Their v2 dumps separate markets into country-language
+subdirectories; existing Anker configurations remain fixed-context. See
+[ADR 59](docs/adr/0059-multi-market-shopify-initial-fills.md).
+
+GraphQL initial fills use an independent integration for each of the 48 supported
+retailer codes. The retailer owns token policy, queries, schema, raw types and
+pagination; sourcing shares only HTTP pacing, durable orchestration and storage.
+See [ADR 61](docs/adr/0061-independent-retailer-graphql-integrations.md).
+
 
 Products and Training are Offers-style service foundations with separate PostgreSQL
 databases, persistent Mulac queues, Testimony event stores and authenticated

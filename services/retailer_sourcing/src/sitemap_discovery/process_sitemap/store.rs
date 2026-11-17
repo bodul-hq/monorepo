@@ -1,5 +1,18 @@
 mod record;
 
+use crate::platform::db::describe;
+use diesel::insert_into;
+use diesel::result::Error as DieselResultError;
+use object_storage::Error;
+use record::validate;
+use serde_json::Error as SerdeJsonError;
+use serde_json::to_string;
+use sitemaps_processed::table as sitemaps_processed_table;
+use sitemaps_raw::fetched_at;
+use sitemaps_raw::id as sitemaps_raw_id;
+use sitemaps_raw::retrieval_id as sitemaps_raw_retrieval_id;
+use sitemaps_raw::table;
+
 use diesel::prelude::*;
 use diesel::r2d2::PoolError;
 use uuid::Uuid;
@@ -8,7 +21,7 @@ use self::record::{ProcessedSitemapPgRecord, RawSitemapDocumentPgRecord};
 use super::super::schema::{sitemaps_processed, sitemaps_raw};
 use super::entity::{ProcessedSitemap, RawSitemapDocument};
 use super::handler::Store;
-use crate::platform::db::{self, DbPool};
+use crate::platform::db::DbPool;
 use crate::platform::object_storage::{
     self, ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET, RAW_SITEMAPS_BUCKET,
     Stored,
@@ -17,15 +30,15 @@ use crate::platform::object_storage::{
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {
     #[error(transparent)]
-    ObjectStorage(#[from] object_storage::Error),
+    ObjectStorage(#[from] Error),
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
 
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] DieselResultError),
 
     #[error("serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
+    Serialization(#[from] SerdeJsonError),
 
     #[error("processed sitemap document is too large for storage")]
     DocumentTooLarge,
@@ -54,9 +67,9 @@ impl PgStore {
 impl Store for PgStore {
     fn raw_documents(&self, retrieval_id: Uuid) -> Result<Vec<RawSitemapDocument>, StoreError> {
         let mut connection = self.pool.get()?;
-        let records = sitemaps_raw::table
-            .filter(sitemaps_raw::retrieval_id.eq(retrieval_id))
-            .order((sitemaps_raw::fetched_at.asc(), sitemaps_raw::id.asc()))
+        let records = table
+            .filter(sitemaps_raw_retrieval_id.eq(retrieval_id))
+            .order((fetched_at.asc(), sitemaps_raw_id.asc()))
             .select(RawSitemapDocumentPgRecord::as_select())
             .load::<RawSitemapDocumentPgRecord>(&mut connection)?;
         drop(connection);
@@ -77,8 +90,8 @@ impl Store for PgStore {
         &self,
         sitemap: &ProcessedSitemap,
     ) -> Result<Stored<ProcessedSitemap>, StoreError> {
-        let body = serde_json::to_string(sitemap.document())?;
-        record::validate(sitemap, &body)?;
+        let body = to_string(sitemap.document())?;
+        validate(sitemap, &body)?;
         let object_storage_id =
             self.objects
                 .create(PROCESSED_SITEMAPS_BUCKET, sitemap.id, &body)?;
@@ -87,7 +100,7 @@ impl Store for PgStore {
             object_storage_id,
         };
         let record = ProcessedSitemapPgRecord::new(sitemap, storage)?;
-        diesel::insert_into(sitemaps_processed::table)
+        insert_into(sitemaps_processed_table)
             .values(record)
             .execute(&mut self.pool.get()?)?;
         Ok(Stored {

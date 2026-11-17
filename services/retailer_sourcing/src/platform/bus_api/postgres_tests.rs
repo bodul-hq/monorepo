@@ -1,4 +1,8 @@
 //! Compatibility with rows written using the original Mulac queue schema.
+use crate::app as imported_app;
+use diesel::sql_query;
+use serde_json::from_str;
+
 use std::sync::{Arc, Mutex};
 
 use axum::Router;
@@ -70,7 +74,7 @@ fn app(db: &Database, finished: Arc<Mutex<Vec<i32>>>) -> Router {
     bus.handle(PingHandler);
     bus.handle(FinishHandler(finished));
     bus.on::<Pong, Finish>(|event| Some(Finish { value: event.value }));
-    crate::app(AppState {
+    imported_app(AppState {
         bus: Some(bus.start(db.pool.clone()).unwrap()),
         db: Some(db.pool.clone()),
         object_storage: None,
@@ -95,7 +99,7 @@ fn rows(db: &Database, table: &str) -> Vec<Value> {
 // metadata/extra_info must remain readable after the dependency changes.
 fn seed_command(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO command_entries \
          (id, command_type, payload, meta, status, attempts, scheduled_at, received_at, updated_at, extra_info) \
          VALUES ($1, 'UpgradePing', $2, $3, 4, 2, now() - interval '1 day', \
@@ -110,7 +114,7 @@ fn seed_command(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
 
 fn seed_event(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO event_entries \
          (id, event_type, payload, meta, status, attempts, scheduled_at, received_at, updated_at, extra_info) \
          VALUES ($1, 'UpgradePong', $2, $3, 4, 2, now() - interval '1 day', \
@@ -172,7 +176,7 @@ async fn old_command_rows_advance_only_through_separate_queue_runs() {
         correlation_id.to_string()
     );
     assert_eq!(
-        serde_json::from_str::<Value>(events[0]["payload"].as_str().unwrap()).unwrap(),
+        from_str::<Value>(events[0]["payload"].as_str().unwrap()).unwrap(),
         json!({"value":7})
     );
     assert!(finished.lock().unwrap().is_empty());
@@ -297,4 +301,79 @@ async fn partial_batches_complete_successes_and_reschedule_failures() {
         );
         assert_eq!(future, true);
     }
+}
+
+#[tokio::test]
+#[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
+async fn http_diagnostics_survive_command_persistence_and_retry_history() {
+    use crate::app as imported_app2;
+
+    use crate::platform::http::{FetchError, OfferClient};
+
+    struct FailingFetch(Arc<Mutex<Option<String>>>);
+    impl Handle for FailingFetch {
+        type Command = Ping;
+        type Event = Pong;
+        type Error = FetchError;
+
+        fn handle(&self, _: Ping) -> Result<Vec<Pong>, FetchError> {
+            // A real construction failure without a network dependency.
+            let error = OfferClient::default()
+                .post_storefront_json(
+                    "https://example.com/graphql?key=query-secret#private-fragment",
+                    r#"{"secret":"body-secret"}"#,
+                    "invalid\nsecret-token",
+                )
+                .unwrap_err();
+            *self.0.lock().unwrap() = Some(error.message.clone());
+            Err(error)
+        }
+    }
+
+    let db = Database::new();
+    let id = seed_command(&db, r#"{"value":0}"#, None);
+    let diagnostic = Arc::new(Mutex::new(None));
+    let mut bus = Bus::default();
+    bus.handle(FailingFetch(diagnostic.clone()));
+    let app = imported_app2(AppState {
+        bus: Some(bus.start(db.pool.clone()).unwrap()),
+        db: Some(db.pool.clone()),
+        object_storage: None,
+        outbox: None,
+    });
+    let report = run(&app, "/api/commands/run", 1).await;
+    assert_eq!(report["errors"].as_array().unwrap().len(), 1);
+    let row = rows(&db, "command_entries").remove(0);
+    assert_eq!(row["id"], id.to_string());
+    assert_eq!(row["status"], 4);
+    assert_eq!(row["attempts"], 3);
+    assert!(row["reservation_id"].is_null());
+    assert!(row["reserved_at"].is_null());
+    assert!(row["processed_at"].is_null());
+    let errors = row["extra_info"]["errors"].as_array().unwrap();
+    assert_eq!(errors.len(), 2);
+    assert_eq!(errors[0], "earlier failure");
+    let stored = errors[1].as_str().unwrap();
+    let diagnostic = diagnostic.lock().unwrap().clone().unwrap();
+    assert!(stored.contains(&diagnostic));
+    assert!(stored.contains(&id.to_string()));
+    assert!(stored.contains("request_id="));
+    assert!(stored.contains("stage=build"));
+    for secret in [
+        "query-secret",
+        "private-fragment",
+        "secret-token",
+        "body-secret",
+    ] {
+        assert!(!stored.contains(secret), "{stored}");
+    }
+    assert_eq!(
+        json_query(
+            &mut db.pool.get().unwrap(),
+            &format!(
+                "SELECT to_jsonb(scheduled_at > now()) AS value FROM command_entries WHERE id = '{id}'"
+            )
+        ),
+        true
+    );
 }

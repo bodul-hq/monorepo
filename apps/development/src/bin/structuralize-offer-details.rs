@@ -6,13 +6,16 @@
 //! retailer is a folder name such as `ankerau`. With none given, every retailer
 //! folder with normalized pages is processed.
 
+use offer_details::main as offer_details_main;
+
 use development::offer_details::{self, Stage};
-use retailer_data_extractor::structuralize_for;
+use retailer_data_extractor::structuralize_offer_details_for;
 use shared::retailer::RetailerCode;
 
 fn main() {
-    offer_details::main(&Stage {
+    offer_details_main(&Stage {
         name: "structuralize-offer-details",
+        directory: "offer_details",
         input: "normalized",
         input_extension: "json",
         output: "structuralized",
@@ -22,7 +25,7 @@ fn main() {
 
 /// `None` when the retailer has no structuralizer or the page no document.
 fn structuralize(code: RetailerCode, json: &str) -> Result<Option<String>, String> {
-    let Some(structuralized) = structuralize_for(code, json) else {
+    let Some(structuralized) = structuralize_offer_details_for(code, json) else {
         return Ok(None);
     };
     let structuralized = structuralized.map_err(|e| format!("structuralize: {e}"))?;

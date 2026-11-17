@@ -22,14 +22,14 @@ http-body-util = "0.1.5"
 inbox = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-inbox" }
 inbox_client = { path = "../lib/inbox_client" }
 kernel = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-kernel" }
-money = { path = "../lib/money" }
+money = { version = "0.1.2", registry = "bodul" }
 outbox = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-outbox" }
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
-retailer_sauce = { path = "../lib/retailer_sauce" }
+retailer_sauce = { version = "0.3.0", registry = "bodul" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-shared = { path = "../lib/shared" }
+shared = { version = "0.1.1", registry = "bodul" }
 testimony = { path = "../lib/testimony" }
 testimony_infra = { path = "../lib/testimony_infra" }
 thiserror = "2"

@@ -1,3 +1,13 @@
+use axum::serve as axum_serve;
+use serde_json::from_slice;
+use serde_json::to_vec as serde_json_to_vec;
+use std::net::TcpListener as StdNetTcpListener;
+use tokio::net::TcpListener;
+use tokio::runtime::Runtime;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::task::spawn_blocking;
+
 use super::*;
 use axum::{Json, Router, http::StatusCode, routing::post};
 use outbox::prelude::OutboxEntryMetadata;
@@ -7,7 +17,7 @@ use uuid::Uuid;
 
 pub(crate) struct TestServer {
     pub url: String,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 
 impl Drop for TestServer {
@@ -17,17 +27,17 @@ impl Drop for TestServer {
 }
 
 pub(crate) async fn serve(app: Router) -> TestServer {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
+    let task = spawn(async move {
+        axum_serve(listener, app).await.unwrap();
     });
     TestServer { url, task }
 }
 
 pub(crate) fn envelope() -> OutboundMessageEnvelope {
     OutboundMessageEnvelope {
-        payload: serde_json::to_vec(&json!({
+        payload: serde_json_to_vec(&json!({
             "retailer_code":"AnkerAu", "title":"USB charger",
             "price":{"amount":9007199254740993_i64,"currency":"AUD"},
             "url":"https://shop.example/Charger?variant=2#offer"
@@ -51,14 +61,14 @@ async fn publish(
     publisher: OffersPublisher,
     message: OutboundMessageEnvelope,
 ) -> Result<(), OutboxError> {
-    tokio::task::spawn_blocking(move || publisher.publish(message))
+    spawn_blocking(move || publisher.publish(message))
         .await
         .unwrap()
 }
 
 #[test]
 fn configuration_reads_offers_url_without_leaking_input() {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     let handle = || runtime.handle().clone();
     assert!(
         OffersPublisher::from_value(Err(VarError::NotPresent), handle())
@@ -136,7 +146,7 @@ async fn preserves_the_command_and_delivery_identity_across_retries() {
     assert_eq!(
         requests[0],
         json!({
-            "payload":serde_json::from_slice::<Value>(&message.payload).unwrap(),
+            "payload":from_slice::<Value>(&message.payload).unwrap(),
             "routing_key":"ImportOfferDetails", "message_id":message.metadata.message_id,
             "correlation_id":message.metadata.correlation_id, "source":"retailer_sourcing"
         })
@@ -160,7 +170,7 @@ async fn reports_transport_failures_with_offers_messages() {
         err_rejected().to_string()
     );
     drop(server);
-    let unavailable = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let unavailable = StdNetTcpListener::bind("127.0.0.1:0").unwrap();
     let address = format!("http://{}", unavailable.local_addr().unwrap());
     drop(unavailable);
     let publisher = OffersPublisher::new(&address, Handle::current()).unwrap();

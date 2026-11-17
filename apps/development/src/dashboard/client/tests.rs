@@ -1,3 +1,11 @@
+use serde_json::Value;
+use serde_json::from_value;
+use serde_json::json as serde_json_json;
+use thread::JoinHandle;
+use thread::sleep;
+use thread::spawn;
+use tokio::join as tokio_join;
+
 use super::*;
 use std::{
     io::{Read, Write},
@@ -5,12 +13,7 @@ use std::{
     thread,
 };
 
-fn fixture(
-    status: u16,
-    body: &str,
-    token: &str,
-    delay: Duration,
-) -> (String, thread::JoinHandle<()>) {
+fn fixture(status: u16, body: &str, token: &str, delay: Duration) -> (String, JoinHandle<()>) {
     fixture_path(status, body, token, delay, PATH)
 }
 fn fixture_path(
@@ -19,13 +22,13 @@ fn fixture_path(
     token: &str,
     delay: Duration,
     path: &str,
-) -> (String, thread::JoinHandle<()>) {
+) -> (String, JoinHandle<()>) {
     let path = path.to_owned();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     let body = body.to_owned();
     let token = token.to_owned();
-    let handle = thread::spawn(move || {
+    let handle = spawn(move || {
         let (mut socket, _) = listener.accept().unwrap();
         socket
             .set_read_timeout(Some(Duration::from_secs(3)))
@@ -44,7 +47,7 @@ fn fixture_path(
                 .to_ascii_lowercase()
                 .contains(&format!("authorization: bearer {token}"))
         );
-        thread::sleep(delay);
+        sleep(delay);
         let _ = write!(
             socket,
             "HTTP/1.1 {status} Test\r\nContent-Type: application/json\r\nLocation: http://127.0.0.1:1/private\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
@@ -284,7 +287,7 @@ async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
                     clients.customer_facing_report().await.map(|_| ())
                 }
             };
-            let ((sourcing, _), customer) = tokio::join!(clients.reports(), customer);
+            let ((sourcing, _), customer) = tokio_join!(clients.reports(), customer);
             assert_eq!(sourcing.unwrap().tables[0].row_count, 12);
             assert_eq!(customer.unwrap_err(), expected);
             handle.join().unwrap();
@@ -306,26 +309,26 @@ async fn customer_facing_failures_and_timeout_do_not_affect_other_reports() {
 
 #[test]
 fn new_queue_fields_distinguish_missing_empty_and_malformed() {
-    let base = serde_json::json!({"generated_at":"2026-10-29T12:00:00Z",
+    let base = serde_json_json!({"generated_at":"2026-10-29T12:00:00Z",
         "command_entries":[], "event_entries":[]});
-    let old: EntryStatuses = serde_json::from_value(base.clone()).unwrap();
+    let old: EntryStatuses = from_value(base.clone()).unwrap();
     assert!(old.inbox_entries.is_none());
     assert!(old.outbox_entries.is_none());
     for field in ["inbox_entries", "outbox_entries"] {
         for bad in [
-            serde_json::Value::Null,
-            serde_json::json!({}),
-            serde_json::json!([{"status":0,"status_text":"received","count":-1}]),
+            Value::Null,
+            serde_json_json!({}),
+            serde_json_json!([{"status":0,"status_text":"received","count":-1}]),
         ] {
             let mut input = base.clone();
             input[field] = bad;
-            assert!(serde_json::from_value::<EntryStatuses>(input).is_err());
+            assert!(from_value::<EntryStatuses>(input).is_err());
         }
     }
     let mut empty = base;
-    empty["inbox_entries"] = serde_json::json!([]);
-    empty["outbox_entries"] = serde_json::json!([]);
-    let empty: EntryStatuses = serde_json::from_value(empty).unwrap();
+    empty["inbox_entries"] = serde_json_json!([]);
+    empty["outbox_entries"] = serde_json_json!([]);
+    let empty: EntryStatuses = from_value(empty).unwrap();
     assert!(empty.inbox_entries.unwrap().is_empty());
     assert!(empty.outbox_entries.unwrap().is_empty());
 }

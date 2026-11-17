@@ -1,6 +1,9 @@
+use crate::app;
+use poem::Route;
+
 use super::*;
 
-async fn rest(client: &TestClient<poem::Route>, suffix: &str) -> Value {
+async fn rest(client: &TestClient<Route>, suffix: &str) -> Value {
     let response = client.get(format!("/api/offers{suffix}")).send().await;
     response.assert_status_is_ok();
     response.json().await.value().deserialize()
@@ -11,7 +14,7 @@ async fn rest(client: &TestClient<poem::Route>, suffix: &str) -> Value {
 async fn browse_projection_order_values_updates_and_reversible_index() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for index in 1..=31 {
         let amount = match index {
             1 => i64::MIN,

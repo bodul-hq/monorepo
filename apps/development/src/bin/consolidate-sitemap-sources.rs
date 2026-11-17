@@ -6,6 +6,16 @@
 //!
 //! Usage: `consolidate-sitemap-sources <data_dir>`
 
+use env::args;
+use fs::create_dir_all;
+use fs::read_dir;
+use fs::read_to_string;
+use fs::write;
+use process::exit;
+use retailer_data_extractor::classify_link_for;
+use serde_json::from_str;
+use serde_json::to_string_pretty;
+
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
 
@@ -16,12 +26,12 @@ use sitemap::{GroupedLinks, SitemapDocument, SitemapUrl};
 fn main() {
     if let Err(error) = run() {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: consolidate-sitemap-sources <data_dir>")?;
@@ -73,13 +83,8 @@ fn run() -> Result<(), String> {
 /// `retailer_sourcing` does.
 fn consolidate(retailer: RetailerCode, document: &SitemapDocument) -> GroupedLinks {
     GroupedLinks::from_document(document, |url: &SitemapUrl| {
-        retailer_data_extractor::classify_link_for(
-            retailer,
-            &url.location,
-            &url.source,
-            url.images.len(),
-        )
-        .unwrap_or(LinkKind::Unknown)
+        classify_link_for(retailer, &url.location, &url.source, url.images.len())
+            .unwrap_or(LinkKind::Unknown)
     })
 }
 
@@ -95,13 +100,13 @@ fn report(retailer: &str, retrieval_id: &str, links: &GroupedLinks) {
 }
 
 fn read_document(path: &Path) -> Result<SitemapDocument, String> {
-    let json = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    serde_json::from_str(&json).map_err(|e| format!("{}: {e}", path.display()))
+    let json = read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    from_str(&json).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// The folders directly inside `dir`, sorted by name.
 fn subfolders(dir: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut folders: Vec<PathBuf> = fs::read_dir(dir)
+    let mut folders: Vec<PathBuf> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -113,7 +118,7 @@ fn subfolders(dir: &Path) -> Result<Vec<PathBuf>, String> {
 
 /// The `.json` files directly inside `dir`, sorted by name.
 fn json_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut files: Vec<PathBuf> = fs::read_dir(dir)
+    let mut files: Vec<PathBuf> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -131,21 +136,28 @@ fn file_name(path: &Path) -> String {
 
 fn write_json(path: &Path, links: &GroupedLinks) -> Result<(), String> {
     if let Some(dir) = path.parent() {
-        fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     }
-    let json = serde_json::to_string_pretty(links).map_err(|e| e.to_string())?;
-    fs::write(path, json).map_err(|e| format!("{}: {e}", path.display()))
+    let json = to_string_pretty(links).map_err(|e| e.to_string())?;
+    write(path, json).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 #[cfg(test)]
 mod tests {
+    use env::temp_dir;
+    use fs::create_dir_all as fs_create_dir_all;
+    use fs::remove_dir_all;
+    use fs::write as fs_write;
+    use process::id as process_id;
+    use serde_json::to_string as serde_json_to_string;
+
     use super::*;
 
     #[test]
     fn reads_a_processed_tree_and_groups_its_urls() {
-        let dir = env::temp_dir().join(format!("consolidate-sitemap-sources-{}", process::id()));
-        let _ = fs::remove_dir_all(&dir);
-        fs::create_dir_all(&dir).unwrap();
+        let dir = temp_dir().join(format!("consolidate-sitemap-sources-{}", process_id()));
+        let _ = remove_dir_all(&dir);
+        fs_create_dir_all(&dir).unwrap();
         let path = dir.join("tree.json");
         let tree = SitemapDocument {
             urls: vec![SitemapUrl {
@@ -158,11 +170,11 @@ mod tests {
             }],
             ..SitemapDocument::default()
         };
-        fs::write(&path, serde_json::to_string(&tree).unwrap()).unwrap();
+        fs_write(&path, serde_json_to_string(&tree).unwrap()).unwrap();
 
         let document = read_document(&path).unwrap();
         let links = GroupedLinks::from_document(&document, |_| LinkKind::Unknown);
-        fs::remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).unwrap();
 
         assert_eq!(links.unknown, vec!["https://shop.test/a"]);
     }

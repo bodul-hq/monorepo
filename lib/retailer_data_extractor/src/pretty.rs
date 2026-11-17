@@ -1,5 +1,7 @@
 //! Pretty-printing JSON text without reordering its keys.
 
+use std::iter::repeat_n;
+
 /// Re-indents valid JSON text the way `serde_json::to_string_pretty` lays it out.
 ///
 /// Parsing into a `Value` would sort object keys, as `serde_json` is built here without
@@ -9,7 +11,7 @@
 pub fn pretty_json(json: &str) -> String {
     fn newline(out: &mut String, depth: usize) {
         out.push('\n');
-        out.extend(std::iter::repeat_n("  ", depth));
+        out.extend(repeat_n("  ", depth));
     }
 
     let mut out = String::with_capacity(json.len() * 2);
@@ -66,6 +68,9 @@ pub fn pretty_json(json: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+    use serde_json::to_string_pretty;
+
     use super::pretty_json;
     use html_extractor::serde_json::{self, Value};
 
@@ -73,8 +78,7 @@ mod tests {
     fn lays_out_like_serde_json() {
         // Keys already sorted, so `Value` keeps the order and the layouts can be compared.
         let json = r#"{"a":{},"b":[1,{"w":null,"x":"a,b:{c}\\\"[ ]"}],"c":[],"d":-1500.25}"#;
-        let expected =
-            serde_json::to_string_pretty(&serde_json::from_str::<Value>(json).unwrap()).unwrap();
+        let expected = to_string_pretty(&from_str::<Value>(json).unwrap()).unwrap();
 
         assert_eq!(pretty_json(json), expected);
     }

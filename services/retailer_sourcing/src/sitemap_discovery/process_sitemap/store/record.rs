@@ -1,4 +1,6 @@
 //! PostgreSQL representations and explicit conversions for this slice.
+use sitemap::RawSitemapDocument as SitemapRawSitemapDocument;
+
 use crate::platform::db::Json;
 use crate::platform::object_storage::ObjectStorageMetadata;
 use chrono::{DateTime, Utc};
@@ -25,7 +27,7 @@ impl RawSitemapDocumentPgRecord {
         Ok(RawSitemapDocument {
             id: self.id,
             object_storage_id: self.storage.0.object_storage_id,
-            document: sitemap::RawSitemapDocument {
+            document: SitemapRawSitemapDocument {
                 url: self.url,
                 last_modified: self.last_modified,
                 body,
@@ -74,6 +76,8 @@ fn stored_count(count: usize) -> Result<i32, StoreError> {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::to_string;
+
     use super::*;
     use shared::retailer::RetailerCode;
     use sitemap::SitemapDocument;
@@ -85,7 +89,7 @@ mod tests {
             RetailerCode::UgreenCa,
             SitemapDocument::default(),
         );
-        let body = serde_json::to_string(entity.document()).unwrap();
+        let body = to_string(entity.document()).unwrap();
         validate(&entity, &body).unwrap();
         let record = ProcessedSitemapPgRecord::new(
             &entity,
