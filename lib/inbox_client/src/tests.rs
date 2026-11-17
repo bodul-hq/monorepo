@@ -1,15 +1,27 @@
 use super::*;
+use axum::http::HeaderMap;
+use axum::http::StatusCode;
+use axum::serve as axum_serve;
 use axum::{
     Json, Router,
     response::IntoResponse,
     routing::{any, post},
 };
 use serde_json::{Value, json};
+use std::net::TcpListener as NetTcpListener;
 use std::sync::{Arc, Mutex};
+use tokio::net::TcpListener as TokioNetTcpListener;
+use tokio::runtime::Runtime;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::task::spawn_blocking;
+use tokio::test as tokio_test;
+use tokio::time::sleep;
+use tokio::time::timeout;
 
 struct TestServer {
     url: String,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 
 impl Drop for TestServer {
@@ -19,10 +31,10 @@ impl Drop for TestServer {
 }
 
 async fn serve(app: Router) -> TestServer {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TokioNetTcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
+    let task = spawn(async move {
+        axum_serve(listener, app).await.unwrap();
     });
     TestServer { url, task }
 }
@@ -32,14 +44,14 @@ fn submission(message_id: Uuid) -> Value {
 }
 
 async fn submit(client: InboxClient, expected: Uuid) -> Result<(), SubmitError> {
-    tokio::task::spawn_blocking(move || client.submit(&submission(expected), expected))
+    spawn_blocking(move || client.submit(&submission(expected), expected))
         .await
         .unwrap()
 }
 
 #[test]
 fn configuration_accepts_only_origins() {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     for origin in [
         "http://localhost",
         "https://offers.example/",
@@ -92,27 +104,25 @@ fn configuration_accepts_only_origins() {
     assert!(!ConfigError::InvalidOrigin.to_string().contains("secret"));
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn posts_the_submission_as_json_and_confirms_the_matching_uuid() {
     let seen = Arc::new(Mutex::new(Vec::<(Option<String>, Value)>::new()));
     let captured = seen.clone();
     let app = Router::new().route(
         "/api/inbox",
-        post(
-            move |headers: axum::http::HeaderMap, Json(body): Json<Value>| {
-                let captured = captured.clone();
-                async move {
-                    let content_type = headers
-                        .get("content-type")
-                        .map(|value| value.to_str().unwrap().to_owned());
-                    captured.lock().unwrap().push((content_type, body.clone()));
-                    (
-                        axum::http::StatusCode::ACCEPTED,
-                        Json(json!({"message_id":body["message_id"]})),
-                    )
-                }
-            },
-        ),
+        post(move |headers: HeaderMap, Json(body): Json<Value>| {
+            let captured = captured.clone();
+            async move {
+                let content_type = headers
+                    .get("content-type")
+                    .map(|value| value.to_str().unwrap().to_owned());
+                captured.lock().unwrap().push((content_type, body.clone()));
+                (
+                    StatusCode::ACCEPTED,
+                    Json(json!({"message_id":body["message_id"]})),
+                )
+            }
+        }),
     );
     let server = serve(app).await;
     let client = InboxClient::new(&server.url, Handle::current()).unwrap();
@@ -130,7 +140,7 @@ async fn posts_the_submission_as_json_and_confirms_the_matching_uuid() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
     for status in [200, 201, 204, 302, 400, 429, 500] {
         let calls = Arc::new(Mutex::new(0));
@@ -145,7 +155,7 @@ async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
                     async move {
                         *captured.lock().unwrap() += 1;
                         (
-                            axum::http::StatusCode::from_u16(status).unwrap(),
+                            StatusCode::from_u16(status).unwrap(),
                             [("location", "/must-not-follow")],
                             "private response body",
                         )
@@ -158,7 +168,7 @@ async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
                     let redirected = redirected.clone();
                     async move {
                         *redirected.lock().unwrap() += 1;
-                        axum::http::StatusCode::OK
+                        StatusCode::OK
                     }
                 }),
             );
@@ -172,7 +182,7 @@ async fn rejects_non_acceptance_without_redirects_or_automatic_retries() {
     }
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn rejects_invalid_oversized_and_mismatched_acknowledgements() {
     for body in [
         "{".to_owned(),
@@ -185,7 +195,7 @@ async fn rejects_invalid_oversized_and_mismatched_acknowledgements() {
             "/api/inbox",
             post(move || {
                 let body = body.clone();
-                async move { (axum::http::StatusCode::ACCEPTED, body) }
+                async move { (StatusCode::ACCEPTED, body) }
             }),
         );
         let server = serve(app).await;
@@ -197,26 +207,26 @@ async fn rejects_invalid_oversized_and_mismatched_acknowledgements() {
     }
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn bounds_total_time_and_reports_connection_failure() {
     let server = serve(Router::new().route(
         "/api/inbox",
         post(|| async {
-            tokio::time::sleep(Duration::from_secs(1)).await;
-            axum::http::StatusCode::ACCEPTED.into_response()
+            sleep(Duration::from_secs(1)).await;
+            StatusCode::ACCEPTED.into_response()
         }),
     ))
     .await;
     let client =
         InboxClient::with_timeout(&server.url, Handle::current(), Duration::from_millis(30))
             .unwrap();
-    let outcome = tokio::time::timeout(Duration::from_millis(500), submit(client, Uuid::now_v7()))
+    let outcome = timeout(Duration::from_millis(500), submit(client, Uuid::now_v7()))
         .await
         .expect("client deadline must fire before the delayed response");
     assert!(outcome.is_err());
     drop(server);
     // Release an ephemeral listener so the subsequent connection is refused.
-    let unavailable = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let unavailable = NetTcpListener::bind("127.0.0.1:0").unwrap();
     let address = format!("http://{}", unavailable.local_addr().unwrap());
     drop(unavailable);
     let client = InboxClient::new(&address, Handle::current()).unwrap();
@@ -229,9 +239,9 @@ async fn bounds_total_time_and_reports_connection_failure() {
 /// Accepts one connection and answers `202` with a chunked body.
 async fn chunked_response(chunks: Vec<(Duration, Vec<u8>)>) -> TestServer {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TokioNetTcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
+    let task = spawn(async move {
         let (mut stream, _) = listener.accept().await.unwrap();
         let mut request = Vec::new();
         let mut buffer = [0_u8; 1024];
@@ -244,7 +254,7 @@ async fn chunked_response(chunks: Vec<(Duration, Vec<u8>)>) -> TestServer {
         }
         if stream.write_all(b"HTTP/1.1 202 Accepted\r\nContent-Type: application/json\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n").await.is_err() { return; }
         for (delay, bytes) in chunks {
-            tokio::time::sleep(delay).await;
+            sleep(delay).await;
             let mut chunk = format!("{:X}\r\n", bytes.len()).into_bytes();
             chunk.extend_from_slice(&bytes);
             chunk.extend_from_slice(b"\r\n");
@@ -257,7 +267,7 @@ async fn chunked_response(chunks: Vec<(Duration, Vec<u8>)>) -> TestServer {
     TestServer { url, task }
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn bounds_chunked_acknowledgements_without_content_length() {
     let expected = Uuid::now_v7();
     let mut acknowledgement = json!({"message_id":expected}).to_string().into_bytes();
@@ -270,7 +280,7 @@ async fn bounds_chunked_acknowledgements_without_content_length() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn deadline_covers_a_slow_acknowledgement_body() {
     let expected = Uuid::now_v7();
     let final_chunk = format!("\"{expected}\"}}").into_bytes();
@@ -282,13 +292,13 @@ async fn deadline_covers_a_slow_acknowledgement_body() {
     let client =
         InboxClient::with_timeout(&server.url, Handle::current(), Duration::from_millis(30))
             .unwrap();
-    let outcome = tokio::time::timeout(Duration::from_millis(500), submit(client, expected))
+    let outcome = timeout(Duration::from_millis(500), submit(client, expected))
         .await
         .expect("the deadline must cover reading a streamed response body");
     assert!(outcome.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn a_disconnect_after_the_headers_is_a_transport_failure() {
     let server = chunked_response(vec![(Duration::ZERO, b"{\"message_id\"".to_vec())]).await;
     // The server closes after one chunk without the terminating chunk.
