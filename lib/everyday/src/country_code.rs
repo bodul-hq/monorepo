@@ -4,8 +4,13 @@
 //! two-letter country codes according to the ISO 3166-1 alpha-2 standard.
 
 use core::fmt;
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use serde::{Deserialize, Serialize};
+use std::error::Error as ErrorError;
 use std::str::FromStr;
+use std::str::from_utf8;
 
 /// Macro for defining country code enum variants and their string representations.
 ///
@@ -80,8 +85,8 @@ pub enum CountryCodeError {
     UnknownCode(String),
 }
 
-impl fmt::Display for CountryCodeError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for CountryCodeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             CountryCodeError::Empty => write!(f, "Country code cannot be empty"),
             CountryCodeError::InvalidFormat(input) => {
@@ -94,7 +99,7 @@ impl fmt::Display for CountryCodeError {
     }
 }
 
-impl std::error::Error for CountryCodeError {}
+impl ErrorError for CountryCodeError {}
 
 impl CountryCode {
     /// Creates a new country code from a string.
@@ -137,15 +142,15 @@ impl CountryCode {
         }
 
         // Safety: we just created valid ASCII uppercase letters
-        let code_str = std::str::from_utf8(&code).unwrap();
+        let code_str = from_utf8(&code).unwrap();
 
         CountryCode::from_str_normalized(code_str)
             .ok_or_else(|| CountryCodeError::UnknownCode(code_str.to_string()))
     }
 }
 
-impl fmt::Display for CountryCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for CountryCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.as_str())
     }
 }

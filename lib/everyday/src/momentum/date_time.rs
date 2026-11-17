@@ -1,4 +1,7 @@
 use core::fmt;
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -61,8 +64,8 @@ impl DateTime {
     }
 }
 
-impl fmt::Display for DateTime {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for DateTime {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let (year, month, day, hour, minute, second) = self.components();
         write!(
             f,

@@ -1,6 +1,10 @@
 //! Error types for momentum operations.
 
 use core::fmt;
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use std::error::Error as ErrorError;
 
 /// Errors that can occur when working with dates.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -15,8 +19,8 @@ pub enum Error {
     InvalidOrdinal(u8),
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             Error::InvalidMonth(month) => write!(f, "Invalid month: {month}"),
             Error::InvalidDay(day) => write!(f, "Invalid day: {day}"),
@@ -28,4 +32,4 @@ impl fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl ErrorError for Error {}

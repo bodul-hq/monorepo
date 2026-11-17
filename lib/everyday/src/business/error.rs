@@ -4,6 +4,10 @@
 //! concepts such as money and currency.
 
 use core::fmt;
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use std::error::Error as ErrorError;
 
 use super::money::MoneyError;
 
@@ -33,8 +37,8 @@ pub enum PhoneNumberError {
     UnsupportedCountryForInternationalFormat,
 }
 
-impl fmt::Display for PhoneNumberError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for PhoneNumberError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             Self::InvalidAreaCodeLength(value) => {
                 write!(f, "area code must be 1-2 digits, got: '{}'", value)
@@ -65,18 +69,18 @@ impl fmt::Display for PhoneNumberError {
     }
 }
 
-impl std::error::Error for PhoneNumberError {}
+impl ErrorError for PhoneNumberError {}
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             Error::Money(err) => err.fmt(f),
         }
     }
 }
 
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl ErrorError for Error {
+    fn source(&self) -> Option<&(dyn ErrorError + 'static)> {
         match self {
             Error::Money(err) => Some(err),
         }

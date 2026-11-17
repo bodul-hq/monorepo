@@ -4,7 +4,11 @@
 //! that enforces currency safety and prevents floating-point precision errors
 //! by storing amounts in minor units (cents, pence, etc.).
 
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use std::cmp::Ordering;
+use std::error::Error as ErrorError;
 use std::fmt;
 
 /// Supported currencies using ISO 4217 three-letter codes
@@ -35,8 +39,8 @@ impl Currency {
     }
 }
 
-impl fmt::Display for Currency {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Currency {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             Currency::EUR => write!(f, "EUR"),
             Currency::USD => write!(f, "USD"),
@@ -59,8 +63,8 @@ pub enum MoneyError {
     InvalidCurrency(String),
 }
 
-impl fmt::Display for MoneyError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for MoneyError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             MoneyError::CurrencyMismatch { left, right } => {
                 write!(f, "currency mismatch: {} and {}", left, right)
@@ -78,7 +82,7 @@ impl fmt::Display for MoneyError {
     }
 }
 
-impl std::error::Error for MoneyError {}
+impl ErrorError for MoneyError {}
 
 /// Immutable representation of money with currency support
 ///
@@ -193,8 +197,8 @@ impl PartialOrd<Money> for Money {
     }
 }
 
-impl fmt::Display for Money {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Money {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let symbol = self.currency.symbol();
         let symbol_before = self.currency.symbol_before();
 
@@ -212,6 +216,7 @@ impl fmt::Display for Money {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]

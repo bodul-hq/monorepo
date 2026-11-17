@@ -3,7 +3,11 @@
 //! Provides a value object for web resource URLs with basic validation.
 
 use core::fmt;
+use fmt::Display as FmtDisplay;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use serde::{Deserialize, Serialize};
+use std::error::Error as ErrorError;
 
 /// Errors that can occur when parsing a URL.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,8 +26,8 @@ pub enum UrlError {
     WhitespaceInUrl,
 }
 
-impl fmt::Display for UrlError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl FmtDisplay for UrlError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             UrlError::MissingSchemeSeparator => write!(f, "URL must contain '://' separator"),
             UrlError::InvalidScheme => {
@@ -39,7 +43,7 @@ impl fmt::Display for UrlError {
     }
 }
 
-impl std::error::Error for UrlError {}
+impl ErrorError for UrlError {}
 
 /// Url represents a web resource URL.
 ///
@@ -144,8 +148,8 @@ fn extract_host_and_rest(remainder: &str) -> (&str, &str) {
     }
 }
 
-impl fmt::Display for Url {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl FmtDisplay for Url {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.value())
     }
 }

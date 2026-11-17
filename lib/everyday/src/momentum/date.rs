@@ -3,6 +3,9 @@
 //! This module provides [`Date`] for representing calendar dates.
 
 use core::fmt;
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use std::str::FromStr;
 
 use super::error::Error;
@@ -115,8 +118,8 @@ impl Date {
     }
 }
 
-impl fmt::Display for Date {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Date {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
     }
 }

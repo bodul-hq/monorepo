@@ -3,7 +3,11 @@
 //! Provides a value object for contact email addresses with basic validation.
 
 use core::fmt;
+use fmt::Display as FmtDisplay;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
 use serde::{Deserialize, Serialize};
+use std::error::Error as ErrorError;
 
 /// Errors that can occur when parsing an email address.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,8 +26,8 @@ pub enum EmailAddressError {
     InvalidDomain,
 }
 
-impl fmt::Display for EmailAddressError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl FmtDisplay for EmailAddressError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             EmailAddressError::MissingAt => write!(f, "email address must contain '@'"),
             EmailAddressError::MultipleAt => {
@@ -41,7 +45,7 @@ impl fmt::Display for EmailAddressError {
     }
 }
 
-impl std::error::Error for EmailAddressError {}
+impl ErrorError for EmailAddressError {}
 
 /// EmailAddress represents a contact email address.
 ///
@@ -120,8 +124,8 @@ impl EmailAddress {
     }
 }
 
-impl fmt::Display for EmailAddress {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl FmtDisplay for EmailAddress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}@{}", self.local_part, self.domain)
     }
 }
