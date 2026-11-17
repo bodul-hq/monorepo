@@ -6,6 +6,9 @@
 //! records in `product`. The ld+json islands are read by the architecture but carry no product
 //! fact (see `raw::ldjson`), so nothing here reads them.
 
+use product::Product as ProductProduct;
+use raw::UgreenNasCaRawDocument as RawUgreenNasCaRawDocument;
+use std::str::FromStr;
 pub mod product;
 
 use super::raw;
@@ -101,7 +104,7 @@ fn money_from_shopify_cents(cents: i64, currency: Currency) -> Money {
     Money::new(cents, currency)
 }
 
-fn whole_number<T: std::str::FromStr>(value: &str, field: &str) -> Result<T, NormalizeError> {
+fn whole_number<T: FromStr>(value: &str, field: &str) -> Result<T, NormalizeError> {
     value.parse().map_err(|_| NormalizeError::NotAWholeNumber {
         field: field.to_string(),
         value: value.to_string(),
@@ -126,21 +129,24 @@ fn https_from_protocol_relative(url: &str) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenNasCaNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenNasCaNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenNasCaRawDocument,
+        raw: RawUgreenNasCaRawDocument,
     ) -> Result<UgreenNasCaNormalizedDocument, NormalizeError> {
         Ok(UgreenNasCaNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenNasCaNormalizedDocument};
     use crate::ugreennasca::offer_details::v1::raw::UgreenNasCaRawDocument;
     use crate::ugreennasca::offer_details::v1::raw::tests::{document, document_without_picker};
@@ -148,13 +154,12 @@ mod tests {
 
     fn normalize(document: Value) -> Result<UgreenNasCaNormalizedDocument, NormalizeError> {
         let raw: UgreenNasCaRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         UgreenNasCaNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn picker_variant_mut(document: &mut Value, index: usize) -> &mut Value {

@@ -1,19 +1,20 @@
+use serde::Deserialize;
 /// The inline script ahead of `script.analytics`, which assigns Shopify's analytics `meta`
 /// object. It carries product identity and a second copy of each variant’s price and SKU.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnalyticsScript {
     pub meta: Meta,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Meta {
     pub product: Product,
     pub page: Page,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     pub id: u64,
@@ -27,7 +28,7 @@ pub struct Product {
 }
 
 /// Liquid's summary of a variant. `price` is in hundredths of the shop currency, yen included.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -37,7 +38,7 @@ pub struct Variant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Page {
     pub page_type: String,

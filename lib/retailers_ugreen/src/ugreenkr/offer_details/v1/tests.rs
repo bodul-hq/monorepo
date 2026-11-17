@@ -1,8 +1,17 @@
+use super::normalized::UgreenKrNormalizedDocument;
 use super::{architecture, normalize};
 use html_extractor::{
     Backend,
     serde_json::{self, Value, json},
 };
+use money::Money;
+use serde_json::from_str as decode_json_str;
+use serde_json::from_value;
+use serde_json::to_value;
+use std::fs::read_dir;
+use std::fs::read_to_string;
+use std::path::Path;
+use std::path::PathBuf;
 
 fn document() -> Value {
     let mut d = json!({
@@ -27,7 +36,7 @@ fn normalized(input: Value) -> Value {
         .expect("normalizes")
         .document_json
         .expect("document");
-    serde_json::from_str(&output).unwrap()
+    decode_json_str(&output).unwrap()
 }
 #[test]
 fn a_product_keeps_rich_offer_facts_and_round_trips() {
@@ -43,9 +52,8 @@ fn a_product_keeps_rich_offer_facts_and_round_trips() {
         json!(["https://example.com/a.jpg"])
     );
     assert_eq!(product["product"]["description"], "A cable");
-    let typed: super::normalized::UgreenKrNormalizedDocument =
-        serde_json::from_value(product.clone()).unwrap();
-    assert_eq!(serde_json::to_value(typed).unwrap(), product);
+    let typed: UgreenKrNormalizedDocument = from_value(product.clone()).unwrap();
+    assert_eq!(to_value(typed).unwrap(), product);
 }
 #[test]
 fn malformed_or_conflicting_islands_fail() {
@@ -150,8 +158,8 @@ fn extraction_preserves_json_attributes_and_ignores_svg() {
         assert_eq!(json["analytics"]["meta"]["product"]["id"], 1);
     }
 }
-fn pages() -> Option<Vec<std::path::PathBuf>> {
-    let dir = std::path::Path::new(concat!(
+fn pages() -> Option<Vec<PathBuf>> {
+    let dir = Path::new(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../../../data/ugreenkr/offer_details/sources"
     ));
@@ -159,7 +167,7 @@ fn pages() -> Option<Vec<std::path::PathBuf>> {
         eprintln!("skipping: {} not found", dir.display());
         return None;
     }
-    let mut pages: Vec<_> = std::fs::read_dir(dir)
+    let mut pages: Vec<_> = read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().path())
         .filter(|p| p.extension().is_some_and(|e| e == "html"))
@@ -174,16 +182,15 @@ fn saved_pages_normalize() {
     let arch = architecture();
     let mut failures = Vec::new();
     for page in &pages {
-        let html = std::fs::read_to_string(page).unwrap();
+        let html = read_to_string(page).unwrap();
         let result = Backend::Scraper.extract(&html, &arch).unwrap().json;
         match normalize(&result.to_string()) {
             Ok(doc) => {
                 let text = doc.document_json.unwrap();
-                let typed: super::normalized::UgreenKrNormalizedDocument =
-                    serde_json::from_str(&text).unwrap();
+                let typed: UgreenKrNormalizedDocument = decode_json_str(&text).unwrap();
                 assert_eq!(
-                    serde_json::to_value(typed).unwrap(),
-                    serde_json::from_str::<Value>(&text).unwrap()
+                    to_value(typed).unwrap(),
+                    decode_json_str::<Value>(&text).unwrap()
                 );
             }
             Err(e) => failures.push(format!("{}: {e}", page.display())),
@@ -197,7 +204,7 @@ fn saved_pages_backends_agree() {
     let Some(pages) = pages() else { return };
     let arch = architecture();
     for page in &pages {
-        let html = std::fs::read_to_string(page).unwrap();
+        let html = read_to_string(page).unwrap();
         let expected = Backend::Scraper.extract(&html, &arch).unwrap().json;
         for backend in Backend::ALL {
             if *backend == Backend::Scraper {
@@ -221,11 +228,11 @@ fn automatic_discount_is_separate_from_the_variant_base_price() {
     let result = normalized(d);
     assert_eq!(
         result["product"]["variants"][0]["price"],
-        serde_json::to_value(money::Money::new(12, "KRW".parse().unwrap())).unwrap()
+        to_value(Money::new(12, "KRW".parse().unwrap())).unwrap()
     );
     assert_eq!(
         result["product"]["selected_variant"]["automatic_discount_price"],
-        serde_json::to_value(money::Money::new(10, "KRW".parse().unwrap())).unwrap()
+        to_value(Money::new(10, "KRW".parse().unwrap())).unwrap()
     );
     assert!(result["product"]["selected_variant"]["compare_at_price"].is_null());
 }

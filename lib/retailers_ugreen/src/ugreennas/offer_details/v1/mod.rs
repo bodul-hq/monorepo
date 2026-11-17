@@ -8,6 +8,12 @@
 
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
+use normalized::UgreenNasNormalizedDocument;
+use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
+use structuralize::UgreenNasDocument;
 
 mod normalized;
 mod raw;
@@ -58,26 +64,20 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    let document =
-        normalized::UgreenNasNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
-    Ok(shared::NormalizedData::just_document_json(
-        serde_json::to_string(&document).map_err(|e| e.to_string())?,
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw = from_str(json).map_err(|e| e.to_string())?;
+    let document = UgreenNasNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
+    Ok(NormalizedData::just_document_json(
+        serde_json_to_string(&document).map_err(|e| e.to_string())?,
     ))
 }
 
-pub fn structuralize(
-    json: &str,
-) -> Result<retailer_sauce::structuralized::StructuralizedData, String> {
-    let normalized = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    let document =
-        structuralize::UgreenNasDocument::from_normalized(normalized).map_err(|e| e.to_string())?;
-    Ok(
-        retailer_sauce::structuralized::StructuralizedData::just_document_json(
-            serde_json::to_string(&document).map_err(|e| e.to_string())?,
-        ),
-    )
+pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
+    let normalized = from_str(json).map_err(|e| e.to_string())?;
+    let document = UgreenNasDocument::from_normalized(normalized).map_err(|e| e.to_string())?;
+    Ok(StructuralizedData::just_document_json(
+        serde_json_to_string(&document).map_err(|e| e.to_string())?,
+    ))
 }
 
 #[cfg(test)]

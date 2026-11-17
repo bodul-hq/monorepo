@@ -1,7 +1,12 @@
 //! Validated variations from the storefront's normalized product.
+
 use super::normalized::UgreenUsNormalizedDocument;
+use super::normalized::product::OfferPrice;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::comparison_price;
+use offer_facts::content as offer_facts_content;
+use offer_facts::in_stock;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -24,7 +29,7 @@ pub struct ProductVariation {
     pub url: String,
     pub images: Vec<String>,
     pub offer_price: Option<Money>,
-    pub offer_prices: Vec<super::normalized::product::OfferPrice>,
+    pub offer_prices: Vec<OfferPrice>,
     pub condition: Option<String>,
     pub offer_price_mismatch: bool,
 }
@@ -65,7 +70,7 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::comparison_price(
+                was_price: comparison_price(
                     &variant.price,
                     variant.compare_at_price.as_ref(),
                     variant
@@ -76,12 +81,12 @@ impl Document {
                 availability: variant
                     .availability
                     .clone()
-                    .or_else(|| variant.available.map(offer_facts::in_stock)),
+                    .or_else(|| variant.available.map(in_stock)),
                 item_condition: variant
                     .condition
                     .clone()
                     .map(ItemCondition::from_schema_org),
-                content: offer_facts::content(product.description.as_deref()),
+                content: offer_facts_content(product.description.as_deref()),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),

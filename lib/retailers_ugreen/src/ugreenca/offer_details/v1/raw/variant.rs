@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// `script.pr_variants_json`: the variant picker's records of every variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantsScript {
     #[serde(rename = "type")]
@@ -11,7 +12,7 @@ pub struct VariantsScript {
 }
 
 /// `script.pr_options_json`: the product's options, named in the page's language.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OptionsScript {
     #[serde(rename = "type")]
@@ -20,7 +21,7 @@ pub struct OptionsScript {
     pub data: Vec<ProductOption>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductOption {
     pub name: String,
@@ -31,7 +32,7 @@ pub struct ProductOption {
 
 /// Liquid's `variant | json`. Its amounts are in hundredths of the shop currency, which it does
 /// not name.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -59,7 +60,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -74,7 +75,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -83,7 +84,7 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
     pub aspect_ratio: f64,
@@ -92,7 +93,7 @@ pub struct PreviewImage {
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -102,6 +103,8 @@ pub struct QuantityRule {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::Variant;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -143,14 +146,13 @@ pub(crate) mod tests {
             "preview_image": {"aspect_ratio": 1.0, "height": 800, "width": 800,
                 "src": "//ca.ugreen.com/cdn/shop/files/a.png?v=1"}});
 
-        let variant = serde_json::from_value::<Variant>(input).expect("deserializes");
+        let variant = from_value::<Variant>(input).expect("deserializes");
         assert!(variant.featured_image.is_some() && variant.featured_media.is_some());
     }
 
     #[test]
     fn a_variant_without_an_image_omits_its_media() {
-        let variant =
-            serde_json::from_value::<Variant>(variant(1, 5999, "Black", "")).expect("deserializes");
+        let variant = from_value::<Variant>(variant(1, 5999, "Black", "")).expect("deserializes");
         assert!(variant.featured_media.is_none());
     }
 
@@ -159,7 +161,7 @@ pub(crate) mod tests {
         let mut input = variant(1, 1, "Black", "");
         input["unit_price"] = Value::Null;
 
-        let error = serde_json::from_value::<Variant>(input).expect_err("not in the corpus");
+        let error = from_value::<Variant>(input).expect_err("not in the corpus");
         assert!(error.to_string().contains("unknown field `unit_price`"));
     }
 }

@@ -1,5 +1,6 @@
+use serde::Deserialize;
 /// One `script[type="application/ld+json"]`. Every page renders the same four islands.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonItem {
     #[serde(rename = "type")]
@@ -7,7 +8,7 @@ pub struct LdJsonItem {
     pub data: LdJson,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -16,7 +17,7 @@ pub enum LdJson {
     Product(Box<Product>),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -29,7 +30,7 @@ pub struct Organization {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ContactPoint {
     #[serde(rename = "@type")]
@@ -37,7 +38,7 @@ pub struct ContactPoint {
     pub email: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WebPage {
     #[serde(rename = "@context")]
@@ -47,7 +48,7 @@ pub struct WebPage {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WebSite {
     #[serde(rename = "@context")]
@@ -58,7 +59,7 @@ pub struct WebSite {
     pub potential_action: SearchAction,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SearchAction {
     #[serde(rename = "@type")]
@@ -68,7 +69,7 @@ pub struct SearchAction {
     pub query_input: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -88,7 +89,7 @@ pub struct Product {
     pub offers: Offers,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -97,7 +98,7 @@ pub struct Brand {
 }
 
 /// One offer object on most pages; a list of one per variant on some multi-variant pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum Offers {
     One(Box<Offer>),
@@ -113,7 +114,7 @@ impl Offers {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
@@ -136,6 +137,8 @@ pub struct Offer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{LdJsonItem, Offers};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -178,14 +181,14 @@ pub(crate) mod tests {
 
     #[test]
     fn the_four_islands_deserialize() {
-        let items = serde_json::from_value::<Vec<LdJsonItem>>(islands()).expect("deserializes");
+        let items = from_value::<Vec<LdJsonItem>>(islands()).expect("deserializes");
         assert_eq!(items.len(), 4);
     }
 
     #[test]
     fn offers_are_one_object_or_a_list() {
-        let one = serde_json::from_value::<Offers>(offer()).expect("one offer");
-        let many = serde_json::from_value::<Offers>(json!([offer(), offer()])).expect("a list");
+        let one = from_value::<Offers>(offer()).expect("one offer");
+        let many = from_value::<Offers>(json!([offer(), offer()])).expect("a list");
 
         assert_eq!(one.into_vec().len(), 1);
         assert_eq!(many.into_vec().len(), 2);
@@ -195,6 +198,6 @@ pub(crate) mod tests {
     fn an_unknown_island_type_fails() {
         let item = json!({"type": "application/ld+json",
             "data": {"@type": "BreadcrumbList", "itemListElement": []}});
-        assert!(serde_json::from_value::<LdJsonItem>(item).is_err());
+        assert!(from_value::<LdJsonItem>(item).is_err());
     }
 }

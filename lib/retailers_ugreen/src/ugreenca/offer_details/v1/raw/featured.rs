@@ -1,13 +1,14 @@
+use serde::Deserialize;
 /// The theme's `data-product-featured` attribute on the main product section: its settings for
 /// the section, plus the product-level price, strikethrough price and availability. On a
 /// `Default Title` product, which renders no variant records, those are its one variant's.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedAttribute {
     pub data: Featured,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Featured {
     /// The product id, as a string.
@@ -62,6 +63,8 @@ pub struct Featured {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::Featured;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -97,7 +100,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_attribute_deserializes() {
-        let featured = serde_json::from_value::<Featured>(data()).expect("deserializes");
+        let featured = from_value::<Featured>(data()).expect("deserializes");
         assert_eq!(featured.price, 5999);
     }
 }

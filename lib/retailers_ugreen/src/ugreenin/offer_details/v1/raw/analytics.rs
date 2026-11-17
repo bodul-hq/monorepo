@@ -1,19 +1,20 @@
+use serde::Deserialize;
 /// The inline script ahead of `script.analytics`, which assigns Shopify's analytics `meta`
 /// object. The script has no attributes, so `meta` is all the architecture extracts from it.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnalyticsScript {
     pub meta: Meta,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Meta {
     pub product: Product,
     pub page: Page,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     pub id: u64,
@@ -28,7 +29,7 @@ pub struct Product {
 
 /// A variant as Shopify reports it to analytics. `price` is in hundredths of the shop currency
 /// (paise).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -40,7 +41,7 @@ pub struct Variant {
     pub sku: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Page {
     pub page_type: String,
@@ -51,6 +52,8 @@ pub struct Page {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{AnalyticsScript, Meta};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -91,7 +94,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_meta_object_deserializes() {
-        let meta = serde_json::from_value::<Meta>(meta()).expect("deserializes");
+        let meta = from_value::<Meta>(meta()).expect("deserializes");
         assert_eq!(meta.product.variants.len(), 3);
     }
 
@@ -100,7 +103,7 @@ pub(crate) mod tests {
         let mut input = meta();
         input["product"]["variants"][0]["public_title"] = Value::Null;
 
-        let meta = serde_json::from_value::<Meta>(input).expect("deserializes");
+        let meta = from_value::<Meta>(input).expect("deserializes");
         assert!(meta.product.variants[0].public_title.is_none());
     }
 
@@ -108,6 +111,6 @@ pub(crate) mod tests {
     fn an_attribute_on_the_script_fails() {
         let input = json!({"meta": meta(), "id": "analytics"});
 
-        assert!(serde_json::from_value::<AnalyticsScript>(input).is_err());
+        assert!(from_value::<AnalyticsScript>(input).is_err());
     }
 }

@@ -3,6 +3,10 @@
 
 use super::raw::{self, UgreenNasFrRawDocument};
 use money::{Currency, Money};
+use raw::Price;
+use raw::Text;
+use raw::VariantScript;
+use raw::variant::Variant as VariantVariant;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use thiserror::Error;
@@ -268,7 +272,7 @@ impl UgreenNasFrNormalizedDocument {
     }
 }
 
-fn script<T>(script: &raw::VariantScript<T>, id: Option<&str>) -> Result<(), NormalizeError> {
+fn script<T>(script: &VariantScript<T>, id: Option<&str>) -> Result<(), NormalizeError> {
     require(
         script.script_type == "application/json" && script.id.as_deref() == id,
         format!("variant script {id:?}"),
@@ -276,8 +280,8 @@ fn script<T>(script: &raw::VariantScript<T>, id: Option<&str>) -> Result<(), Nor
 }
 
 fn match_records(
-    records: &[raw::variant::Variant],
-    expected: &HashMap<u64, &raw::variant::Variant>,
+    records: &[VariantVariant],
+    expected: &HashMap<u64, &VariantVariant>,
     label: &str,
 ) -> Result<(), NormalizeError> {
     let mut seen = HashSet::new();
@@ -295,11 +299,11 @@ fn match_records(
 }
 
 fn check_price_block(
-    price: &Option<raw::Price>,
-    regular: &Option<raw::Text>,
-    sale: &Option<raw::Text>,
-    compare: &Option<raw::Text>,
-    selected: &raw::variant::Variant,
+    price: &Option<Price>,
+    regular: &Option<Text>,
+    sale: &Option<Text>,
+    compare: &Option<Text>,
+    selected: &VariantVariant,
     protection: bool,
 ) -> Result<(), NormalizeError> {
     if protection && price.is_none() && regular.is_none() && sale.is_none() && compare.is_none() {

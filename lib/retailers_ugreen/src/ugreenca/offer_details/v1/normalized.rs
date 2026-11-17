@@ -5,6 +5,8 @@
 //! they agree; what nothing needs stays behind as the commented-out exclusion records in
 //! `product`.
 
+use product::Product as ProductProduct;
+use raw::UgreenCaRawDocument as RawUgreenCaRawDocument;
 pub mod product;
 
 use super::raw;
@@ -109,35 +111,36 @@ fn non_empty(value: String) -> Option<String> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenCaNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenCaNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenCaRawDocument,
+        raw: RawUgreenCaRawDocument,
     ) -> Result<UgreenCaNormalizedDocument, NormalizeError> {
         Ok(UgreenCaNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenCaNormalizedDocument};
     use crate::ugreenca::offer_details::v1::raw::UgreenCaRawDocument;
     use crate::ugreenca::offer_details::v1::raw::tests::document;
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenCaNormalizedDocument, NormalizeError> {
-        let raw: UgreenCaRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenCaRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenCaNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn picker_variant_mut(document: &mut Value, index: usize) -> &mut Value {

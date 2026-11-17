@@ -5,11 +5,10 @@
 
 use super::super::raw::{analytics, productjson};
 use super::{NormalizeError, non_empty};
+use analytics::Product;
+use productjson::ProductJson;
 
-pub(super) fn check(
-    analytics: &analytics::Product,
-    record: &productjson::ProductJson,
-) -> Result<(), NormalizeError> {
+pub(super) fn check(analytics: &Product, record: &ProductJson) -> Result<(), NormalizeError> {
     if analytics.id != record.id {
         return Err(NormalizeError::AnalyticsProductMismatch {
             field: "id".to_string(),

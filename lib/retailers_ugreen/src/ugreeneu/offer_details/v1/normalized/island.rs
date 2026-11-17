@@ -3,6 +3,9 @@
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript};
 use super::NormalizeError;
+use ldjson::Offer;
+use ldjson::Product as LdjsonProduct;
+use ldjson::ProductGroup as LdjsonProductGroup;
 
 /// The page's `ProductGroup` or `Product` island.
 pub(super) struct Island {
@@ -46,7 +49,7 @@ impl Island {
         }
     }
 
-    fn from_group(group: ldjson::ProductGroup) -> Result<Island, NormalizeError> {
+    fn from_group(group: LdjsonProductGroup) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: Some(group.product_group_id),
             url: group.url,
@@ -67,7 +70,7 @@ impl Island {
         })
     }
 
-    fn from_product(product: ldjson::Product) -> Result<Island, NormalizeError> {
+    fn from_product(product: LdjsonProduct) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: None,
             url: product.url,
@@ -85,7 +88,7 @@ impl Island {
 
 impl IslandVariant {
     fn from_raw(
-        offer: ldjson::Offer,
+        offer: Offer,
         sku: String,
         gtin: Option<String>,
         image: String,

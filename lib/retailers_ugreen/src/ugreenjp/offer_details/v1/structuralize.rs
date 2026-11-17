@@ -4,6 +4,11 @@
 use super::normalized::{UgreenJpNormalizedDocument, product};
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::in_stock as offer_facts_in_stock;
+use offer_facts::was_price as offer_facts_was_price;
+use product::Product as ProductProduct;
+use product::Variant as ProductVariant;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -40,13 +45,13 @@ impl UgreenJpDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(
+                    was_price: offer_facts_was_price(
                         variant.price.as_ref(),
                         variant.compare_at_price.as_ref(),
                     ),
-                    availability: Some(offer_facts::in_stock(variant.available)),
+                    availability: Some(offer_facts_in_stock(variant.available)),
                     item_condition: None,
-                    content: offer_facts::content(product.description.as_deref()),
+                    content: offer_facts_content(product.description.as_deref()),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -92,8 +97,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &product::Product,
-        variant: &product::Variant,
+        product: &ProductProduct,
+        variant: &ProductVariant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: variant.gtin.clone().map(Gtin::try_from).transpose()?,
@@ -121,6 +126,9 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{StructuralizeError, UgreenJpDocument};
     use crate::ugreenjp::offer_details::v1::normalized::UgreenJpNormalizedDocument;
     use crate::ugreenjp::offer_details::v1::raw::UgreenJpRawDocument;
@@ -130,11 +138,10 @@ mod tests {
 
     /// A raw fixture, normalized, as the JSON structuralize reads.
     fn normalized_from(raw: Value) -> Value {
-        let raw: UgreenJpRawDocument =
-            serde_json::from_value(raw).expect("the raw fixture deserializes");
+        let raw: UgreenJpRawDocument = from_value(raw).expect("the raw fixture deserializes");
         let normalized =
             UgreenJpNormalizedDocument::from_raw(raw).expect("the raw fixture normalizes");
-        serde_json::to_value(normalized).expect("serializes")
+        to_value(normalized).expect("serializes")
     }
 
     fn normalized_document() -> Value {
@@ -143,13 +150,12 @@ mod tests {
 
     fn structuralize(input: Value) -> Result<UgreenJpDocument, StructuralizeError> {
         let normalized: UgreenJpNormalizedDocument =
-            serde_json::from_value(input).expect("the normalized fixture deserializes");
+            from_value(input).expect("the normalized fixture deserializes");
         UgreenJpDocument::from_normalized(normalized)
     }
 
     fn structuralized(input: Value) -> Value {
-        serde_json::to_value(structuralize(input).expect("the fixture structuralizes"))
-            .expect("serializes")
+        to_value(structuralize(input).expect("the fixture structuralizes")).expect("serializes")
     }
 
     #[test]

@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// `script#apple-pay-shop-capabilities`: names the shop currency, the unit Liquid's amounts are
 /// rendered in.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ShopScript {
     pub id: String,
@@ -9,7 +10,7 @@ pub struct ShopScript {
     pub data: ShopCapabilities,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ShopCapabilities {
     pub shop_id: u64,
@@ -27,7 +28,7 @@ pub struct ShopCapabilities {
     pub supports_subscriptions: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Total {
     #[serde(rename = "type")]
@@ -38,6 +39,8 @@ pub struct Total {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::ShopCapabilities;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -61,7 +64,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_keys_are_camel_case() {
-        let shop = serde_json::from_value::<ShopCapabilities>(data()).expect("deserializes");
+        let shop = from_value::<ShopCapabilities>(data()).expect("deserializes");
         assert_eq!(shop.currency_code, "CAD");
     }
 }

@@ -4,6 +4,10 @@ use super::{
     shop_currency, variant_gid, whole_number,
 };
 use money::{Currency, Money};
+use raw::PriceBlock as RawPriceBlock;
+use raw::UgreenNasAuRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::variants::Variant as VariantsVariant;
 use serde::{Deserialize, Serialize};
 
 /// The handle of Seel's purchase-protection add-on, a product page of its own on the store.
@@ -40,7 +44,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenNasAuRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenNasAuRawDocument) -> Result<Product, NormalizeError> {
         let currency = shop_currency(&raw.paypal.currency)?;
         let meta = raw.analytics.meta;
         let product = meta.product;
@@ -122,8 +126,8 @@ impl Product {
 // The picker renders `product.variants | json` from the same Liquid product the analytics
 // describe, so any disagreement means one of the two was misread.
 fn with_picker(
-    analytics: Vec<raw::analytics::Variant>,
-    records: Vec<raw::variants::Variant>,
+    analytics: Vec<AnalyticsVariant>,
+    records: Vec<VariantsVariant>,
     currency: Currency,
 ) -> Result<Vec<Variant>, NormalizeError> {
     if records.len() != analytics.len() {
@@ -180,7 +184,7 @@ fn with_picker(
 // Without a picker the product has a single variant, and only the price block and the cart
 // form state its markdown and availability.
 fn without_picker(
-    analytics: Vec<raw::analytics::Variant>,
+    analytics: Vec<AnalyticsVariant>,
     block: &PriceBlock,
     disabled: bool,
     currency: Currency,
@@ -279,7 +283,7 @@ struct PriceBlock {
 }
 
 impl PriceBlock {
-    fn from_raw(raw: &raw::PriceBlock) -> Result<PriceBlock, NormalizeError> {
+    fn from_raw(raw: &RawPriceBlock) -> Result<PriceBlock, NormalizeError> {
         let classes: Vec<&str> = raw.class.split_whitespace().collect();
         let compare_at = raw.compare_at.text.trim();
 

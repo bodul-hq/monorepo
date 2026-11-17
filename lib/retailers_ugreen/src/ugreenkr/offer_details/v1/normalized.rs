@@ -1,4 +1,7 @@
 //! Korean product facts; Shopify hundredths are converted exactly to whole won.
+
+use super::raw::UgreenKrRawDocument;
+use product::Product;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 mod offers;
@@ -10,12 +13,12 @@ pub enum NormalizeError {
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenKrNormalizedDocument {
-    pub product: product::Product,
+    pub product: Product,
 }
 impl UgreenKrNormalizedDocument {
-    pub fn from_raw(raw: super::raw::UgreenKrRawDocument) -> Result<Self, NormalizeError> {
+    pub fn from_raw(raw: UgreenKrRawDocument) -> Result<Self, NormalizeError> {
         Ok(Self {
-            product: product::Product::from_raw(raw)?,
+            product: Product::from_raw(raw)?,
         })
     }
 }

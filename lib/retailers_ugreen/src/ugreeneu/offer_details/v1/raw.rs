@@ -6,29 +6,33 @@
 //! `meta`; the main product section adds the selected variant's displayed prices, the picker's
 //! record of that variant and the gallery.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use serde::Deserialize;
+use variant::VariantScript;
 pub mod analytics;
 pub mod ldjson;
 pub mod variant;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenEuRawDocument {
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
-    pub analytics: analytics::AnalyticsScript,
+    pub ld_json: Vec<LdJsonScript>,
+    pub analytics: AnalyticsScript,
     pub price: PriceBlock,
     pub selected_variant_id: SelectedVariantId,
     /// The variant picker's record of the selected variant. Only multi-variant products render
     /// the picker, so it is missing on the 10,639 `Product` pages.
     #[serde(default)]
-    pub selected_variant: Option<variant::VariantScript>,
+    pub selected_variant: Option<VariantScript>,
     pub images: Vec<Image>,
 }
 
 /// The main `product-price` element's data attributes, all strings. They describe the selected
 /// variant as the theme displays it, after the shop's automatic discount.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceBlock {
     pub product_id: String,
@@ -42,14 +46,14 @@ pub struct PriceBlock {
 }
 
 /// The main product form's hidden `id` input.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedVariantId {
     pub value: String,
 }
 
 /// An image slide of the main media gallery; video slides are left out.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     /// Protocol-relative, with the display `width` the theme asks the CDN for.
@@ -59,6 +63,14 @@ pub struct Image {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjson::tests::organization as tests_organization;
+    use super::ldjson::tests::product as tests_product;
+    use super::ldjson::tests::product_group;
+    use super::variant::tests::variant as tests_variant;
+
     use super::UgreenEuRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -66,10 +78,10 @@ pub(crate) mod tests {
     pub(crate) fn document() -> Value {
         json!({
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::product_group()}
+                {"type": "application/ld+json", "data": tests_organization()},
+                {"type": "application/ld+json", "data": product_group()}
             ],
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "analytics": {"meta": tests_meta()},
             "price": {
                 "product_id": "8625471816028",
                 "base_price_cents": "5599",
@@ -79,7 +91,7 @@ pub(crate) mod tests {
             "selected_variant_id": {"value": "48981450031452"},
             "selected_variant": {
                 "type": "application/json",
-                "data": super::variant::tests::variant()
+                "data": tests_variant()
             },
             "images": [
                 {
@@ -97,7 +109,7 @@ pub(crate) mod tests {
     /// The same product with only its first variant: a `Product` island and no picker.
     pub(crate) fn single_variant_document() -> Value {
         let mut document = document();
-        document["ld-json"][1]["data"] = super::ldjson::tests::product();
+        document["ld-json"][1]["data"] = tests_product();
         document["analytics"]["meta"]["product"]["variants"]
             .as_array_mut()
             .expect("variants")
@@ -112,8 +124,7 @@ pub(crate) mod tests {
     #[test]
     fn the_fixtures_deserialize() {
         for document in [document(), single_variant_document()] {
-            serde_json::from_value::<UgreenEuRawDocument>(document)
-                .expect("the raw fixture deserializes");
+            from_value::<UgreenEuRawDocument>(document).expect("the raw fixture deserializes");
         }
     }
 
@@ -130,7 +141,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(island);
 
             assert!(
-                serde_json::from_value::<UgreenEuRawDocument>(input).is_err(),
+                from_value::<UgreenEuRawDocument>(input).is_err(),
                 "{island}"
             );
         }
@@ -146,7 +157,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenEuRawDocument>(input)
+        let error = from_value::<UgreenEuRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -155,15 +166,15 @@ pub(crate) mod tests {
     fn an_unexpected_script_attribute_fails() {
         let mut ld_json = document();
         ld_json["ld-json"][0]["id"] = json!("organization");
-        assert!(serde_json::from_value::<UgreenEuRawDocument>(ld_json).is_err());
+        assert!(from_value::<UgreenEuRawDocument>(ld_json).is_err());
 
         let mut record = document();
         record["selected_variant"]["data-section"] = json!("main");
-        assert!(serde_json::from_value::<UgreenEuRawDocument>(record).is_err());
+        assert!(from_value::<UgreenEuRawDocument>(record).is_err());
 
         let mut analytics = document();
         analytics["analytics"]["nonce"] = json!("x");
-        assert!(serde_json::from_value::<UgreenEuRawDocument>(analytics).is_err());
+        assert!(from_value::<UgreenEuRawDocument>(analytics).is_err());
     }
 
     #[test]
@@ -171,8 +182,7 @@ pub(crate) mod tests {
         let mut input = document();
         input["price"]["sale_price_cents"] = json!("1");
 
-        let error =
-            serde_json::from_value::<UgreenEuRawDocument>(input).expect_err("not in the corpus");
+        let error = from_value::<UgreenEuRawDocument>(input).expect_err("not in the corpus");
         assert!(
             error
                 .to_string()

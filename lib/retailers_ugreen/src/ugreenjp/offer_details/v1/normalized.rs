@@ -4,7 +4,8 @@
 //! block and gallery; they cross here as one product. Where two islands state the same fact,
 //! normalization checks that they agree; what nothing needs stays behind as the commented-out
 //! exclusion records in `product`.
-
+use product::Product as ProductProduct;
+use raw::UgreenJpRawDocument as RawUgreenJpRawDocument;
 pub mod product;
 
 use super::raw;
@@ -156,37 +157,38 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenJpNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenJpNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenJpRawDocument,
+        raw: RawUgreenJpRawDocument,
     ) -> Result<UgreenJpNormalizedDocument, NormalizeError> {
         yen_currency(&raw.paypal.currency, "data-currency")?;
 
         Ok(UgreenJpNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenJpNormalizedDocument, whole_yen_from_text};
     use crate::ugreenjp::offer_details::v1::raw::UgreenJpRawDocument;
     use crate::ugreenjp::offer_details::v1::raw::tests::{default_title_document, document};
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenJpNormalizedDocument, NormalizeError> {
-        let raw: UgreenJpRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenJpRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenJpNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn island_mut(document: &mut Value) -> &mut Value {

@@ -6,22 +6,28 @@
 //! URL, gallery and the "Shop Now" button come from the page, the currency from the PayPal
 //! metadata tag.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use media::MediaItem;
+use paypal::PayPalMetadata;
+use serde::Deserialize;
+use shopnow::ShopNow;
 pub mod analytics;
 pub mod ldjson;
 pub mod media;
 pub mod paypal;
 pub mod shopnow;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenComRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub analytics: analytics::AnalyticsScript,
+    pub analytics: AnalyticsScript,
 
     pub og_title: OgTitle,
 
@@ -29,22 +35,22 @@ pub struct UgreenComRawDocument {
 
     /// Missing on `products-us-85185.html`, present on the other 65 pages.
     #[serde(default)]
-    pub shop_now: Option<shopnow::ShopNow>,
+    pub shop_now: Option<ShopNow>,
 
-    pub media: Vec<media::MediaItem>,
+    pub media: Vec<MediaItem>,
 }
 
 /// `meta[property="og:title"]`: the product title, equal to the analytics variant's `name` and
 /// the rendered `h1` on every page. One title spaces its words with `\u{a0}`, as the analytics
 /// record does; it is kept verbatim.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OgTitle {
     pub content: String,
 }
 
 /// `link[rel="canonical"]`: `https://www.ugreen.com/products/<handle>` on every page.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Canonical {
     pub href: String,
@@ -52,28 +58,36 @@ pub struct Canonical {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::script;
+    use super::ldjson::tests::organization;
+    use super::media::tests::image;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::shopnow::tests::button as tests_button;
+
     use super::UgreenComRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
     /// `products-usa-15495.html`, trimmed.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
+            "paypal": tests_metadata(),
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()}
+                {"type": "application/ld+json", "data": organization()}
             ],
-            "analytics": super::analytics::tests::script(),
+            "analytics": script(),
             "og_title": {"content": "UGREEN Revodok 105 5-in-1 USB-C Hub"},
             "canonical": {"href": "https://www.ugreen.com/products/usa-15495"},
-            "shop_now": super::shopnow::tests::button(),
-            "media": [super::media::tests::image()]
+            "shop_now": tests_button(),
+            "media": [image()]
         })
     }
 
     #[test]
     fn the_fixture_deserializes() {
-        let raw = serde_json::from_value::<UgreenComRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        let raw =
+            from_value::<UgreenComRawDocument>(document()).expect("the raw fixture deserializes");
         assert!(raw.shop_now.is_some());
     }
 
@@ -82,7 +96,7 @@ pub(crate) mod tests {
         let mut input = document();
         input.as_object_mut().expect("an object").remove("shop_now");
 
-        let raw = serde_json::from_value::<UgreenComRawDocument>(input).expect("deserializes");
+        let raw = from_value::<UgreenComRawDocument>(input).expect("deserializes");
         assert_eq!(raw.shop_now, None);
     }
 
@@ -99,10 +113,7 @@ pub(crate) mod tests {
             let mut input = document();
             input.as_object_mut().expect("an object").remove(key);
 
-            assert!(
-                serde_json::from_value::<UgreenComRawDocument>(input).is_err(),
-                "{key}"
-            );
+            assert!(from_value::<UgreenComRawDocument>(input).is_err(), "{key}");
         }
     }
 
@@ -116,7 +127,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenComRawDocument>(input)
+        let error = from_value::<UgreenComRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -126,7 +137,7 @@ pub(crate) mod tests {
         let mut input = document();
         input["price"] = json!({"content": "1300.00"});
 
-        assert!(serde_json::from_value::<UgreenComRawDocument>(input).is_err());
+        assert!(from_value::<UgreenComRawDocument>(input).is_err());
     }
 
     #[test]
@@ -135,10 +146,7 @@ pub(crate) mod tests {
             let mut input = document();
             input[key]["id"] = json!("x");
 
-            assert!(
-                serde_json::from_value::<UgreenComRawDocument>(input).is_err(),
-                "{key}"
-            );
+            assert!(from_value::<UgreenComRawDocument>(input).is_err(), "{key}");
         }
     }
 }

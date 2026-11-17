@@ -1,7 +1,8 @@
+use serde::Deserialize;
 /// `meta#in-context-paypal-metadata`'s attributes: the one statement on every page of the
 /// currency the prices are rendered in, EUR on EU/FR/IT and GBP on UK pages. The analytics prices name
 /// none.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PayPalMetadata {
     pub id: String,

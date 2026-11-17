@@ -1,7 +1,8 @@
+use serde::Deserialize;
 /// The main section's "Shop Now" button, the page's only call to action: it links out to the
 /// regional store that sells the product. Missing on `products-us-85185.html`, whose product has
 /// no sales channel.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ShopNow {
     pub class: String,
@@ -24,7 +25,7 @@ pub struct ShopNow {
     pub channels: Channels,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Channels {
     /// One link on all 65 buttons: `us.ugreen.com` on 54, `ai.ugreen.com` on 11.
@@ -33,6 +34,8 @@ pub struct Channels {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::ShopNow;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -52,7 +55,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_button_deserializes() {
-        let button = serde_json::from_value::<ShopNow>(button()).expect("deserializes");
+        let button = from_value::<ShopNow>(button()).expect("deserializes");
         assert_eq!(
             button.channels.channel_url_list,
             ["https://us.ugreen.com/products/15495"]
@@ -64,7 +67,7 @@ pub(crate) mod tests {
         let mut input = button();
         input["data-variant-id"] = json!("1");
 
-        assert!(serde_json::from_value::<ShopNow>(input).is_err());
+        assert!(from_value::<ShopNow>(input).is_err());
     }
 
     #[test]
@@ -72,6 +75,6 @@ pub(crate) mod tests {
         let mut input = button();
         input["channels"]["default"] = json!("https://us.ugreen.com/products/15495");
 
-        assert!(serde_json::from_value::<ShopNow>(input).is_err());
+        assert!(from_value::<ShopNow>(input).is_err());
     }
 }

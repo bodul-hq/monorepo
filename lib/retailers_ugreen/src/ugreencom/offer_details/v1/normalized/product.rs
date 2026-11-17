@@ -1,5 +1,7 @@
 use super::super::raw::{analytics, media::MediaItem, shopnow::ShopNow};
 use super::{NormalizeError, ORIGIN, money_from_shopify_cents, product_gid, variant_gid};
+use analytics::Meta;
+use analytics::Variant as AnalyticsVariant;
 use money::{Currency, Money};
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +45,7 @@ pub struct Product {
 
 impl Product {
     pub(super) fn from_raw(
-        meta: analytics::Meta,
+        meta: Meta,
         page: Page,
         currency: Currency,
     ) -> Result<Product, NormalizeError> {
@@ -123,7 +125,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: analytics::Variant,
+        raw: AnalyticsVariant,
         title: &str,
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

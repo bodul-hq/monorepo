@@ -5,7 +5,11 @@ use super::{
     NormalizeError, ORIGIN, https_from_protocol_relative, product_gid, variant_gid,
     whole_yen_from_float, whole_yen_from_shopify_cents, whole_yen_from_text, yen, yen_currency,
 };
+use ldjson::Offer;
+use ldjson::Product as LdjsonProduct;
 use money::Money;
+use raw::UgreenJpRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -45,8 +49,8 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenJpRawDocument) -> Result<Product, NormalizeError> {
-        let mut islands: Vec<ldjson::Product> = raw
+    pub(crate) fn from_raw(raw: UgreenJpRawDocument) -> Result<Product, NormalizeError> {
+        let mut islands: Vec<LdjsonProduct> = raw
             .ld_json
             .into_iter()
             .filter_map(|script| match script.data {
@@ -229,8 +233,8 @@ pub struct Variant {
 impl Variant {
     /// The variant, and its price in whole yen for the check against the price block.
     fn from_raw(
-        variant: raw::analytics::Variant,
-        offer: ldjson::Offer,
+        variant: AnalyticsVariant,
+        offer: Offer,
         picker: Option<PickerVariant>,
         rendered_compare_at: Option<i64>,
     ) -> Result<(Variant, i64), NormalizeError> {
@@ -334,7 +338,7 @@ impl Variant {
 }
 
 // Shopify's analytics list a product with no options as one variant without a public title.
-fn is_default_title(variants: &[raw::analytics::Variant]) -> bool {
+fn is_default_title(variants: &[AnalyticsVariant]) -> bool {
     matches!(variants, [variant] if variant.public_title.is_none())
 }
 

@@ -25,7 +25,13 @@
 //! The back-in-stock app renders Liquid's records of every variant on every page.
 
 use html_extractor::serde_json;
+use normalized::UgreenNasUkNormalizedDocument;
+use raw::UgreenNasUkRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
+use structuralize::UgreenNasUkDocument;
 
 pub mod normalized;
 #[cfg(test)]
@@ -158,24 +164,28 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::UgreenNasUkRawDocument = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    let normalized =
-        normalized::UgreenNasUkNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
-    let json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
-    Ok(shared::NormalizedData::just_document_json(json))
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: UgreenNasUkRawDocument = from_str(json).map_err(|e| e.to_string())?;
+    let normalized = UgreenNasUkNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
+    let json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
+    Ok(NormalizedData::just_document_json(json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    let document = structuralize::UgreenNasUkDocument::from_normalized(normalized)
-        .map_err(|e| e.to_string())?;
-    let json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let normalized = from_str(json).map_err(|e| e.to_string())?;
+    let document = UgreenNasUkDocument::from_normalized(normalized).map_err(|e| e.to_string())?;
+    let json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
     Ok(StructuralizedData::just_document_json(json))
 }
 
 #[cfg(test)]
 mod tests {
+    use super::raw::GloodScript;
+    use html_extractor::serde_json::from_value;
+    use html_extractor::serde_json::json as serde_json_json;
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use std::path::{Path, PathBuf};
 
     use html_extractor::Backend;
@@ -206,7 +216,7 @@ mod tests {
             .json;
         assert_eq!(
             extracted["images"],
-            html_extractor::serde_json::json!([
+            serde_json_json!([
                 {"src":"//cdn.example.com/A.jpg","alt":"A"},
                 {"src":"//cdn.example.com/B.jpg","alt":"B"}
             ])
@@ -226,7 +236,7 @@ mod tests {
             eprintln!("skipping: {} not found", dir.display());
             return None;
         }
-        let mut pages: Vec<PathBuf> = std::fs::read_dir(dir)
+        let mut pages: Vec<PathBuf> = read_dir(dir)
             .expect("read data dir")
             .map(|entry| entry.expect("read data dir entry").path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "html"))
@@ -237,7 +247,7 @@ mod tests {
     }
 
     fn read(page: &Path) -> String {
-        std::fs::read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
+        read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
     }
 
     #[test]
@@ -273,8 +283,7 @@ mod tests {
                 "{name}: selected variant {selected} not in analytics"
             );
 
-            let glood: super::raw::GloodScript =
-                html_extractor::serde_json::from_value(json["glood"].clone()).unwrap();
+            let glood: GloodScript = from_value(json["glood"].clone()).unwrap();
             assert!(
                 json["images"].as_array().is_some_and(|i| !i.is_empty())
                     || !glood.product().unwrap().images.is_empty(),

@@ -4,6 +4,10 @@
 use super::normalized::{UgreenComNormalizedDocument, product};
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::was_price as offer_facts_was_price;
+use product::Product as ProductProduct;
+use product::Variant as ProductVariant;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -40,10 +44,10 @@ impl UgreenComDocument {
                 )?;
 
                 Ok(ProductVariation {
-                    was_price: offer_facts::was_price(variant.price.as_ref(), None),
+                    was_price: offer_facts_was_price(variant.price.as_ref(), None),
                     availability: None,
                     item_condition: None,
-                    content: offer_facts::content(None),
+                    content: offer_facts_content(None),
                     title: product.title.clone(),
                     identifiers,
                     images: product.images.clone(),
@@ -87,8 +91,8 @@ pub struct ProductVariationIdentifier {
 
 impl ProductVariationIdentifier {
     fn from_normalized(
-        product: &product::Product,
-        variant: &product::Variant,
+        product: &ProductProduct,
+        variant: &ProductVariant,
     ) -> Result<ProductVariationIdentifier, StructuralizeError> {
         Ok(ProductVariationIdentifier {
             gtin: None,
@@ -116,6 +120,9 @@ fn variation_url(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{StructuralizeError, UgreenComDocument};
     use crate::ugreencom::offer_details::v1::normalized::UgreenComNormalizedDocument;
     use crate::ugreencom::offer_details::v1::raw::UgreenComRawDocument;
@@ -126,21 +133,20 @@ mod tests {
     /// The raw fixture, normalized, as the JSON structuralize reads.
     fn normalized_document() -> Value {
         let raw: UgreenComRawDocument =
-            serde_json::from_value(document()).expect("the raw fixture deserializes");
+            from_value(document()).expect("the raw fixture deserializes");
         let normalized =
             UgreenComNormalizedDocument::from_raw(raw).expect("the raw fixture normalizes");
-        serde_json::to_value(normalized).expect("serializes")
+        to_value(normalized).expect("serializes")
     }
 
     fn structuralize(input: Value) -> Result<UgreenComDocument, StructuralizeError> {
         let normalized: UgreenComNormalizedDocument =
-            serde_json::from_value(input).expect("the normalized fixture deserializes");
+            from_value(input).expect("the normalized fixture deserializes");
         UgreenComDocument::from_normalized(normalized)
     }
 
     fn structuralized(input: Value) -> Value {
-        serde_json::to_value(structuralize(input).expect("the fixture structuralizes"))
-            .expect("serializes")
+        to_value(structuralize(input).expect("the fixture structuralizes")).expect("serializes")
     }
 
     /// The fixture with a second variant, which no saved page has.

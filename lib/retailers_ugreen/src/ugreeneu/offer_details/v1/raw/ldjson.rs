@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// One `script[type="application/ld+json"]`. Every page renders two: the shop's `Organization`,
 /// then the product.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -10,7 +11,7 @@ pub struct LdJsonScript {
 
 /// The island types seen in the corpus. A single-variant product renders a `Product` (10,639
 /// pages), a multi-variant one a `ProductGroup` (1,848 pages, 329 of them with one variant).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -19,7 +20,7 @@ pub enum LdJson {
 }
 
 /// The shop: `UGREEN EU` on `https://eu.ugreen.com` on every page.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -29,7 +30,7 @@ pub struct Organization {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -55,7 +56,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -71,7 +72,7 @@ pub struct GroupVariant {
     pub sku: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -97,7 +98,7 @@ pub struct Product {
 
 /// The product's vendor again: `UGREEN EU` on most pages, but also `UGREEN ES`, `UGREEN UK`,
 /// `Seel` and others.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -105,7 +106,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -125,6 +126,8 @@ pub struct Offer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -213,8 +216,7 @@ pub(crate) mod tests {
     #[test]
     fn every_island_type_deserializes() {
         for island in [organization(), product_group(), product()] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
@@ -223,7 +225,7 @@ pub(crate) mod tests {
         let mut island = product();
         island.as_object_mut().expect("an object").remove("gtin");
 
-        let Ok(LdJson::Product(product)) = serde_json::from_value::<LdJson>(island) else {
+        let Ok(LdJson::Product(product)) = from_value::<LdJson>(island) else {
             panic!("a Product island");
         };
         assert_eq!(product.gtin, None);
@@ -232,7 +234,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["BreadcrumbList", "WebSite"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -246,10 +248,10 @@ pub(crate) mod tests {
     fn an_unknown_key_in_an_island_fails() {
         let mut group = product_group();
         group["mpn"] = json!("1");
-        assert!(serde_json::from_value::<LdJson>(group).is_err());
+        assert!(from_value::<LdJson>(group).is_err());
 
         let mut offer = product();
         offer["offers"]["itemCondition"] = json!("http://schema.org/NewCondition");
-        assert!(serde_json::from_value::<LdJson>(offer).is_err());
+        assert!(from_value::<LdJson>(offer).is_err());
     }
 }

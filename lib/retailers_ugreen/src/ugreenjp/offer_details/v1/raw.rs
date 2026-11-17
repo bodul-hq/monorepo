@@ -7,51 +7,69 @@
 //! what only it states: the picker's `available` and `compare_at_price`, the selected variant,
 //! the rendered price block and the gallery.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use paypal::PayPalMetadata;
+use section::MediaSlide;
+use section::PriceBlock;
+use section::SelectedVariantId;
+use section::VariantsScript;
+use serde::Deserialize;
 pub mod analytics;
 pub mod ldjson;
 pub mod paypal;
 pub mod section;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenJpRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub analytics: analytics::AnalyticsScript,
+    pub analytics: AnalyticsScript,
 
     /// Missing on the 63 `Default Title` products, which render no variant picker.
     #[serde(default)]
-    pub variants: Option<section::VariantsScript>,
+    pub variants: Option<VariantsScript>,
 
-    pub selected_variant_id: section::SelectedVariantId,
+    pub selected_variant_id: SelectedVariantId,
 
-    pub price: section::PriceBlock,
+    pub price: PriceBlock,
 
-    pub media: Vec<section::MediaSlide>,
+    pub media: Vec<MediaSlide>,
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product as tests_product;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::section::tests::media as tests_media;
+    use super::section::tests::price as tests_price;
+    use super::section::tests::variants as tests_variants;
+
     use super::UgreenJpRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
     /// A two-variant page, trimmed from `products-lightning-usb-cable.html`.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
+            "paypal": tests_metadata(),
             "ld-json": [
-                {"type": "application/ld+json", "data": super::ldjson::tests::organization()},
-                {"type": "application/ld+json", "data": super::ldjson::tests::product()}
+                {"type": "application/ld+json", "data": organization()},
+                {"type": "application/ld+json", "data": tests_product()}
             ],
-            "analytics": {"meta": super::analytics::tests::meta()},
-            "variants": super::section::tests::variants(),
+            "analytics": {"meta": tests_meta()},
+            "variants": tests_variants(),
             "selected_variant_id": {"value": "49142586999064"},
-            "price": super::section::tests::price("price price--product", "¥1,399", ""),
-            "media": super::section::tests::media()
+            "price": tests_price("price price--product", "¥1,399", ""),
+            "media": tests_media()
         })
     }
 
@@ -92,11 +110,8 @@ pub(crate) mod tests {
             .expect("an object")
             .remove("variants");
         document["selected_variant_id"] = json!({"value": id.to_string()});
-        document["price"] = super::section::tests::price(
-            "price price--product price--on-sale",
-            "¥52,700",
-            "¥65,880",
-        );
+        document["price"] =
+            tests_price("price price--product price--on-sale", "¥52,700", "¥65,880");
         document["media"] = json!([{
             "id": "template--22963901956376__main-44874680205592",
             "src": "//ugreen.jp/cdn/shop/files/DH4300.png?v=1789197630&width=1946",
@@ -107,9 +122,8 @@ pub(crate) mod tests {
 
     #[test]
     fn the_fixtures_deserialize() {
-        serde_json::from_value::<UgreenJpRawDocument>(document())
-            .expect("the raw fixture deserializes");
-        let default_title = serde_json::from_value::<UgreenJpRawDocument>(default_title_document())
+        from_value::<UgreenJpRawDocument>(document()).expect("the raw fixture deserializes");
+        let default_title = from_value::<UgreenJpRawDocument>(default_title_document())
             .expect("the Default Title fixture deserializes");
         assert!(default_title.variants.is_none());
     }
@@ -127,10 +141,7 @@ pub(crate) mod tests {
             let mut input = document();
             input.as_object_mut().expect("an object").remove(key);
 
-            assert!(
-                serde_json::from_value::<UgreenJpRawDocument>(input).is_err(),
-                "{key}"
-            );
+            assert!(from_value::<UgreenJpRawDocument>(input).is_err(), "{key}");
         }
     }
 
@@ -144,7 +155,7 @@ pub(crate) mod tests {
             .expect("ld-json");
         input["ld_json"] = items;
 
-        let error = serde_json::from_value::<UgreenJpRawDocument>(input)
+        let error = from_value::<UgreenJpRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -154,6 +165,6 @@ pub(crate) mod tests {
         let mut input = document();
         input["breadcrumbs"] = Value::Null;
 
-        assert!(serde_json::from_value::<UgreenJpRawDocument>(input).is_err());
+        assert!(from_value::<UgreenJpRawDocument>(input).is_err());
     }
 }

@@ -1,10 +1,13 @@
 //! Reconcile the selling JSON-LD island with analytics and the selected product section.
+
 use super::super::raw::ldjsonitem::{LdJson, LdJsonItem, Offer, ProductIsland};
+use super::product::gallery_image;
 use super::{
     NormalizeError,
     product::{OfferPrice, Product},
 };
 use money::{Currency, Money};
+use retailer_sauce::availability::Availability;
 use std::collections::BTreeSet;
 
 pub(super) fn invalid(field: &str, reason: impl Into<String>) -> NormalizeError {
@@ -199,13 +202,9 @@ pub(super) fn enrich(product: &mut Product, items: Vec<LdJsonItem>) -> Result<()
         }
         variant.url = offer.url;
         variant.available = Some(available(&offer.availability)?);
-        variant.availability = Some(retailer_sauce::availability::Availability::from_schema_org(
-            offer.availability,
-        ));
+        variant.availability = Some(Availability::from_schema_org(offer.availability));
         variant.gtin = published.gtin.filter(|s| !s.is_empty());
-        variant.image = published
-            .image
-            .map(|src| super::product::gallery_image(&src));
+        variant.image = published.image.map(|src| gallery_image(&src));
         variant.offer_prices = offer
             .price_specification
             .unwrap_or_default()

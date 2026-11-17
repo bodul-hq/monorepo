@@ -5,6 +5,9 @@ use super::{
     non_empty, product_gid, product_url, variant_gid,
 };
 use money::{Currency, Money};
+use productjson::ProductJson;
+use productjson::Variant as ProductjsonVariant;
+use retailer_sauce::availability::Availability;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -52,7 +55,7 @@ pub struct Product {
 
 impl Product {
     pub(super) fn from_raw(
-        raw: productjson::ProductJson,
+        raw: ProductJson,
         island: Island,
         currency: Currency,
         locale: Locale,
@@ -109,7 +112,7 @@ impl Product {
 // misread.
 fn check_island(
     island: &Island,
-    record: &productjson::ProductJson,
+    record: &ProductJson,
     url: &str,
     currency: Currency,
 ) -> Result<(), NormalizeError> {
@@ -200,7 +203,7 @@ fn check_island(
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     pub id: String,
     /// The selected values joined with ` / `, or `Default Title` where the product has no
     /// options to choose.
@@ -245,7 +248,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_raw(
-        raw: productjson::Variant,
+        raw: ProductjsonVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {

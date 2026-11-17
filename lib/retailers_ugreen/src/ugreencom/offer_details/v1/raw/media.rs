@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// A main gallery item. All 72 items on the saved pages are images; the gallery renders no video
 /// or model, so one fails here until it is typed.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "media_type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum MediaItem {
     Image {
@@ -14,6 +15,8 @@ pub enum MediaItem {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::MediaItem;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -28,8 +31,7 @@ pub(crate) mod tests {
 
     #[test]
     fn an_image_deserializes() {
-        let MediaItem::Image { id, .. } =
-            serde_json::from_value::<MediaItem>(image()).expect("deserializes");
+        let MediaItem::Image { id, .. } = from_value::<MediaItem>(image()).expect("deserializes");
         assert_eq!(id, "39249312612571");
     }
 
@@ -38,7 +40,7 @@ pub(crate) mod tests {
         for media_type in ["video", "external_video", "model"] {
             let mut item = image();
             item["media_type"] = json!(media_type);
-            let error = serde_json::from_value::<MediaItem>(item).expect_err("only images");
+            let error = from_value::<MediaItem>(item).expect_err("only images");
             assert!(
                 error
                     .to_string()
@@ -52,6 +54,6 @@ pub(crate) mod tests {
         let mut item = image();
         item["width"] = json!("1445");
 
-        assert!(serde_json::from_value::<MediaItem>(item).is_err());
+        assert!(from_value::<MediaItem>(item).is_err());
     }
 }

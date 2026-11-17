@@ -1,5 +1,9 @@
 //! Strict mirrors of the product islands. Marketing and app configuration are not offer data.
 
+use analytics::AnalyticsScript;
+use paypal::PayPalMetadata;
+use serde_json::Deserializer;
+use variant::Variant;
 pub mod analytics;
 pub mod paypal;
 pub mod variant;
@@ -10,8 +14,8 @@ use serde::Deserialize;
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenNasUkRawDocument {
-    pub analytics: analytics::AnalyticsScript,
-    pub paypal: paypal::PayPalMetadata,
+    pub analytics: AnalyticsScript,
+    pub paypal: PayPalMetadata,
     pub glood: GloodScript,
     pub product_url: ProductUrl,
     pub title: Text,
@@ -19,12 +23,12 @@ pub struct UgreenNasUkRawDocument {
     pub images: Vec<Image>,
     /// The theme omits its picker on some products, including a two-variant French cable.
     #[serde(default)]
-    pub variants: Option<VariantScript<Vec<variant::Variant>>>,
+    pub variants: Option<VariantScript<Vec<Variant>>>,
     /// The EU and UK app renders these on every page; France and Italy do not have the app.
     #[serde(default)]
-    pub em_product_variants: Option<VariantScript<Vec<variant::Variant>>>,
+    pub em_product_variants: Option<VariantScript<Vec<Variant>>>,
     #[serde(default)]
-    pub em_selected_variant: Option<VariantScript<variant::Variant>>,
+    pub em_selected_variant: Option<VariantScript<Variant>>,
     /// Only purchase-protection pages omit the price block.
     #[serde(default)]
     pub price: Option<Price>,
@@ -60,7 +64,7 @@ impl GloodScript {
         if properties.next().is_some() {
             return Err("ambiguous Glood product properties".into());
         }
-        let mut stream = serde_json::Deserializer::from_str(value).into_iter::<GloodProduct>();
+        let mut stream = Deserializer::from_str(value).into_iter::<GloodProduct>();
         let product = stream
             .next()
             .ok_or("missing Glood product JSON")?
@@ -81,7 +85,7 @@ pub struct GloodProduct {
     pub vendor: String,
     #[serde(rename = "type")]
     pub product_type: String,
-    pub variants: Vec<variant::Variant>,
+    pub variants: Vec<Variant>,
     pub available: bool,
     pub price: i64,
     pub price_min: i64,

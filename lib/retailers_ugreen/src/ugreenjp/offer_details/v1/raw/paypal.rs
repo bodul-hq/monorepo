@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// `meta#in-context-paypal-metadata`'s attributes: the one statement on every page of the
 /// currency the prices are rendered in, `JPY` on all 132 saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PayPalMetadata {
     pub id: String,
@@ -20,6 +21,8 @@ pub struct PayPalMetadata {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::PayPalMetadata;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -37,7 +40,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_attributes_deserialize() {
-        let metadata = serde_json::from_value::<PayPalMetadata>(metadata()).expect("deserializes");
+        let metadata = from_value::<PayPalMetadata>(metadata()).expect("deserializes");
         assert_eq!(metadata.currency, "JPY");
     }
 
@@ -46,6 +49,6 @@ pub(crate) mod tests {
         let mut input = metadata();
         input["data-intent"] = json!("capture");
 
-        assert!(serde_json::from_value::<PayPalMetadata>(input).is_err());
+        assert!(from_value::<PayPalMetadata>(input).is_err());
     }
 }

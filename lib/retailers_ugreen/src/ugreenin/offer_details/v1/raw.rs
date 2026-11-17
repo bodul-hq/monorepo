@@ -8,27 +8,43 @@
 //! availability, and the island is the only statement of the page's own URL, which carries the
 //! locale.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use ogcurrency::OgCurrency;
+use productjson::ProductJsonScript;
+use serde::Deserialize;
 pub mod analytics;
 pub mod ldjson;
 pub mod ogcurrency;
 pub mod productjson;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenInRawDocument {
-    pub og_currency: ogcurrency::OgCurrency,
+    pub og_currency: OgCurrency,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub analytics: analytics::AnalyticsScript,
+    pub analytics: AnalyticsScript,
 
-    pub product_json: productjson::ProductJsonScript,
+    pub product_json: ProductJsonScript,
 }
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjson::tests::breadcrumbs;
+    use super::ldjson::tests::faq;
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product_group;
+    use super::ldjson::tests::reviews as tests_reviews;
+    use super::ogcurrency::tests::og_currency as tests_og_currency;
+    use super::productjson::tests::script as tests_script;
+
     use super::UgreenInRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -40,27 +56,26 @@ pub(crate) mod tests {
     /// `ProductGroup` (index 2) and Judge.me's reviews last.
     pub(crate) fn document() -> Value {
         json!({
-            "og_currency": super::ogcurrency::tests::og_currency(),
+            "og_currency": tests_og_currency(),
             "ld-json": [
-                script(super::ldjson::tests::organization()),
-                script(super::ldjson::tests::breadcrumbs()),
-                script(super::ldjson::tests::product_group()),
-                script(super::ldjson::tests::faq()),
+                script(organization()),
+                script(breadcrumbs()),
+                script(product_group()),
+                script(faq()),
                 {
                     "class": "jdgm-server-jld",
                     "type": "application/ld+json",
-                    "data": super::ldjson::tests::reviews()
+                    "data": tests_reviews()
                 }
             ],
-            "analytics": {"meta": super::analytics::tests::meta()},
-            "product_json": super::productjson::tests::script()
+            "analytics": {"meta": tests_meta()},
+            "product_json": tests_script()
         })
     }
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<UgreenInRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<UgreenInRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -69,10 +84,7 @@ pub(crate) mod tests {
             let mut input = document();
             input.as_object_mut().expect("an object").remove(key);
 
-            assert!(
-                serde_json::from_value::<UgreenInRawDocument>(input).is_err(),
-                "{key}"
-            );
+            assert!(from_value::<UgreenInRawDocument>(input).is_err(), "{key}");
         }
     }
 
@@ -86,7 +98,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenInRawDocument>(input)
+        let error = from_value::<UgreenInRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -96,6 +108,6 @@ pub(crate) mod tests {
         let mut input = document();
         input["paypal"] = json!({});
 
-        assert!(serde_json::from_value::<UgreenInRawDocument>(input).is_err());
+        assert!(from_value::<UgreenInRawDocument>(input).is_err());
     }
 }

@@ -8,6 +8,8 @@
 //! that is the discounted price for the selected variant, whose Shopify price becomes its
 //! compare-at price; the other variants keep their Shopify price.
 
+use product::Product as ProductProduct;
+use raw::UgreenFrRawDocument as RawUgreenFrRawDocument;
 mod island;
 pub mod product;
 
@@ -172,35 +174,36 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenFrNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenFrNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenFrRawDocument,
+        raw: RawUgreenFrRawDocument,
     ) -> Result<UgreenFrNormalizedDocument, NormalizeError> {
         Ok(UgreenFrNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenFrNormalizedDocument};
     use crate::ugreenfr::offer_details::v1::raw::UgreenFrRawDocument;
     use crate::ugreenfr::offer_details::v1::raw::tests::{discounted_document, document};
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenFrNormalizedDocument, NormalizeError> {
-        let raw: UgreenFrRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenFrRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenFrNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn eur(amount: i64) -> Value {

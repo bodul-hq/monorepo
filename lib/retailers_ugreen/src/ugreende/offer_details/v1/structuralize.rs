@@ -1,7 +1,11 @@
 //! Validated variations from the storefront's normalized product.
+
 use super::normalized::UgreenDeNormalizedDocument;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -67,7 +71,7 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(
+                was_price: offer_facts_was_price(
                     Some(&variant.price),
                     product
                         .selected_variant
@@ -76,9 +80,9 @@ impl Document {
                         .filter(|_| product.selected_variant.id == variant.id),
                 ),
                 availability: (product.selected_variant.id == variant.id)
-                    .then(|| offer_facts::purchase_available(product.selected_variant.available)),
+                    .then(|| purchase_available(product.selected_variant.available)),
                 item_condition: None,
-                content: offer_facts::content(None),
+                content: offer_facts_content(None),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),
@@ -99,6 +103,8 @@ impl Document {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
     use super::*;
     use crate::ugreende::offer_details::v1::{
         normalized::UgreenDeNormalizedDocument,
@@ -108,7 +114,7 @@ mod tests {
 
     #[test]
     fn selected_variant_facts_do_not_leak_to_siblings() {
-        let raw: UgreenDeRawDocument = serde_json::from_value(document()).unwrap();
+        let raw: UgreenDeRawDocument = from_value(document()).unwrap();
         let normalized = UgreenDeNormalizedDocument::from_raw(raw).unwrap();
         let result = Document::from_normalized(normalized).unwrap();
         assert_eq!(

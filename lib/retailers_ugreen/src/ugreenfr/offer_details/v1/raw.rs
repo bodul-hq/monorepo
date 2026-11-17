@@ -7,30 +7,34 @@
 //! barcode. Shopify's analytics `meta` lists the variants with their ids; the main section's
 //! price block, product form, picker and gallery describe the selected variant and the images.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use serde::Deserialize;
+use variant::VariantScript;
 pub mod analytics;
 pub mod ldjson;
 pub mod variant;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenFrRawDocument {
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
-    pub analytics: analytics::AnalyticsScript,
+    pub ld_json: Vec<LdJsonScript>,
+    pub analytics: AnalyticsScript,
     pub price: PriceBlock,
     pub product_form: ProductForm,
     pub selected_variant_id: SelectedVariantId,
     /// Empty without a picker, that is on the 262 single-`Product` pages.
     pub option_names: Vec<OptionName>,
     /// The variant picker's record of the selected variant; missing without a picker.
-    pub selected_variant: Option<variant::VariantScript>,
+    pub selected_variant: Option<VariantScript>,
     pub images: Vec<Image>,
 }
 
 /// The main `product-price` element's data attributes, all strings. They describe the selected
 /// variant as the theme displays it, after any automatic discount.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceBlock {
     pub product_id: String,
@@ -43,7 +47,7 @@ pub struct PriceBlock {
 }
 
 /// The main product form, not the sticky bar's copy of it.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductForm {
     pub product_id: String,
@@ -57,7 +61,7 @@ pub struct ProductForm {
 }
 
 /// The main product form's hidden `id` input.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedVariantId {
     pub value: String,
@@ -65,14 +69,14 @@ pub struct SelectedVariantId {
 
 /// A picker fieldset's legend title, such as `Pack:`, in the order of the variants' option
 /// slots.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OptionName {
     pub text: String,
 }
 
 /// An image slide of the main media gallery; video slides are left out.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     /// Protocol-relative, with the display `width` the theme asks the CDN for.
@@ -82,6 +86,15 @@ pub struct Image {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value as decode_json_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjson::tests::organization;
+    use super::ldjson::tests::product as tests_product;
+    use super::ldjson::tests::product_group;
+    use super::ldjson::tests::reviews;
+    use super::variant::tests::variant as tests_variant;
+
     use super::UgreenFrRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -94,15 +107,15 @@ pub(crate) mod tests {
     pub(crate) fn document() -> Value {
         json!({
             "ld-json": [
-                script(super::ldjson::tests::organization()),
-                script(super::ldjson::tests::product_group()),
+                script(organization()),
+                script(product_group()),
                 {
                     "class": "jdgm-server-jld",
                     "type": "application/ld+json",
-                    "data": super::ldjson::tests::reviews("45699")
+                    "data": reviews("45699")
                 }
             ],
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "analytics": {"meta": tests_meta()},
             "price": {
                 "product_id": "9526794977600",
                 "base_price_cents": "13499",
@@ -117,7 +130,7 @@ pub(crate) mod tests {
             "option_names": [{"text": "Pack:"}],
             "selected_variant": {
                 "type": "application/json",
-                "data": super::variant::tests::variant()
+                "data": tests_variant()
             },
             "images": [
                 {
@@ -137,8 +150,8 @@ pub(crate) mod tests {
     pub(crate) fn discounted_document() -> Value {
         json!({
             "ld-json": [
-                script(super::ldjson::tests::organization()),
-                script(super::ldjson::tests::product())
+                script(organization()),
+                script(tests_product())
             ],
             "analytics": {"meta": {
                 "product": {
@@ -185,7 +198,7 @@ pub(crate) mod tests {
     #[test]
     fn the_fixtures_deserialize() {
         for document in [document(), discounted_document()] {
-            serde_json::from_value::<UgreenFrRawDocument>(document)
+            decode_json_value::<UgreenFrRawDocument>(document)
                 .expect("the raw fixture deserializes");
         }
     }
@@ -205,7 +218,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(island);
 
             assert!(
-                serde_json::from_value::<UgreenFrRawDocument>(input).is_err(),
+                decode_json_value::<UgreenFrRawDocument>(input).is_err(),
                 "{island}"
             );
         }
@@ -221,7 +234,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenFrRawDocument>(input)
+        let error = decode_json_value::<UgreenFrRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -229,7 +242,7 @@ pub(crate) mod tests {
     #[test]
     fn the_discount_attributes_are_read() {
         let raw: UgreenFrRawDocument =
-            serde_json::from_value(discounted_document()).expect("deserializes");
+            decode_json_value(discounted_document()).expect("deserializes");
         assert_eq!(raw.product_form.auto_discount.as_deref(), Some("true"));
         assert_eq!(raw.product_form.discount_code.as_deref(), Some("DL15532"));
     }
@@ -238,12 +251,12 @@ pub(crate) mod tests {
     fn an_unknown_island_or_attribute_fails() {
         let mut island = document();
         island["add_to_cart"] = json!({});
-        let error = serde_json::from_value::<UgreenFrRawDocument>(island)
-            .expect_err("the button is not read");
+        let error =
+            decode_json_value::<UgreenFrRawDocument>(island).expect_err("the button is not read");
         assert!(error.to_string().contains("unknown field `add_to_cart`"));
 
         let mut attribute = document();
         attribute["price"]["block_id"] = json!("x");
-        assert!(serde_json::from_value::<UgreenFrRawDocument>(attribute).is_err());
+        assert!(decode_json_value::<UgreenFrRawDocument>(attribute).is_err());
     }
 }

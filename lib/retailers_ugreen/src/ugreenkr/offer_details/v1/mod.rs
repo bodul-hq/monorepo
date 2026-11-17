@@ -1,7 +1,14 @@
 //! Korean Shopify theme: JSON-LD supplies offers in whole won; analytics prices are
 //! hundredths of a won. The main section supplies the title, gallery and displayed prices.
+
 use html_extractor::io::{Architecture, Attr, collection, particle, trash};
 use html_extractor::serde_json;
+use normalized::UgreenKrNormalizedDocument;
+use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
+use structuralize::Document;
 pub mod normalized;
 pub mod raw;
 mod structuralize;
@@ -58,23 +65,19 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw = serde_json::from_str(json).map_err(|e| e.to_string())?;
-    let normalized =
-        normalized::UgreenKrNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
-    let json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
-    Ok(shared::NormalizedData::just_document_json(json))
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw = from_str(json).map_err(|e| e.to_string())?;
+    let normalized = UgreenKrNormalizedDocument::from_raw(raw).map_err(|e| e.to_string())?;
+    let json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
+    Ok(NormalizedData::just_document_json(json))
 }
 #[cfg(test)]
 mod tests;
 
 /// Converts the normalized product into validated offer variations.
-pub fn structuralize(
-    json: &str,
-) -> Result<retailer_sauce::structuralized::StructuralizedData, String> {
-    let input = serde_json::from_str(json).map_err(|error| error.to_string())?;
-    let document =
-        structuralize::Document::from_normalized(input).map_err(|error| error.to_string())?;
-    let json = serde_json::to_string(&document).map_err(|error| error.to_string())?;
-    Ok(retailer_sauce::structuralized::StructuralizedData::just_document_json(json))
+pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
+    let input = from_str(json).map_err(|error| error.to_string())?;
+    let document = Document::from_normalized(input).map_err(|error| error.to_string())?;
+    let json = serde_json_to_string(&document).map_err(|error| error.to_string())?;
+    Ok(StructuralizedData::just_document_json(json))
 }

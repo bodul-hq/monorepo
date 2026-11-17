@@ -4,6 +4,11 @@ use super::{
     NormalizeError, ORIGIN, money_from_shopify_cents, shop_currency, variant_gid, whole_number,
 };
 use money::{Currency, Money};
+use raw::PriceBlock;
+use raw::ProductForm;
+use raw::UgreenFrRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::variant::Variant as VariantVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -46,7 +51,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenFrRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenFrRawDocument) -> Result<Product, NormalizeError> {
         let currency = shop_currency(&raw.price.currency)?;
         let meta = raw.analytics.meta.product;
         let island = Island::from_raw(raw.ld_json)?;
@@ -183,7 +188,7 @@ fn same_url(island: &str, url: &str, expected: &str) -> Result<(), NormalizeErro
 // 306 saved pages, so any disagreement means one of the two was misread.
 fn check_offers(
     offers: &[IslandOffer],
-    variants: &[raw::analytics::Variant],
+    variants: &[AnalyticsVariant],
     currency: Currency,
 ) -> Result<(), NormalizeError> {
     let island_ids: Vec<u64> = offers.iter().map(|offer| offer.variant_id).collect();
@@ -232,7 +237,7 @@ fn check_offers(
 // The picker's record restates the selected variant; checked so a picker describing another
 // variant than the form can't pass unnoticed.
 fn check_record(
-    record: &raw::variant::Variant,
+    record: &VariantVariant,
     selected_id: u64,
     listed: i64,
     analytics_sku: &str,
@@ -323,8 +328,8 @@ impl DisplayedPrices {
     // Shopify price, as it does on all 40 such pages. The offer is the price customers see, so
     // the discounted price is the price and the Shopify price its compare-at price.
     fn from_raw(
-        block: &raw::PriceBlock,
-        form: &raw::ProductForm,
+        block: &PriceBlock,
+        form: &ProductForm,
         listed: i64,
         currency: Currency,
     ) -> Result<DisplayedPrices, NormalizeError> {

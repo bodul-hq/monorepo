@@ -2,10 +2,11 @@
 //! picker's JSON, the selected variant, the price block and the gallery.
 
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// `variant-radios script[type="application/json"]`: Liquid's variants, rendered only where the
 /// product has a picker (69 of the 132 saved pages; the 63 `Default Title` products have none).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct VariantsScript {
     #[serde(rename = "type")]
@@ -14,7 +15,7 @@ pub struct VariantsScript {
 }
 
 /// Liquid's variant. Every amount is in hundredths of a yen, as in the analytics.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PickerVariant {
     pub id: u64,
@@ -47,7 +48,7 @@ pub struct PickerVariant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -63,7 +64,7 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedMedia {
     pub alt: Option<String>,
@@ -72,7 +73,7 @@ pub struct FeaturedMedia {
     pub preview_image: PreviewImage,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
     pub aspect_ratio: f64,
@@ -81,7 +82,7 @@ pub struct PreviewImage {
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -90,7 +91,7 @@ pub struct QuantityRule {
 }
 
 /// The cart form's `input[name="id"]`: the variant the price block is rendered for.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedVariantId {
     /// A numeric variant id, as a string.
@@ -98,7 +99,7 @@ pub struct SelectedVariantId {
 }
 
 /// Dawn's price snippet, its texts rendered in yen with grouping commas (`¥65,880`).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceBlock {
     /// `price price--product`, plus `price--on-sale` where a compare-at price is shown.
@@ -110,14 +111,14 @@ pub struct PriceBlock {
     pub compare_at: PriceText,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceText {
     pub text: String,
 }
 
 /// A gallery slide. Every slide on the saved pages is an image.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MediaSlide {
     /// The media id prefixed with the section id (`template--…__main-44439502291224`).
@@ -130,6 +131,8 @@ pub struct MediaSlide {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{MediaSlide, PickerVariant, PriceBlock, VariantsScript};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -190,7 +193,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_picker_deserializes() {
-        let script = serde_json::from_value::<VariantsScript>(variants()).expect("deserializes");
+        let script = from_value::<VariantsScript>(variants()).expect("deserializes");
         assert_eq!(script.data.len(), 2);
         assert_eq!(script.data[1].price, 159900);
     }
@@ -211,7 +214,7 @@ pub(crate) mod tests {
                 "src": "//ugreen.jp/cdn/shop/files/PB570_65839.webp?v=1778490461"}
         });
 
-        let variant = serde_json::from_value::<PickerVariant>(variant).expect("deserializes");
+        let variant = from_value::<PickerVariant>(variant).expect("deserializes");
         assert!(variant.featured_image.is_some());
         assert!(variant.featured_media.is_some());
     }
@@ -220,16 +223,16 @@ pub(crate) mod tests {
     fn an_unknown_key_in_the_picker_fails() {
         let mut input = variants();
         input["data"][0]["unit_price"] = json!(1);
-        assert!(serde_json::from_value::<VariantsScript>(input).is_err());
+        assert!(from_value::<VariantsScript>(input).is_err());
 
         let mut attribute = variants();
         attribute["id"] = json!("variants");
-        assert!(serde_json::from_value::<VariantsScript>(attribute).is_err());
+        assert!(from_value::<VariantsScript>(attribute).is_err());
     }
 
     #[test]
     fn the_price_block_deserializes_and_rejects_a_new_text() {
-        let block = serde_json::from_value::<PriceBlock>(price(
+        let block = from_value::<PriceBlock>(price(
             "price price--product price--on-sale",
             "¥52,700",
             "¥65,880",
@@ -239,16 +242,16 @@ pub(crate) mod tests {
 
         let mut input = price("price price--product", "¥1,399", "");
         input["unit"] = json!({"text": ""});
-        assert!(serde_json::from_value::<PriceBlock>(input).is_err());
+        assert!(from_value::<PriceBlock>(input).is_err());
     }
 
     #[test]
     fn a_slide_deserializes_and_rejects_a_new_attribute() {
-        let slides = serde_json::from_value::<Vec<MediaSlide>>(media()).expect("deserializes");
+        let slides = from_value::<Vec<MediaSlide>>(media()).expect("deserializes");
         assert_eq!(slides.len(), 2);
 
         let mut input = media();
         input[0]["data-media-type"] = json!("video");
-        assert!(serde_json::from_value::<Vec<MediaSlide>>(input).is_err());
+        assert!(from_value::<Vec<MediaSlide>>(input).is_err());
     }
 }

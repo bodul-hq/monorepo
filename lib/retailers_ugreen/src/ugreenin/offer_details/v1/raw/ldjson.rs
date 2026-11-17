@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// A `script[type="application/ld+json"]`: its attributes and its parsed body.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -14,7 +15,7 @@ pub struct LdJsonScript {
 /// The island types seen in the corpus: `Organization` and `BreadcrumbList` on every page,
 /// `FAQPage` on 681 pages per locale, and the product as a `Product` (701 per locale) or a
 /// `ProductGroup` (3 per locale).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -28,14 +29,14 @@ pub enum LdJson {
 /// Two islands on a page say `Product`: the theme's, with the offer, on every page that does
 /// not render a `ProductGroup`, and Judge.me's, with the reviews, on the 246 pages per locale
 /// that have any. Neither carries the other's keys.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum ProductIsland {
     Offers(Box<Product>),
     Reviews(Box<ReviewsProduct>),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -57,7 +58,7 @@ pub struct Product {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -76,7 +77,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -91,7 +92,7 @@ pub struct GroupVariant {
     pub sku: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -99,7 +100,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -116,7 +117,7 @@ pub struct Offer {
 }
 
 /// Judge.me's island. Only its keys are typed: the ratings and reviews carry no offer fact.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewsProduct {
     #[serde(rename = "@context")]
@@ -130,7 +131,7 @@ pub struct ReviewsProduct {
     pub review: Value,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -147,7 +148,7 @@ pub struct Organization {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct PostalAddress {
     #[serde(rename = "@type")]
@@ -159,7 +160,7 @@ pub struct PostalAddress {
     pub address_country: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ContactPoint {
     #[serde(rename = "@type")]
@@ -172,7 +173,7 @@ pub struct ContactPoint {
     pub available_language: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BreadcrumbList {
     #[serde(rename = "@context")]
@@ -181,7 +182,7 @@ pub struct BreadcrumbList {
     pub item_list_element: Vec<ListItem>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ListItem {
     #[serde(rename = "@type")]
@@ -191,7 +192,7 @@ pub struct ListItem {
     pub item: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FaqPage {
     #[serde(rename = "@context")]
@@ -200,7 +201,7 @@ pub struct FaqPage {
     pub main_entity: Vec<Question>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Question {
     #[serde(rename = "@type")]
@@ -210,7 +211,7 @@ pub struct Question {
     pub accepted_answer: Answer,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Answer {
     #[serde(rename = "@type")]
@@ -220,6 +221,8 @@ pub struct Answer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{LdJson, LdJsonScript, ProductIsland};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -374,17 +377,16 @@ pub(crate) mod tests {
             product(),
             reviews(),
         ] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn the_two_product_islands_are_told_apart_by_their_keys() {
-        let theme = serde_json::from_value::<LdJson>(product()).expect("deserializes");
+        let theme = from_value::<LdJson>(product()).expect("deserializes");
         assert!(matches!(theme, LdJson::Product(ProductIsland::Offers(_))));
 
-        let reviews = serde_json::from_value::<LdJson>(reviews()).expect("deserializes");
+        let reviews = from_value::<LdJson>(reviews()).expect("deserializes");
         assert!(matches!(
             reviews,
             LdJson::Product(ProductIsland::Reviews(_))
@@ -396,7 +398,7 @@ pub(crate) mod tests {
         let mut island = product();
         island.as_object_mut().expect("an object").remove("gtin");
 
-        let island = serde_json::from_value::<LdJson>(island).expect("deserializes");
+        let island = from_value::<LdJson>(island).expect("deserializes");
         assert!(matches!(
             island,
             LdJson::Product(ProductIsland::Offers(product)) if product.gtin.is_none()
@@ -406,7 +408,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["WebSite", "WebPage", "ItemList"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -421,20 +423,17 @@ pub(crate) mod tests {
         for mut island in [organization(), faq(), product_group(), product(), reviews()] {
             island["mpn"] = json!("1");
 
-            assert!(
-                serde_json::from_value::<LdJson>(island.clone()).is_err(),
-                "{island}"
-            );
+            assert!(from_value::<LdJson>(island.clone()).is_err(), "{island}");
         }
     }
 
     #[test]
     fn an_unexpected_script_attribute_fails() {
         let script = json!({"type": "application/ld+json", "data": organization()});
-        serde_json::from_value::<LdJsonScript>(script.clone()).expect("deserializes");
+        from_value::<LdJsonScript>(script.clone()).expect("deserializes");
 
         let mut with_id = script;
         with_id["id"] = json!("organization");
-        assert!(serde_json::from_value::<LdJsonScript>(with_id).is_err());
+        assert!(from_value::<LdJsonScript>(with_id).is_err());
     }
 }

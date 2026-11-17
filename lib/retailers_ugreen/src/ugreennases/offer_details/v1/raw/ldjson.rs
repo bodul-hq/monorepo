@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -12,7 +13,7 @@ pub struct LdJsonScript {
 /// The island types seen in the corpus. Every page carries the shop's `Organization` twice, a
 /// `WebPage` and a `WebSite`; the theme renders no product island. On 6 of the 18 saved pages
 /// Judge.me adds a review `Product`, without offers.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -22,7 +23,7 @@ pub enum LdJson {
 }
 
 /// Rendered twice per page: by the theme (with `contactPoint`) and by Dawn's header.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -38,7 +39,7 @@ pub struct Organization {
     pub same_as: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ContactPoint {
     #[serde(rename = "@type")]
@@ -46,7 +47,7 @@ pub struct ContactPoint {
     pub email: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WebPage {
     #[serde(rename = "@context")]
@@ -58,20 +59,20 @@ pub struct WebPage {
 
 /// On every product page the theme renders the description with Liquid's `json` filter on an
 /// object it refuses, so the island carries Liquid's error object instead of text.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum WebPageDescription {
     Text(String),
     LiquidError(LiquidError),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LiquidError {
     pub error: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WebSite {
     #[serde(rename = "@context")]
@@ -82,7 +83,7 @@ pub struct WebSite {
     pub potential_action: SearchAction,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SearchAction {
     #[serde(rename = "@type")]
@@ -94,7 +95,7 @@ pub struct SearchAction {
 
 /// Judge.me's review island (`script.jdgm-server-jld`): the product's name, an image, its rating
 /// and recent reviews, but no offer. Not read: it states no fact normalization needs.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -109,7 +110,7 @@ pub struct Product {
     pub review: Vec<Review>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
@@ -125,7 +126,7 @@ pub struct AggregateRating {
     pub worst_rating: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Review {
     #[serde(rename = "@type")]
@@ -142,7 +143,7 @@ pub struct Review {
     pub image: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Rating {
     #[serde(rename = "@type")]
@@ -155,7 +156,7 @@ pub struct Rating {
     pub worst_rating: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Person {
     #[serde(rename = "@type")]
@@ -165,6 +166,8 @@ pub struct Person {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{LdJson, LdJsonScript, WebPageDescription};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -266,14 +269,13 @@ pub(crate) mod tests {
             web_site(),
             review_product(),
         ] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn a_web_page_description_is_text_or_liquids_error() {
-        let Ok(LdJson::WebPage(page)) = serde_json::from_value::<LdJson>(web_page()) else {
+        let Ok(LdJson::WebPage(page)) = from_value::<LdJson>(web_page()) else {
             panic!("a web page");
         };
         assert!(matches!(
@@ -283,7 +285,7 @@ pub(crate) mod tests {
 
         let mut input = web_page();
         input["description"] = json!("UGREEN");
-        let Ok(LdJson::WebPage(page)) = serde_json::from_value::<LdJson>(input) else {
+        let Ok(LdJson::WebPage(page)) = from_value::<LdJson>(input) else {
             panic!("a web page");
         };
         assert_eq!(
@@ -295,7 +297,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["BreadcrumbList", "ProductGroup"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -309,11 +311,11 @@ pub(crate) mod tests {
     fn an_unknown_key_in_an_island_fails() {
         let mut island = review_product();
         island["offers"] = json!([]);
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
 
         let mut island = web_page();
         island["description"] = json!({"error": "x", "message": "y"});
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
     }
 
     #[test]
@@ -323,7 +325,7 @@ pub(crate) mod tests {
             "class": "jdgm-server-jld",
             "data": review_product()
         });
-        let script = serde_json::from_value::<LdJsonScript>(script).expect("deserializes");
+        let script = from_value::<LdJsonScript>(script).expect("deserializes");
         assert_eq!(script.class.as_deref(), Some("jdgm-server-jld"));
     }
 
@@ -335,7 +337,7 @@ pub(crate) mod tests {
             .expect("a review")
             .remove("image");
 
-        assert!(serde_json::from_value::<LdJson>(island).is_ok());
+        assert!(from_value::<LdJson>(island).is_ok());
     }
 
     #[test]
@@ -345,6 +347,6 @@ pub(crate) mod tests {
             "id": "judgeme",
             "data": organization()
         });
-        assert!(serde_json::from_value::<LdJsonScript>(script).is_err());
+        assert!(from_value::<LdJsonScript>(script).is_err());
     }
 }

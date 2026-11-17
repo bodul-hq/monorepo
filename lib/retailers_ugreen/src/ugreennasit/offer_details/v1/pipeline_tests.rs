@@ -1,8 +1,13 @@
+use super::normalized::UgreenNasItNormalizedDocument;
+use super::tests::pages as tests_pages;
 use super::{architecture, normalize, structuralize};
 use html_extractor::{
     Backend,
     serde_json::{self, Value, json},
 };
+use serde_json::from_str as decode_json_str;
+use serde_json::to_value;
+use std::fs::read_to_string;
 
 const ORIGIN: &str = "https://ai-it.ugreen.com";
 const CURRENCY: &str = "EUR";
@@ -59,7 +64,7 @@ fn fixture() -> Value {
 }
 
 fn normalized(input: &Value) -> Value {
-    serde_json::from_str(
+    decode_json_str(
         &normalize(&input.to_string())
             .unwrap()
             .document_json
@@ -68,7 +73,7 @@ fn normalized(input: &Value) -> Value {
     .unwrap()
 }
 fn structured(input: &Value) -> Value {
-    serde_json::from_str(
+    decode_json_str(
         &structuralize(&input.to_string())
             .unwrap()
             .document_json
@@ -343,13 +348,13 @@ fn regional_urls_reject_cross_store_hosts_and_wrong_handles() {
 
 #[test]
 fn normalizes_and_structuralizes_every_page() {
-    let Some(pages) = super::tests::pages() else {
+    let Some(pages) = tests_pages() else {
         return;
     };
     let arch = architecture();
     let mut failures = Vec::new();
     for page in pages {
-        let html = std::fs::read_to_string(&page).unwrap();
+        let html = read_to_string(&page).unwrap();
         let result = (|| -> Result<(), String> {
             let extracted = Backend::Scraper
                 .extract(&html, &arch)
@@ -358,16 +363,16 @@ fn normalizes_and_structuralizes_every_page() {
             let n = normalize(&extracted.to_string())?
                 .document_json
                 .ok_or("no normalized document")?;
-            let typed: super::normalized::UgreenNasItNormalizedDocument =
-                serde_json::from_str(&n).map_err(|e| e.to_string())?;
+            let typed: UgreenNasItNormalizedDocument =
+                decode_json_str(&n).map_err(|e| e.to_string())?;
             assert_eq!(
-                serde_json::from_str::<Value>(&n).unwrap(),
-                serde_json::to_value(&typed).unwrap()
+                decode_json_str::<Value>(&n).unwrap(),
+                to_value(&typed).unwrap()
             );
             let s = structuralize(&n)?
                 .document_json
                 .ok_or("no structuralized document")?;
-            let output: Value = serde_json::from_str(&s).map_err(|e| e.to_string())?;
+            let output: Value = decode_json_str(&s).map_err(|e| e.to_string())?;
             let expected = if typed.product.purchase_protection {
                 0
             } else {

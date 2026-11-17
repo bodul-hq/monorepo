@@ -14,6 +14,10 @@
 //! merged. The island's URL is the only statement of the page's address, so the locale is read
 //! from it; see [`Locale`].
 
+use analytics::check;
+use island::Island;
+use product::Product as ProductProduct;
+use raw::UgreenInRawDocument as RawUgreenInRawDocument;
 mod analytics;
 mod island;
 pub mod product;
@@ -213,27 +217,33 @@ fn gtin(barcode: Option<String>) -> Option<String> {
 pub struct UgreenInNormalizedDocument {
     /// The page's locale, from its URL.
     pub locale: Locale,
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenInNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenInRawDocument,
+        raw: RawUgreenInRawDocument,
     ) -> Result<UgreenInNormalizedDocument, NormalizeError> {
         let currency = shop_currency(&raw.og_currency.content)?;
-        let island = island::Island::from_raw(raw.ld_json)?;
+        let island = Island::from_raw(raw.ld_json)?;
         let locale = page_locale(&island.url)?;
-        analytics::check(&raw.analytics.meta.product, &raw.product_json.data)?;
+        check(&raw.analytics.meta.product, &raw.product_json.data)?;
 
         Ok(UgreenInNormalizedDocument {
             locale,
-            product: product::Product::from_raw(raw.product_json.data, island, currency, locale)?,
+            product: ProductProduct::from_raw(raw.product_json.data, island, currency, locale)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::ugreenin::offer_details::v1::raw::ldjson::tests::product as tests_product;
+    use serde_json::from_str;
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+    use serde_json::to_value;
+
     use super::{Locale, NormalizeError, UgreenInNormalizedDocument, gtin, page_locale};
     use super::{product_url, shop_currency};
     use crate::ugreenin::offer_details::v1::raw::UgreenInRawDocument;
@@ -241,8 +251,7 @@ mod tests {
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenInNormalizedDocument, NormalizeError> {
-        let raw: UgreenInRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenInRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenInNormalizedDocument::from_raw(raw)
     }
 
@@ -261,8 +270,7 @@ mod tests {
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn inr(amount: i64) -> Value {
@@ -296,7 +304,7 @@ mod tests {
             "https://www.ugreenindia.com/products/",
             "https://www.ugreenindia.com/hi/products/",
         );
-        *island = serde_json::from_str(&text).expect("json");
+        *island = from_str(&text).expect("json");
         document
     }
 
@@ -504,8 +512,7 @@ mod tests {
             .as_array_mut()
             .expect("variants")
             .truncate(1);
-        input["ld-json"][2]["data"] =
-            crate::ugreenin::offer_details::v1::raw::ldjson::tests::product();
+        input["ld-json"][2]["data"] = tests_product();
 
         let product = &normalized(input)["product"];
         assert_eq!(product["category"], json!("Mouse Pads"));
@@ -727,9 +734,9 @@ mod tests {
     #[test]
     fn the_normalized_document_reads_back() {
         let output = normalize(hindi(document())).expect("the fixture normalizes");
-        let json = serde_json::to_string(&output).expect("serializes");
+        let json = serde_json_to_string(&output).expect("serializes");
 
-        let read: UgreenInNormalizedDocument = serde_json::from_str(&json).expect("reads back");
+        let read: UgreenInNormalizedDocument = from_str(&json).expect("reads back");
         assert_eq!(read, output);
     }
 }

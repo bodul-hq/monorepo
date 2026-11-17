@@ -4,6 +4,9 @@
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript, ProductIsland};
 use super::NormalizeError;
+use ldjson::Offer as LdjsonOffer;
+use ldjson::Product as LdjsonProduct;
+use ldjson::ProductGroup as LdjsonProductGroup;
 
 /// The `class` Judge.me's review island carries; the theme's islands carry none.
 const REVIEWS_CLASS: &str = "jdgm-server-jld";
@@ -63,7 +66,7 @@ impl Island {
         }
     }
 
-    fn from_group(group: ldjson::ProductGroup) -> Result<Island, NormalizeError> {
+    fn from_group(group: LdjsonProductGroup) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: Some(group.product_group_id),
             url: group.url,
@@ -77,7 +80,7 @@ impl Island {
         })
     }
 
-    fn from_product(product: ldjson::Product) -> Result<Island, NormalizeError> {
+    fn from_product(product: LdjsonProduct) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: None,
             url: product.url,
@@ -101,7 +104,7 @@ fn island_class_mismatch(island: &str, class: Option<String>) -> NormalizeError 
 
 impl IslandOffer {
     fn from_raw(
-        offer: ldjson::Offer,
+        offer: LdjsonOffer,
         sku: Option<String>,
         gtin: Option<String>,
     ) -> Result<IslandOffer, NormalizeError> {

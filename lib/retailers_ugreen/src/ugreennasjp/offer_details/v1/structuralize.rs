@@ -1,7 +1,11 @@
 //! Validated variations from the storefront's normalized product.
+
 use super::normalized::UgreenNasJpNormalizedDocument;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::in_stock;
+use offer_facts::was_price as offer_facts_was_price;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
@@ -61,10 +65,10 @@ impl Document {
                 images.insert(0, image.clone());
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(Some(&variant.price), None),
-                availability: Some(offer_facts::in_stock(variant.available)),
+                was_price: offer_facts_was_price(Some(&variant.price), None),
+                availability: Some(in_stock(variant.available)),
                 item_condition: None,
-                content: offer_facts::content(product.description.as_deref()),
+                content: offer_facts_content(product.description.as_deref()),
                 identifiers,
                 title: product.title.clone(),
                 price: Some(variant.price.clone()),

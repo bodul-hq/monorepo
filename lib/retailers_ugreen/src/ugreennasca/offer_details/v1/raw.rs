@@ -8,21 +8,26 @@
 //! main section's title, cart form, price block and gallery. The PayPal metadata tag names the
 //! currency.
 
+use analytics::AnalyticsScript;
+use ldjson::LdJsonScript;
+use paypal::PayPalMetadata;
+use serde::Deserialize;
+use variants::VariantsScript;
 pub mod analytics;
 pub mod ldjson;
 pub mod paypal;
 pub mod variants;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenNasCaRawDocument {
-    pub paypal: paypal::PayPalMetadata,
+    pub paypal: PayPalMetadata,
 
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjson::LdJsonScript>,
+    pub ld_json: Vec<LdJsonScript>,
 
-    pub analytics: analytics::AnalyticsScript,
+    pub analytics: AnalyticsScript,
 
     pub title: Title,
 
@@ -30,7 +35,7 @@ pub struct UgreenNasCaRawDocument {
     /// no picker (`ugreen-nas-backup-power-120w-12000mah`, `ugreen-nasync-dxp480t-plus-nas-storage`,
     /// `ugreen-nasync-dxp6800-pro-nas-storage`, `ugreen-nasync-dxp8800-plus-nas-storage`).
     #[serde(default)]
-    pub variants: Option<variants::VariantsScript>,
+    pub variants: Option<VariantsScript>,
 
     pub selected_variant: SelectedVariant,
 
@@ -40,14 +45,14 @@ pub struct UgreenNasCaRawDocument {
 }
 
 /// The main section's `h1`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Title {
     pub text: String,
 }
 
 /// The main cart form's hidden `id` input: the variant the page opens on.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SelectedVariant {
     /// The variant's numeric id, as a string.
@@ -58,7 +63,7 @@ pub struct SelectedVariant {
 }
 
 /// Dawn's price snippet for the selected variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceBlock {
     /// Space-separated: `price price--large`, plus `price--on-sale` where a compare-at price
@@ -73,14 +78,14 @@ pub struct PriceBlock {
     pub compare_at: Text,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Text {
     pub text: String,
 }
 
 /// A gallery slide's `img`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Image {
     /// Protocol-relative, with the display `width` the theme asks the CDN for.
@@ -90,6 +95,13 @@ pub struct Image {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::ldjson::tests::scripts;
+    use super::paypal::tests::metadata as tests_metadata;
+    use super::variants::tests::script;
+
     use super::UgreenNasCaRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -97,11 +109,11 @@ pub(crate) mod tests {
     /// `products-ugreen-nasync-dxp2800-gt-2-bay-nas-storage.html`.
     pub(crate) fn document() -> Value {
         json!({
-            "paypal": super::paypal::tests::metadata(),
-            "ld-json": super::ldjson::tests::scripts(),
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "paypal": tests_metadata(),
+            "ld-json": scripts(),
+            "analytics": {"meta": tests_meta()},
             "title": {"text": "UGREEN NASync DXP2800 GT"},
-            "variants": super::variants::tests::script(),
+            "variants": script(),
             "selected_variant": {"value": "48970903978234"},
             "price": {
                 "class": "price price--large price--on-sale",
@@ -133,8 +145,7 @@ pub(crate) mod tests {
     #[test]
     fn the_fixtures_deserialize() {
         for input in [document(), document_without_picker()] {
-            serde_json::from_value::<UgreenNasCaRawDocument>(input)
-                .expect("the raw fixture deserializes");
+            from_value::<UgreenNasCaRawDocument>(input).expect("the raw fixture deserializes");
         }
     }
 
@@ -153,7 +164,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(key);
 
             assert!(
-                serde_json::from_value::<UgreenNasCaRawDocument>(input).is_err(),
+                from_value::<UgreenNasCaRawDocument>(input).is_err(),
                 "{key}"
             );
         }
@@ -164,7 +175,7 @@ pub(crate) mod tests {
         let mut input = document();
         input["selected_variant"]["disabled"] = json!("");
 
-        let raw = serde_json::from_value::<UgreenNasCaRawDocument>(input).expect("deserializes");
+        let raw = from_value::<UgreenNasCaRawDocument>(input).expect("deserializes");
         assert_eq!(raw.selected_variant.disabled.as_deref(), Some(""));
     }
 
@@ -178,7 +189,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenNasCaRawDocument>(input)
+        let error = from_value::<UgreenNasCaRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }
@@ -198,7 +209,7 @@ pub(crate) mod tests {
                 .insert(key.to_string(), json!("x"));
 
             assert!(
-                serde_json::from_value::<UgreenNasCaRawDocument>(input).is_err(),
+                from_value::<UgreenNasCaRawDocument>(input).is_err(),
                 "{path}/{key}"
             );
         }

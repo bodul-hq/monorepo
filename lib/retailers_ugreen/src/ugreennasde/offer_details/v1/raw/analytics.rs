@@ -1,20 +1,21 @@
+use serde::Deserialize;
 /// The anonymous inline script that assigns Shopify's analytics `meta` object. It is on every
 /// page, and the only island that lists every variant with its price whether or not the product
 /// renders a picker.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnalyticsScript {
     pub meta: Meta,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Meta {
     pub product: Product,
     pub page: Page,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     pub id: u64,
@@ -29,7 +30,7 @@ pub struct Product {
 }
 
 /// A variant as Shopify reports it to analytics. `price` is in hundredths of the shop currency.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -43,7 +44,7 @@ pub struct Variant {
 
 /// The request, not the product: a product page of `resourceId` the product id, under a fresh
 /// `requestId`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Page {
     pub page_type: String,
@@ -54,6 +55,8 @@ pub struct Page {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{AnalyticsScript, Meta};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -87,7 +90,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_meta_object_deserializes() {
-        let meta = serde_json::from_value::<Meta>(meta()).expect("deserializes");
+        let meta = from_value::<Meta>(meta()).expect("deserializes");
         assert_eq!(meta.product.variants.len(), 2);
     }
 
@@ -96,7 +99,7 @@ pub(crate) mod tests {
         let mut input = meta();
         input["product"]["variants"][0]["public_title"] = Value::Null;
 
-        let meta = serde_json::from_value::<Meta>(input).expect("deserializes");
+        let meta = from_value::<Meta>(input).expect("deserializes");
         assert!(meta.product.variants[0].public_title.is_none());
     }
 
@@ -104,9 +107,9 @@ pub(crate) mod tests {
     fn an_unknown_key_fails() {
         let mut variant = meta();
         variant["product"]["variants"][0]["barcode"] = json!("6942752010583");
-        assert!(serde_json::from_value::<Meta>(variant).is_err());
+        assert!(from_value::<Meta>(variant).is_err());
 
         let script = json!({"meta": meta(), "ShopifyAnalytics": {}});
-        assert!(serde_json::from_value::<AnalyticsScript>(script).is_err());
+        assert!(from_value::<AnalyticsScript>(script).is_err());
     }
 }

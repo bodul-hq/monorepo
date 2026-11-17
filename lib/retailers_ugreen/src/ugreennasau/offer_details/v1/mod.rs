@@ -54,7 +54,11 @@ use crate::ugreennasau::offer_details::v1::normalized::{
 };
 use html_extractor::io::{Architecture, Attr, collection, particle, segment, trash};
 use html_extractor::serde_json;
+use raw::UgreenNasAuRawDocument;
 use retailer_sauce::structuralized::StructuralizedData;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use shared::NormalizedData;
 use structuralize::UgreenNasAuDocument;
 
 pub mod normalized;
@@ -180,31 +184,36 @@ pub fn architecture() -> Architecture {
     ])
 }
 
-pub fn normalize(json: &str) -> Result<shared::NormalizedData, String> {
-    let raw: raw::UgreenNasAuRawDocument = serde_json::from_str(json).map_err(|e| e.to_string())?;
+pub fn normalize(json: &str) -> Result<NormalizedData, String> {
+    let raw: UgreenNasAuRawDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let normalized = UgreenNasAuNormalizedDocument::from_raw(raw)
         .map_err(|error: NormalizeError| error.to_string())?;
 
-    let document_json = serde_json::to_string(&normalized).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&normalized).map_err(|e| e.to_string())?;
 
-    Ok(shared::NormalizedData::just_document_json(document_json))
+    Ok(NormalizedData::just_document_json(document_json))
 }
 
 pub fn structuralize(json: &str) -> Result<StructuralizedData, String> {
-    let normalized: UgreenNasAuNormalizedDocument =
-        serde_json::from_str(json).map_err(|e| e.to_string())?;
+    let normalized: UgreenNasAuNormalizedDocument = from_str(json).map_err(|e| e.to_string())?;
 
     let document =
         UgreenNasAuDocument::from_normalized(normalized).map_err(|error| error.to_string())?;
 
-    let document_json = serde_json::to_string(&document).map_err(|e| e.to_string())?;
+    let document_json = serde_json_to_string(&document).map_err(|e| e.to_string())?;
 
     Ok(StructuralizedData::just_document_json(document_json))
 }
 
 #[cfg(test)]
 mod tests {
+    use html_extractor::serde_json::json as serde_json_json;
+    use html_extractor::serde_json::to_string_pretty;
+    use std::env::var;
+    use std::fs::read_dir;
+    use std::fs::read_to_string;
+
     use std::path::{Path, PathBuf};
 
     use html_extractor::Backend;
@@ -237,7 +246,7 @@ mod tests {
             .json;
         assert_eq!(
             extracted["images"],
-            html_extractor::serde_json::json!([
+            serde_json_json!([
                 {"src":"//cdn.example.com/A.jpg","alt":"A"},
                 {"src":"//cdn.example.com/B.jpg","alt":"B"}
             ])
@@ -261,7 +270,7 @@ mod tests {
             eprintln!("skipping: {} not found", dir.display());
             return None;
         }
-        let mut pages: Vec<PathBuf> = std::fs::read_dir(dir)
+        let mut pages: Vec<PathBuf> = read_dir(dir)
             .expect("read data dir")
             .map(|entry| entry.expect("read data dir entry").path())
             .filter(|path| path.extension().is_some_and(|ext| ext == "html"))
@@ -272,7 +281,7 @@ mod tests {
     }
 
     fn read(page: &Path) -> String {
-        std::fs::read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
+        read_to_string(page).unwrap_or_else(|e| panic!("{}: {e}", page.display()))
     }
 
     fn assert_none(failures: Vec<String>) {
@@ -305,7 +314,7 @@ mod tests {
             Ok(result) => result.json,
             Err(e) => return vec![format!("{}: extract: {e}", page.display())],
         };
-        if std::env::var("DUMP").is_ok() {
+        if var("DUMP").is_ok() {
             let mut j = json.clone();
             if let Some(v) = j["variants"]["data"].as_array_mut() {
                 v.truncate(1);
@@ -322,11 +331,7 @@ mod tests {
                     e["data"] = t;
                 }
             }
-            eprintln!(
-                "{}\n{}",
-                page.display(),
-                html_extractor::serde_json::to_string_pretty(&j).unwrap()
-            );
+            eprintln!("{}\n{}", page.display(), to_string_pretty(&j).unwrap());
         }
         let mut failures = Vec::new();
         macro_rules! fail {

@@ -1,8 +1,14 @@
 use super::super::raw;
+use super::offers::enrich;
+use super::offers::require;
 use super::{
     NormalizeError, ORIGIN, money_from_shopify_cents, shop_currency, variant_gid, whole_number,
 };
 use money::{Currency, Money};
+use raw::PriceBlock;
+use raw::UgreenNlRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use retailer_sauce::availability::Availability;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -37,16 +43,16 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenNlRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenNlRawDocument) -> Result<Product, NormalizeError> {
         let islands = raw.ld_json;
         let currency = shop_currency(&raw.price.currency)?;
         let meta = raw.analytics.meta.product;
-        super::offers::require(
+        require(
             meta.gid == format!("gid://shopify/Product/{}", meta.id),
             "product.gid",
             "does not match numeric id",
         )?;
-        super::offers::require(
+        require(
             raw.analytics.meta.page.resource_id == meta.id,
             "page.resourceId",
             "does not match product",
@@ -127,7 +133,7 @@ impl Product {
             variants,
             selected_variant,
         };
-        super::offers::enrich(&mut product, islands)?;
+        enrich(&mut product, islands)?;
         Ok(product)
     }
 }
@@ -169,7 +175,7 @@ fn agree(field: &str, agrees: bool) -> Result<(), NormalizeError> {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     /// Price published by the selling JSON-LD offer, which can reflect an automatic discount.
     pub offer_price: Option<Money>,
     pub offer_prices: Vec<OfferPrice>,
@@ -190,7 +196,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn from_raw(raw: raw::analytics::Variant, currency: Currency) -> Variant {
+    fn from_raw(raw: AnalyticsVariant, currency: Currency) -> Variant {
         Variant {
             availability: None,
             offer_price: None,
@@ -254,7 +260,7 @@ impl DisplayedPrices {
     // price where it is not marked down). With one, the theme displays the discounted price and
     // strikes through either the variant's own price or a higher original compare-at price.
     fn from_raw(
-        block: &raw::PriceBlock,
+        block: &PriceBlock,
         listed: i64,
         currency: Currency,
     ) -> Result<DisplayedPrices, NormalizeError> {

@@ -1,5 +1,8 @@
 //! Strict Korean extraction schema. Prices here are displayed text; analytics and JSON-LD
 //! retain their distinct numeric units until normalization reconciles them.
+
+use analytics::AnalyticsScript;
+use ldjsonitem::LdJsonItem;
 pub mod analytics;
 pub mod ldjsonitem;
 use serde::Deserialize;
@@ -7,8 +10,8 @@ use serde::Deserialize;
 #[serde(deny_unknown_fields)]
 pub struct UgreenKrRawDocument {
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjsonitem::LdJsonItem>,
-    pub analytics: analytics::AnalyticsScript,
+    pub ld_json: Vec<LdJsonItem>,
+    pub analytics: AnalyticsScript,
     pub canonical: Canonical,
     pub title: Text,
     pub selected_variant_id: SelectedVariantId,

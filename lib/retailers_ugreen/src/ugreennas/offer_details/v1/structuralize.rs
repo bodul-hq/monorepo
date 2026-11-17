@@ -3,10 +3,14 @@
 use super::normalized::UgreenNasNormalizedDocument;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use serde::Serialize;
+use std::collections::HashSet;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -53,7 +57,7 @@ impl UgreenNasDocument {
         if count == 0 || p.url != format!("https://ai.ugreen.com/products/{}", p.handle) {
             return Err(StructuralizeError::InvalidProduct);
         }
-        let mut seen = std::collections::HashSet::new();
+        let mut seen = HashSet::new();
         let mut variations = Vec::new();
         for v in p.variants {
             if !seen.insert(v.id.clone()) {
@@ -78,10 +82,10 @@ impl UgreenNasDocument {
                 images.insert(0, image);
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(Some(&v.price), v.compare_at_price.as_ref()),
-                availability: Some(offer_facts::purchase_available(v.available)),
+                was_price: offer_facts_was_price(Some(&v.price), v.compare_at_price.as_ref()),
+                availability: Some(purchase_available(v.available)),
                 item_condition: None,
-                content: offer_facts::content(None),
+                content: offer_facts_content(None),
                 identifiers,
                 title: p.title.clone(),
                 price: v.price,

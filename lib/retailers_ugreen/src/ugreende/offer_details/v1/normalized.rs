@@ -7,6 +7,8 @@
 //! Only the selected variant is described beyond its price: the page renders no record of the
 //! others' availability or markdowns outside the ld+json island, which is not read.
 
+use product::Product as ProductProduct;
+use raw::UgreenDeRawDocument as RawUgreenDeRawDocument;
 pub mod product;
 
 use super::raw;
@@ -109,35 +111,36 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenDeNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenDeNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenDeRawDocument,
+        raw: RawUgreenDeRawDocument,
     ) -> Result<UgreenDeNormalizedDocument, NormalizeError> {
         Ok(UgreenDeNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenDeNormalizedDocument};
     use crate::ugreende::offer_details::v1::raw::UgreenDeRawDocument;
     use crate::ugreende::offer_details::v1::raw::tests::{document, single_variant_document};
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenDeNormalizedDocument, NormalizeError> {
-        let raw: UgreenDeRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenDeRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenDeNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn eur(amount: i64) -> Value {

@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// `meta[property="og:price:currency"]`'s attributes: the one statement on every page of the
 /// currency the prices are rendered in, `INR` on all 1,408 saved pages.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct OgCurrency {
     pub property: String,
@@ -9,6 +10,8 @@ pub struct OgCurrency {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::OgCurrency;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -18,7 +21,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_attributes_deserialize() {
-        let tag = serde_json::from_value::<OgCurrency>(og_currency()).expect("deserializes");
+        let tag = from_value::<OgCurrency>(og_currency()).expect("deserializes");
         assert_eq!(tag.content, "INR");
     }
 
@@ -27,6 +30,6 @@ pub(crate) mod tests {
         let mut input = og_currency();
         input["id"] = json!("currency");
 
-        assert!(serde_json::from_value::<OgCurrency>(input).is_err());
+        assert!(from_value::<OgCurrency>(input).is_err());
     }
 }

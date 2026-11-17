@@ -4,6 +4,14 @@ use super::{
     shop_currency, variant_gid,
 };
 use money::{Currency, Money};
+use raw::UgreenCaRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::featured::Featured as FeaturedFeatured;
+use raw::ldjsonitem::LdJson;
+use raw::variant::ProductOption;
+use raw::variant::Variant as VariantVariant;
+use retailer_sauce::availability::Availability;
+use retailer_sauce::item_condition::ItemCondition;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -43,7 +51,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenCaRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenCaRawDocument) -> Result<Product, NormalizeError> {
         let shop_currency_code = raw.shop.data.currency_code;
         let currency = shop_currency(&shop_currency_code)?;
         let meta = raw.analytics.meta.product;
@@ -53,7 +61,7 @@ impl Product {
             .ld_json
             .into_iter()
             .find_map(|item| match item.data {
-                raw::ldjsonitem::LdJson::Product(product) => Some(*product),
+                LdJson::Product(product) => Some(*product),
                 _ => None,
             })
             .ok_or(NormalizeError::MissingProductIsland)?;
@@ -142,14 +150,9 @@ impl Product {
             });
             if let Some(offer) = matching.next().filter(|_| matching.next().is_none()) {
                 variants[index].availability =
-                    Some(retailer_sauce::availability::Availability::from_schema_org(
-                        offer.availability.clone(),
-                    ));
-                variants[index].item_condition = Some(
-                    retailer_sauce::item_condition::ItemCondition::from_schema_org(
-                        offer.item_condition.clone(),
-                    ),
-                );
+                    Some(Availability::from_schema_org(offer.availability.clone()));
+                variants[index].item_condition =
+                    Some(ItemCondition::from_schema_org(offer.item_condition.clone()));
             }
         }
 
@@ -176,9 +179,9 @@ impl Product {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     #[serde(default)]
-    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
+    pub item_condition: Option<ItemCondition>,
     pub id: String,
     /// The selected values joined with ` / `; `None` on a `Default Title` variant.
     pub title: Option<String>,
@@ -217,7 +220,7 @@ pub struct Variant {
 
 impl Variant {
     fn from_record(
-        raw: raw::variant::Variant,
+        raw: VariantVariant,
         offered: &[String],
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {
@@ -253,13 +256,13 @@ impl Variant {
     // A `Default Title` product renders no variant record: the analytics name its one variant,
     // the featured attribute states its price and stock, and the `Product` island its barcode.
     fn from_default_title(
-        analytics: Vec<raw::analytics::Variant>,
-        featured: &raw::featured::Featured,
+        analytics: Vec<AnalyticsVariant>,
+        featured: &FeaturedFeatured,
         barcode: String,
         currency: Currency,
     ) -> Result<Variant, NormalizeError> {
         let count = analytics.len();
-        let [variant]: [raw::analytics::Variant; 1] = analytics
+        let [variant]: [AnalyticsVariant; 1] = analytics
             .try_into()
             .map_err(|_| NormalizeError::NoVariantRecords { count })?;
 
@@ -298,7 +301,7 @@ pub struct VariantOption {
 }
 
 // The option island numbers its entries from one; a variant states its values only by position.
-fn option_names(options: Vec<raw::variant::ProductOption>) -> Result<Vec<String>, NormalizeError> {
+fn option_names(options: Vec<ProductOption>) -> Result<Vec<String>, NormalizeError> {
     let mut options = options;
     options.sort_by_key(|option| option.position);
 

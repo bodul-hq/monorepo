@@ -1,19 +1,20 @@
+use serde::Deserialize;
 /// The anonymous inline script that assigns Shopify's analytics `meta` object: on this site the
 /// product's only record.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AnalyticsScript {
     pub meta: Meta,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Meta {
     pub product: Product,
     pub page: Page,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     pub id: u64,
@@ -30,7 +31,7 @@ pub struct Product {
 }
 
 /// A summary of a variant: id, price, name and SKU.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -43,7 +44,7 @@ pub struct Variant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Page {
     pub page_type: String,
@@ -54,6 +55,8 @@ pub struct Page {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::AnalyticsScript;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -86,7 +89,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_meta_object_deserializes() {
-        let script = serde_json::from_value::<AnalyticsScript>(script()).expect("deserializes");
+        let script = from_value::<AnalyticsScript>(script()).expect("deserializes");
         assert_eq!(script.meta.product.variants.len(), 1);
         assert_eq!(script.meta.product.variants[0].price, 130000);
     }
@@ -96,6 +99,6 @@ pub(crate) mod tests {
         let mut input = script();
         input["meta"]["product"]["variants"][0]["barcode"] = json!("6957303815495");
 
-        assert!(serde_json::from_value::<AnalyticsScript>(input).is_err());
+        assert!(from_value::<AnalyticsScript>(input).is_err());
     }
 }

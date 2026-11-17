@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -9,13 +10,13 @@ pub struct LdJsonScript {
 /// The island types seen in the corpus: only the shop's `Organization`, one per page. No page
 /// renders a `Product` island, so one appearing fails the document until it is typed and checked
 /// against the analytics record.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -27,6 +28,8 @@ pub struct Organization {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -42,7 +45,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_organization_island_deserializes() {
-        let island = serde_json::from_value::<LdJson>(organization()).expect("deserializes");
+        let island = from_value::<LdJson>(organization()).expect("deserializes");
         let LdJson::Organization(organization) = island;
         assert_eq!(organization.name, "UGREEN Official Site");
     }
@@ -50,7 +53,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["Product", "ProductGroup", "BreadcrumbList"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -65,6 +68,6 @@ pub(crate) mod tests {
         let mut island = organization();
         island["sameAs"] = json!([]);
 
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
     }
 }

@@ -3,6 +3,9 @@ use super::{
     NormalizeError, ORIGIN, money_from_shopify_cents, shop_currency, variant_gid, whole_number,
 };
 use money::{Currency, Money};
+use raw::PriceBlock;
+use raw::UgreenDeRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -36,7 +39,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenDeRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenDeRawDocument) -> Result<Product, NormalizeError> {
         let currency = shop_currency(&raw.price.currency)?;
         let meta = raw.analytics.meta.product;
 
@@ -164,7 +167,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn from_raw(raw: raw::analytics::Variant, currency: Currency) -> Variant {
+    fn from_raw(raw: AnalyticsVariant, currency: Currency) -> Variant {
         Variant {
             id: variant_gid(raw.id),
             title: raw.public_title,
@@ -219,7 +222,7 @@ impl DisplayedPrices {
     // price where it is not marked down). With one, the theme displays the discounted price and
     // strikes through the variant's own price.
     fn from_raw(
-        block: &raw::PriceBlock,
+        block: &PriceBlock,
         listed: i64,
         currency: Currency,
     ) -> Result<DisplayedPrices, NormalizeError> {

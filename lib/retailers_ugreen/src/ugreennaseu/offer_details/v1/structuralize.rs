@@ -1,12 +1,18 @@
 //! One offer per Shopify variant, retaining that variant's own price and availability.
 
 use super::normalized::UgreenNasEuNormalizedDocument;
+use super::normalized::valid_product_url;
 use crate::offer_facts::{self, Availability, Content, ItemCondition};
+use money::Currency;
 use money::Money;
+use offer_facts::content as offer_facts_content;
+use offer_facts::purchase_available;
+use offer_facts::was_price as offer_facts_was_price;
 use retailer_sauce::identifier::{
     Gtin, IdentifierError, ShopifyHandle, ShopifyProductGid, ShopifyProductVariationGid, Sku,
 };
 use serde::Serialize;
+use std::collections::HashSet;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -53,7 +59,7 @@ impl UgreenNasEuDocument {
         let p = input.product;
         let count = p.variants.len();
         if count == 0
-            || !super::normalized::valid_product_url(&p.url, &p.handle)
+            || !valid_product_url(&p.url, &p.handle)
             || p.purchase_protection != (p.handle == "worry-free-purchase")
             || p.title.trim().is_empty()
             || !p.variants.iter().any(|v| v.id == p.selected_variant_id)
@@ -65,12 +71,12 @@ impl UgreenNasEuDocument {
                 variations: Vec::new(),
             });
         }
-        let mut seen = std::collections::HashSet::new();
+        let mut seen = HashSet::new();
         let mut variations = Vec::new();
         for v in p.variants {
             if !seen.insert(v.id.clone())
                 || v.price.amount() < 0
-                || v.price.currency() != money::Currency::EUR
+                || v.price.currency() != Currency::EUR
                 || v.compare_at_price.as_ref().is_some_and(|c| {
                     c.currency() != v.price.currency() || c.amount() <= v.price.amount()
                 })
@@ -96,10 +102,10 @@ impl UgreenNasEuDocument {
                 images.insert(0, image);
             }
             variations.push(ProductVariation {
-                was_price: offer_facts::was_price(Some(&v.price), v.compare_at_price.as_ref()),
-                availability: Some(offer_facts::purchase_available(v.available)),
+                was_price: offer_facts_was_price(Some(&v.price), v.compare_at_price.as_ref()),
+                availability: Some(purchase_available(v.available)),
                 item_condition: None,
-                content: offer_facts::content(None),
+                content: offer_facts_content(None),
                 identifiers,
                 title: p.title.clone(),
                 price: v.price,

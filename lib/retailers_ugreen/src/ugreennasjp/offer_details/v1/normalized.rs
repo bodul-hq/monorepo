@@ -4,6 +4,8 @@
 //! fact, normalization checks that they agree; what nothing needs stays behind as the
 //! commented-out exclusion records in `product`.
 
+use product::Product as ProductProduct;
+use raw::UgreenNasJpRawDocument as RawUgreenNasJpRawDocument;
 pub mod product;
 
 use super::raw;
@@ -108,21 +110,24 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenNasJpNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenNasJpNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenNasJpRawDocument,
+        raw: RawUgreenNasJpRawDocument,
     ) -> Result<UgreenNasJpNormalizedDocument, NormalizeError> {
         Ok(UgreenNasJpNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenNasJpNormalizedDocument};
     use crate::ugreennasjp::offer_details::v1::raw::UgreenNasJpRawDocument;
     use crate::ugreennasjp::offer_details::v1::raw::tests::document;
@@ -130,13 +135,12 @@ mod tests {
 
     fn normalize(document: Value) -> Result<UgreenNasJpNormalizedDocument, NormalizeError> {
         let raw: UgreenNasJpRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+            from_value(document).expect("the raw fixture deserializes");
         UgreenNasJpNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn island_mut(document: &mut Value) -> &mut Value {

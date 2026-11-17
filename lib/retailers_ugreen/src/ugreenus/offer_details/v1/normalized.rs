@@ -1,5 +1,7 @@
 //! One product assembled from the main section, analytics and JSON-LD.
 
+use product::Product;
+use raw::UgreenUsRawDocument;
 mod offers;
 pub mod product;
 
@@ -105,15 +107,15 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenUsNormalizedDocument {
-    pub product: product::Product,
+    pub product: Product,
 }
 
 impl UgreenUsNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenUsRawDocument,
+        raw: UgreenUsRawDocument,
     ) -> Result<UgreenUsNormalizedDocument, NormalizeError> {
         Ok(UgreenUsNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: Product::from_raw(raw)?,
         })
     }
 }

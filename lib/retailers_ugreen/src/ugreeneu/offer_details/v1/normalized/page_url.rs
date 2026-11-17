@@ -4,6 +4,7 @@
 //! `https://eu.ugreen.com[/<locale>]/products/<handle>`, where `<locale>` is a language (`de`)
 //! or a language and a country (`en-se`).
 
+use std::str::from_utf8 as str_from_utf8;
 /// The storefront's origin, which every product URL in the corpus is on.
 const ORIGIN: &str = "https://eu.ugreen.com/";
 
@@ -56,7 +57,7 @@ fn percent_decoded(value: &str) -> Option<String> {
     let mut index = 0;
     while let Some(&byte) = bytes.get(index) {
         if byte == b'%' {
-            let hex = std::str::from_utf8(bytes.get(index + 1..index + 3)?).ok()?;
+            let hex = str_from_utf8(bytes.get(index + 1..index + 3)?).ok()?;
             decoded.push(u8::from_str_radix(hex, 16).ok()?);
             index += 3;
         } else {

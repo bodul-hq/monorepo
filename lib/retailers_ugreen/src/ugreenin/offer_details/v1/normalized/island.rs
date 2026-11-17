@@ -4,6 +4,10 @@
 
 use super::super::raw::ldjson::{self, LdJson, LdJsonScript, ProductIsland};
 use super::NormalizeError;
+use ldjson::Offer;
+use ldjson::Product as LdjsonProduct;
+use ldjson::ProductGroup as LdjsonProductGroup;
+use retailer_sauce::availability::Availability;
 
 /// The page's `ProductGroup` or theme `Product` island.
 pub(super) struct Island {
@@ -25,7 +29,7 @@ pub(super) struct IslandOffer {
     pub sku: String,
     pub gtin: Option<String>,
     pub in_stock: bool,
-    pub availability: retailer_sauce::availability::Availability,
+    pub availability: Availability,
 }
 
 impl Island {
@@ -52,7 +56,7 @@ impl Island {
         }
     }
 
-    fn from_group(group: ldjson::ProductGroup) -> Result<Island, NormalizeError> {
+    fn from_group(group: LdjsonProductGroup) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: Some(group.product_group_id),
             url: group.url,
@@ -65,7 +69,7 @@ impl Island {
         })
     }
 
-    fn from_product(product: ldjson::Product) -> Result<Island, NormalizeError> {
+    fn from_product(product: LdjsonProduct) -> Result<Island, NormalizeError> {
         Ok(Island {
             product_id: None,
             url: product.url,
@@ -81,14 +85,12 @@ impl Island {
 
 impl IslandOffer {
     fn from_raw(
-        offer: ldjson::Offer,
+        offer: Offer,
         sku: String,
         gtin: Option<String>,
     ) -> Result<IslandOffer, NormalizeError> {
         Ok(IslandOffer {
-            availability: retailer_sauce::availability::Availability::from_schema_org(
-                offer.availability.clone(),
-            ),
+            availability: Availability::from_schema_org(offer.availability.clone()),
             variant_id: variant_id(&offer.url)?,
             cents: cents(&offer.price).ok_or_else(|| NormalizeError::OfferPriceNotDecimal {
                 offer: offer.id.clone(),

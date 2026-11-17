@@ -8,6 +8,9 @@
 //! pages, USD 5.00 on one). The offers keep it anyway, by the user's decision: see
 //! `product::Variant::price`.
 
+use product::Page;
+use product::Product as ProductProduct;
+use raw::UgreenComRawDocument as RawUgreenComRawDocument;
 pub mod product;
 
 use super::raw;
@@ -85,20 +88,20 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenComNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenComNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenComRawDocument,
+        raw: RawUgreenComRawDocument,
     ) -> Result<UgreenComNormalizedDocument, NormalizeError> {
         let currency = shop_currency(&raw.paypal.currency)?;
         // The ld+json islands are the shop's `Organization` only: nothing about the product.
 
         Ok(UgreenComNormalizedDocument {
-            product: product::Product::from_raw(
+            product: ProductProduct::from_raw(
                 raw.analytics.meta,
-                product::Page {
+                Page {
                     title: raw.og_title.content,
                     canonical: raw.canonical.href,
                     shop_now: raw.shop_now,
@@ -112,20 +115,21 @@ impl UgreenComNormalizedDocument {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenComNormalizedDocument};
     use crate::ugreencom::offer_details::v1::raw::UgreenComRawDocument;
     use crate::ugreencom::offer_details::v1::raw::tests::document;
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenComNormalizedDocument, NormalizeError> {
-        let raw: UgreenComRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenComRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenComNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn analytics_product_mut(document: &mut Value) -> &mut Value {

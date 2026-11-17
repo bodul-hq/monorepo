@@ -1,4 +1,5 @@
 //! Typed schema.org islands. Product offers and review-only Products have distinct schemas.
+
 use html_extractor::serde_json::Number;
 use serde::Deserialize;
 
@@ -166,7 +167,7 @@ pub struct PriceSpecification {
     pub price_currency: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewsProduct {
     #[serde(rename = "@context")]
@@ -180,7 +181,7 @@ pub struct ReviewsProduct {
     pub review: Vec<Review>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateRating {
     #[serde(rename = "@type")]
@@ -196,7 +197,7 @@ pub struct AggregateRating {
     pub worst_rating: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Review {
     #[serde(rename = "@type")]
@@ -211,7 +212,7 @@ pub struct Review {
     pub image: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewRating {
     #[serde(rename = "@type")]
@@ -224,7 +225,7 @@ pub struct ReviewRating {
     pub worst_rating: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Author {
     #[serde(rename = "@type")]

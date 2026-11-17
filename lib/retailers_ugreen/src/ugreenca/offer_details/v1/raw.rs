@@ -7,38 +7,45 @@
 //! multi-variant pages, a single offer; the variants are read from the theme's and Shopify's own
 //! islands instead.
 
+use analytics::AnalyticsScript;
+use featured::FeaturedAttribute;
+use ldjsonitem::LdJsonItem;
+use serde::Deserialize;
+use shop::ShopScript;
+use variant::OptionsScript;
+use variant::VariantsScript;
 pub mod analytics;
 pub mod featured;
 pub mod ldjsonitem;
 pub mod shop;
 pub mod variant;
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UgreenCaRawDocument {
     // Extracted key is `ld-json`, hyphenated, because that is the architecture's structure name.
     #[serde(rename = "ld-json")]
-    pub ld_json: Vec<ldjsonitem::LdJsonItem>,
-    pub shop: shop::ShopScript,
-    pub analytics: analytics::AnalyticsScript,
+    pub ld_json: Vec<LdJsonItem>,
+    pub shop: ShopScript,
+    pub analytics: AnalyticsScript,
     pub title: Title,
-    pub featured: featured::FeaturedAttribute,
+    pub featured: FeaturedAttribute,
     /// Rendered only where the product has a variant picker: not on a `Default Title` product.
-    pub variants: Option<variant::VariantsScript>,
+    pub variants: Option<VariantsScript>,
     /// Rendered alongside `variants`.
-    pub options: Option<variant::OptionsScript>,
+    pub options: Option<OptionsScript>,
     pub media: Vec<Media>,
 }
 
 /// `h1.t4s-product__title`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Title {
     pub text: String,
 }
 
 /// A slide of the main product gallery.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Media {
     pub id: String,
@@ -49,27 +56,35 @@ pub struct Media {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
+    use super::analytics::tests::meta as tests_meta;
+    use super::featured::tests::data as tests_data;
+    use super::ldjsonitem::tests::islands as tests_islands;
+    use super::shop::tests::data as shop_tests_data;
+    use super::variant::tests::variant as tests_variant;
+
     use super::UgreenCaRawDocument;
     use html_extractor::serde_json::{self, Value, json};
 
     /// A two-variant page, trimmed from `products-100w-3c1a-gan-fast-charger.html`.
     pub(crate) fn document() -> Value {
         json!({
-            "ld-json": super::ldjsonitem::tests::islands(),
+            "ld-json": tests_islands(),
             "shop": {
                 "id": "apple-pay-shop-capabilities",
                 "type": "application/json",
-                "data": super::shop::tests::data()
+                "data": shop_tests_data()
             },
-            "analytics": {"meta": super::analytics::tests::meta()},
+            "analytics": {"meta": tests_meta()},
             "title": {"text": "UGREEN Nexode 100W USB C Charger"},
-            "featured": {"data": super::featured::tests::data()},
+            "featured": {"data": tests_data()},
             "variants": {
                 "type": "application/json",
                 "class": "pr_variants_json",
                 "data": [
-                    super::variant::tests::variant(44061363634464, 5999, "Black", "6957303813346"),
-                    super::variant::tests::variant(44061396533536, 6499, "White", "")
+                    tests_variant(44061363634464, 5999, "Black", "6957303813346"),
+                    tests_variant(44061396533536, 6499, "White", "")
                 ]
             },
             "options": {
@@ -86,8 +101,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_fixture_deserializes() {
-        serde_json::from_value::<UgreenCaRawDocument>(document())
-            .expect("the raw fixture deserializes");
+        from_value::<UgreenCaRawDocument>(document()).expect("the raw fixture deserializes");
     }
 
     #[test]
@@ -97,8 +111,8 @@ pub(crate) mod tests {
         object.remove("variants");
         object.remove("options");
 
-        let raw = serde_json::from_value::<UgreenCaRawDocument>(input)
-            .expect("the picker islands are optional");
+        let raw =
+            from_value::<UgreenCaRawDocument>(input).expect("the picker islands are optional");
         assert!(raw.variants.is_none() && raw.options.is_none());
     }
 
@@ -109,7 +123,7 @@ pub(crate) mod tests {
             input.as_object_mut().expect("an object").remove(island);
 
             assert!(
-                serde_json::from_value::<UgreenCaRawDocument>(input).is_err(),
+                from_value::<UgreenCaRawDocument>(input).is_err(),
                 "{island}"
             );
         }
@@ -125,7 +139,7 @@ pub(crate) mod tests {
             .expect("islands");
         input["ld_json"] = islands;
 
-        let error = serde_json::from_value::<UgreenCaRawDocument>(input)
+        let error = from_value::<UgreenCaRawDocument>(input)
             .expect_err("the underscore spelling is not what extract produces");
         assert!(error.to_string().contains("unknown field `ld_json`"));
     }

@@ -6,6 +6,9 @@
 //!
 //! Every locale prefix is its own document, tagged with its locale and carrying its own URL.
 
+use product::Product as ProductProduct;
+use raw::UgreenEuRawDocument as RawUgreenEuRawDocument;
+use std::str::FromStr;
 mod island;
 mod page_url;
 pub mod product;
@@ -116,7 +119,7 @@ fn money_from_shopify_cents(cents: i64, currency: Currency) -> Money {
     Money::new(cents, currency)
 }
 
-fn whole_number<T: std::str::FromStr>(value: &str, field: &str) -> Result<T, NormalizeError> {
+fn whole_number<T: FromStr>(value: &str, field: &str) -> Result<T, NormalizeError> {
     value.parse().map_err(|_| NormalizeError::NotAWholeNumber {
         field: field.to_string(),
         value: value.to_string(),
@@ -130,35 +133,36 @@ fn variant_gid(id: u64) -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UgreenEuNormalizedDocument {
-    pub product: product::Product,
+    pub product: ProductProduct,
 }
 
 impl UgreenEuNormalizedDocument {
     pub fn from_raw(
-        raw: raw::UgreenEuRawDocument,
+        raw: RawUgreenEuRawDocument,
     ) -> Result<UgreenEuNormalizedDocument, NormalizeError> {
         Ok(UgreenEuNormalizedDocument {
-            product: product::Product::from_raw(raw)?,
+            product: ProductProduct::from_raw(raw)?,
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::{NormalizeError, UgreenEuNormalizedDocument};
     use crate::ugreeneu::offer_details::v1::raw::UgreenEuRawDocument;
     use crate::ugreeneu::offer_details::v1::raw::tests::{document, single_variant_document};
     use html_extractor::serde_json::{self, Value, json};
 
     fn normalize(document: Value) -> Result<UgreenEuNormalizedDocument, NormalizeError> {
-        let raw: UgreenEuRawDocument =
-            serde_json::from_value(document).expect("the raw fixture deserializes");
+        let raw: UgreenEuRawDocument = from_value(document).expect("the raw fixture deserializes");
         UgreenEuNormalizedDocument::from_raw(raw)
     }
 
     fn normalized(document: Value) -> Value {
-        serde_json::to_value(normalize(document).expect("the fixture normalizes"))
-            .expect("serializes")
+        to_value(normalize(document).expect("the fixture normalizes")).expect("serializes")
     }
 
     fn eur(amount: i64) -> Value {

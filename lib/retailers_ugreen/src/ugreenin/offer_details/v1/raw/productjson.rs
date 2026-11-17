@@ -1,6 +1,8 @@
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
 /// `script[name="BSPD-SHOPIFY-VARS"]`, the Bitespeed app embed's script, which assigns Liquid's
 /// `product | json` to `BspdCurrentProduct`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJsonScript {
     pub name: String,
@@ -13,7 +15,7 @@ pub struct ProductJsonScript {
 /// which it does not name. The Hindi pages render the same record with the title, description,
 /// product type, tags, option names and variant names in Hindi where the shop has translated
 /// them.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductJson {
     pub id: u64,
@@ -47,7 +49,7 @@ pub struct ProductJson {
     pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Variant {
     pub id: u64,
@@ -77,7 +79,7 @@ pub struct Variant {
     pub quantity_rule: QuantityRule,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeaturedImage {
     pub id: u64,
@@ -92,17 +94,17 @@ pub struct FeaturedImage {
     pub variant_ids: Vec<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PreviewImage {
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub aspect_ratio: f64,
     pub height: i64,
     pub width: i64,
     pub src: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct QuantityRule {
     pub min: i64,
@@ -111,7 +113,7 @@ pub struct QuantityRule {
 }
 
 /// Every one of the 10,142 media entries on the saved pages is an image, so a video fails here.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "media_type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Media {
     Image {
@@ -119,7 +121,7 @@ pub enum Media {
         id: u64,
         position: i64,
         preview_image: PreviewImage,
-        #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+        #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
         aspect_ratio: f64,
         height: i64,
         width: i64,
@@ -129,7 +131,7 @@ pub enum Media {
 
 /// The pre-order app's plan (`amp-preorder`): "Full upfront payment, ships 15 days after
 /// checkout", with a 0% price adjustment.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanGroup {
     pub id: String,
@@ -139,7 +141,7 @@ pub struct SellingPlanGroup {
     pub selling_plans: Vec<SellingPlan>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanGroupOption {
     pub name: String,
@@ -147,7 +149,7 @@ pub struct SellingPlanGroupOption {
     pub values: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlan {
     pub id: u64,
@@ -159,7 +161,7 @@ pub struct SellingPlan {
     pub checkout_charge: CheckoutCharge,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanOption {
     pub name: String,
@@ -167,7 +169,7 @@ pub struct SellingPlanOption {
     pub value: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanPriceAdjustment {
     pub order_count: Option<i64>,
@@ -176,7 +178,7 @@ pub struct SellingPlanPriceAdjustment {
     pub value: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CheckoutCharge {
     pub value_type: String,
@@ -184,7 +186,7 @@ pub struct CheckoutCharge {
 }
 
 /// A variant's price under a selling plan, in paise.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SellingPlanAllocation {
     pub price_adjustments: Vec<AllocationPriceAdjustment>,
@@ -195,7 +197,7 @@ pub struct SellingPlanAllocation {
     pub selling_plan_group_id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AllocationPriceAdjustment {
     pub position: i64,
@@ -204,6 +206,8 @@ pub struct AllocationPriceAdjustment {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::{Media, ProductJson, ProductJsonScript};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -313,7 +317,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_script_deserializes() {
-        let script = serde_json::from_value::<ProductJsonScript>(script()).expect("deserializes");
+        let script = from_value::<ProductJsonScript>(script()).expect("deserializes");
         assert_eq!(script.data.variants.len(), 3);
     }
 
@@ -322,7 +326,7 @@ pub(crate) mod tests {
         let mut input = script();
         input["id"] = json!("bspd");
 
-        assert!(serde_json::from_value::<ProductJsonScript>(input).is_err());
+        assert!(from_value::<ProductJsonScript>(input).is_err());
     }
 
     #[test]
@@ -332,7 +336,7 @@ pub(crate) mod tests {
         input["selling_plan_groups"] = json!([group]);
         input["variants"][0]["selling_plan_allocations"] = json!([allocation]);
 
-        let product = serde_json::from_value::<ProductJson>(input).expect("deserializes");
+        let product = from_value::<ProductJson>(input).expect("deserializes");
         assert_eq!(product.selling_plan_groups[0].app_id, "amp-preorder");
         assert_eq!(product.variants[0].selling_plan_allocations[0].price, 99900);
     }
@@ -342,14 +346,14 @@ pub(crate) mod tests {
         let mut input = product();
         input["variants"][0]["featured_media"] = json!(null);
 
-        assert!(serde_json::from_value::<ProductJson>(input).is_err());
+        assert!(from_value::<ProductJson>(input).is_err());
     }
 
     #[test]
     fn an_unseen_media_type_fails() {
         for media_type in ["video", "model", "external_video"] {
             let media = json!({"media_type": media_type, "alt": null, "id": 1, "position": 1});
-            let error = serde_json::from_value::<Media>(media).expect_err("only images are typed");
+            let error = from_value::<Media>(media).expect_err("only images are typed");
             assert!(
                 error
                     .to_string()

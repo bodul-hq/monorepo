@@ -1,7 +1,8 @@
 use html_extractor::serde_json::Value;
+use serde::Deserialize;
 
 /// A `script[type="application/ld+json"]`: its attributes and its parsed body.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -13,7 +14,7 @@ pub struct LdJsonScript {
 
 /// The island types seen in the corpus: the `Organization` on every page, the theme's
 /// `Product` (262 pages) or `ProductGroup` (44), and Judge.me's review `Product` (29).
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
@@ -21,7 +22,7 @@ pub enum LdJson {
     ProductGroup(ProductGroup),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -34,7 +35,7 @@ pub struct Organization {
 /// Two islands on a page say `Product`: the theme's, with the offer, and Judge.me's, with the
 /// reviews. Neither carries the other's required keys (`offers`, `aggregateRating`), so the
 /// shape tells them apart; normalization checks it agrees with the script's `class`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum ProductIsland {
     Offer(Box<Product>),
@@ -42,7 +43,7 @@ pub enum ProductIsland {
 }
 
 /// The theme's island for a product without options.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -63,7 +64,7 @@ pub struct Product {
 }
 
 /// The theme's island for a product with options: one `Product` per variant.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProductGroup {
     #[serde(rename = "@context")]
@@ -82,7 +83,7 @@ pub struct ProductGroup {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct GroupVariant {
     #[serde(rename = "@id")]
@@ -98,7 +99,7 @@ pub struct GroupVariant {
     pub sku: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -106,7 +107,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@id")]
@@ -127,7 +128,7 @@ pub struct Offer {
 
 /// Judge.me's review island. Recognised so it can't be mistaken for an unknown island, and
 /// otherwise ignored: it carries no offer.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReviewsProduct {
     #[serde(rename = "@context")]
@@ -145,6 +146,8 @@ pub struct ReviewsProduct {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value as decode_json_value;
+
     use super::{LdJson, LdJsonScript, ProductIsland};
     use html_extractor::serde_json::{self, Value, json};
 
@@ -247,17 +250,16 @@ pub(crate) mod tests {
     #[test]
     fn every_island_type_deserializes() {
         for island in [organization(), product_group(), product(), reviews("15532")] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            decode_json_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
     #[test]
     fn the_two_product_islands_are_told_apart_by_shape() {
-        let theme = serde_json::from_value::<LdJson>(product()).expect("deserializes");
+        let theme = decode_json_value::<LdJson>(product()).expect("deserializes");
         assert!(matches!(theme, LdJson::Product(ProductIsland::Offer(_))));
 
-        let reviews = serde_json::from_value::<LdJson>(reviews("15532")).expect("deserializes");
+        let reviews = decode_json_value::<LdJson>(reviews("15532")).expect("deserializes");
         assert!(matches!(
             reviews,
             LdJson::Product(ProductIsland::Reviews(_))
@@ -266,7 +268,7 @@ pub(crate) mod tests {
 
     #[test]
     fn the_script_class_is_read() {
-        let script: LdJsonScript = serde_json::from_value(json!({
+        let script: LdJsonScript = decode_json_value(json!({
             "class": "jdgm-server-jld",
             "type": "application/ld+json",
             "data": reviews("15532")
@@ -282,13 +284,13 @@ pub(crate) mod tests {
         variant.remove("sku");
         variant.remove("gtin");
 
-        serde_json::from_value::<LdJson>(island).expect("deserializes");
+        decode_json_value::<LdJson>(island).expect("deserializes");
     }
 
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["BreadcrumbList", "WebSite"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = decode_json_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -302,15 +304,15 @@ pub(crate) mod tests {
     fn an_unknown_key_in_an_island_fails() {
         let mut group = product_group();
         group["gtin"] = json!("1");
-        assert!(serde_json::from_value::<LdJson>(group).is_err());
+        assert!(decode_json_value::<LdJson>(group).is_err());
 
         let mut product = product();
         product["mpn"] = json!("1");
-        assert!(serde_json::from_value::<LdJson>(product).is_err());
+        assert!(decode_json_value::<LdJson>(product).is_err());
 
         let mut reviews = reviews("15532");
         reviews["offers"] = json!({});
-        assert!(serde_json::from_value::<LdJson>(reviews).is_err());
+        assert!(decode_json_value::<LdJson>(reviews).is_err());
     }
 
     #[test]
@@ -321,7 +323,7 @@ pub(crate) mod tests {
             "data": organization()
         });
 
-        let error = serde_json::from_value::<LdJsonScript>(input).expect_err("not in the corpus");
+        let error = decode_json_value::<LdJsonScript>(input).expect_err("not in the corpus");
         assert!(error.to_string().contains("unknown field `id`"));
     }
 }

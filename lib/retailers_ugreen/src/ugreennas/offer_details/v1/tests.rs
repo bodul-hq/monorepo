@@ -3,6 +3,9 @@ use html_extractor::{
     Backend,
     serde_json::{self, Value, json},
 };
+use serde_json::from_str;
+use std::fs::read_dir;
+use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
 fn fixture() -> Value {
@@ -13,7 +16,7 @@ fn fixture() -> Value {
 }
 
 fn normalized(input: &Value) -> Value {
-    serde_json::from_str(
+    from_str(
         &normalize(&input.to_string())
             .unwrap()
             .document_json
@@ -23,7 +26,7 @@ fn normalized(input: &Value) -> Value {
 }
 
 fn structured(input: &Value) -> Value {
-    serde_json::from_str(
+    from_str(
         &structuralize(&input.to_string())
             .unwrap()
             .document_json
@@ -168,7 +171,7 @@ fn pages() -> Option<Vec<PathBuf>> {
         eprintln!("skipping: {DATA_DIR} not found");
         return None;
     }
-    let mut pages: Vec<_> = std::fs::read_dir(DATA_DIR)
+    let mut pages: Vec<_> = read_dir(DATA_DIR)
         .unwrap()
         .map(|e| e.unwrap().path())
         .filter(|p| p.extension().is_some_and(|e| e == "html"))
@@ -182,7 +185,7 @@ fn pages() -> Option<Vec<PathBuf>> {
 fn extracts_required_islands_from_every_page() {
     let Some(pages) = pages() else { return };
     for page in pages {
-        let html = std::fs::read_to_string(&page).unwrap();
+        let html = read_to_string(&page).unwrap();
         let data = Backend::Scraper
             .extract(&html, &architecture())
             .unwrap()
@@ -203,7 +206,7 @@ fn extracts_required_islands_from_every_page() {
 fn backends_agree_on_every_page() {
     let Some(pages) = pages() else { return };
     for page in pages {
-        let html = std::fs::read_to_string(&page).unwrap();
+        let html = read_to_string(&page).unwrap();
         let expected = Backend::Scraper
             .extract(&html, &architecture())
             .unwrap()
@@ -220,7 +223,7 @@ fn normalizes_and_structuralizes_every_page() {
     let Some(pages) = pages() else { return };
     let mut failures = Vec::new();
     for page in pages {
-        let html = std::fs::read_to_string(&page).unwrap();
+        let html = read_to_string(&page).unwrap();
         let extracted = Backend::Scraper
             .extract(&html, &architecture())
             .unwrap()
@@ -230,7 +233,7 @@ fn normalizes_and_structuralizes_every_page() {
         match result {
             Err(e) => failures.push(format!("{}: {e}", page.display())),
             Ok(s) => {
-                let s: Value = serde_json::from_str(&s.document_json.unwrap()).unwrap();
+                let s: Value = from_str(&s.document_json.unwrap()).unwrap();
                 assert_eq!(
                     s["variations"].as_array().unwrap().len(),
                     extracted["variants"]["data"].as_array().unwrap().len()

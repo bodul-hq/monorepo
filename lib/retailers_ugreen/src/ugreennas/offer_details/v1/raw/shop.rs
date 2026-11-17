@@ -1,6 +1,7 @@
+use serde::Deserialize;
 /// `script#apple-pay-shop-capabilities`: names the shop currency, the unit Liquid's amounts are
 /// rendered in.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ShopScript {
     pub id: String,
@@ -9,7 +10,7 @@ pub struct ShopScript {
     pub data: ShopCapabilities,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ShopCapabilities {
     pub shop_id: u64,
@@ -27,7 +28,7 @@ pub struct ShopCapabilities {
     pub supports_subscriptions: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Total {
     #[serde(rename = "type")]

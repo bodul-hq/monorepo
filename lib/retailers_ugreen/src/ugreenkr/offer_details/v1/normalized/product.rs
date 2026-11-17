@@ -1,9 +1,12 @@
 use super::super::raw;
+use super::offers::enrich;
 use super::{
     NormalizeError,
     offers::{amount, invalid, require},
 };
 use money::{Currency, Money};
+use raw::UgreenKrRawDocument;
+use retailer_sauce::availability::Availability;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -40,7 +43,7 @@ pub struct Product {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Variant {
     #[serde(default)]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     /// Price published by the selling JSON-LD offer, which can reflect an automatic discount.
     pub offer_price: Option<Money>,
     pub offer_prices: Vec<OfferPrice>,
@@ -135,7 +138,7 @@ fn variant_gid(id: u64) -> String {
     format!("gid://shopify/ProductVariant/{id}")
 }
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenKrRawDocument) -> Result<Self, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenKrRawDocument) -> Result<Self, NormalizeError> {
         let meta = raw.analytics.meta.product;
         require(
             raw.analytics.meta.page.resource_id == meta.id,
@@ -238,7 +241,7 @@ impl Product {
             variants,
             selected_variant,
         };
-        super::offers::enrich(&mut product, raw.ld_json)?;
+        enrich(&mut product, raw.ld_json)?;
         Ok(product)
     }
 }

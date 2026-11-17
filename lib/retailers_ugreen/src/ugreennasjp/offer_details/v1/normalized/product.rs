@@ -2,6 +2,10 @@ use super::super::raw;
 use super::super::raw::ldjsonitem::{LdJson, ProductIsland};
 use super::{NormalizeError, variant_gid, whole_yen_from_shopify_cents, yen};
 use money::Money;
+use raw::UgreenNasJpRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::ldjsonitem::AggregateRating;
+use raw::ldjsonitem::Offer;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -42,7 +46,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenNasJpRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenNasJpRawDocument) -> Result<Product, NormalizeError> {
         let mut islands = Vec::new();
         let mut reviews = Vec::new();
         for item in raw.ld_json {
@@ -114,7 +118,7 @@ pub struct Rating {
 }
 
 impl Rating {
-    fn from_raw(raw: raw::ldjsonitem::AggregateRating) -> Result<Rating, NormalizeError> {
+    fn from_raw(raw: AggregateRating) -> Result<Rating, NormalizeError> {
         let value =
             raw.rating_value
                 .parse::<f64>()
@@ -148,10 +152,7 @@ pub struct Variant {
 }
 
 impl Variant {
-    fn from_raw(
-        variant: raw::analytics::Variant,
-        offer: raw::ldjsonitem::Offer,
-    ) -> Result<Variant, NormalizeError> {
+    fn from_raw(variant: AnalyticsVariant, offer: Offer) -> Result<Variant, NormalizeError> {
         let price = yen(offer.price, &offer.price_currency, "offers.price")?;
         let analytics = whole_yen_from_shopify_cents(variant.price, "variants.price")?;
         if analytics != price.amount() {

@@ -3,6 +3,10 @@ use super::island::{Island, IslandVariant};
 use super::page_url::PageUrl;
 use super::{NormalizeError, money_from_shopify_cents, shop_currency, variant_gid, whole_number};
 use money::{Currency, Money};
+use raw::PriceBlock;
+use raw::UgreenEuRawDocument;
+use raw::analytics::Variant as AnalyticsVariant;
+use raw::variant::Variant as VariantVariant;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -48,7 +52,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub(crate) fn from_raw(raw: raw::UgreenEuRawDocument) -> Result<Product, NormalizeError> {
+    pub(crate) fn from_raw(raw: UgreenEuRawDocument) -> Result<Product, NormalizeError> {
         let currency = shop_currency(&raw.price.currency)?;
         let island = Island::from_raw(raw.ld_json)?;
         let meta = raw.analytics.meta.product;
@@ -147,7 +151,7 @@ fn same_product(island: &str, id: &str, analytics: u64) -> Result<(), NormalizeE
 // same order, so any disagreement means one of the two was misread.
 fn check_offer(
     offer: &IslandVariant,
-    variant: &raw::analytics::Variant,
+    variant: &AnalyticsVariant,
     currency: Currency,
 ) -> Result<(), NormalizeError> {
     if offer.currency != currency.as_str() {
@@ -182,9 +186,9 @@ fn check_offer(
 // The picker's record is Liquid's `variant | json` of the selected variant: it restates the
 // island's and the price block's facts about it.
 fn check_record(
-    record: &raw::variant::Variant,
+    record: &VariantVariant,
     offer: &IslandVariant,
-    variant: &raw::analytics::Variant,
+    variant: &AnalyticsVariant,
     prices: &SelectedPrices,
 ) -> Result<(), NormalizeError> {
     agree("id", record.id == variant.id)?;
@@ -248,7 +252,7 @@ pub struct Variant {
 impl Variant {
     fn from_raw(
         offer: IslandVariant,
-        variant: raw::analytics::Variant,
+        variant: AnalyticsVariant,
         shown: Option<&SelectedPrices>,
         currency: Currency,
     ) -> Variant {
@@ -293,7 +297,7 @@ impl SelectedPrices {
     // price and strikes through the Shopify price on 2,233 pages; on 4 (`en-fi`, `en-hr` and
     // `hr-hr` power banks) it strikes through a compare-at price above the Shopify price
     // instead, which the discount decision leaves aside.
-    fn from_raw(block: &raw::PriceBlock, listed: i64) -> Result<SelectedPrices, NormalizeError> {
+    fn from_raw(block: &PriceBlock, listed: i64) -> Result<SelectedPrices, NormalizeError> {
         let displayed: i64 = whole_number(&block.base_price_cents, "base_price_cents")?;
         let compare: i64 = whole_number(&block.base_compare_cents, "base_compare_cents")?;
 

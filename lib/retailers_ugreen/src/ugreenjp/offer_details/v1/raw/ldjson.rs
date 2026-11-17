@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+use retailer_sauce::json::deserialize_f64 as retailer_sauce_json_deserialize_f64;
+use serde::Deserialize;
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LdJsonScript {
     #[serde(rename = "type")]
@@ -8,14 +10,14 @@ pub struct LdJsonScript {
 
 /// The island types seen in the corpus: every saved page carries an `Organization` and a
 /// `Product`, in that order.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(tag = "@type")]
 pub enum LdJson {
     Organization(Organization),
     Product(Product),
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Organization {
     #[serde(rename = "@context")]
@@ -28,7 +30,7 @@ pub struct Organization {
     pub url: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Product {
     #[serde(rename = "@context")]
@@ -47,7 +49,7 @@ pub struct Product {
     pub offers: Vec<Offer>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Brand {
     #[serde(rename = "@type")]
@@ -55,7 +57,7 @@ pub struct Brand {
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Offer {
     #[serde(rename = "@type")]
@@ -64,7 +66,7 @@ pub struct Offer {
     pub sku: Option<String>,
     pub availability: String,
     /// Whole yen as a float, such as `13980.0`.
-    #[serde(deserialize_with = "retailer_sauce::json::deserialize_f64")]
+    #[serde(deserialize_with = "retailer_sauce_json_deserialize_f64")]
     pub price: f64,
     #[serde(rename = "priceCurrency")]
     pub price_currency: String,
@@ -74,6 +76,8 @@ pub struct Offer {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use serde_json::from_value;
+
     use super::LdJson;
     use html_extractor::serde_json::{self, Value, json};
 
@@ -120,8 +124,7 @@ pub(crate) mod tests {
     #[test]
     fn every_island_type_deserializes() {
         for island in [organization(), product()] {
-            serde_json::from_value::<LdJson>(island.clone())
-                .unwrap_or_else(|e| panic!("{island}: {e}"));
+            from_value::<LdJson>(island.clone()).unwrap_or_else(|e| panic!("{island}: {e}"));
         }
     }
 
@@ -134,7 +137,7 @@ pub(crate) mod tests {
             .expect("an offer")
             .remove("sku");
 
-        let Ok(LdJson::Product(product)) = serde_json::from_value::<LdJson>(island) else {
+        let Ok(LdJson::Product(product)) = from_value::<LdJson>(island) else {
             panic!("a product island");
         };
         assert_eq!(product.sku, None);
@@ -144,7 +147,7 @@ pub(crate) mod tests {
     #[test]
     fn an_unseen_island_type_fails() {
         for island_type in ["BreadcrumbList", "WebPage", "ProductGroup"] {
-            let error = serde_json::from_value::<LdJson>(json!({"@type": island_type}))
+            let error = from_value::<LdJson>(json!({"@type": island_type}))
                 .expect_err("the island type is not typed");
             assert!(
                 error
@@ -158,10 +161,10 @@ pub(crate) mod tests {
     fn an_unknown_key_in_an_island_fails() {
         let mut island = product();
         island["gtin13"] = json!("1");
-        assert!(serde_json::from_value::<LdJson>(island).is_err());
+        assert!(from_value::<LdJson>(island).is_err());
 
         let mut offer = product();
         offer["offers"][0]["gtin13"] = json!("1");
-        assert!(serde_json::from_value::<LdJson>(offer).is_err());
+        assert!(from_value::<LdJson>(offer).is_err());
     }
 }
