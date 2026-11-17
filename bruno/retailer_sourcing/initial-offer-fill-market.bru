@@ -1,0 +1,27 @@
+meta {
+  name: Start Anker initial offer fill
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{retailerSourcingBaseUrl}}/api/initial-offer-fills
+  body: json
+  auth: none
+}
+
+body:json {
+  { "retailers": ["{{retailerCode}}"] }
+}
+
+vars:pre-request {
+  retailerCode: ankerde
+}
+
+docs {
+  Queues an initial fill for the selected active Anker retailer (Korea excluded)
+  and returns its retailer and run_id in fills. Commands run through the existing
+  workers or POST /api/commands/run. Run POST /api/events/run to advance reactions:
+  token acquisition where required, batches of up to 500 product IDs, then one
+  complete GraphQL fetch per product. OfferDetailsFetched is terminal.
+}

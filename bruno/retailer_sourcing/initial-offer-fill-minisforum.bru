@@ -1,0 +1,19 @@
+meta {
+  name: Start all minisforum GraphQL markets
+  type: http
+  seq: 15
+}
+post {
+  url: {{retailerSourcingBaseUrl}}/api/initial-offer-fills
+  body: json
+  auth: none
+}
+body:json {
+  {"retailers": ["minisforumau", "minisforumca", "minisforumeu", "minisforumfr", "minisforumhk", "minisforumjp", "minisforumkr", "minisforumru", "minisforumuk", "minisforumus"]}
+}
+docs {
+  Attempts public token acquisition first; continues token-free if none is found.
+  Discovers every advertised country/language context for each retailer.
+  Run commands and events to advance market discovery, catalog pagination and details.
+  Contextual artifacts are stored with schema version 2.
+}
