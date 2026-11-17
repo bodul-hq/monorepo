@@ -14,6 +14,10 @@ Both include Offers-style infrastructure, reporting and development-dashboard
 integration. Business features are deferred. Each task is tracked independently
 in TODO.md; shared dependency, dashboard and ADR edits must be coordinated.
 
+## Retailer crate sync
+
+- [Sync retailer crates to bodul_hq](retailer-crates-bodul-hq-sync.md): `[>]` planned; decisions confirmed.
+
 ## Current round and dependencies
 
 [Plan 34: Inbox and outbox statistics](34-inbox-outbox-statistics.md) is implemented
