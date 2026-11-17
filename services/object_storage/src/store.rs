@@ -2,6 +2,8 @@ use crate::{
     error::Error,
     model::{self, Create, Created, Record},
 };
+use chrono::Utc;
+use diesel::sql_query;
 use diesel::{
     prelude::*,
     r2d2::{ConnectionManager, Pool},
@@ -9,7 +11,10 @@ use diesel::{
     sql_types::{Bool, Integer, Jsonb, Text, Timestamptz, Uuid as SqlUuid},
 };
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+use model::bucket as model_bucket;
+use model::uuid7;
 use std::time::Duration;
+use tokio::task::spawn_blocking;
 use uuid::Uuid;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
@@ -33,7 +38,7 @@ impl Store {
             #[diesel(sql_type = Integer)]
             server_version: i32,
         }
-        let encoding: Encoding = diesel::sql_query("SELECT current_setting('server_encoding') AS server_encoding, current_setting('server_version_num')::integer AS server_version")
+        let encoding: Encoding = sql_query("SELECT current_setting('server_encoding') AS server_encoding, current_setting('server_version_num')::integer AS server_version")
             .get_result(&mut connection)
             .map_err(|_| "Database encoding check failed.")?;
         if encoding.server_encoding != "UTF8" {
@@ -54,16 +59,14 @@ impl Store {
         f: impl FnOnce(&mut PgConnection) -> Result<T, Error> + Send + 'static,
     ) -> Result<T, Error> {
         let pool = self.0.clone();
-        tokio::task::spawn_blocking(move || {
+        spawn_blocking(move || {
             let mut connection = pool.get().map_err(|_| Error::Unavailable)?;
             let result = f(&mut connection);
             // Diesel does not expose SQLSTATE for every PostgreSQL error. If
             // an otherwise unexpected failure broke the connection, report a
             // temporary outage without inspecting or returning diagnostic text.
             if matches!(result, Err(Error::Internal))
-                && diesel::sql_query("SELECT 1")
-                    .execute(&mut connection)
-                    .is_err()
+                && sql_query("SELECT 1").execute(&mut connection).is_err()
             {
                 return Err(Error::Unavailable);
             }
@@ -81,18 +84,18 @@ impl Store {
             // A rejected value cannot begin a write or expose diagnostics.
             #[derive(QueryableByName)]
             struct ValidJson { #[diesel(sql_type = Bool)] valid: bool }
-            let valid: ValidJson = diesel::sql_query("SELECT pg_input_is_valid($1, 'jsonb') AS valid")
+            let valid: ValidJson = sql_query("SELECT pg_input_is_valid($1, 'jsonb') AS valid")
                 .bind::<Text,_>(input.metadata.to_string()).get_result(connection).map_err(database_error)?;
             if !valid.valid { return Err(Error::Input("Metadata contains values unsupported by PostgreSQL JSONB.")); }
             let id = Uuid::now_v7();
             let data_id = Uuid::now_v7();
             let inserted = connection.transaction::<_, DbError, _>(|connection| {
-                diesel::sql_query("INSERT INTO data (id, payload) VALUES ($1, $2)")
+                sql_query("INSERT INTO data (id, payload) VALUES ($1, $2)")
                     .bind::<SqlUuid,_>(data_id).bind::<Text,_>(&input.payload).execute(connection)?;
-                diesel::sql_query("INSERT INTO records (id, bucket, external_id, data_id, metadata, created_at) VALUES ($1,$2,$3,$4,$5,$6)")
+                sql_query("INSERT INTO records (id, bucket, external_id, data_id, metadata, created_at) VALUES ($1,$2,$3,$4,$5,$6)")
                     .bind::<SqlUuid,_>(id).bind::<Text,_>(&bucket).bind::<SqlUuid,_>(key)
                     .bind::<SqlUuid,_>(data_id).bind::<Jsonb,_>(&input.metadata)
-                    .bind::<Timestamptz,_>(chrono::Utc::now()).execute(connection)?;
+                    .bind::<Timestamptz,_>(Utc::now()).execute(connection)?;
                 Ok(Created { id, fresh: true })
             });
             match inserted {
@@ -106,7 +109,7 @@ impl Store {
                         #[diesel(sql_type = SqlUuid)] id: Uuid,
                         #[diesel(sql_type = Bool)] matches: bool,
                     }
-                    let existing: Existing = diesel::sql_query("SELECT r.id, (d.payload COLLATE \"C\" = $3 AND r.metadata = $4) AS matches FROM records r JOIN data d ON r.data_id = d.id WHERE r.bucket = $1 AND r.external_id = $2")
+                    let existing: Existing = sql_query("SELECT r.id, (d.payload COLLATE \"C\" = $3 AND r.metadata = $4) AS matches FROM records r JOIN data d ON r.data_id = d.id WHERE r.bucket = $1 AND r.external_id = $2")
                         .bind::<Text,_>(&bucket).bind::<SqlUuid,_>(key)
                         .bind::<Text,_>(&input.payload).bind::<Jsonb,_>(&input.metadata)
                         .get_result(connection).map_err(database_error)?;
@@ -118,10 +121,10 @@ impl Store {
     }
 
     pub async fn get(&self, bucket: String, id: String) -> Result<Record, Error> {
-        model::bucket(&bucket)?;
-        let id = model::uuid7(&id)?;
+        model_bucket(&bucket)?;
+        let id = uuid7(&id)?;
         self.blocking(move |connection| {
-            diesel::sql_query("SELECT r.id, r.bucket, r.external_id AS idempotency_key, d.payload, r.metadata, r.created_at FROM records r JOIN data d ON r.data_id = d.id WHERE r.bucket = $1 AND r.id = $2")
+            sql_query("SELECT r.id, r.bucket, r.external_id AS idempotency_key, d.payload, r.metadata, r.created_at FROM records r JOIN data d ON r.data_id = d.id WHERE r.bucket = $1 AND r.id = $2")
                 .bind::<Text,_>(bucket).bind::<SqlUuid,_>(id).get_result(connection).map_err(database_error)
         }).await
     }

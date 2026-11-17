@@ -1,3 +1,9 @@
+use header::CONTENT_TYPE;
+use header::WWW_AUTHENTICATE;
+use serde_json::from_slice;
+use std::time::Duration;
+use tokio::test as tokio_test;
+use uuid::Uuid;
 mod common;
 use axum::{
     Router,
@@ -15,14 +21,14 @@ fn offline() -> Router {
     let pool = Pool::builder()
         .max_size(1)
         .min_idle(Some(0))
-        .connection_timeout(std::time::Duration::from_millis(30))
+        .connection_timeout(Duration::from_millis(30))
         .build_unchecked(ConnectionManager::<PgConnection>::new(
             "postgres://127.0.0.1:1/unavailable?connect_timeout=1",
         ));
     app(Store(pool))
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn all_routes_authenticate_before_processing() {
     let app = offline();
     for path in [
@@ -43,14 +49,14 @@ async fn all_routes_authenticate_before_processing() {
                 let (status, headers, body) =
                     raw(&app, method, path, token, None, "not JSON").await;
                 assert_eq!(status, StatusCode::UNAUTHORIZED, "{method} {path}");
-                assert_eq!(headers[header::WWW_AUTHENTICATE], "Bearer");
-                problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+                assert_eq!(headers[WWW_AUTHENTICATE], "Bearer");
+                problem(status, &headers, &from_slice(&body).unwrap());
             }
         }
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn health_docs_and_post_only_graphql() {
     let app = offline();
     for (path, expected) in [
@@ -90,7 +96,7 @@ async fn health_docs_and_post_only_graphql() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn transport_errors_use_problem_details() {
     let app = offline();
     for path in ["/graphql", "/api/buckets/sitemap_raw/records"] {
@@ -98,7 +104,7 @@ async fn transport_errors_use_problem_details() {
             let (status, headers, body) =
                 raw(&app, "POST", path, Some(BEARER_TOKEN), content_type, "{").await;
             assert_eq!(status, StatusCode::UNSUPPORTED_MEDIA_TYPE);
-            problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+            problem(status, &headers, &from_slice(&body).unwrap());
         }
         for body in ["{", "[]", "null", "{}"] {
             let (status, headers, body) = raw(
@@ -111,7 +117,7 @@ async fn transport_errors_use_problem_details() {
             )
             .await;
             assert_eq!(status, StatusCode::BAD_REQUEST);
-            problem(status, &headers, &serde_json::from_slice(&body).unwrap());
+            problem(status, &headers, &from_slice(&body).unwrap());
         }
     }
     for body in [
@@ -125,7 +131,7 @@ async fn transport_errors_use_problem_details() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn rest_validates_input_before_storage() {
     let app = offline();
     let original = input();
@@ -134,12 +140,12 @@ async fn rest_validates_input_before_storage() {
         json!({"idempotency_key":original["idempotency_key"],"payload":"x"}),
     ];
     for (field, value) in [
-        ("id", json!(uuid::Uuid::now_v7())),
+        ("id", json!(Uuid::now_v7())),
         ("data_id", json!("no")),
         ("created_at", json!("now")),
         ("payload", json!(1)),
         ("payload", json!("x\u{0}y")),
-        ("idempotency_key", json!(uuid::Uuid::new_v4())),
+        ("idempotency_key", json!(Uuid::new_v4())),
         ("metadata", Value::Null),
         ("metadata", json!({"\u{0}":1})),
         ("metadata", json!(["\u{0}"])),
@@ -171,7 +177,7 @@ async fn rest_validates_input_before_storage() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn graphql_request_errors_are_classified_without_execution() {
     let app = offline();
     let cases = [
@@ -214,10 +220,7 @@ async fn graphql_request_errors_are_classified_without_execution() {
     for (body, code) in cases {
         let (status, headers, response) = request(&app, "POST", "/graphql", body.clone()).await;
         assert_eq!(status, StatusCode::BAD_REQUEST, "{body}: {response}");
-        assert_eq!(
-            headers[header::CONTENT_TYPE],
-            "application/graphql-response+json"
-        );
+        assert_eq!(headers[CONTENT_TYPE], "application/graphql-response+json");
         assert!(response.get("data").is_none(), "{response}");
         assert_eq!(
             response["errors"][0]["extensions"]["code"], code,
@@ -236,7 +239,7 @@ async fn graphql_request_errors_are_classified_without_execution() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn execution_errors_preserve_data_paths_and_locations() {
     let app = offline();
     let body = json!({"query":"{ name: __typename bad: record(bucket: \"invalid\", id: \"invalid\") { id } }"});
@@ -262,7 +265,7 @@ async fn execution_errors_preserve_data_paths_and_locations() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn graphql_defaults_and_definition_errors() {
     let app = offline();
     for query in [
@@ -296,7 +299,7 @@ async fn graphql_defaults_and_definition_errors() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn reporting_unavailable_and_documented() {
     let app = offline();
     let (status, headers, body) =

@@ -1,5 +1,10 @@
 //! Statistics for ordinary tables in this connection's active schema.
+
+use chrono::SecondsFormat;
+use chrono::Utc;
 use diesel::prelude::*;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
 use diesel::sql_types::{BigInt, Text};
 use serde::Serialize;
 
@@ -49,15 +54,14 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
         schema_name: String,
     }
     let schema: Schema =
-        diesel::sql_query("SELECT current_schema()::text AS schema_name").get_result(connection)?;
+        sql_query("SELECT current_schema()::text AS schema_name").get_result(connection)?;
     let records: Vec<TableRecord> =
-        diesel::sql_query(include_str!("database_tables.sql")).load(connection)?;
+        sql_query(include_str!("database_tables.sql")).load(connection)?;
     let tables = records
         .into_iter()
         .map(|record| {
             let unsigned = |value: i64| {
-                u64::try_from(value)
-                    .map_err(|e| diesel::result::Error::DeserializationError(Box::new(e)))
+                u64::try_from(value).map_err(|e| ResultError::DeserializationError(Box::new(e)))
             };
             let table_bytes = unsigned(record.table_bytes)?;
             let index_bytes = unsigned(record.index_bytes)?;
@@ -72,7 +76,7 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
         .collect::<QueryResult<Vec<_>>>()?;
     Ok(DatabaseTables {
         schema_name: schema.schema_name,
-        generated_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        generated_at: Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true),
         row_count_kind: RowCountKind::Estimated,
         tables,
     })

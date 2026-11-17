@@ -1,4 +1,11 @@
 use crate::error::Error;
+use chrono::DateTime;
+use chrono::Utc;
+use diesel::QueryableByName;
+use diesel::sql_types::Jsonb;
+use diesel::sql_types::Text;
+use diesel::sql_types::Timestamptz;
+use diesel::sql_types::Uuid as SqlTypesUuid;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::{Uuid, Variant, Version};
@@ -71,20 +78,20 @@ fn nul_free_json(value: &Value) -> bool {
     }
 }
 
-#[derive(Debug, Serialize, diesel::QueryableByName)]
+#[derive(Debug, Serialize, QueryableByName)]
 pub struct Record {
-    #[diesel(sql_type = diesel::sql_types::Uuid)]
+    #[diesel(sql_type = SqlTypesUuid)]
     pub id: Uuid,
-    #[diesel(sql_type = diesel::sql_types::Text)]
+    #[diesel(sql_type = Text)]
     pub bucket: String,
-    #[diesel(sql_type = diesel::sql_types::Uuid)]
+    #[diesel(sql_type = SqlTypesUuid)]
     pub idempotency_key: Uuid,
-    #[diesel(sql_type = diesel::sql_types::Text)]
+    #[diesel(sql_type = Text)]
     pub payload: String,
-    #[diesel(sql_type = diesel::sql_types::Jsonb)]
+    #[diesel(sql_type = Jsonb)]
     pub metadata: Value,
-    #[diesel(sql_type = diesel::sql_types::Timestamptz)]
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    #[diesel(sql_type = Timestamptz)]
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize)]

@@ -2,7 +2,13 @@
 //! normally coerces some variables lazily, which could let an earlier mutation
 //! run before a later field discovers invalid input. The preflight pass executes
 //! no resolvers and validates every variable against the registered input types.
+
 use crate::{error::Error, model, store::Store};
+use async_graphql::InputValueError;
+use async_graphql::Name;
+use async_graphql::Result as AsyncGraphqlResult;
+use async_graphql::async_trait::async_trait;
+use async_graphql::parser::parse_query as parser_parse_query;
 use async_graphql::{
     Context, EmptySubscription, ErrorExtensions, ID, InputObject, InputValueResult, Object,
     Request, Response, Scalar, ScalarType, Schema, ServerError, ServerResult, SimpleObject,
@@ -13,41 +19,53 @@ use async_graphql::{
     parser::types::{DocumentOperations, ExecutableDocument},
     registry::{MetaType, Registry},
 };
+use axum::extract::rejection::JsonRejection;
+use axum::response::Response as ResponseResponse;
 use axum::{
     Json,
     extract::State,
     http::{StatusCode, header},
     response::IntoResponse,
 };
+use chrono::DateTime as ChronoDateTime;
+use chrono::SecondsFormat;
+use chrono::Utc;
+use header::CONTENT_TYPE;
+use model::Create;
+use model::Record;
 use serde::Deserialize;
+use serde_json::Map;
+use serde_json::Value as SerdeJsonValue;
+use serde_json::json as serde_json_json;
+use std::mem::take;
 use std::sync::{Arc, Mutex};
 
 // Explicit conversion avoids serde's private arbitrary-precision number map
 // being mistaken for a JSON object by async-graphql's Value deserializer.
-pub fn from_json(value: serde_json::Value) -> Value {
+pub fn from_json(value: SerdeJsonValue) -> Value {
     match value {
-        serde_json::Value::Null => Value::Null,
-        serde_json::Value::Bool(v) => Value::Boolean(v),
-        serde_json::Value::Number(v) => Value::Number(v),
-        serde_json::Value::String(v) => Value::String(v),
-        serde_json::Value::Array(v) => Value::List(v.into_iter().map(from_json).collect()),
-        serde_json::Value::Object(v) => Value::Object(
+        SerdeJsonValue::Null => Value::Null,
+        SerdeJsonValue::Bool(v) => Value::Boolean(v),
+        SerdeJsonValue::Number(v) => Value::Number(v),
+        SerdeJsonValue::String(v) => Value::String(v),
+        SerdeJsonValue::Array(v) => Value::List(v.into_iter().map(from_json).collect()),
+        SerdeJsonValue::Object(v) => Value::Object(
             v.into_iter()
-                .map(|(k, v)| (async_graphql::Name::new(k), from_json(v)))
+                .map(|(k, v)| (Name::new(k), from_json(v)))
                 .collect(),
         ),
     }
 }
 
-fn to_json(value: Value) -> serde_json::Value {
+fn to_json(value: Value) -> SerdeJsonValue {
     match value {
-        Value::Null => serde_json::Value::Null,
+        Value::Null => SerdeJsonValue::Null,
         Value::Boolean(v) => v.into(),
-        Value::Number(v) => serde_json::Value::Number(v),
+        Value::Number(v) => SerdeJsonValue::Number(v),
         Value::String(v) => v.into(),
         Value::Enum(v) => v.to_string().into(),
         Value::List(v) => v.into_iter().map(to_json).collect(),
-        Value::Object(v) => serde_json::Value::Object(
+        Value::Object(v) => SerdeJsonValue::Object(
             v.into_iter()
                 .map(|(k, v)| (k.to_string(), to_json(v)))
                 .collect(),
@@ -56,7 +74,7 @@ fn to_json(value: Value) -> serde_json::Value {
     }
 }
 
-pub struct JsonValue(serde_json::Value);
+pub struct JsonValue(SerdeJsonValue);
 #[Scalar(name = "JSON")]
 impl ScalarType for JsonValue {
     fn parse(value: Value) -> InputValueResult<Self> {
@@ -67,21 +85,19 @@ impl ScalarType for JsonValue {
     }
 }
 
-pub struct DateTime(chrono::DateTime<chrono::Utc>);
+pub struct DateTime(ChronoDateTime<Utc>);
 #[Scalar(name = "DateTime")]
 impl ScalarType for DateTime {
     fn parse(value: Value) -> InputValueResult<Self> {
         if let Value::String(value) = &value {
-            return chrono::DateTime::parse_from_rfc3339(value)
-                .map(|v| Self(v.with_timezone(&chrono::Utc)))
-                .map_err(|_| {
-                    async_graphql::InputValueError::custom("Expected an RFC 3339 timestamp.")
-                });
+            return ChronoDateTime::parse_from_rfc3339(value)
+                .map(|v| Self(v.with_timezone(&Utc)))
+                .map_err(|_| InputValueError::custom("Expected an RFC 3339 timestamp."));
         }
-        Err(async_graphql::InputValueError::expected_type(value))
+        Err(InputValueError::expected_type(value))
     }
     fn to_value(&self) -> Value {
-        Value::String(self.0.to_rfc3339_opts(chrono::SecondsFormat::AutoSi, true))
+        Value::String(self.0.to_rfc3339_opts(SecondsFormat::AutoSi, true))
     }
 }
 
@@ -94,8 +110,8 @@ pub struct StoredRecord {
     metadata: JsonValue,
     created_at: DateTime,
 }
-impl From<model::Record> for StoredRecord {
-    fn from(record: model::Record) -> Self {
+impl From<Record> for StoredRecord {
+    fn from(record: Record) -> Self {
         Self {
             id: record.id.to_string().into(),
             bucket: record.bucket,
@@ -127,7 +143,7 @@ impl Query {
         ctx: &Context<'_>,
         bucket: String,
         id: ID,
-    ) -> async_graphql::Result<Option<StoredRecord>> {
+    ) -> AsyncGraphqlResult<Option<StoredRecord>> {
         match ctx
             .data_unchecked::<Store>()
             .get(bucket, id.to_string())
@@ -148,11 +164,11 @@ impl Mutation {
         &self,
         ctx: &Context<'_>,
         input: CreateRecordInput,
-    ) -> async_graphql::Result<CreateRecordPayload> {
+    ) -> AsyncGraphqlResult<CreateRecordPayload> {
         ctx.data_unchecked::<Store>()
             .create(
                 input.bucket,
-                model::Create {
+                Create {
                     idempotency_key: input.idempotency_key,
                     payload: input.payload,
                     metadata: input.metadata.0,
@@ -179,18 +195,18 @@ pub fn schema(store: Store) -> ApiSchema {
 pub struct HttpRequest {
     query: String,
     #[serde(default)]
-    variables: Option<serde_json::Map<String, serde_json::Value>>,
+    variables: Option<Map<String, SerdeJsonValue>>,
     operation_name: Option<String>,
 }
 
 pub async fn handle(
     State(schema): State<ApiSchema>,
-    input: Result<Json<HttpRequest>, axum::extract::rejection::JsonRejection>,
-) -> axum::response::Response {
+    input: Result<Json<HttpRequest>, JsonRejection>,
+) -> ResponseResponse {
     let input = match input { Ok(Json(input)) => input, Err(_) => return Error::Input("Expected a JSON object with a query string, optional variables object, and optional operationName string.").into_response() };
     // Keep parser error variants intact: duplicate definitions are schema
     // violations, while an absent operation is an operation-selection failure.
-    let document = match async_graphql::parser::parse_query(&input.query) {
+    let document = match parser_parse_query(&input.query) {
         Ok(document) => document,
         Err(error) => {
             use async_graphql::parser::Error as ParseError;
@@ -215,7 +231,7 @@ pub async fn handle(
     let mut request = Request::new(input.query);
     request.set_parsed_query(document.clone());
     request.operation_name = input.operation_name;
-    request.variables = Variables::from_value(from_json(serde_json::Value::Object(
+    request.variables = Variables::from_value(from_json(SerdeJsonValue::Object(
         input.variables.unwrap_or_default(),
     )));
     let preflight = Preflight {
@@ -270,7 +286,7 @@ pub async fn handle(
         }
     }
     (
-        [(header::CONTENT_TYPE, "application/graphql-response+json")],
+        [(CONTENT_TYPE, "application/graphql-response+json")],
         Json(result),
     )
         .into_response()
@@ -296,7 +312,7 @@ fn tagged(mut error: ServerError, code: &str) -> ServerError {
     error
 }
 
-#[async_graphql::async_trait::async_trait]
+#[async_trait]
 impl Extension for PreflightExtension {
     async fn parse_query(
         &self,
@@ -455,7 +471,7 @@ fn normalize_typename(document: &mut ExecutableDocument) -> ServerResult<()> {
                             ));
                         }
                         if !field.node.directives.is_empty() {
-                            let directives = std::mem::take(&mut field.node.directives);
+                            let directives = take(&mut field.node.directives);
                             let child = selection.clone();
                             selection.node = Selection::InlineFragment(Positioned::new(
                                 InlineFragment {
@@ -495,11 +511,11 @@ fn normalize_typename(document: &mut ExecutableDocument) -> ServerResult<()> {
     Ok(())
 }
 
-fn request_errors(errors: Vec<ServerError>) -> axum::response::Response {
+fn request_errors(errors: Vec<ServerError>) -> ResponseResponse {
     (
         StatusCode::BAD_REQUEST,
-        [(header::CONTENT_TYPE, "application/graphql-response+json")],
-        Json(serde_json::json!({"errors":errors})),
+        [(CONTENT_TYPE, "application/graphql-response+json")],
+        Json(serde_json_json!({"errors":errors})),
     )
         .into_response()
 }
