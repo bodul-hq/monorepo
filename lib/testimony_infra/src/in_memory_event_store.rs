@@ -5,6 +5,9 @@
 
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::marker::PhantomData;
+use std::rc::Rc;
+use testimony::prelude::HasAggregateId as PreludeHasAggregateId;
 use testimony::prelude::{EventEnvelope, EventStore, EventStoreError};
 
 /// An in-memory implementation of the EventStore trait.
@@ -25,16 +28,16 @@ use testimony::prelude::{EventEnvelope, EventStore, EventStoreError};
 pub struct InMemoryEventStore<Id, E: Clone> {
     /// Mapping from aggregate ID to ordered list of event envelopes
     /// Uses RefCell for interior mutability
-    streams: std::rc::Rc<RefCell<HashMap<String, Vec<EventEnvelope<E>>>>>,
-    _phantom_id: std::marker::PhantomData<Id>,
+    streams: Rc<RefCell<HashMap<String, Vec<EventEnvelope<E>>>>>,
+    _phantom_id: PhantomData<Id>,
 }
 
 impl<Id, E: Clone> InMemoryEventStore<Id, E> {
     /// Creates a new empty InMemoryEventStore.
     pub fn new() -> Self {
         InMemoryEventStore {
-            streams: std::rc::Rc::new(RefCell::new(HashMap::new())),
-            _phantom_id: std::marker::PhantomData,
+            streams: Rc::new(RefCell::new(HashMap::new())),
+            _phantom_id: PhantomData,
         }
     }
 
@@ -63,7 +66,7 @@ impl<Id, E: Clone> Default for InMemoryEventStore<Id, E> {
 ///
 /// The event payload (E) must implement HasAggregateId to provide the aggregate ID.
 /// This implementation stores events by aggregate ID and maintains sequence ordering.
-impl<Id: ToString + Clone, E: Clone + testimony::prelude::HasAggregateId> EventStore<Id, E>
+impl<Id: ToString + Clone, E: Clone + PreludeHasAggregateId> EventStore<Id, E>
     for InMemoryEventStore<Id, E>
 {
     fn load(&self, id: Id) -> Result<Vec<EventEnvelope<E>>, EventStoreError> {
@@ -100,6 +103,8 @@ impl<Id: ToString + Clone, E: Clone + testimony::prelude::HasAggregateId> EventS
 
 #[cfg(test)]
 mod tests {
+    use testimony::prelude::HasAggregateId as PreludeHasAggregateId;
+
     use super::*;
 
     #[derive(Clone, Debug, PartialEq)]
@@ -108,7 +113,7 @@ mod tests {
         data: String,
     }
 
-    impl testimony::prelude::HasAggregateId for TestEvent {
+    impl PreludeHasAggregateId for TestEvent {
         fn aggregate_id(&self) -> String {
             self.id.clone()
         }

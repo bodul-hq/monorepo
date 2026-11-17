@@ -11,6 +11,10 @@ use diesel::sql_types::{BigInt, Jsonb, Text, Timestamptz};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::cell::RefCell;
+use std::fmt::Debug as FmtDebug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 use std::marker::PhantomData;
 use testimony::prelude::{EventEnvelope, EventStore, EventStoreError, HasAggregateId};
 
@@ -83,8 +87,8 @@ impl<Id, E, R> Clone for PostgresEventStore<Id, E, R> {
     }
 }
 
-impl<Id, E, R> std::fmt::Debug for PostgresEventStore<Id, E, R> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<Id, E, R> FmtDebug for PostgresEventStore<Id, E, R> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         f.debug_struct("PostgresEventStore")
             .field("table_name", &self.table_name)
             .finish()
@@ -123,9 +127,9 @@ where
     E: Clone + HasAggregateId,
     R: Serialize + DeserializeOwned + HasAggregateId,
     for<'a> R: TryFrom<&'a E>,
-    for<'a> <R as TryFrom<&'a E>>::Error: std::fmt::Display,
+    for<'a> <R as TryFrom<&'a E>>::Error: Display,
     E: TryFrom<R>,
-    <E as TryFrom<R>>::Error: std::fmt::Display,
+    <E as TryFrom<R>>::Error: Display,
 {
     fn load(&self, id: Id) -> Result<Vec<EventEnvelope<E>>, EventStoreError> {
         let mut conn = self
@@ -154,9 +158,9 @@ where
     E: Clone + HasAggregateId,
     R: Serialize + DeserializeOwned + HasAggregateId,
     for<'a> R: TryFrom<&'a E>,
-    for<'a> <R as TryFrom<&'a E>>::Error: std::fmt::Display,
+    for<'a> <R as TryFrom<&'a E>>::Error: Display,
     E: TryFrom<R>,
-    <E as TryFrom<R>>::Error: std::fmt::Display,
+    <E as TryFrom<R>>::Error: Display,
 {
     fn load(&self, id: Id) -> Result<Vec<EventEnvelope<E>>, EventStoreError> {
         let id_str = id.to_string();

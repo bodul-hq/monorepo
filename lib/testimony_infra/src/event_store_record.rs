@@ -118,6 +118,9 @@ impl EventStoreRecord {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+    use serde_json::to_string;
+
     use super::*;
     use serde_json::json;
 
@@ -191,8 +194,8 @@ mod tests {
         let recorded = Utc::now();
         let record = EventStoreRecord::new(1, "agg-1", 0, "Event", json!({}), json!({}), recorded);
 
-        let json = serde_json::to_string(&record).unwrap();
-        let deserialized: EventStoreRecord = serde_json::from_str(&json).unwrap();
+        let json = to_string(&record).unwrap();
+        let deserialized: EventStoreRecord = from_str(&json).unwrap();
 
         assert_eq!(record, deserialized);
     }
@@ -209,8 +212,8 @@ mod tests {
             recorded,
         );
 
-        let json = serde_json::to_string(&record).unwrap();
-        let deserialized: NewEventStoreRecord = serde_json::from_str(&json).unwrap();
+        let json = to_string(&record).unwrap();
+        let deserialized: NewEventStoreRecord = from_str(&json).unwrap();
 
         assert_eq!(record, deserialized);
     }
