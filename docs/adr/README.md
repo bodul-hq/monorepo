@@ -71,3 +71,81 @@ Decision, Consequences) and give it the next number.
 - [49: Lowercase retailer serialization](0049-lowercase-retailer-serialization.md)
 
 - [50. Products and Training service foundations](0050-products-training-foundations.md)
+
+- [50: Anker AU initial offer fill](0050-anker-au-initial-offer-fill.md)
+
+- [51: Initial fill uses the raw offer bucket](0051-initial-fill-raw-offer-bucket.md)
+
+- [52: English-only Anker Canada initial fill](0052-anker-ca-english-initial-fill.md)
+
+- [53: Initial fill for the active Anker storefronts](0053-anker-storefront-initial-fill-markets.md)
+
+- [54: Anker browser token discovery](0054-anker-browser-token-discovery.md)
+
+- [55: Uniform Anker initial-fill query page sizes](0055-anker-uniform-query-page-sizes.md)
+
+- [56: Operation-specific Anker initial-fill page sizes](0056-anker-operation-specific-page-sizes.md)
+
+- [57: Offer details v2 raw sources](0057-offer-details-v2-raw-sources.md)
+
+- [58: Shared Shopify operations](0058-shared-shopify-operations.md)
+
+- [59: Multi-market Shopify initial fills](0059-multi-market-shopify-initial-fills.md)
+
+- [60: Optional public Storefront token acquisition](0060-optional-public-storefront-token-acquisition.md)
+
+- [61: Independent retailer GraphQL integrations](0061-independent-retailer-graphql-integrations.md)
+
+- [62: Independent legacy Nordic GraphQL sources](0062-independent-legacy-nordic-graphql.md)
+
+- [63. Local retailer integrations](0063-local-retailer-integrations.md)
+
+- [64. Brand-shared GraphQL integrations](0064-brand-shared-graphql.md)
+
+- [65. Shared complete Anker extraction](0065-shared-complete-anker-extraction.md)
+
+| [66](0066-explicit-raw-to-extracted-conversions.md) | Explicit raw-to-extracted conversions | Accepted; supersedes ADR 65 field preservation |
+
+- [67: Recover Anker extraction context from recorded evidence](0067-anker-context-recovery.md)
+
+- [68: Anker multi-market initial fills](0068-anker-multi-market-initial-fills.md)
+
+- [69: Inventory-backed initial-fill contexts](0069-inventory-initial-fill-contexts.md)
+
+- [70: Tokenless access for selected storefronts](0070-selected-tokenless-storefronts.md)
+
+- [71: Tokenless access for additional Ugreen storefronts](0071-additional-tokenless-ugreen-storefronts.md)
+
+- [72: Restore Storefront token acquisition](0072-restore-storefront-token-acquisition.md)
+
+- [73: Drop selling plans from Storefront offer details](0073-drop-storefront-selling-plans.md)
+
+- [74: Drop the market-discovery stage](0074-drop-market-discovery-stage.md)
+
+- [75: Tokenless access for Ugreen KR and Minisforum HK](0075-tokenless-ugreenkr-minisforumhk.md)
+
+- [76: Ugreen discovery policies](0076-ugreen-discovery-policies.md)
+
+- [77: Tokenless access for Minisforum JP](0077-tokenless-minisforumjp.md)
+
+- [78: Anonymous access for nine additional storefronts](0078-anonymous-storefront-access.md)
+
+- [79: Initial-fill startup and HTTP boundaries](0079-initial-fill-http-boundary.md)
+
+- [80: Shared GraphQL diagnostics](0080-shared-graphql-diagnostics.md)
+
+- [81: Shared GraphQL offer-details artifact](0081-shared-graphql-artifact.md)
+
+- [82: Shared Storefront authentication discovery](0082-shared-storefront-auth.md)
+
+- [83: Shared Shopify acquisition engine](0083-shared-shopify-engine.md)
+
+- [84: Unified raw Shopify GraphQL model](0084-unified-graphql-raw-model.md)
+
+- [85: Remove storefront raw facades](0085-remove-storefront-raw-facades.md)
+
+- [86: Country-owned legacy Anker integrations](0086-country-owned-legacy-anker-integrations.md)
+
+- [87: Initial-fill boundaries](0087-initial-fill-boundaries.md)
+
+- [88: Single-command catalog traversal](0088-single-command-catalog-traversal.md)
