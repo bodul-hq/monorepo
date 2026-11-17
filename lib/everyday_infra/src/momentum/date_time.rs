@@ -44,6 +44,10 @@ impl From<AppDateTime> for DateTime {
 
 #[cfg(test)]
 mod tests {
+    use chrono::Utc as ChronoUtc;
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::AppDateTime;
     use chrono::TimeZone;
     use everyday::prelude::DateTime;
@@ -65,7 +69,7 @@ mod tests {
 
     #[test]
     fn converts_to_domain() {
-        let chrono_dt = chrono::Utc.timestamp_opt(1_705_314_600, 0).unwrap();
+        let chrono_dt = ChronoUtc.timestamp_opt(1_705_314_600, 0).unwrap();
         let infra = AppDateTime(chrono_dt);
         let domain: DateTime = (&infra).into();
         assert_eq!(domain.timestamp(), 1_705_314_600);
@@ -73,7 +77,7 @@ mod tests {
 
     #[test]
     fn converts_to_domain_by_value() {
-        let chrono_dt = chrono::Utc.timestamp_opt(1_705_314_600, 0).unwrap();
+        let chrono_dt = ChronoUtc.timestamp_opt(1_705_314_600, 0).unwrap();
         let infra = AppDateTime(chrono_dt);
         let domain: DateTime = infra.into();
         assert_eq!(domain.timestamp(), 1_705_314_600);
@@ -81,15 +85,15 @@ mod tests {
 
     #[test]
     fn serializes_as_iso8601_string() {
-        let infra = AppDateTime(chrono::Utc.timestamp_opt(1_705_314_600, 0).unwrap());
-        let serialized = serde_json::to_value(&infra).unwrap();
+        let infra = AppDateTime(ChronoUtc.timestamp_opt(1_705_314_600, 0).unwrap());
+        let serialized = to_value(&infra).unwrap();
         assert_eq!(serialized, json!("2024-01-15T10:30:00Z"));
     }
 
     #[test]
     fn deserializes_from_iso8601_string() {
         let value = json!("2024-01-15T10:30:00Z");
-        let infra: AppDateTime = serde_json::from_value(value).unwrap();
+        let infra: AppDateTime = from_value(value).unwrap();
         assert_eq!(infra.0.timestamp(), 1_705_314_600);
     }
 }
