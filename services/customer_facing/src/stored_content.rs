@@ -1,21 +1,24 @@
 //! Private projection envelope; upstream event content remains unchanged.
+
+use offer_content::guard as offer_content_guard;
+use retailer_sauce::observation::required_nullable as retailer_sauce_observation_required_nullable;
 use retailer_sauce::offer_content::{self, Content};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Entry {
-    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    #[serde(deserialize_with = "retailer_sauce_observation_required_nullable")]
     pub language: Option<String>,
     pub title: String,
-    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    #[serde(deserialize_with = "retailer_sauce_observation_required_nullable")]
     pub description: Option<String>,
     pub url: String,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct StoredContent {
-    #[serde(deserialize_with = "retailer_sauce::observation::required_nullable")]
+    #[serde(deserialize_with = "retailer_sauce_observation_required_nullable")]
     pub selected_language: Option<String>,
     pub entries: Vec<Entry>,
 }
@@ -31,7 +34,7 @@ impl StoredContent {
             .collect()
     }
     pub fn guard(&self) -> Result<(), String> {
-        offer_content::guard(&self.contents(), &self.selected_language)?;
+        offer_content_guard(&self.contents(), &self.selected_language)?;
         if self
             .entries
             .iter()
@@ -86,6 +89,8 @@ impl StoredContent {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::*;
     fn entry(language: Option<&str>, title: &str) -> Content {
         Content {
@@ -143,6 +148,6 @@ mod tests {
         assert!(
             StoredContent::new(&[entry(None, "Title")], &None, "https://example.com/\0").is_err()
         );
-        assert!(serde_json::from_str::<StoredContent>(r#"{"entries":[]}"#).is_err());
+        assert!(from_str::<StoredContent>(r#"{"entries":[]}"#).is_err());
     }
 }

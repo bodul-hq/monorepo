@@ -1,6 +1,21 @@
 //! One bounded read path for REST and GraphQL, independent of queue execution.
 
+use crate::identifier::Identifier;
+use async_graphql::Enum as AsyncGraphqlEnum;
+use diesel::QueryableByName;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
+use diesel::sql_types::Array;
+use diesel::sql_types::Jsonb;
+use diesel::sql_types::Nullable;
+use facts::content as facts_content;
+use facts::was_price as facts_was_price;
+use poem_openapi::Enum as PoemOpenapiEnum;
+use serde::Serialize;
+use serde_json::Value;
+use serde_json::from_value;
 use std::sync::Arc;
+use tokio::task::spawn_blocking;
 
 use async_graphql::{ComplexObject, ID, SimpleObject};
 use chrono::{DateTime, SecondsFormat, Utc};
@@ -20,14 +35,14 @@ use uuid::Uuid;
 mod facts;
 pub use facts::{OfferAvailability, OfferContent, OfferItemCondition};
 
-#[derive(Clone, Object, SimpleObject, serde::Serialize)]
+#[derive(Clone, Object, SimpleObject, Serialize)]
 pub struct OfferPrice {
     /// Exact signed i64 minor units, encoded as a decimal string.
     pub amount: String,
     pub currency: String,
 }
 
-#[derive(Clone, Object, SimpleObject, serde::Serialize)]
+#[derive(Clone, Object, SimpleObject, Serialize)]
 #[graphql(complex)]
 pub struct Offer {
     pub was_price: Option<OfferPrice>,
@@ -58,7 +73,7 @@ impl Offer {
     }
 }
 
-#[derive(Object, SimpleObject, serde::Serialize)]
+#[derive(Object, SimpleObject, Serialize)]
 pub struct OfferPage {
     pub items: Vec<Offer>,
     pub limit: i32,
@@ -73,32 +88,32 @@ pub trait Repository: Send + Sync {
 
 struct PostgresRepository(DbPool);
 
-#[derive(diesel::QueryableByName)]
+#[derive(QueryableByName)]
 struct Record {
-    #[diesel(sql_type = diesel::sql_types::Nullable<BigInt>)]
+    #[diesel(sql_type = Nullable<BigInt>)]
     was_price_amount: Option<i64>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    #[diesel(sql_type = Nullable<Text>)]
     was_price_currency: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    availability: Option<serde_json::Value>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    item_condition: Option<serde_json::Value>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    #[diesel(sql_type = Nullable<Jsonb>)]
+    availability: Option<Value>,
+    #[diesel(sql_type = Nullable<Jsonb>)]
+    item_condition: Option<Value>,
+    #[diesel(sql_type = Nullable<Text>)]
     description: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Jsonb)]
-    content: serde_json::Value,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    #[diesel(sql_type = Jsonb)]
+    content: Value,
+    #[diesel(sql_type = Nullable<Text>)]
     gtin: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    #[diesel(sql_type = Nullable<Text>)]
     sku: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Jsonb)]
-    external_identifiers: crate::identifier::Identifier,
+    #[diesel(sql_type = Jsonb)]
+    external_identifiers: Identifier,
 
-    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    target_market: Option<serde_json::Value>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
+    #[diesel(sql_type = Nullable<Jsonb>)]
+    target_market: Option<Value>,
+    #[diesel(sql_type = Nullable<Text>)]
     language: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<Timestamptz>)]
+    #[diesel(sql_type = Nullable<Timestamptz>)]
     scraped_at: Option<DateTime<Utc>>,
     #[diesel(sql_type = SqlUuid)]
     id: Uuid,
@@ -112,7 +127,7 @@ struct Record {
     currency: String,
     #[diesel(sql_type = Text)]
     url: String,
-    #[diesel(sql_type = diesel::sql_types::Array<Text>)]
+    #[diesel(sql_type = Array<Text>)]
     images: Vec<String>,
     #[diesel(sql_type = Timestamptz)]
     created_at: DateTime<Utc>,
@@ -121,7 +136,7 @@ struct Record {
 impl Repository for PostgresRepository {
     fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         let mut connection = self.0.get().map_err(|_| ())?;
-        let records = diesel::sql_query(
+        let records = sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
              FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title, offer_selected_content(content)->>'description' AS description, offer_selected_content(content)->>'url' AS url, content->>'selected_language' AS language
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
@@ -136,11 +151,11 @@ impl Repository for PostgresRepository {
 
     fn search(&self, query: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         let mut connection = self.0.get().map_err(|_| ())?;
-        let records = connection.transaction::<_, diesel::result::Error, _>(|connection| {
+        let records = connection.transaction::<_, ResultError, _>(|connection| {
             connection.batch_execute(
                 "SET LOCAL pg_trgm.word_similarity_threshold = 0.5; SET LOCAL statement_timeout = '3s'",
             )?;
-            diesel::sql_query(
+            sql_query(
                 "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
                  FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title,
                     offer_selected_content(content)->>'description' AS description,
@@ -165,14 +180,14 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
     records
         .into_iter()
         .map(|record| {
-            let content = facts::content(
+            let content = facts_content(
                 record.content,
                 &record.language,
                 &record.title,
                 &record.description,
             )?;
             Ok(Offer {
-                was_price: facts::was_price(
+                was_price: facts_was_price(
                     record.was_price_amount,
                     record.was_price_currency,
                     record.price_amount,
@@ -290,7 +305,7 @@ impl Offers {
             ));
         }
         let repository = self.0.clone();
-        let mut items = tokio::task::spawn_blocking(move || match query {
+        let mut items = spawn_blocking(move || match query {
             Some(query) => repository.search(&query, i64::from(limit) + 1, i64::from(offset)),
             None => repository.load(i64::from(limit) + 1, i64::from(offset)),
         })
@@ -376,7 +391,7 @@ fn default_limit() -> i32 {
 #[cfg(test)]
 pub(crate) mod tests;
 
-#[derive(Clone, Copy, poem_openapi::Enum, async_graphql::Enum, serde::Serialize, PartialEq, Eq)]
+#[derive(Clone, Copy, PoemOpenapiEnum, AsyncGraphqlEnum, Serialize, PartialEq, Eq)]
 pub enum MarketKind {
     #[oai(rename = "country")]
     #[serde(rename = "country")]
@@ -385,27 +400,21 @@ pub enum MarketKind {
     #[serde(rename = "region")]
     Region,
 }
-#[derive(Clone, Object, SimpleObject, serde::Serialize)]
+#[derive(Clone, Object, SimpleObject, Serialize)]
 pub struct OfferMarket {
     pub kind: MarketKind,
     pub code: Option<String>,
     pub label: Option<String>,
 }
-#[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
+#[derive(Clone, Default, Object, SimpleObject, Serialize)]
 pub struct OfferLocalization {
     pub target_market: Option<OfferMarket>,
     pub language: Option<String>,
 }
 impl OfferLocalization {
-    fn from_record(
-        market: Option<serde_json::Value>,
-        language: Option<String>,
-    ) -> Result<Self, ()> {
+    fn from_record(market: Option<Value>, language: Option<String>) -> Result<Self, ()> {
         use retailer_sauce::localization::{Localization, TargetMarket};
-        let target_market = market
-            .map(serde_json::from_value)
-            .transpose()
-            .map_err(|_| ())?;
+        let target_market = market.map(from_value).transpose().map_err(|_| ())?;
         let localization = Localization {
             target_market,
             language,
@@ -437,7 +446,7 @@ impl OfferLocalization {
     }
 }
 
-#[derive(Clone, Default, Object, SimpleObject, serde::Serialize)]
+#[derive(Clone, Default, Object, SimpleObject, Serialize)]
 pub struct ExternalIdentifiers {
     pub shopify_product_gid: Option<String>,
     pub shopify_product_variation_gid: Option<String>,

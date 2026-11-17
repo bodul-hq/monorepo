@@ -2,14 +2,27 @@ use super::projection::{
     advance, apply, created, envelope, offer, projection_counts, replay_inbox, submit,
 };
 use super::*;
+use crate::app;
+use crate::offer_projection::Projection;
+use bootstrap::migrate;
 use commanding::prelude::ErasedCommandHandler;
+use diesel::sql_query;
+use diesel::sql_types::Nullable;
+use diesel::sql_types::Text;
+use diesel::sql_types::Uuid as SqlTypesUuid;
+use std::sync::mpsc::channel;
+use std::thread::scope as thread_scope;
+use std::thread::sleep;
+use std::time::Duration;
+use std::time::Instant;
+use tokio::test as tokio_test;
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn full_snapshots_mix_with_legacy_updates_and_replay_atomically() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let list = json!([
         {"language":null,"title":"Unknown charger","description":null},
@@ -96,7 +109,7 @@ async fn full_snapshots_mix_with_legacy_updates_and_replay_atomically() {
         "OfferContentsChanged",
         &json!({"id":id,"content":list,"language":"en"}),
     );
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     for malformed in [
         json!({"id":id,"content":list}),
         json!({"id":id,"content":[],"language":null}),
@@ -126,7 +139,7 @@ async fn full_snapshots_mix_with_legacy_updates_and_replay_atomically() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn localized_migration_preserves_exact_scalars_receipts_and_pending_commands() {
     let (_schema, pool) = database(true);
@@ -137,11 +150,11 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
         (2, Some("EN-au"), Some("")),
         (3, Some("fr"), Some(" \t<p>ž &amp;</p>\n")),
     ] {
-        diesel::sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,language,description) VALUES ($1,'ankerau',' Original charger ',10,'AUD',$2,now(),$3,$4)")
-            .bind::<diesel::sql_types::Uuid,_>(Uuid::from_u128(index))
-            .bind::<diesel::sql_types::Text,_>(format!("https://example.com/{index}"))
-            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Text>,_>(language)
-            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Text>,_>(description)
+        sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,language,description) VALUES ($1,'ankerau',' Original charger ',10,'AUD',$2,now(),$3,$4)")
+            .bind::<SqlTypesUuid,_>(Uuid::from_u128(index))
+            .bind::<Text,_>(format!("https://example.com/{index}"))
+            .bind::<Nullable<Text>,_>(language)
+            .bind::<Nullable<Text>,_>(description)
             .execute(&mut connection).unwrap();
     }
     connection.batch_execute("INSERT INTO applied_offer_messages(message_id) VALUES ('00000000-0000-0000-0000-000000000009'); INSERT INTO offer_images(offer_id,position,image_url) VALUES ('00000000-0000-0000-0000-000000000001',0,'https://example.com/image.png')").unwrap();
@@ -166,7 +179,7 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
     };
     let before = rows(&pool);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     submit(
         &client,
         "OfferContentChanged",
@@ -179,7 +192,7 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
         &pool,
         "SELECT jsonb_agg(to_jsonb(c)) AS data FROM command_entries c",
     );
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     let migrated = rows(&pool);
     for (old, new) in before
         .as_array()
@@ -205,7 +218,7 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
     }
     revert_to(&pool, "20261027000008");
     assert_eq!(rows(&pool), before);
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(rows(&pool), migrated);
     assert_eq!(
         snapshot(
@@ -232,7 +245,7 @@ async fn localized_migration_preserves_exact_scalars_receipts_and_pending_comman
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_bucket() {
     let (_schema, pool) = database(true);
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let id = Uuid::now_v7();
     projection
         .execute(&envelope(Uuid::now_v7(), "OfferCreated", &created(id)))
@@ -241,8 +254,8 @@ fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_buck
     connection
         .batch_execute("BEGIN; SELECT id FROM offers FOR UPDATE")
         .unwrap();
-    let (sender, receiver) = std::sync::mpsc::channel();
-    std::thread::scope(|scope| {
+    let (sender, receiver) = channel();
+    thread_scope(|scope| {
         scope.spawn(|| {
             let result = projection.execute(&envelope(
                 Uuid::now_v7(),
@@ -251,7 +264,7 @@ fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_buck
             ));
             sender.send(result).unwrap();
         });
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        let deadline = Instant::now() + Duration::from_secs(5);
         loop {
             let waiting = snapshot(
                 &pool,
@@ -260,15 +273,15 @@ fn legacy_read_modify_write_waits_for_the_row_lock_and_preserves_the_latest_buck
             if waiting.as_i64().unwrap() > 0 {
                 break;
             }
-            if std::time::Instant::now() >= deadline {
+            if Instant::now() >= deadline {
                 connection.batch_execute("ROLLBACK").unwrap();
                 panic!("legacy update did not acquire its read lock");
             }
-            std::thread::sleep(std::time::Duration::from_millis(10));
+            sleep(Duration::from_millis(10));
         }
         connection.batch_execute("UPDATE offers SET content=jsonb_set(content,'{entries,0,description}','\"concurrent description\"'); COMMIT").unwrap();
         receiver
-            .recv_timeout(std::time::Duration::from_secs(5))
+            .recv_timeout(Duration::from_secs(5))
             .unwrap()
             .unwrap();
     });

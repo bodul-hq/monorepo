@@ -1,4 +1,8 @@
 //! Strict persistence shape; legacy wire deserialization stays in retailer_sauce.
+
+use deserialize::Result as DeserializeResult;
+use diesel::AsExpression;
+use diesel::FromSqlRow;
 use diesel::{
     deserialize::{self, FromSql},
     pg::{Pg, PgValue},
@@ -7,13 +11,17 @@ use diesel::{
 };
 use retailer_sauce::identifier::ExternalIdentifiers;
 use serde_json::Value;
+use serde_json::from_value as serde_json_from_value;
+use serde_json::to_value;
+use serialize::Result as SerializeResult;
+use std::error::Error as ErrorError;
 
-#[derive(Debug, Clone, PartialEq, diesel::AsExpression, diesel::FromSqlRow)]
+#[derive(Debug, Clone, PartialEq, AsExpression, FromSqlRow)]
 #[diesel(sql_type = Jsonb)]
 pub struct Identifier(pub ExternalIdentifiers);
 
 impl Identifier {
-    fn decode(value: Value) -> deserialize::Result<Self> {
+    fn decode(value: Value) -> DeserializeResult<Self> {
         const KEYS: [&str; 3] = [
             "shopify_product_gid",
             "shopify_product_variation_gid",
@@ -23,23 +31,23 @@ impl Identifier {
         if object.len() != KEYS.len() || !KEYS.iter().all(|key| object.contains_key(*key)) {
             return Err("expected exactly three Shopify identifier keys".into());
         }
-        Ok(Self(serde_json::from_value(value)?))
+        Ok(Self(serde_json_from_value(value)?))
     }
 
-    fn encode(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    fn encode(&self) -> Result<Value, Box<dyn ErrorError + Send + Sync>> {
         self.0.guard()?;
-        Ok(serde_json::to_value(&self.0)?)
+        Ok(to_value(&self.0)?)
     }
 }
 
 impl FromSql<Jsonb, Pg> for Identifier {
-    fn from_sql(value: PgValue<'_>) -> deserialize::Result<Self> {
+    fn from_sql(value: PgValue<'_>) -> DeserializeResult<Self> {
         Self::decode(<Value as FromSql<Jsonb, Pg>>::from_sql(value)?)
     }
 }
 
 impl ToSql<Jsonb, Pg> for Identifier {
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> SerializeResult {
         let value = self.encode()?;
         <Value as ToSql<Jsonb, Pg>>::to_sql(&value, &mut out.reborrow())
     }
@@ -47,6 +55,8 @@ impl ToSql<Jsonb, Pg> for Identifier {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value as decode_json_value;
+
     use super::*;
     use retailer_sauce::identifier::ShopifyHandle;
     use serde_json::json;
@@ -101,7 +111,7 @@ mod tests {
         extra["gtin"] = json!("001");
         assert!(Identifier::decode(extra).is_err());
         assert_eq!(
-            serde_json::from_value::<ExternalIdentifiers>(json!({})).unwrap(),
+            decode_json_value::<ExternalIdentifiers>(json!({})).unwrap(),
             ExternalIdentifiers::default()
         );
         for value in ["", "a\0b"] {

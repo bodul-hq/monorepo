@@ -1,15 +1,19 @@
 use super::*;
+use crate::app;
 use crate::offer_read::Offers;
+use diesel::sql_query;
 use diesel::sql_types::{Text, Uuid as SqlUuid};
+use serde_json::to_value;
+use tokio::test as tokio_test;
 
 fn insert(pool: &DbPool, id: u128, title: &str) {
-    diesel::sql_query("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content) VALUES ($1,'ankerau',1999,'AUD','2026-10-26T12:00:00Z',jsonb_build_object('selected_language',NULL,'entries',jsonb_build_array(jsonb_build_object('language',NULL,'title',$2::text,'description',NULL,'url',$3::text))))")
+    sql_query("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content) VALUES ($1,'ankerau',1999,'AUD','2026-10-26T12:00:00Z',jsonb_build_object('selected_language',NULL,'entries',jsonb_build_array(jsonb_build_object('language',NULL,'title',$2::text,'description',NULL,'url',$3::text))))")
         .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Text,_>(title)
         .bind::<Text,_>(format!("https://example.com/{id}"))
         .execute(&mut pool.get().unwrap()).unwrap();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn relevance_pagination_mapping_updates_and_index_round_trip() {
     let (_schema, pool) = database(true);
@@ -66,8 +70,8 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
         .find(|offer| offer.id == searched.items[0].id)
         .unwrap();
     assert_eq!(
-        serde_json::to_value(&browsed).unwrap(),
-        serde_json::to_value(&searched.items[0]).unwrap()
+        to_value(&browsed).unwrap(),
+        to_value(&searched.items[0]).unwrap()
     );
     assert_eq!(
         searched.items[0].images,
@@ -101,7 +105,7 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
             .is_empty()
     );
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let message = json!({"message_id":Uuid::now_v7(),"source":"offers","routing_key":"OfferTitleChanged","payload":{"id":Uuid::from_u128(1),"title":"Telescope"}});
     for _ in 0..2 {
         client
@@ -159,7 +163,7 @@ async fn relevance_pagination_mapping_updates_and_index_round_trip() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn search_settings_are_local_on_success_and_failure() {
     let (_schema, pool) = database(true);
@@ -180,7 +184,7 @@ async fn search_settings_are_local_on_success_and_failure() {
     assert!(offers.search("charger", 30, 0).await.is_err());
     let mut connections = (0..3).map(|_| pool.get().unwrap()).collect::<Vec<_>>();
     for connection in &mut connections {
-        let row = diesel::sql_query("SELECT jsonb_build_array(current_setting('pg_trgm.word_similarity_threshold'),current_setting('statement_timeout')) AS data")
+        let row = sql_query("SELECT jsonb_build_array(current_setting('pg_trgm.word_similarity_threshold'),current_setting('statement_timeout')) AS data")
             .get_result::<Snapshot>(connection).unwrap();
         assert_eq!(row.data, json!(["0.9", "7s"]));
     }

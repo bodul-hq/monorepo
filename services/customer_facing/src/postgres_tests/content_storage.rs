@@ -1,8 +1,15 @@
+use super::projection::envelope as projection_envelope;
 use super::*;
+use crate::offer_projection::Projection;
+use crate::offer_read::Offers;
+use bootstrap::MIGRATIONS;
+use bootstrap::migrate;
+use diesel::sql_query;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
+use tokio::test as tokio_test;
 
 fn insert(pool: &DbPool, id: u128, content: Value) {
-    diesel::sql_query("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content) VALUES ($1,'ankerau',1999,'AUD','2026-10-29T00:00:00Z',$2)")
+    sql_query("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content) VALUES ($1,'ankerau',1999,'AUD','2026-10-29T00:00:00Z',$2)")
         .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Jsonb,_>(content)
         .execute(&mut pool.get().unwrap()).unwrap();
 }
@@ -38,7 +45,7 @@ fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls(
         &pool,
         "SELECT jsonb_agg(to_jsonb(o) ORDER BY id) AS data FROM offers o",
     );
-    assert!(bootstrap::migrate(&pool).is_err());
+    assert!(migrate(&pool).is_err());
     assert_eq!(
         snapshot(
             &pool,
@@ -57,7 +64,7 @@ fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls(
         .unwrap()
         .batch_execute("DELETE FROM offers WHERE id='00000000-0000-0000-0000-000000000002'")
         .unwrap();
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(
         snapshot(
             &pool,
@@ -73,7 +80,7 @@ fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls(
         "lower(offer_selected_content(content)->>'title') OPERATOR(customer_facing_extensions.%) 'charger'",
         "lower(offer_selected_content(content)->>'description') OPERATOR(customer_facing_extensions.%) 'fast'",
     ] {
-        let count = diesel::sql_query(format!(
+        let count = sql_query(format!(
             "SELECT to_jsonb(count(*)) AS data FROM offers WHERE {predicate}"
         ))
         .get_result::<Snapshot>(&mut connection)
@@ -89,7 +96,7 @@ fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls(
             {"language":"en","title":"Other","description":null,"url":"https://example.com/other"},
             {"language":language,"title":"Selected","description":null,"url":"https://example.com/selected"}
         ]});
-        let selected = diesel::sql_query("SELECT offer_selected_content($1) AS data")
+        let selected = sql_query("SELECT offer_selected_content($1) AS data")
             .bind::<Jsonb, _>(&envelope)
             .get_result::<Snapshot>(&mut pool.get().unwrap())
             .unwrap()
@@ -105,17 +112,17 @@ fn selected_content_repair_rebuilds_indexes_and_rejects_existing_duplicate_urls(
         ),
         "Charger"
     );
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn selected_content_search_weights_and_language_switches() {
     let (_schema, pool) = database(true);
     insert(&pool, 1, content(1, "Charger", None));
     insert(&pool, 2, content(2, "Boot", Some("Charger")));
     insert(&pool, 3, content(3, "Charger", Some("Charger")));
-    let offers = crate::offer_read::Offers::postgres(pool.clone());
+    let offers = Offers::postgres(pool.clone());
     let results = offers.search("charger", 100, 0).await.unwrap();
     assert_eq!(
         results
@@ -157,7 +164,7 @@ fn content_migration_preserves_multilingual_data_and_refuses_lossy_downgrade() {
     revert_to(&pool, "20261027000009");
     pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,title,description,language,url,price_amount,currency,created_at,content) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Selected',NULL,'en','https://example.com/1',10,'AUD',now(),'[{\"language\":null,\"title\":\"Unknown\",\"description\":\"original\"},{\"language\":\"en\",\"title\":\"Selected\",\"description\":null}]')").unwrap();
     let before = snapshot(&pool, "SELECT to_jsonb(o) AS data FROM offers o");
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     let after = snapshot(&pool, "SELECT to_jsonb(o) AS data FROM offers o");
     for field in ["title", "description", "language", "url"] {
         assert!(after.get(field).is_none());
@@ -173,7 +180,7 @@ fn content_migration_preserves_multilingual_data_and_refuses_lossy_downgrade() {
         snapshot(&pool, "SELECT to_jsonb(o) AS data FROM offers o"),
         before
     );
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(
         snapshot(&pool, "SELECT to_jsonb(o) AS data FROM offers o"),
         after
@@ -184,7 +191,7 @@ fn content_migration_preserves_multilingual_data_and_refuses_lossy_downgrade() {
     assert!(
         pool.get()
             .unwrap()
-            .revert_last_migration(bootstrap::MIGRATIONS)
+            .revert_last_migration(MIGRATIONS)
             .is_err()
     );
     assert_eq!(
@@ -214,7 +221,7 @@ fn envelope_constraints_and_selected_url_uniqueness_reject_invalid_changes() {
         json!({"selected_language":"missing","entries":content(1,"Charger",None)["entries"]}),
     ] {
         assert!(
-            diesel::sql_query("UPDATE offers SET content=$1 WHERE id=$2")
+            sql_query("UPDATE offers SET content=$1 WHERE id=$2")
                 .bind::<Jsonb, _>(value)
                 .bind::<SqlUuid, _>(Uuid::from_u128(1))
                 .execute(&mut pool.get().unwrap())
@@ -237,10 +244,10 @@ fn snapshots_preserve_urls_and_legacy_language_moves_carry_selected_url() {
     use commanding::prelude::ErasedCommandHandler;
     let (_schema, pool) = database(true);
     insert(&pool, 1, content(1, "Charger", None));
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let id = Uuid::from_u128(1);
     projection
-        .execute(&super::projection::envelope(
+        .execute(&projection_envelope(
             Uuid::now_v7(),
             "OfferContentsChanged",
             &json!({
@@ -263,7 +270,7 @@ fn snapshots_preserve_urls_and_legacy_language_moves_carry_selected_url() {
         "https://example.com/1"
     );
     projection
-        .execute(&super::projection::envelope(
+        .execute(&projection_envelope(
             Uuid::now_v7(),
             "OfferLocalizationChanged",
             &json!({"id":id,"localization":{"language":"fr","target_market":null}}),

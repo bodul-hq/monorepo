@@ -1,12 +1,19 @@
-fn reporting_now() -> chrono::DateTime<chrono::Utc> {
-    chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
+use crate::app_with_reporting_token;
+use crate::queue_tests::state as queue_tests_state;
+use crate::reporting::Reporting;
+use chrono::DateTime;
+use chrono::Utc;
+use poem::Route;
+use tokio::test as tokio_test;
+fn reporting_now() -> DateTime<Utc> {
+    DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
         .unwrap()
-        .with_timezone(&chrono::Utc)
+        .with_timezone(&Utc)
 }
 
 use super::*;
 
-async fn report(client: &TestClient<poem::Route>, name: &str) -> Value {
+async fn report(client: &TestClient<Route>, name: &str) -> Value {
     let response = client
         .get(format!("/api/reporting/{name}"))
         .header("authorization", "Bearer reporting-test-token")
@@ -15,11 +22,11 @@ async fn report(client: &TestClient<poem::Route>, name: &str) -> Value {
     response.assert_status_is_ok();
     assert_eq!(response.0.headers()["cache-control"], "no-store");
     let report: Value = response.json().await.value().deserialize();
-    chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).unwrap();
+    DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).unwrap();
     report
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn reports_active_schema_tables_and_storage_without_changing_queues() {
     let (schema, pool) = database(true);
@@ -46,8 +53,8 @@ async fn reports_active_schema_tables_and_storage_without_changing_queues() {
     ) AS data";
     let before = snapshot(&pool, snapshot_sql);
     let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
-    state.reporting = crate::reporting::Reporting::postgres_with_clock(pool.clone(), reporting_now);
-    let client = TestClient::new(crate::app_with_reporting_token(
+    state.reporting = Reporting::postgres_with_clock(pool.clone(), reporting_now);
+    let client = TestClient::new(app_with_reporting_token(
         state,
         "reporting-test-token".into(),
     ));
@@ -95,13 +102,13 @@ async fn reports_active_schema_tables_and_storage_without_changing_queues() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn reports_exact_status_counts_empty_queues_and_unknown_codes() {
     let (_schema, pool) = database(true);
     let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
-    state.reporting = crate::reporting::Reporting::postgres_with_clock(pool.clone(), reporting_now);
-    let client = TestClient::new(crate::app_with_reporting_token(
+    state.reporting = Reporting::postgres_with_clock(pool.clone(), reporting_now);
+    let client = TestClient::new(app_with_reporting_token(
         state,
         "reporting-test-token".into(),
     ));
@@ -128,13 +135,13 @@ async fn reports_exact_status_counts_empty_queues_and_unknown_codes() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn missing_queue_tables_are_sanitized_and_empty_schema_is_valid() {
     let (schema, pool) = database(false);
-    let mut state = crate::queue_tests::state();
-    state.reporting = crate::reporting::Reporting::postgres(pool);
-    let client = TestClient::new(crate::app_with_reporting_token(
+    let mut state = queue_tests_state();
+    state.reporting = Reporting::postgres(pool);
+    let client = TestClient::new(app_with_reporting_token(
         state,
         "reporting-test-token".into(),
     ));

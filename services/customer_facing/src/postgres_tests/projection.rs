@@ -1,7 +1,17 @@
 use super::*;
+use crate::app;
+use crate::offer_projection::Projection;
+use crate::tests::assert_batch_errors;
+use bootstrap::migrate;
 use commanding::prelude::{
     ErasedCommandHandler, NewCommand, NewCommandEnvelope, NewCommandMetadata,
 };
+use diesel::sql_query;
+use diesel::sql_types::Uuid as SqlTypesUuid;
+use poem::Route;
+use std::sync::Barrier;
+use std::thread::scope as thread_scope;
+use tokio::test as tokio_test;
 
 pub(super) fn created(id: Uuid) -> Value {
     json!({
@@ -12,12 +22,7 @@ pub(super) fn created(id: Uuid) -> Value {
     })
 }
 
-pub(super) async fn submit(
-    client: &TestClient<poem::Route>,
-    kind: &str,
-    payload: &Value,
-    message: Uuid,
-) {
+pub(super) async fn submit(client: &TestClient<Route>, kind: &str, payload: &Value, message: Uuid) {
     client
         .post("/api/inbox")
         .body_json(&json!({
@@ -29,14 +34,14 @@ pub(super) async fn submit(
         .assert_status(StatusCode::ACCEPTED);
 }
 
-pub(super) async fn advance(client: &TestClient<poem::Route>, queue: &str, count: usize) {
+pub(super) async fn advance(client: &TestClient<Route>, queue: &str, count: usize) {
     assert_eq!(
         run(client, queue, 100).await,
         json!({"processed":count,"errors":[]})
     );
 }
 
-pub(super) async fn apply(client: &TestClient<poem::Route>, kind: &str, payload: &Value) -> Uuid {
+pub(super) async fn apply(client: &TestClient<Route>, kind: &str, payload: &Value) -> Uuid {
     let message = Uuid::now_v7();
     submit(client, kind, payload, message).await;
     advance(client, "inbox", 1).await;
@@ -61,21 +66,21 @@ pub(super) fn projection_counts(pool: &DbPool) -> Value {
 // Simulate the inbox-completion crash window. Mulac generates a fresh command
 // UUID when the still-pending original inbox message is processed again.
 pub(super) fn replay_inbox(pool: &DbPool, message: Uuid) {
-    diesel::sql_query(
+    sql_query(
         "UPDATE inbox_entries SET status = 0, attempts = 0,
         scheduled_at = now(), processed_at = NULL WHERE id = $1",
     )
-    .bind::<diesel::sql_types::Uuid, _>(message)
+    .bind::<SqlTypesUuid, _>(message)
     .execute(&mut pool.get().unwrap())
     .unwrap();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let message = Uuid::now_v7();
     let payload = created(id);
@@ -137,9 +142,9 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     kernel.shutdown();
     drop(kernel);
 
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     assert_eq!(offer(&pool), expected);
     for message in [message, title_message, price_message] {
         replay_inbox(&pool, message);
@@ -168,12 +173,12 @@ async fn receipt_progression_fidelity_updates_and_replay_survive_restart() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     for (kind, payload) in [
         (
@@ -191,7 +196,7 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
     let failed = run(&client, "commands", 100).await;
     assert!(failed["processed"].is_null());
     assert_eq!(failed["errors"].as_array().unwrap().len(), 2);
-    crate::tests::assert_batch_errors(&failed, 2);
+    assert_batch_errors(&failed, 2);
     assert_eq!(projection_counts(&pool), json!({"offers":0,"receipts":0}));
     assert_eq!(
         snapshot(
@@ -253,7 +258,7 @@ async fn missing_offer_updates_retry_after_creation_and_exhaust_visibly() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn failed_business_write_rolls_back_receipt_and_can_retry() {
     for (kind, fields, columns, predicate) in [
@@ -278,7 +283,7 @@ async fn failed_business_write_rolls_back_receipt_and_can_retry() {
     ] {
         let (_schema, pool) = database(true);
         let (kernel, state) = start_mulac(pool.clone()).unwrap();
-        let client = TestClient::new(crate::app(state));
+        let client = TestClient::new(app(state));
         let id = Uuid::now_v7();
         apply(&client, "OfferCreated", &created(id)).await;
         let before = offer(&pool);
@@ -323,12 +328,12 @@ async fn failed_business_write_rolls_back_receipt_and_can_retry() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn conflicting_creates_preserve_identity_and_url_comparison_is_exact() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let original = created(Uuid::now_v7());
     apply(&client, "OfferCreated", &original).await;
     let before = offer(&pool);
@@ -349,12 +354,12 @@ async fn conflicting_creates_preserve_identity_and_url_comparison_is_exact() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn malformed_and_unsupported_messages_fail_without_partial_changes() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     apply(&client, "OfferCreated", &created(id)).await;
     let before = offer(&pool);
@@ -417,11 +422,11 @@ pub(super) fn envelope(message: Uuid, kind: &str, payload: &Value) -> NewCommand
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 fn concurrent_original_message_has_one_effect_even_with_distinct_commands() {
     let (_schema, pool) = database(true);
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let message = Uuid::now_v7();
     let payload = created(Uuid::now_v7());
-    let barrier = std::sync::Barrier::new(3);
-    std::thread::scope(|scope| {
+    let barrier = Barrier::new(3);
+    thread_scope(|scope| {
         for _ in 0..3 {
             let command = envelope(message, "OfferCreated", &payload);
             let projection = &projection;
@@ -435,7 +440,7 @@ fn concurrent_original_message_has_one_effect_even_with_distinct_commands() {
     assert_eq!(projection_counts(&pool), json!({"offers":1,"receipts":1}));
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn additive_migration_keeps_existing_queued_work() {
     let (_schema, pool) = database(false);
@@ -455,7 +460,7 @@ async fn additive_migration_keeps_existing_queued_work() {
         )
         .unwrap();
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     submit(
         &client,
         "OfferCreated",
@@ -464,7 +469,7 @@ async fn additive_migration_keeps_existing_queued_work() {
     )
     .await;
     let before = snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i");
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(
         snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i"),
         before
@@ -475,14 +480,14 @@ async fn additive_migration_keeps_existing_queued_work() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn images_retry_reorder_deduplicate_and_keep_receipts_atomic() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let a = json!({"id":id,"image_url":"https://shop.example/A?x=1&y=2","position":0});
     let b = json!({"id":id,"image_url":"https://shop.example/B","position":1});
     let first_message = Uuid::now_v7();
@@ -503,8 +508,8 @@ async fn images_retry_reorder_deduplicate_and_keep_receipts_atomic() {
     assert_eq!(page["items"][0]["images"], json!([b["image_url"]]));
     let message = apply(&client, "OfferImageAdded", &a).await;
     apply(&client, "OfferImageAdded", &a).await;
-    let barrier = std::sync::Barrier::new(3);
-    std::thread::scope(|scope| {
+    let barrier = Barrier::new(3);
+    thread_scope(|scope| {
         for _ in 0..3 {
             let projection = &projection;
             let barrier = &barrier;
@@ -588,7 +593,7 @@ fn image_migration_preserves_existing_projection_and_receipts() {
             "../../migrations/2026-10-25-000001_offer_images/down.sql"
         ))
         .unwrap();
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let id = Uuid::now_v7();
     let command = envelope(Uuid::now_v7(), "OfferCreated", &created(id));
     projection.execute(&command).unwrap();
@@ -609,19 +614,19 @@ fn image_migration_preserves_existing_projection_and_receipts() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn creation_images_commit_with_parent_and_receipt_then_updates_append() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let mut payload = created(id);
     let a = "https://shop.example/A?x=1&y=2";
     let b = "https://shop.example/B";
     let c = "https://shop.example/C";
     payload["images"] = json!([a, b]);
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let message = Uuid::now_v7();
     let command = envelope(message, "OfferCreated", &payload);
     pool.get()
@@ -686,12 +691,12 @@ async fn creation_images_commit_with_parent_and_receipt_then_updates_append() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn scrape_time_is_monotonic_with_atomic_receipts_and_public_api_parity() {
     let (_schema, pool) = database(true);
     let (_kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let mut initial = created(id);
     initial["scraped_at"] = json!("2026-10-26T14:00:00.123456+02:00");
@@ -740,12 +745,12 @@ async fn scrape_time_is_monotonic_with_atomic_receipts_and_public_api_parity() {
     assert_eq!(projection_counts(&pool), before);
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn localization_and_identifiers_replace_decided_state_with_atomic_receipts() {
     let (_schema, pool) = database(true);
     let (_kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     apply(&client, "OfferCreated", &created(id)).await;
     let known = json!({"id":id,"localization":{"target_market":{"kind":"country","code":"CA"},"language":"fr"}});
@@ -791,11 +796,11 @@ async fn localization_and_identifiers_replace_decided_state_with_atomic_receipts
     assert_eq!(projection_counts(&pool), counts_before);
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn json_identifiers_replace_atomically_and_keep_browse_search_and_graphql_contracts() {
     let (_schema, pool) = database(true);
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let id = Uuid::now_v7();
     let mut payload = created(id);
     payload["gtin"] = json!("0001");
@@ -840,7 +845,7 @@ async fn json_identifiers_replace_atomically_and_keep_browse_search_and_graphql_
         .unwrap();
     assert_eq!(offer(&pool), decided);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for (path, field) in [
         ("/api/offers", "offers"),
         ("/api/offers/search?q=USB", "searchOffers(q: \"USB\")"),
@@ -891,7 +896,7 @@ async fn json_identifiers_replace_atomically_and_keep_browse_search_and_graphql_
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 fn missing_parent_json_update_retries_after_legacy_creation() {
     let (_schema, pool) = database(true);
-    let projection = crate::offer_projection::Projection(pool.clone());
+    let projection = Projection(pool.clone());
     let id = Uuid::now_v7();
     let message = Uuid::now_v7();
     let change = json!({"id":id,"gtin":null,"sku":"001","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":null,"shopify_handle":"preserved"}});

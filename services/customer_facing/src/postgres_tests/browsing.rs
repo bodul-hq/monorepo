@@ -1,17 +1,20 @@
 use super::*;
+use crate::app;
+use poem::Route;
+use tokio::test as tokio_test;
 
-async fn rest(client: &TestClient<poem::Route>, suffix: &str) -> Value {
+async fn rest(client: &TestClient<Route>, suffix: &str) -> Value {
     let response = client.get(format!("/api/offers{suffix}")).send().await;
     response.assert_status_is_ok();
     response.json().await.value().deserialize()
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn browse_projection_order_values_updates_and_reversible_index() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for index in 1..=31 {
         let amount = match index {
             1 => i64::MIN,

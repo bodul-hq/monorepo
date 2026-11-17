@@ -1,14 +1,18 @@
 use super::projection::{advance, apply, created, offer, projection_counts, replay_inbox, submit};
 use super::*;
+use crate::app;
+use bootstrap::migrate;
+use poem::Route;
+use tokio::test as tokio_test;
 
-async fn browse(client: &TestClient<poem::Route>) -> Value {
+async fn browse(client: &TestClient<Route>) -> Value {
     let response = client.get("/api/offers").send().await;
     response.assert_status_is_ok();
     let result: Value = response.json().await.value().deserialize();
     result["items"][0].clone()
 }
 
-async fn assert_reads(client: &TestClient<poem::Route>, expected: &Value) {
+async fn assert_reads(client: &TestClient<Route>, expected: &Value) {
     let actual = browse(client).await;
     assert_eq!(&actual, expected);
     let response = client.get("/api/offers/search?q=charger").send().await;
@@ -57,12 +61,12 @@ fn populated(id: Uuid) -> Value {
     payload
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn independent_status_and_content_updates_preserve_neighbors_and_historical_other_values() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let payload = populated(id);
     apply(&client, "OfferCreated", &payload).await;
@@ -143,12 +147,12 @@ async fn independent_status_and_content_updates_preserve_neighbors_and_historica
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn exact_pricing_pairs_change_independently_and_legacy_prices_only_hide_comparisons() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     apply(&client, "OfferCreated", &populated(id)).await;
     let mut stored = offer(&pool);
@@ -205,12 +209,12 @@ async fn exact_pricing_pairs_change_independently_and_legacy_prices_only_hide_co
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST and pg_trgm in customer_facing_extensions"]
 async fn facts_create_change_clear_and_replay_with_browse_search_transport_parity() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     let mut payload = created(id);
     payload["title"] = json!("USB charger");
@@ -352,12 +356,12 @@ async fn facts_create_change_clear_and_replay_with_browse_search_transport_parit
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn fact_updates_wait_for_creation_and_invalid_commands_leave_no_receipt() {
     let (_schema, pool) = database(true);
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::now_v7();
     for (kind, payload) in [
         (
@@ -423,7 +427,7 @@ async fn fact_updates_wait_for_creation_and_invalid_commands_leave_no_receipt() 
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn fact_migrations_preserve_old_rows_and_reject_incomplete_prices_and_status_shapes() {
     let (_schema, pool) = database(true);
@@ -432,7 +436,7 @@ async fn fact_migrations_preserve_old_rows_and_reject_incomplete_prices_and_stat
     let before = offer(&pool);
     pool.get().unwrap().batch_execute("INSERT INTO offer_images (offer_id,position,image_url) VALUES ('00000000-0000-0000-0000-000000000001',0,'https://example.com/image.png')").unwrap();
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     let id = Uuid::from_u128(1);
     for (kind, payload) in [
         (
@@ -473,7 +477,7 @@ async fn fact_migrations_preserve_old_rows_and_reject_incomplete_prices_and_stat
         &pool,
         "SELECT jsonb_agg(to_jsonb(r)) AS data FROM applied_offer_messages r",
     );
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     let migrated = offer(&pool);
     for field in [
         "was_price_amount",
@@ -506,7 +510,7 @@ async fn fact_migrations_preserve_old_rows_and_reject_incomplete_prices_and_stat
         ),
         receipts
     );
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(offer(&pool), migrated);
     assert_eq!(auxiliary(&pool), pending);
     advance(&client, "commands", 5).await;

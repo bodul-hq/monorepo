@@ -1,6 +1,12 @@
+use self::client as self_client;
 use super::*;
+use crate::app;
+use crate::queue_tests::state as queue_tests_state;
+use poem::Route;
 use poem::{http::StatusCode, test::TestClient};
+use serde_json::to_value;
 use serde_json::{Value, json};
+use tokio::test as tokio_test;
 
 struct Memory(Vec<Offer>);
 
@@ -68,13 +74,13 @@ fn fixture(index: u128) -> Offer {
     }
 }
 
-fn client(offers: Offers) -> TestClient<poem::Route> {
-    let mut state = crate::queue_tests::state();
+fn client(offers: Offers) -> TestClient<Route> {
+    let mut state = queue_tests_state();
     state.offers = offers;
-    TestClient::new(crate::app(state))
+    TestClient::new(app(state))
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn pagination_defaults_boundaries_and_transport_parity() {
     let client = client(offers((0..31).map(fixture).collect()));
     for (suffix, limit, offset, count, more) in [
@@ -162,7 +168,7 @@ async fn pagination_defaults_boundaries_and_transport_parity() {
         .await;
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn invalid_pagination_is_rejected_by_both_transports() {
     let client = client(offers(Vec::new()));
     for params in [
@@ -218,7 +224,7 @@ impl Repository for Broken {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn empty_pages_and_sanitized_read_failures() {
     client(offers(Vec::new()))
         .get("/api/offers")
@@ -245,7 +251,7 @@ async fn empty_pages_and_sanitized_read_failures() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn schema_exposes_bounds_and_string_money() {
     let client = client(offers(Vec::new()));
     let response = client.get("/api/openapi.json").send().await;
@@ -287,7 +293,7 @@ fn search_query_boundaries() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn search_defaults_validation_and_sanitized_failures() {
     let client = client(offers((0..31).map(fixture).collect()));
     let response = client
@@ -333,7 +339,7 @@ async fn search_defaults_validation_and_sanitized_failures() {
             .assert_status(StatusCode::BAD_REQUEST);
     }
     for panic in [false, true] {
-        let broken = self::client(Offers::new(Arc::new(Broken(panic))));
+        let broken = self_client(Offers::new(Arc::new(Broken(panic))));
         let response = broken.get("/api/offers/search?q=charger").send().await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
         response.assert_text("offers could not be retrieved").await;
@@ -350,7 +356,7 @@ async fn search_defaults_validation_and_sanitized_failures() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn search_normalizes_before_repository_and_fetches_one_extra() {
     struct Capture;
     impl Repository for Capture {
@@ -378,7 +384,7 @@ fn current_region_api_uses_code_for_new_and_historical_eu() {
     ] {
         let localization = OfferLocalization::from_record(Some(market), Some("en".into())).unwrap();
         assert_eq!(
-            serde_json::to_value(localization).unwrap(),
+            to_value(localization).unwrap(),
             json!({"target_market":{"kind":"region","code":"eu","label":null},"language":"en"})
         );
     }

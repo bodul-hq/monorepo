@@ -1,7 +1,11 @@
+use crate::app_with_reporting_token;
+use crate::queue_tests::state as queue_tests_state;
+use poem::Route;
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
 };
+use tokio::test as tokio_test;
 
 use poem::{http::StatusCode, test::TestClient};
 use serde_json::{Value, json};
@@ -62,13 +66,13 @@ const PATHS: [&str; 2] = [
     "/api/reporting/entry-statuses",
 ];
 
-fn client(repository: Arc<Fixture>, token: &str) -> TestClient<poem::Route> {
-    let mut state = crate::queue_tests::state();
+fn client(repository: Arc<Fixture>, token: &str) -> TestClient<Route> {
+    let mut state = queue_tests_state();
     state.reporting = Reporting::new(repository);
-    TestClient::new(crate::app_with_reporting_token(state, token.into()))
+    TestClient::new(app_with_reporting_token(state, token.into()))
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn auth_precedes_database_access_and_reports_are_never_cached() {
     for token in ["test-token", ""] {
         let repository = Arc::new(Fixture {
@@ -99,7 +103,7 @@ async fn auth_precedes_database_access_and_reports_are_never_cached() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn empty_reports_and_openapi_match_existing_contracts() {
     let client = client(
         Arc::new(Fixture {
@@ -163,7 +167,7 @@ async fn empty_reports_and_openapi_match_existing_contracts() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn database_and_task_failures_are_sanitized() {
     for (error, panic, status, message) in [
         (

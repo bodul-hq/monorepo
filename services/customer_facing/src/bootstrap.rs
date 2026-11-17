@@ -1,5 +1,12 @@
 //! Database configuration and service-owned queue migrations.
 
+use diesel::QueryableByName;
+use diesel::sql_query;
+use diesel::sql_types::Bool;
+use io::Error as IoError;
+use io::ErrorKind;
+use io::Result as IoResult;
+use std::env::var;
 use std::{env::VarError, io, time::Duration};
 
 use diesel::{PgConnection, RunQueryDsl, r2d2::ConnectionManager};
@@ -8,57 +15,57 @@ use kernel::prelude::DbPool;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
-pub fn database_pool() -> io::Result<DbPool> {
-    connect(&database_url(std::env::var("DATABASE_URL"))?)
+pub fn database_pool() -> IoResult<DbPool> {
+    connect(&database_url(var("DATABASE_URL"))?)
 }
 
-fn database_url(value: Result<String, VarError>) -> io::Result<String> {
+fn database_url(value: Result<String, VarError>) -> IoResult<String> {
     match value {
-        Ok(value) if value.trim().is_empty() => Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
+        Ok(value) if value.trim().is_empty() => Err(IoError::new(
+            ErrorKind::InvalidInput,
             "DATABASE_URL cannot be empty",
         )),
         Ok(value) => Ok(value),
-        Err(VarError::NotPresent) => Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
+        Err(VarError::NotPresent) => Err(IoError::new(
+            ErrorKind::InvalidInput,
             "DATABASE_URL is required",
         )),
-        Err(VarError::NotUnicode(_)) => Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
+        Err(VarError::NotUnicode(_)) => Err(IoError::new(
+            ErrorKind::InvalidInput,
             "DATABASE_URL must be valid Unicode",
         )),
     }
 }
 
-fn connect(url: &str) -> io::Result<DbPool> {
+fn connect(url: &str) -> IoResult<DbPool> {
     let pool = DbPool::builder()
         .connection_timeout(Duration::from_secs(5))
         .build(ConnectionManager::<PgConnection>::new(url))
-        .map_err(|_| io::Error::other("could not connect to the customer facing database"))?;
+        .map_err(|_| IoError::other("could not connect to the customer facing database"))?;
     migrate(&pool)?;
     Ok(pool)
 }
 
-pub fn migrate(pool: &DbPool) -> io::Result<()> {
+pub fn migrate(pool: &DbPool) -> IoResult<()> {
     let mut connection = pool
         .get()
-        .map_err(|_| io::Error::other("could not acquire a database connection"))?;
-    #[derive(diesel::QueryableByName)]
+        .map_err(|_| IoError::other("could not acquire a database connection"))?;
+    #[derive(QueryableByName)]
     struct Prerequisite {
-        #[diesel(sql_type = diesel::sql_types::Bool)]
+        #[diesel(sql_type = Bool)]
         ready: bool,
     }
-    let prerequisite = diesel::sql_query("SELECT EXISTS (SELECT 1 FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname='pg_trgm' AND n.nspname='customer_facing_extensions') AS ready")
+    let prerequisite = sql_query("SELECT EXISTS (SELECT 1 FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE e.extname='pg_trgm' AND n.nspname='customer_facing_extensions') AS ready")
         .get_result::<Prerequisite>(&mut connection)
-        .map_err(|_| io::Error::other("could not check customer facing search prerequisite"))?;
+        .map_err(|_| IoError::other("could not check customer facing search prerequisite"))?;
     if !prerequisite.ready {
-        return Err(io::Error::other(
+        return Err(IoError::other(
             "provision pg_trgm in customer_facing_extensions before starting customer facing",
         ));
     }
     connection
         .run_pending_migrations(MIGRATIONS)
-        .map_err(|_| io::Error::other("customer facing database migrations failed"))?;
+        .map_err(|_| IoError::other("customer facing database migrations failed"))?;
     Ok(())
 }
 
