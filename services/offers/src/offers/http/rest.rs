@@ -1,3 +1,4 @@
+use self::inbox::SubmitInboxRequest as InboxSubmitInboxRequest;
 use ::inbox::prelude as inbox;
 use ::inbox::prelude::poem::{InboxAdapter, InboxSubmission, SubmitInboxRequest};
 use poem::{Error, Result, http::StatusCode};
@@ -8,29 +9,27 @@ pub(crate) use self::model::ImportOfferRequest;
 const IMPORT_SOURCE: &str = "offers-api";
 
 mod model {
+    use poem_openapi::types::Any;
+    use poem_openapi::types::MaybeUndefined as TypesMaybeUndefined;
+    use retailer_sauce::availability::Availability;
+    use retailer_sauce::identifier::ExternalIdentifiers;
+    use retailer_sauce::item_condition::ItemCondition;
+    use retailer_sauce::localization::Localization;
+    use retailer_sauce::structuralized::content::Content;
+    use serde_json::Value as SerdeJsonValue;
+
     use poem_openapi::Object;
 
     #[derive(Object)]
     pub struct ImportOfferRequest {
-        pub was_price:
-            poem_openapi::types::MaybeUndefined<poem_openapi::types::Any<serde_json::Value>>,
-        pub availability: poem_openapi::types::MaybeUndefined<
-            poem_openapi::types::Any<retailer_sauce::availability::Availability>,
-        >,
-        pub item_condition: poem_openapi::types::MaybeUndefined<
-            poem_openapi::types::Any<retailer_sauce::item_condition::ItemCondition>,
-        >,
-        pub content: poem_openapi::types::MaybeUndefined<
-            poem_openapi::types::Any<retailer_sauce::structuralized::content::Content>,
-        >,
+        pub was_price: TypesMaybeUndefined<Any<SerdeJsonValue>>,
+        pub availability: TypesMaybeUndefined<Any<Availability>>,
+        pub item_condition: TypesMaybeUndefined<Any<ItemCondition>>,
+        pub content: TypesMaybeUndefined<Any<Content>>,
         pub gtin: Option<String>,
         pub sku: Option<String>,
-        pub external_identifiers: poem_openapi::types::MaybeUndefined<
-            poem_openapi::types::Any<retailer_sauce::identifier::ExternalIdentifiers>,
-        >,
-        pub localization: poem_openapi::types::MaybeUndefined<
-            poem_openapi::types::Any<retailer_sauce::localization::Localization>,
-        >,
+        pub external_identifiers: TypesMaybeUndefined<Any<ExternalIdentifiers>>,
+        pub localization: TypesMaybeUndefined<Any<Localization>>,
         pub scraped_at: Option<String>,
         #[oai(default)]
         pub images: Vec<String>,
@@ -44,6 +43,19 @@ mod model {
 }
 
 mod conversion {
+    use self::inbox::SubmitInboxRequest as InboxSubmitInboxRequest;
+    use crate::offers::event::guard_was_price;
+    use chrono::DateTime;
+    use chrono::ParseError;
+    use chrono::Utc;
+    use money::Money as MoneyMoney;
+    use retailer_sauce::identifier::Gtin;
+    use retailer_sauce::identifier::ProductIdentifiers;
+    use retailer_sauce::identifier::Sku;
+    use retailer_sauce::observation::object as observation_object;
+    use serde_json::Value as SerdeJsonValue;
+    use std::fmt::Display;
+
     use money::Currency;
     use serde_json::json;
     use shared::retailer::RetailerCode;
@@ -59,7 +71,7 @@ mod conversion {
         "localization must be an object".into()
     }
 
-    fn err_invalid_was_price(error: impl std::fmt::Display) -> String {
+    fn err_invalid_was_price(error: impl Display) -> String {
         format!("invalid was_price: {error}")
     }
 
@@ -67,18 +79,18 @@ mod conversion {
         "content must be an object".into()
     }
 
-    fn err_invalid_scraped_at(error: chrono::ParseError) -> String {
+    fn err_invalid_scraped_at(error: ParseError) -> String {
         format!("invalid scraped_at: {error}")
     }
 
-    impl TryFrom<ImportOfferRequest> for inbox::SubmitInboxRequest {
+    impl TryFrom<ImportOfferRequest> for InboxSubmitInboxRequest {
         type Error = String;
 
         fn try_from(request: ImportOfferRequest) -> Result<Self, Self::Error> {
             let scraped_at = request
                 .scraped_at
                 .as_deref()
-                .map(str::parse::<chrono::DateTime<chrono::Utc>>)
+                .map(str::parse::<DateTime<Utc>>)
                 .transpose()
                 .map_err(err_invalid_scraped_at)?;
             let retailer_code = RetailerCode::from_str(&request.retailer_code)?;
@@ -95,12 +107,12 @@ mod conversion {
             use poem_openapi::types::MaybeUndefined;
             match request.was_price {
                 MaybeUndefined::Undefined => {}
-                MaybeUndefined::Null => payload["was_price"] = serde_json::Value::Null,
+                MaybeUndefined::Null => payload["was_price"] = SerdeJsonValue::Null,
                 MaybeUndefined::Value(value) => {
-                    let was_price: money::Money = retailer_sauce::observation::object(value.0)
-                        .map_err(err_invalid_was_price)?;
-                    crate::offers::event::guard_was_price(
-                        &money::Money::new(request.price_amount, currency),
+                    let was_price: MoneyMoney =
+                        observation_object(value.0).map_err(err_invalid_was_price)?;
+                    guard_was_price(
+                        &MoneyMoney::new(request.price_amount, currency),
                         Some(&was_price),
                     )?;
                     payload["was_price"] = json!(was_price);
@@ -108,7 +120,7 @@ mod conversion {
             }
             match request.availability {
                 MaybeUndefined::Undefined => {}
-                MaybeUndefined::Null => payload["availability"] = serde_json::Value::Null,
+                MaybeUndefined::Null => payload["availability"] = SerdeJsonValue::Null,
                 MaybeUndefined::Value(value) => {
                     value.0.guard()?;
                     payload["availability"] = json!(value.0);
@@ -116,7 +128,7 @@ mod conversion {
             }
             match request.item_condition {
                 MaybeUndefined::Undefined => {}
-                MaybeUndefined::Null => payload["item_condition"] = serde_json::Value::Null,
+                MaybeUndefined::Null => payload["item_condition"] = SerdeJsonValue::Null,
                 MaybeUndefined::Value(value) => {
                     value.0.guard()?;
                     payload["item_condition"] = json!(value.0);
@@ -134,24 +146,20 @@ mod conversion {
                 payload["scraped_at"] = json!(scraped_at);
             }
             match request.localization {
-                poem_openapi::types::MaybeUndefined::Undefined => {}
-                poem_openapi::types::MaybeUndefined::Null => return Err(err_null_localization()),
-                poem_openapi::types::MaybeUndefined::Value(value) => {
+                MaybeUndefined::Undefined => {}
+                MaybeUndefined::Null => return Err(err_null_localization()),
+                MaybeUndefined::Value(value) => {
                     payload["localization"] = json!(value.0);
                 }
             }
             let external_identifiers = match request.external_identifiers {
-                poem_openapi::types::MaybeUndefined::Undefined => Default::default(),
-                poem_openapi::types::MaybeUndefined::Null => return Err(err_null_identifiers()),
-                poem_openapi::types::MaybeUndefined::Value(value) => value.0,
+                MaybeUndefined::Undefined => Default::default(),
+                MaybeUndefined::Null => return Err(err_null_identifiers()),
+                MaybeUndefined::Value(value) => value.0,
             };
-            let identifiers = retailer_sauce::identifier::ProductIdentifiers {
-                gtin: request
-                    .gtin
-                    .map(|value| retailer_sauce::identifier::Gtin { value }),
-                sku: request
-                    .sku
-                    .map(|value| retailer_sauce::identifier::Sku { value }),
+            let identifiers = ProductIdentifiers {
+                gtin: request.gtin.map(|value| Gtin { value }),
+                sku: request.sku.map(|value| Sku { value }),
                 external_identifiers,
             };
             identifiers.guard()?;
@@ -191,7 +199,7 @@ impl OffersApi {
     #[oai(path = "/tmp-import", method = "post")]
     async fn tmp_import(&self, request: Json<ImportOfferRequest>) -> Result<InboxSubmission> {
         let submission =
-            inbox::SubmitInboxRequest::try_from(request.0).map_err(err_invalid_import_request)?;
+            InboxSubmitInboxRequest::try_from(request.0).map_err(err_invalid_import_request)?;
         self.inbox
             .submit(Json(SubmitInboxRequest(submission)))
             .await
@@ -204,6 +212,16 @@ fn err_invalid_import_request(message: String) -> Error {
 
 #[cfg(test)]
 mod tests {
+    use self::inbox::SubmitInboxRequest as InboxSubmitInboxRequest;
+    use crate::app;
+    use crate::test_pool;
+    use poem::test::TestClient;
+    use retailer_sauce::availability::Availability;
+    use retailer_sauce::item_condition::ItemCondition;
+    use serde_json::Value as SerdeJsonValue;
+    use serde_json::from_value;
+    use tokio::test as tokio_test;
+
     use money::{Currency, Money};
     use poem_openapi::types::ParseFromJSON;
     use retailer_sauce::observation::Observation;
@@ -213,15 +231,15 @@ mod tests {
     use super::*;
     use crate::offers::command::{CREATE_FROM_OFFER_DETAILS_COMMAND, ImportOfferDetailsCommand};
 
-    fn import_request_json() -> serde_json::Value {
+    fn import_request_json() -> SerdeJsonValue {
         json!({"retailer_code":"ankerau","title":"Charger","price_amount":1999,"currency":"AUD","url":"https://example.com/charger"})
     }
 
-    fn submitted_payload(input: serde_json::Value) -> serde_json::Value {
+    fn submitted_payload(input: SerdeJsonValue) -> SerdeJsonValue {
         let request = ImportOfferRequest::parse_from_json(Some(input))
             .map_err(|error| error.into_message())
             .unwrap();
-        inbox::SubmitInboxRequest::try_from(request)
+        InboxSubmitInboxRequest::try_from(request)
             .unwrap()
             .payload
             .unwrap()
@@ -233,7 +251,7 @@ mod tests {
         for field in ["was_price", "availability", "item_condition", "content"] {
             assert!(payload.get(field).is_none(), "{field}");
         }
-        let command: ImportOfferDetailsCommand = serde_json::from_value(payload).unwrap();
+        let command: ImportOfferDetailsCommand = from_value(payload).unwrap();
         assert_eq!(command.was_price, Observation::Missing);
         assert_eq!(command.availability, Observation::Missing);
         assert_eq!(command.item_condition, Observation::Missing);
@@ -241,14 +259,14 @@ mod tests {
 
         let mut input = import_request_json();
         for field in ["was_price", "availability", "item_condition"] {
-            input[field] = serde_json::Value::Null;
+            input[field] = SerdeJsonValue::Null;
         }
         input["content"] = json!({"description":null});
         let payload = submitted_payload(input);
         for field in ["was_price", "availability", "item_condition"] {
-            assert_eq!(payload.get(field), Some(&serde_json::Value::Null));
+            assert_eq!(payload.get(field), Some(&SerdeJsonValue::Null));
         }
-        let command: ImportOfferDetailsCommand = serde_json::from_value(payload).unwrap();
+        let command: ImportOfferDetailsCommand = from_value(payload).unwrap();
         assert_eq!(command.was_price, Observation::Observed(None));
         assert_eq!(command.availability, Observation::Observed(None));
         assert_eq!(command.item_condition, Observation::Observed(None));
@@ -264,20 +282,18 @@ mod tests {
         for (field, expected) in facts.as_object().unwrap() {
             assert_eq!(&payload[field], expected);
         }
-        let command: ImportOfferDetailsCommand = serde_json::from_value(payload).unwrap();
+        let command: ImportOfferDetailsCommand = from_value(payload).unwrap();
         assert_eq!(
             command.was_price,
             Observation::Observed(Some(Money::new(2499, Currency::AUD)))
         );
         assert_eq!(
             command.availability,
-            Observation::Observed(Some(retailer_sauce::availability::Availability::Other(
-                "custom source value".into()
-            )))
+            Observation::Observed(Some(Availability::Other("custom source value".into())))
         );
         assert_eq!(
             command.item_condition,
-            Observation::Observed(Some(retailer_sauce::item_condition::ItemCondition::New))
+            Observation::Observed(Some(ItemCondition::New))
         );
         assert_eq!(
             command.content.unwrap().description.as_deref(),
@@ -285,9 +301,9 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn invalid_facts_are_rejected_before_inbox_storage() {
-        let client = poem::test::TestClient::new(crate::app(crate::test_pool()));
+        let client = TestClient::new(app(test_pool()));
         for (field, value) in [
             ("was_price", json!({"amount":1999,"currency":"AUD"})),
             ("was_price", json!({"amount":2999,"currency":"USD"})),
@@ -333,7 +349,7 @@ mod tests {
                 url: "https://example.com/Charger?q=red#details".into(),
             };
 
-            let submission = inbox::SubmitInboxRequest::try_from(request).unwrap();
+            let submission = InboxSubmitInboxRequest::try_from(request).unwrap();
 
             assert_eq!(submission.routing_key, CREATE_FROM_OFFER_DETAILS_COMMAND);
             assert_eq!(submission.source.as_deref(), Some(IMPORT_SOURCE));
@@ -352,7 +368,7 @@ mod tests {
                 })
             );
 
-            let decoded: ImportOfferDetailsCommand = serde_json::from_value(payload).unwrap();
+            let decoded: ImportOfferDetailsCommand = from_value(payload).unwrap();
             assert_eq!(decoded.retailer_code, RetailerCode::AnkerAu);
             assert_eq!(decoded.title, " USB charger ");
             assert_eq!(decoded.price, Money::new(amount, Currency::AUD));

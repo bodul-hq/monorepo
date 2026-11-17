@@ -1,6 +1,19 @@
+use crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT as EVENT_OFFER_AVAILABILITY_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENT_CHANGED_EVENT as EVENT_OFFER_CONTENT_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT as EVENT_OFFER_CONTENTS_CHANGED_EVENT;
+use crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT;
+use crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT as EVENT_OFFER_ITEM_CONDITION_CHANGED_EVENT;
+use crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT;
+use crate::offers::event::OFFER_PRICING_CHANGED_EVENT as EVENT_OFFER_PRICING_CHANGED_EVENT;
+use diesel::sql_query;
 use diesel::{RunQueryDsl, sql_types};
+#[cfg(test)]
+use kernel::NewEventMetadata;
 use kernel::{EventError, EventSubscriberPort, NewEventEnvelope};
+use serde_json::json as serde_json_json;
 use testimony_infra::prelude::DbPool;
+#[cfg(test)]
+use uuid::Uuid;
 
 use crate::offers::event::{
     OFFER_CREATED_EVENT, OFFER_IMAGE_ADDED_EVENT, OFFER_PRICE_CHANGED_EVENT,
@@ -26,13 +39,13 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
                 | OFFER_PRICE_CHANGED_EVENT
                 | OFFER_IMAGE_ADDED_EVENT
                 | OFFER_SCRAPED_AT_UPDATED_EVENT
-                | crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT
-                | crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT
-                | crate::offers::event::OFFER_PRICING_CHANGED_EVENT
-                | crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT
-                | crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT
-                | crate::offers::event::OFFER_CONTENT_CHANGED_EVENT
-                | crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT
+                | OFFER_LOCALIZATION_CHANGED_EVENT
+                | OFFER_IDENTIFIERS_CHANGED_EVENT
+                | EVENT_OFFER_PRICING_CHANGED_EVENT
+                | EVENT_OFFER_AVAILABILITY_CHANGED_EVENT
+                | EVENT_OFFER_ITEM_CONDITION_CHANGED_EVENT
+                | EVENT_OFFER_CONTENT_CHANGED_EVENT
+                | EVENT_OFFER_CONTENTS_CHANGED_EVENT
         ) {
             return Ok(());
         }
@@ -40,7 +53,7 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             .metadata
             .as_ref()
             .ok_or_else(err_missing_metadata)?;
-        let mut meta = serde_json::json!({
+        let mut meta = serde_json_json!({
             "event_id": metadata.event_id,
             "message_id": metadata.event_id,
             "correlation_id": metadata.correlation_id,
@@ -51,11 +64,11 @@ impl EventSubscriberPort for CustomerFacingSubscriber {
             "content_type": "application/json",
         });
         if let Some(sequence) = metadata.sequence {
-            meta["sequence"] = serde_json::json!(sequence);
+            meta["sequence"] = serde_json_json!(sequence);
         }
         let mut connection = self.pool.get().map_err(err_outbox_write_failed)?;
         // The source event ID makes re-delivery of the same event idempotent.
-        diesel::sql_query(
+        sql_query(
             "INSERT INTO outbox_entries (id, payload, meta) VALUES ($1, $2, $3) \
              ON CONFLICT (id) DO NOTHING",
         )
@@ -122,9 +135,9 @@ mod tests {
         let envelope = NewEventEnvelope {
             event_type: OFFER_CREATED_EVENT.to_owned(),
             payload: "{}".to_owned(),
-            metadata: Some(kernel::NewEventMetadata {
+            metadata: Some(NewEventMetadata {
                 sequence: None,
-                event_id: uuid::Uuid::new_v4(),
+                event_id: Uuid::new_v4(),
                 correlation_id: None,
                 causation_id: None,
                 source: None,

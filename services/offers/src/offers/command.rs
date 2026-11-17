@@ -1,6 +1,19 @@
+use chrono::DateTime;
+use chrono::Utc;
 use kernel::ApplicationCommand;
 use money::Money;
+use retailer_sauce::availability::Availability;
+use retailer_sauce::identifier::ExternalIdentifiers;
+use retailer_sauce::identifier::Gtin;
+use retailer_sauce::identifier::ProductIdentifiers;
+use retailer_sauce::identifier::Sku;
+use retailer_sauce::item_condition::ItemCondition;
+use retailer_sauce::localization::Localization;
+use retailer_sauce::localization::observation as retailer_sauce_localization_observation;
 use retailer_sauce::observation::Observation;
+use retailer_sauce::observation::object_observation as retailer_sauce_observation_object_observation;
+use retailer_sauce::structuralized::content::Content;
+use retailer_sauce::structuralized::content::observation as retailer_sauce_structuralized_content_observation;
 use serde::{Deserialize, Serialize};
 use shared::retailer::RetailerCode;
 
@@ -13,34 +26,34 @@ pub struct ImportOfferDetailsCommand {
     #[serde(
         default,
         skip_serializing_if = "Observation::is_missing",
-        deserialize_with = "retailer_sauce::observation::object_observation"
+        deserialize_with = "retailer_sauce_observation_object_observation"
     )]
     pub was_price: Observation<Money>,
     #[serde(default, skip_serializing_if = "Observation::is_missing")]
-    pub availability: Observation<retailer_sauce::availability::Availability>,
+    pub availability: Observation<Availability>,
     #[serde(default, skip_serializing_if = "Observation::is_missing")]
-    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    pub item_condition: Observation<ItemCondition>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
-        deserialize_with = "retailer_sauce::structuralized::content::observation"
+        deserialize_with = "retailer_sauce_structuralized_content_observation"
     )]
-    pub content: Option<retailer_sauce::structuralized::content::Content>,
+    pub content: Option<Content>,
 
     #[serde(default)]
-    pub gtin: Option<retailer_sauce::identifier::Gtin>,
+    pub gtin: Option<Gtin>,
     #[serde(default)]
-    pub sku: Option<retailer_sauce::identifier::Sku>,
+    pub sku: Option<Sku>,
     #[serde(default)]
-    pub external_identifiers: retailer_sauce::identifier::ExternalIdentifiers,
+    pub external_identifiers: ExternalIdentifiers,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
-        deserialize_with = "retailer_sauce::localization::observation"
+        deserialize_with = "retailer_sauce_localization_observation"
     )]
-    pub localization: Option<retailer_sauce::localization::Localization>,
+    pub localization: Option<Localization>,
     #[serde(default)]
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub images: Vec<String>,
     pub retailer_code: RetailerCode,
@@ -59,6 +72,13 @@ impl ApplicationCommand for ImportOfferDetailsCommand {
 
 #[cfg(test)]
 mod export_contract_tests {
+    use serde_json::from_value;
+
+    use money::Currency;
+    use serde_json::Value;
+    use serde_json::from_str;
+    use serde_json::json as serde_json_json;
+
     use super::*;
 
     #[test]
@@ -66,11 +86,11 @@ mod export_contract_tests {
         let fixture = include_str!(
             "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload.json"
         );
-        let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+        let command: ImportOfferDetailsCommand = from_str(fixture).unwrap();
         assert_eq!(command.command_type(), "ImportOfferDetails");
         assert_eq!(command.retailer_code, RetailerCode::AnkerAu);
         assert_eq!(command.title, " USB charger ž ");
-        assert_eq!(command.price, Money::new(1999, money::Currency::AUD));
+        assert_eq!(command.price, Money::new(1999, Currency::AUD));
         assert_eq!(
             command.url,
             "https://shop.example/Charger?q=red&variant=1#details"
@@ -79,37 +99,37 @@ mod export_contract_tests {
 
     #[test]
     fn legacy_and_v2_imports_have_strict_array_types() {
-        let mut input: serde_json::Value = serde_json::from_str(include_str!(
+        let mut input: Value = from_str(include_str!(
             "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload.json"
         ))
         .unwrap();
         assert!(
-            serde_json::from_value::<ImportOfferDetailsCommand>(input.clone())
+            from_value::<ImportOfferDetailsCommand>(input.clone())
                 .unwrap()
                 .images
                 .is_empty()
         );
-        input["images"] = serde_json::json!(["https://shop.example/a", "/invalid"]);
+        input["images"] = serde_json_json!(["https://shop.example/a", "/invalid"]);
         assert_eq!(
-            serde_json::from_value::<ImportOfferDetailsCommand>(input.clone())
+            from_value::<ImportOfferDetailsCommand>(input.clone())
                 .unwrap()
                 .images
                 .len(),
             2
         );
         for value in [
-            serde_json::json!(null),
-            serde_json::json!("url"),
-            serde_json::json!([3]),
+            serde_json_json!(null),
+            serde_json_json!("url"),
+            serde_json_json!([3]),
         ] {
             input["images"] = value;
-            assert!(serde_json::from_value::<ImportOfferDetailsCommand>(input.clone()).is_err());
+            assert!(from_value::<ImportOfferDetailsCommand>(input.clone()).is_err());
         }
     }
 
     #[test]
     fn accepts_sourcing_v2_fixture() {
-        let command: ImportOfferDetailsCommand = serde_json::from_str(include_str!(
+        let command: ImportOfferDetailsCommand = from_str(include_str!(
             "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v2.json"
         ))
         .unwrap();
@@ -120,12 +140,12 @@ mod export_contract_tests {
 #[derive(Default)]
 pub struct OfferObservation {
     pub was_price: Observation<Money>,
-    pub availability: Observation<retailer_sauce::availability::Availability>,
-    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
-    pub content: Option<retailer_sauce::structuralized::content::Content>,
-    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
-    pub localization: Option<retailer_sauce::localization::Localization>,
+    pub availability: Observation<Availability>,
+    pub item_condition: Observation<ItemCondition>,
+    pub content: Option<Content>,
+    pub identifiers: ProductIdentifiers,
+    pub scraped_at: Option<DateTime<Utc>>,
+    pub localization: Option<Localization>,
 }
 impl OfferObservation {
     pub fn guard(&self) -> Result<(), String> {
@@ -148,6 +168,8 @@ impl OfferObservation {
 
 #[cfg(test)]
 mod extended_contract_tests {
+    use serde_json::from_str;
+
     use super::*;
     #[test]
     fn shared_v3_to_v5_fixtures_preserve_fields_and_validate_before_mutation() {
@@ -162,7 +184,7 @@ mod extended_contract_tests {
                 "../../../retailer_sourcing/tests/fixtures/offer_export/import_payload_v5.json"
             ),
         ] {
-            let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+            let command: ImportOfferDetailsCommand = from_str(fixture).unwrap();
             assert!(command.scraped_at.is_some());
             if let Some(localization) = command.localization {
                 assert_eq!(localization.language.as_deref(), Some("en-AU"));
@@ -177,6 +199,8 @@ mod extended_contract_tests {
 
 #[cfg(test)]
 mod facts_contract_tests {
+    use serde_json::from_str;
+
     use super::*;
     #[test]
     fn accepts_new_sourcing_versions_without_losing_observation_semantics() {
@@ -200,7 +224,7 @@ mod facts_contract_tests {
                 ),
             ),
         ] {
-            let command: ImportOfferDetailsCommand = serde_json::from_str(fixture).unwrap();
+            let command: ImportOfferDetailsCommand = from_str(fixture).unwrap();
             assert_eq!(command.was_price.value().unwrap().amount(), 2999);
             assert_eq!(!command.availability.is_missing(), version >= 7);
             assert_eq!(command.content.is_some(), version >= 8);

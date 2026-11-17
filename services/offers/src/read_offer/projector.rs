@@ -2,10 +2,31 @@ use super::{
     entity::RetailerOffer,
     repository::{RetailerOfferRepository, RetailerOfferRepositoryError},
 };
+use crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENT_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT;
+use crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT;
+use crate::offers::event::OFFER_IMAGE_ADDED_EVENT;
+use crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT;
+use crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT;
+use crate::offers::event::OFFER_PRICE_CHANGED_EVENT;
+use crate::offers::event::OFFER_PRICING_CHANGED_EVENT;
+use crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT;
+use crate::offers::event::OFFER_TITLE_CHANGED_EVENT;
+use crate::offers::event::OfferAvailabilityChangedEvent;
+use crate::offers::event::OfferContentChangedEvent;
+use crate::offers::event::OfferContentsChangedEvent;
+use crate::offers::event::OfferIdentifiersChangedEvent;
+use crate::offers::event::OfferItemConditionChangedEvent;
+use crate::offers::event::OfferLocalizationChangedEvent;
+use crate::offers::event::OfferPricingChangedEvent;
+use crate::offers::event::OfferScrapedAtUpdatedEvent;
 use crate::offers::event::{
     OFFER_CREATED_EVENT, OfferCreatedEvent, OfferPriceChangedEvent, OfferTitleChangedEvent,
 };
 use kernel::{EventError, EventSubscriberPort, NewEventEnvelope};
+use serde_json::Error as SerdeJsonError;
+use serde_json::from_str as serde_json_from_str;
 
 pub struct RetailerOfferProjector<R> {
     repository: R,
@@ -20,71 +41,71 @@ impl<R: RetailerOfferRepository> RetailerOfferProjector<R> {
 impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<R> {
     fn handle(&self, envelope: &NewEventEnvelope) -> Result<(), EventError> {
         match envelope.event_type.as_str() {
-            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferContentsChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_CONTENTS_CHANGED_EVENT => {
+                let event: OfferContentsChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_contents(&event.id, &event.content, &event.language)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferContentChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_CONTENT_CHANGED_EVENT => {
+                let event: OfferContentChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_content(&event.id, &event.content)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferItemConditionChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_ITEM_CONDITION_CHANGED_EVENT => {
+                let event: OfferItemConditionChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_item_condition(&event.id, &event.item_condition)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferAvailabilityChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_AVAILABILITY_CHANGED_EVENT => {
+                let event: OfferAvailabilityChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_availability(&event.id, &event.availability)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_PRICING_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferPricingChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_PRICING_CHANGED_EVENT => {
+                let event: OfferPricingChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_pricing(&event.id, &event.pricing)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferIdentifiersChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_IDENTIFIERS_CHANGED_EVENT => {
+                let event: OfferIdentifiersChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_identifiers(&event.id, &event.identifiers)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT => {
-                let event: crate::offers::event::OfferLocalizationChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_LOCALIZATION_CHANGED_EVENT => {
+                let event: OfferLocalizationChangedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_localization(&event.id, &event.localization)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT => {
-                let event: crate::offers::event::OfferScrapedAtUpdatedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_SCRAPED_AT_UPDATED_EVENT => {
+                let event: OfferScrapedAtUpdatedEvent =
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_scraped_at(&event.id, event.scraped_at)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_IMAGE_ADDED_EVENT => {
-                let event = serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+            OFFER_IMAGE_ADDED_EVENT => {
+                let event = serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .add_image(&event)
                     .map_err(err_projection_failed)
             }
             OFFER_CREATED_EVENT => {
                 let event: OfferCreatedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
 
                 let entity = RetailerOffer {
                     facts: event.facts,
@@ -104,16 +125,16 @@ impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<
                     .insert(&entity)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_TITLE_CHANGED_EVENT => {
+            OFFER_TITLE_CHANGED_EVENT => {
                 let event: OfferTitleChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_title(&event.id, &event.title)
                     .map_err(err_projection_failed)
             }
-            crate::offers::event::OFFER_PRICE_CHANGED_EVENT => {
+            OFFER_PRICE_CHANGED_EVENT => {
                 let event: OfferPriceChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_price(&event.id, &event.price)
                     .map_err(err_projection_failed)
@@ -123,7 +144,7 @@ impl<R: RetailerOfferRepository> EventSubscriberPort for RetailerOfferProjector<
     }
 }
 
-fn err_invalid_event(error: serde_json::Error) -> EventError {
+fn err_invalid_event(error: SerdeJsonError) -> EventError {
     EventError::Conversion(error.to_string())
 }
 
@@ -133,6 +154,28 @@ fn err_projection_failed(error: RetailerOfferRepositoryError) -> EventError {
 
 #[cfg(test)]
 mod tests {
+    use crate::offers::event::OFFER_PRICE_CHANGED_EVENT;
+    use crate::offers::event::OFFER_TITLE_CHANGED_EVENT;
+    use crate::offers::event::OfferImageAddedEvent;
+    use crate::offers::event::Pricing;
+    use crate::read_offer::repository::PostgresRetailerOfferRepository;
+    use crate::test_pool;
+    use chrono::DateTime;
+    use chrono::Utc;
+    use money::Currency;
+    use money::Money;
+    use retailer_sauce::availability::Availability;
+    use retailer_sauce::identifier::ProductIdentifiers;
+    use retailer_sauce::item_condition::ItemCondition;
+    use retailer_sauce::localization::Localization;
+    use retailer_sauce::offer_content::Content as OfferContentContent;
+    use retailer_sauce::offer_content::legacy_description;
+    use retailer_sauce::offer_content::selected;
+    use retailer_sauce::structuralized::content::Content as ContentContent;
+    use serde_json::to_string as serde_json_to_string;
+    use shared::retailer::RetailerCode;
+    use uuid::Uuid;
+
     use super::*;
     use crate::offers::event::RetailerOfferEvent;
     use crate::offers::retailer_offer_id::RetailerOfferId;
@@ -145,16 +188,13 @@ mod tests {
         fn update_contents(
             &self,
             id: &RetailerOfferId,
-            content: &[retailer_sauce::offer_content::Content],
+            content: &[OfferContentContent],
             language: &Option<String>,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
             assert_eq!(&entity.id, id);
-            entity.title = retailer_sauce::offer_content::selected(content, language)
-                .unwrap()
-                .title
-                .clone();
+            entity.title = selected(content, language).unwrap().title.clone();
             entity.facts.content = content.to_vec();
             entity.localization.language = language.clone();
             Ok(())
@@ -162,12 +202,12 @@ mod tests {
         fn update_content(
             &self,
             id: &RetailerOfferId,
-            content: &retailer_sauce::structuralized::content::Content,
+            content: &ContentContent,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
             assert_eq!(&entity.id, id);
-            entity.facts.content = retailer_sauce::offer_content::legacy_description(
+            entity.facts.content = legacy_description(
                 &entity.facts.content,
                 &entity.localization.language,
                 content.description.clone(),
@@ -178,7 +218,7 @@ mod tests {
         fn update_item_condition(
             &self,
             id: &RetailerOfferId,
-            item_condition: &Option<retailer_sauce::item_condition::ItemCondition>,
+            item_condition: &Option<ItemCondition>,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -189,7 +229,7 @@ mod tests {
         fn update_availability(
             &self,
             id: &RetailerOfferId,
-            availability: &Option<retailer_sauce::availability::Availability>,
+            availability: &Option<Availability>,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -200,7 +240,7 @@ mod tests {
         fn update_pricing(
             &self,
             id: &RetailerOfferId,
-            pricing: &crate::offers::event::Pricing,
+            pricing: &Pricing,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -211,8 +251,8 @@ mod tests {
         }
         fn update_identifiers(
             &self,
-            id: &crate::offers::retailer_offer_id::RetailerOfferId,
-            identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+            id: &RetailerOfferId,
+            identifiers: &ProductIdentifiers,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -222,8 +262,8 @@ mod tests {
         }
         fn update_localization(
             &self,
-            id: &crate::offers::retailer_offer_id::RetailerOfferId,
-            localization: &retailer_sauce::localization::Localization,
+            id: &RetailerOfferId,
+            localization: &Localization,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -234,7 +274,7 @@ mod tests {
         fn update_scraped_at(
             &self,
             id: &RetailerOfferId,
-            scraped_at: chrono::DateTime<chrono::Utc>,
+            scraped_at: DateTime<Utc>,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -246,10 +286,7 @@ mod tests {
         fn images(&self, _: &RetailerOfferId) -> Result<Vec<String>, RetailerOfferRepositoryError> {
             Ok(Vec::new())
         }
-        fn add_image(
-            &self,
-            _: &crate::offers::event::OfferImageAddedEvent,
-        ) -> Result<(), RetailerOfferRepositoryError> {
+        fn add_image(&self, _: &OfferImageAddedEvent) -> Result<(), RetailerOfferRepositoryError> {
             Ok(())
         }
 
@@ -271,7 +308,7 @@ mod tests {
         fn update_price(
             &self,
             id: &RetailerOfferId,
-            price: &money::Money,
+            price: &Money,
         ) -> Result<(), RetailerOfferRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().unwrap();
@@ -290,24 +327,23 @@ mod tests {
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
-            id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            id: RetailerOfferId::new(Uuid::new_v4().to_string()),
+            retailer_code: RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),
-            price: money::Money::new(1999, money::Currency::AUD),
+            price: Money::new(1999, Currency::AUD),
             url: "https://example.com/Charger?q=red#details".to_owned(),
-            created_at: chrono::Utc::now(),
+            created_at: Utc::now(),
         };
         let mut envelope = NewEventEnvelope {
             event_type: OFFER_CREATED_EVENT.to_owned(),
-            payload: serde_json::to_string(&RetailerOfferEvent::OfferCreated(Box::new(
+            payload: serde_json_to_string(&RetailerOfferEvent::OfferCreated(Box::new(
                 event.clone(),
             )))
             .unwrap(),
             metadata: None,
         };
-        let unavailable = RetailerOfferProjector::new(
-            crate::read_offer::repository::PostgresRetailerOfferRepository::new(crate::test_pool()),
-        );
+        let unavailable =
+            RetailerOfferProjector::new(PostgresRetailerOfferRepository::new(test_pool()));
         assert!(matches!(
             unavailable.handle(&envelope),
             Err(EventError::SubscriberExecution(_))
@@ -330,8 +366,8 @@ mod tests {
             projector.repository.0.lock().unwrap().as_ref(),
             Some(&expected)
         );
-        envelope.event_type = crate::offers::event::OFFER_TITLE_CHANGED_EVENT.to_owned();
-        envelope.payload = serde_json::to_string(&RetailerOfferEvent::OfferTitleChanged(
+        envelope.event_type = OFFER_TITLE_CHANGED_EVENT.to_owned();
+        envelope.payload = serde_json_to_string(&RetailerOfferEvent::OfferTitleChanged(
             OfferTitleChangedEvent {
                 id: event.id.clone(),
                 title: "New title".to_owned(),
@@ -344,9 +380,9 @@ mod tests {
             projector.repository.0.lock().unwrap().as_ref(),
             Some(&expected)
         );
-        envelope.event_type = crate::offers::event::OFFER_PRICE_CHANGED_EVENT.to_owned();
-        expected.price = money::Money::new(1200, money::Currency::EUR);
-        envelope.payload = serde_json::to_string(&RetailerOfferEvent::OfferPriceChanged(
+        envelope.event_type = OFFER_PRICE_CHANGED_EVENT.to_owned();
+        expected.price = Money::new(1200, Currency::EUR);
+        envelope.payload = serde_json_to_string(&RetailerOfferEvent::OfferPriceChanged(
             OfferPriceChangedEvent {
                 id: event.id,
                 price: expected.price.clone(),

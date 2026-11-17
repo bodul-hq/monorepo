@@ -1,4 +1,6 @@
 use crate::read_offers_identifiers::entity::RetailerOfferIdentifiers;
+use diesel::QueryableByName;
+use diesel::sql_query;
 use diesel::{
     OptionalExtension, RunQueryDsl,
     sql_types::{Nullable, Text, Uuid as SqlUuid},
@@ -8,6 +10,7 @@ use retailer_sauce::identifier::{
     ShopifyProductVariationGid, Sku,
 };
 use shared::retailer::RetailerCode;
+use std::fmt::Display;
 use testimony_infra::prelude::DbPool;
 use uuid::Uuid;
 
@@ -35,14 +38,12 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
     ) -> Result<(), RetailerOfferIdentifiersError> {
         let id = Uuid::parse_str(id.value()).map_err(err_identity_repository)?;
         let mut connection = self.pool.get().map_err(err_identity_repository)?;
-        diesel::sql_query(
-            "INSERT INTO read_offer_identities (id, retailer_code, url) VALUES ($1, $2, $3)",
-        )
-        .bind::<SqlUuid, _>(id)
-        .bind::<Text, _>(retailer_code.as_str())
-        .bind::<Text, _>(url)
-        .execute(&mut connection)
-        .map_err(err_identity_repository)?;
+        sql_query("INSERT INTO read_offer_identities (id, retailer_code, url) VALUES ($1, $2, $3)")
+            .bind::<SqlUuid, _>(id)
+            .bind::<Text, _>(retailer_code.as_str())
+            .bind::<Text, _>(url)
+            .execute(&mut connection)
+            .map_err(err_identity_repository)?;
         Ok(())
     }
 
@@ -51,7 +52,7 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
         retailer_code: RetailerCode,
         url: &str,
     ) -> Result<Option<RetailerOfferIdentifiers>, RetailerOfferIdentifiersError> {
-        #[derive(diesel::QueryableByName)]
+        #[derive(QueryableByName)]
         struct IdentityRow {
             #[diesel(sql_type = SqlUuid)]
             id: Uuid,
@@ -68,7 +69,7 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
         }
 
         let mut connection = self.pool.get().map_err(err_identity_repository)?;
-        let row = diesel::sql_query(
+        let row = sql_query(
             "SELECT id, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle FROM read_offer_identities WHERE retailer_code = $1 AND url = $2",
         )
         .bind::<Text, _>(retailer_code.as_str())
@@ -120,6 +121,6 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
     }
 }
 
-fn err_identity_repository(error: impl std::fmt::Display) -> RetailerOfferIdentifiersError {
+fn err_identity_repository(error: impl Display) -> RetailerOfferIdentifiersError {
     RetailerOfferIdentifiersError(error.to_string())
 }

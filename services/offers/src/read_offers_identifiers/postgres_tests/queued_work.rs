@@ -1,3 +1,6 @@
+use crate::app_with_reporting_token;
+use crate::start_mulac;
+use diesel::sql_query;
 use diesel::{
     RunQueryDsl,
     connection::SimpleConnection,
@@ -5,8 +8,12 @@ use diesel::{
 };
 use diesel_migrations::MigrationHarness;
 use poem::{http::StatusCode, test::TestClient};
+use serde_json::from_value;
+use serde_json::to_string_pretty;
 use serde_json::{Value, json};
+use std::any::type_name;
 use testimony_infra::prelude::DbPool;
+use tokio::test as tokio_test;
 use uuid::Uuid;
 
 use super::{before_identifier_migration, rows, table_snapshot};
@@ -32,20 +39,20 @@ fn seed_legacy_offer(pool: &DbPool) -> Value {
             "external_identifiers":{"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":" Exact Ž "}
         }
     });
-    let _: OfferEventRecord = serde_json::from_value(record.clone()).unwrap();
-    diesel::sql_query("INSERT INTO event_store(agg_id,sequence,payload_type,payload,metadata,recorded_on) VALUES ($1,1,$2,$3,'{}','2026-10-26T12:00:00Z')")
+    let _: OfferEventRecord = from_value(record.clone()).unwrap();
+    sql_query("INSERT INTO event_store(agg_id,sequence,payload_type,payload,metadata,recorded_on) VALUES ($1,1,$2,$3,'{}','2026-10-26T12:00:00Z')")
         .bind::<Text,_>(LEGACY_ID.to_string())
-        .bind::<Text,_>(std::any::type_name::<OfferEventRecord>())
+        .bind::<Text,_>(type_name::<OfferEventRecord>())
         .bind::<Jsonb,_>(&record)
         .execute(&mut pool.get().unwrap()).unwrap();
-    diesel::sql_query("INSERT INTO read_offers(id,retailer_code,url,title,price_amount,currency,created_at,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) SELECT (data->>'id')::uuid,'ankerau',data->>'url',data->>'title',(data->'price'->>'amount')::bigint,data->'price'->>'currency',(data->>'created_at')::timestamptz,data->>'gtin',data->>'sku',data->'external_identifiers'->>'shopify_product_gid',data->'external_identifiers'->>'shopify_product_variation_gid',data->'external_identifiers'->>'shopify_handle' FROM (SELECT $1::jsonb AS data) fixture")
+    sql_query("INSERT INTO read_offers(id,retailer_code,url,title,price_amount,currency,created_at,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) SELECT (data->>'id')::uuid,'ankerau',data->>'url',data->>'title',(data->'price'->>'amount')::bigint,data->'price'->>'currency',(data->>'created_at')::timestamptz,data->>'gtin',data->>'sku',data->'external_identifiers'->>'shopify_product_gid',data->'external_identifiers'->>'shopify_product_variation_gid',data->'external_identifiers'->>'shopify_handle' FROM (SELECT $1::jsonb AS data) fixture")
         .bind::<Jsonb,_>(&record["data"])
         .execute(&mut pool.get().unwrap()).unwrap();
     pool.get().unwrap().batch_execute("INSERT INTO read_offer_identities(id,retailer_code,url) SELECT id,retailer_code,url FROM read_offers").unwrap();
     record
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn queued_identifier_imports_cross_migration_without_losing_legacy_values() {
     // Cover an accepted inbox message and an already-dispatched command separately.
@@ -55,8 +62,8 @@ async fn queued_identifier_imports_cross_migration_without_losing_legacy_values(
         let legacy_record = seed_legacy_offer(&pool);
         let mut expected = rows(&pool, "read_offers");
         expected[0]["sku"] = json!("corrected");
-        let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-        let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+        let (kernel, state) = start_mulac(pool.clone()).unwrap();
+        let client = TestClient::new(app_with_reporting_token(state, "test".into()));
         let payload = json!({"retailer_code":"AnkerAu","url":LEGACY_URL,"title":"Legacy charger","price":{"amount":1999,"currency":"AUD"},"gtin":null,"sku":"corrected","external_identifiers":{"shopify_product_gid":null}});
         client.post("/api/inbox").body_json(&json!({"message_id":Uuid::new_v4(),"source":"legacy-import","routing_key":"ImportOfferDetails","payload":payload})).send().await.assert_status(StatusCode::ACCEPTED);
         if dispatched {
@@ -76,8 +83,8 @@ async fn queued_identifier_imports_cross_migration_without_losing_legacy_values(
         assert_eq!(table_snapshot(&pool, "inbox_entries"), inbox);
         assert_eq!(table_snapshot(&pool, "command_entries"), commands);
         assert_eq!(table_snapshot(&pool, "event_store"), history);
-        let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-        let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+        let (kernel, state) = start_mulac(pool.clone()).unwrap();
+        let client = TestClient::new(app_with_reporting_token(state, "test".into()));
         run_queue(&client, "inbox", 100, usize::from(!dispatched)).await;
         run_queue(&client, "commands", 100, 1).await;
         run_queue(&client, "events", 100, 1).await;
@@ -108,7 +115,7 @@ async fn queued_identifier_imports_cross_migration_without_losing_legacy_values(
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn pending_complete_change_keeps_bytes_and_redelivery_keeps_one_outbox_identity() {
     let (_schema, pool) = inbox_test_database();
@@ -122,16 +129,16 @@ async fn pending_complete_change_keeps_bytes_and_redelivery_keeps_one_outbox_ide
     expected[0]["shopify_product_variation_gid"] = json!("0009");
     let change = json!({"id":LEGACY_ID,"gtin":null,"sku":" replacement ","external_identifiers":{"shopify_product_gid":null,"shopify_product_variation_gid":"0009","shopify_handle":null}});
     let record = json!({"type":"OfferIdentifiersChanged.v1","data":change});
-    let _: OfferEventRecord = serde_json::from_value(record.clone()).unwrap();
-    let payload = format!("{}\n", serde_json::to_string_pretty(&change).unwrap());
+    let _: OfferEventRecord = from_value(record.clone()).unwrap();
+    let payload = format!("{}\n", to_string_pretty(&change).unwrap());
     let event_id = Uuid::new_v4();
     let metadata = json!({"event_id":event_id,"sequence":2,"correlation_id":Uuid::new_v4(),"causation_id":Uuid::new_v4(),"source":"legacy-export"});
-    diesel::sql_query("INSERT INTO event_store(agg_id,sequence,payload_type,payload,metadata,recorded_on) VALUES ($1,2,$2,$3,$4,'2026-10-26T12:01:00Z')")
+    sql_query("INSERT INTO event_store(agg_id,sequence,payload_type,payload,metadata,recorded_on) VALUES ($1,2,$2,$3,$4,'2026-10-26T12:01:00Z')")
         .bind::<Text,_>(LEGACY_ID.to_string())
-        .bind::<Text,_>(std::any::type_name::<OfferEventRecord>())
+        .bind::<Text,_>(type_name::<OfferEventRecord>())
         .bind::<Jsonb,_>(&record).bind::<Jsonb,_>(&metadata)
         .execute(&mut pool.get().unwrap()).unwrap();
-    diesel::sql_query("INSERT INTO event_entries(id,event_type,payload,meta) VALUES ($1,'OfferIdentifiersChanged',$2,$3)")
+    sql_query("INSERT INTO event_entries(id,event_type,payload,meta) VALUES ($1,'OfferIdentifiersChanged',$2,$3)")
         .bind::<SqlUuid,_>(event_id).bind::<Text,_>(&payload).bind::<Jsonb,_>(&metadata)
         .execute(&mut pool.get().unwrap()).unwrap();
     let queued = table_snapshot(&pool, "event_entries");
@@ -142,8 +149,8 @@ async fn pending_complete_change_keeps_bytes_and_redelivery_keeps_one_outbox_ide
         .unwrap();
     assert_eq!(table_snapshot(&pool, "event_entries"), queued);
     assert_eq!(table_snapshot(&pool, "event_store"), history);
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     run_queue(&client, "events", 100, 1).await;
     assert_eq!(rows(&pool, "read_offer_identities"), expected);
     assert_eq!(rows(&pool, "read_offers"), expected);
@@ -159,12 +166,10 @@ async fn pending_complete_change_keeps_bytes_and_redelivery_keeps_one_outbox_ide
     assert_eq!(outbox[0]["meta"], expected_metadata);
 
     // Only this complete change is redelivered; creation idempotency is unrelated.
-    diesel::sql_query(
-        "UPDATE event_entries SET status=0,attempts=0,scheduled_at=now() WHERE id=$1",
-    )
-    .bind::<SqlUuid, _>(event_id)
-    .execute(&mut pool.get().unwrap())
-    .unwrap();
+    sql_query("UPDATE event_entries SET status=0,attempts=0,scheduled_at=now() WHERE id=$1")
+        .bind::<SqlUuid, _>(event_id)
+        .execute(&mut pool.get().unwrap())
+        .unwrap();
     run_queue(&client, "events", 100, 1).await;
     assert_eq!(rows(&pool, "read_offer_identities"), expected);
     assert_eq!(rows(&pool, "read_offers"), expected);

@@ -3,10 +3,13 @@ use super::{
     RetailerOfferIdentifiersRepositoryError, err_identity_missing, err_insert, err_update,
     validate, validate_update,
 };
+use crate::offers::retailer_offer_id::RetailerOfferId;
+use diesel::sql_query;
 use diesel::{
     RunQueryDsl,
     sql_types::{Nullable, Text, Uuid as SqlUuid},
 };
+use retailer_sauce::identifier::ProductIdentifiers;
 use testimony_infra::prelude::DbPool;
 
 pub struct PostgresRetailerOfferIdentifiersRepository {
@@ -26,7 +29,7 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
     ) -> Result<(), RetailerOfferIdentifiersRepositoryError> {
         let id = validate(entity)?;
         let mut connection = self.pool.get().map_err(err_insert)?;
-        diesel::sql_query(
+        sql_query(
             "INSERT INTO read_offer_identities (id, retailer_code, url, gtin, sku, shopify_product_gid, shopify_product_variation_gid, shopify_handle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         )
         .bind::<SqlUuid, _>(id)
@@ -44,11 +47,11 @@ impl RetailerOfferIdentifiersRepository for PostgresRetailerOfferIdentifiersRepo
 
     fn update_identifiers(
         &self,
-        id: &crate::offers::retailer_offer_id::RetailerOfferId,
-        identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+        id: &RetailerOfferId,
+        identifiers: &ProductIdentifiers,
     ) -> Result<(), RetailerOfferIdentifiersRepositoryError> {
         let id = validate_update(id, identifiers)?;
-        let count = diesel::sql_query(
+        let count = sql_query(
             "UPDATE read_offer_identities SET gtin=$2, sku=$3, shopify_product_gid=$4, shopify_product_variation_gid=$5, shopify_handle=$6 WHERE id=$1",
         )
         .bind::<SqlUuid, _>(id)

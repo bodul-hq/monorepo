@@ -1,3 +1,6 @@
+use std::fmt::Display;
+use thiserror::Error as ThiserrorError;
+use uuid::Uuid;
 mod in_memory;
 mod postgres;
 
@@ -8,7 +11,7 @@ use super::entity::RetailerOfferIdentifiers;
 use crate::offers::retailer_offer_id::RetailerOfferId;
 use retailer_sauce::identifier::ProductIdentifiers;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 #[error("offer identity read model operation failed: {0}")]
 pub struct RetailerOfferIdentifiersRepositoryError(String);
 
@@ -27,11 +30,11 @@ pub trait RetailerOfferIdentifiersRepository: Send + Sync {
     ) -> Result<(), RetailerOfferIdentifiersRepositoryError>;
 }
 
-fn err_insert(error: impl std::fmt::Display) -> RetailerOfferIdentifiersRepositoryError {
+fn err_insert(error: impl Display) -> RetailerOfferIdentifiersRepositoryError {
     RetailerOfferIdentifiersRepositoryError(error.to_string())
 }
 
-fn err_update(error: impl std::fmt::Display) -> RetailerOfferIdentifiersRepositoryError {
+fn err_update(error: impl Display) -> RetailerOfferIdentifiersRepositoryError {
     RetailerOfferIdentifiersRepositoryError(error.to_string())
 }
 
@@ -42,16 +45,16 @@ fn err_identity_missing() -> RetailerOfferIdentifiersRepositoryError {
 fn validate_update(
     id: &RetailerOfferId,
     identifiers: &ProductIdentifiers,
-) -> Result<uuid::Uuid, RetailerOfferIdentifiersRepositoryError> {
+) -> Result<Uuid, RetailerOfferIdentifiersRepositoryError> {
     identifiers.guard().map_err(err_update)?;
-    uuid::Uuid::parse_str(id.value()).map_err(err_update)
+    Uuid::parse_str(id.value()).map_err(err_update)
 }
 
 fn validate(
     entity: &RetailerOfferIdentifiers,
-) -> Result<uuid::Uuid, RetailerOfferIdentifiersRepositoryError> {
+) -> Result<Uuid, RetailerOfferIdentifiersRepositoryError> {
     entity.identifiers.guard().map_err(err_insert)?;
-    let id = uuid::Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
+    let id = Uuid::parse_str(entity.id.value()).map_err(err_insert)?;
     if entity.url.len() > 2048 || entity.url.contains('\0') {
         return Err(err_insert(
             "URL must be at most 2048 bytes and contain no NUL",
@@ -62,14 +65,18 @@ fn validate(
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use retailer_sauce::identifier::Sku;
+    use shared::retailer::RetailerCode;
+    use uuid::Uuid;
+
     use super::*;
     use crate::offers::retailer_offer_id::RetailerOfferId;
 
     pub(crate) fn assert_insert_contract(repository: &dyn RetailerOfferIdentifiersRepository) {
         let entity = RetailerOfferIdentifiers {
             identifiers: Default::default(),
-            id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            id: RetailerOfferId::new(Uuid::new_v4().to_string()),
+            retailer_code: RetailerCode::from_str("ankerau").unwrap(),
             url: "https://example.com/Charger?color=red#details".to_owned(),
         };
         repository.insert(&entity).unwrap();
@@ -78,18 +85,18 @@ pub(crate) mod tests {
         other.url.push_str("-other");
         assert!(repository.insert(&other).is_err());
         other = entity.clone();
-        other.id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
+        other.id = RetailerOfferId::new(Uuid::new_v4().to_string());
         assert!(repository.insert(&other).is_err());
         other.url = entity.url.to_lowercase();
         repository.insert(&other).unwrap();
         other.id = RetailerOfferId::new("invalid");
         assert!(repository.insert(&other).is_err());
-        other.id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
+        other.id = RetailerOfferId::new(Uuid::new_v4().to_string());
         other.url = "x".repeat(2049);
         assert!(repository.insert(&other).is_err());
         other.url = "https://example.com/invalid-identifiers".into();
         for value in ["", "contains\0nul"] {
-            other.identifiers.sku = Some(retailer_sauce::identifier::Sku {
+            other.identifiers.sku = Some(Sku {
                 value: value.into(),
             });
             assert!(repository.insert(&other).is_err());

@@ -7,6 +7,8 @@ use crate::offers::event::{
     OfferIdentifiersChangedEvent,
 };
 use kernel::{EventError, EventSubscriberPort, NewEventEnvelope};
+use serde_json::Error as SerdeJsonError;
+use serde_json::from_str as serde_json_from_str;
 
 pub struct RetailerOfferIdentifiersProjector<R> {
     repository: R,
@@ -25,7 +27,7 @@ impl<R: RetailerOfferIdentifiersRepository> EventSubscriberPort
         match envelope.event_type.as_str() {
             OFFER_CREATED_EVENT => {
                 let event: OfferCreatedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 let entity = RetailerOfferIdentifiers {
                     identifiers: event.identifiers,
                     id: event.id,
@@ -38,7 +40,7 @@ impl<R: RetailerOfferIdentifiersRepository> EventSubscriberPort
             }
             OFFER_IDENTIFIERS_CHANGED_EVENT => {
                 let event: OfferIdentifiersChangedEvent =
-                    serde_json::from_str(&envelope.payload).map_err(err_invalid_event)?;
+                    serde_json_from_str(&envelope.payload).map_err(err_invalid_event)?;
                 self.repository
                     .update_identifiers(&event.id, &event.identifiers)
                     .map_err(err_projection_failed)
@@ -48,7 +50,7 @@ impl<R: RetailerOfferIdentifiersRepository> EventSubscriberPort
     }
 }
 
-fn err_invalid_event(error: serde_json::Error) -> EventError {
+fn err_invalid_event(error: SerdeJsonError) -> EventError {
     EventError::Conversion(error.to_string())
 }
 
@@ -58,6 +60,19 @@ fn err_projection_failed(error: RetailerOfferIdentifiersRepositoryError) -> Even
 
 #[cfg(test)]
 mod tests {
+    use crate::read_offers_identifiers::repository::InMemoryRetailerOfferIdentifiersRepository;
+    use crate::read_offers_identifiers::repository::PostgresRetailerOfferIdentifiersRepository;
+    use crate::test_pool;
+    use chrono::Utc;
+    use money::Currency;
+    use money::Money;
+    use retailer_sauce::identifier::ProductIdentifiers;
+    use serde_json::from_value;
+    use serde_json::json;
+    use serde_json::to_string as serde_json_to_string;
+    use shared::retailer::RetailerCode;
+    use uuid::Uuid;
+
     use super::*;
     use crate::offers::retailer_offer_id::RetailerOfferId;
     use std::sync::Mutex;
@@ -77,7 +92,7 @@ mod tests {
         fn update_identifiers(
             &self,
             id: &RetailerOfferId,
-            identifiers: &retailer_sauce::identifier::ProductIdentifiers,
+            identifiers: &ProductIdentifiers,
         ) -> Result<(), RetailerOfferIdentifiersRepositoryError> {
             let mut state = self.0.lock().unwrap();
             let entity = state.as_mut().expect("creation is projected first");
@@ -90,16 +105,16 @@ mod tests {
     #[test]
     fn missing_change_target_fails_without_creating_a_partial_identity() {
         let projector = RetailerOfferIdentifiersProjector::new(
-            crate::read_offers_identifiers::repository::InMemoryRetailerOfferIdentifiersRepository::new(),
+            InMemoryRetailerOfferIdentifiersRepository::new(),
         );
-        let id = RetailerOfferId::new(uuid::Uuid::new_v4().to_string());
+        let id = RetailerOfferId::new(Uuid::new_v4().to_string());
         let update = OfferIdentifiersChangedEvent {
             id: id.clone(),
             identifiers: Default::default(),
         };
         let envelope = NewEventEnvelope {
             event_type: OFFER_IDENTIFIERS_CHANGED_EVENT.into(),
-            payload: serde_json::to_string(&update).unwrap(),
+            payload: serde_json_to_string(&update).unwrap(),
             metadata: None,
         };
         let error = projector.handle(&envelope).unwrap_err();
@@ -113,7 +128,7 @@ mod tests {
         let identity = RetailerOfferIdentifiers {
             identifiers: Default::default(),
             id,
-            retailer_code: shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: RetailerCode::AnkerAu,
             url: "https://example.com/new-identity".into(),
         };
         projector.repository.insert(&identity).unwrap();
@@ -123,7 +138,7 @@ mod tests {
     #[test]
     fn maps_supported_events_and_rejects_malformed_payloads() {
         let projector = RetailerOfferIdentifiersProjector::new(RecordingRepository::default());
-        let identifiers = serde_json::from_value(serde_json::json!({
+        let identifiers = from_value(json!({
             "gtin":"0012345678905", "sku":"original", "external_identifiers": {
                 "shopify_product_gid":"001", "shopify_product_variation_gid":"002", "shopify_handle":"charger"
             }
@@ -134,20 +149,20 @@ mod tests {
             localization: Default::default(),
             scraped_at: None,
             images: Vec::new(),
-            id: RetailerOfferId::new(uuid::Uuid::new_v4().to_string()),
-            retailer_code: shared::retailer::RetailerCode::from_str("ankerau").unwrap(),
+            id: RetailerOfferId::new(Uuid::new_v4().to_string()),
+            retailer_code: RetailerCode::from_str("ankerau").unwrap(),
             title: "Charger".to_owned(),
-            price: money::Money::new(1999, money::Currency::AUD),
+            price: Money::new(1999, Currency::AUD),
             url: "https://example.com/Charger?q=red#details".to_owned(),
-            created_at: chrono::Utc::now(),
+            created_at: Utc::now(),
         };
         let mut envelope = NewEventEnvelope {
             event_type: OFFER_CREATED_EVENT.to_owned(),
-            payload: serde_json::to_string(&event).unwrap(),
+            payload: serde_json_to_string(&event).unwrap(),
             metadata: None,
         };
         let unavailable = RetailerOfferIdentifiersProjector::new(
-            crate::read_offers_identifiers::repository::PostgresRetailerOfferIdentifiersRepository::new(crate::test_pool()),
+            PostgresRetailerOfferIdentifiersRepository::new(test_pool()),
         );
         assert!(matches!(
             unavailable.handle(&envelope),
@@ -164,13 +179,13 @@ mod tests {
             projector.repository.0.lock().unwrap().as_ref(),
             Some(&expected)
         );
-        let update: OfferIdentifiersChangedEvent = serde_json::from_value(serde_json::json!({
+        let update: OfferIdentifiersChangedEvent = from_value(json!({
             "id":event.id, "gtin":"0012345678905", "sku":"SKU-001",
             "external_identifiers":{"shopify_product_gid":"gid://shopify/Product/001", "shopify_product_variation_gid":null,"shopify_handle":" Exact handle "}
         })).unwrap();
         expected.identifiers = update.identifiers.clone();
         envelope.event_type = OFFER_IDENTIFIERS_CHANGED_EVENT.to_owned();
-        envelope.payload = serde_json::to_string(&update).unwrap();
+        envelope.payload = serde_json_to_string(&update).unwrap();
         projector.handle(&envelope).unwrap();
         assert_eq!(
             projector.repository.0.lock().unwrap().as_ref(),

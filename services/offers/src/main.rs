@@ -1,5 +1,35 @@
 //! Retailer offers: domain, application, persistence, and HTTP boundaries.
 
+use crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENT_CHANGED_EVENT;
+use crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT;
+use crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT;
+use crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT;
+use crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT;
+use crate::offers::event::OFFER_PRICING_CHANGED_EVENT;
+use crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT;
+use bootstrap::database_pool;
+use env::VarError as EnvVarError;
+use env::var as env_var;
+use io::Error as IoError;
+use io::ErrorKind as IoErrorKind;
+use io::Result as IoResult;
+use kernel::boot;
+use shared::health as shared_health;
+#[cfg(not(unix))]
+use std::future::pending;
+use std::io::stderr;
+use tokio::main as tokio_main;
+use tokio::runtime::Handle;
+#[cfg(unix)]
+use tokio::select;
+use tokio::signal::ctrl_c;
+#[cfg(unix)]
+use tokio::signal::unix::SignalKind;
+#[cfg(unix)]
+use tokio::signal::unix::signal as unix_signal;
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt;
 pub mod app;
 pub mod bootstrap;
 pub mod infra;
@@ -61,18 +91,16 @@ use diesel::{PgConnection, r2d2::ConnectionManager};
 #[cfg(test)]
 use std::time::Duration;
 
-#[tokio::main]
-async fn main() -> io::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
-        )
-        .with_writer(std::io::stderr)
+#[tokio_main]
+async fn main() -> IoResult<()> {
+    fmt()
+        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()))
+        .with_writer(stderr)
         .init();
-    let port = parse_port(env::var("PORT"))?;
+    let port = parse_port(env_var("PORT"))?;
     // Checked before connecting; customer-facing may be down at startup.
-    let publisher = CustomerFacingPublisher::from_env(tokio::runtime::Handle::current())?;
-    let pool = bootstrap::database_pool()?.expect("DATABASE_URL is required");
+    let publisher = CustomerFacingPublisher::from_env(Handle::current())?;
+    let pool = database_pool()?.expect("DATABASE_URL is required");
     let shutdown = shutdown_signal()?;
 
     // Boot the in-process kernel and register all command handlers and event subscribers.
@@ -84,7 +112,7 @@ async fn main() -> io::Result<()> {
         ));
     }
     let token =
-        env::var("OFFERS_REPORTING_TOKEN").unwrap_or_else(|_| DEFAULT_REPORTING_TOKEN.to_owned());
+        env_var("OFFERS_REPORTING_TOKEN").unwrap_or_else(|_| DEFAULT_REPORTING_TOKEN.to_owned());
     let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run_with_graceful_shutdown(app_with_reporting_token(state, token), shutdown, None)
         .await;
@@ -101,80 +129,80 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
         PostgresRetailerOfferIdentifiersRepository::new(pool.clone()),
     ));
     let customer_facing = Arc::new(CustomerFacingSubscriber::new(pool.clone()));
-    let kernel = kernel::boot(KernelConfig::default())
+    let kernel = boot(KernelConfig::default())
         .command_handler(CREATE_FROM_OFFER_DETAILS_COMMAND, handler)
         .event_subscriber(
-            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            OFFER_PRICING_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_PRICING_CHANGED_EVENT,
+            OFFER_PRICING_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            OFFER_AVAILABILITY_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_AVAILABILITY_CHANGED_EVENT,
+            OFFER_AVAILABILITY_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            OFFER_ITEM_CONDITION_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_ITEM_CONDITION_CHANGED_EVENT,
+            OFFER_ITEM_CONDITION_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            OFFER_CONTENTS_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_CONTENTS_CHANGED_EVENT,
+            OFFER_CONTENTS_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            OFFER_CONTENT_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_CONTENT_CHANGED_EVENT,
+            OFFER_CONTENT_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            OFFER_IDENTIFIERS_CHANGED_EVENT,
             "read_offers_identifiers",
             identifiers_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            OFFER_LOCALIZATION_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_LOCALIZATION_CHANGED_EVENT,
+            OFFER_LOCALIZATION_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            OFFER_IDENTIFIERS_CHANGED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_IDENTIFIERS_CHANGED_EVENT,
+            OFFER_IDENTIFIERS_CHANGED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
@@ -190,12 +218,12 @@ pub fn start_mulac(pool: DbPool) -> Result<(Arc<PersistentKernelHandle>, AppStat
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT,
+            OFFER_SCRAPED_AT_UPDATED_EVENT,
             "read_offer",
             offer_projector.clone(),
         )
         .event_subscriber(
-            crate::offers::event::OFFER_SCRAPED_AT_UPDATED_EVENT,
+            OFFER_SCRAPED_AT_UPDATED_EVENT,
             "customer_facing",
             customer_facing.clone(),
         )
@@ -253,8 +281,8 @@ pub struct AppState {
     pub outbox: OutboxAdapter,
 }
 
-fn err_kernel_could_not_start(error: KernelError) -> io::Error {
-    io::Error::other(format!("Mulac kernel could not start: {error}"))
+fn err_kernel_could_not_start(error: KernelError) -> IoError {
+    IoError::other(format!("Mulac kernel could not start: {error}"))
 }
 
 struct Query;
@@ -262,7 +290,7 @@ struct Query;
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        shared::health()
+        shared_health()
     }
 }
 
@@ -320,49 +348,56 @@ fn app_with_reporting_token(state: AppState, token: String) -> Route {
 
 /// Parses the `PORT` environment variable as returned by `env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, env::VarError>) -> io::Result<u16> {
+fn parse_port(value: Result<String, EnvVarError>) -> IoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            io::Error::new(
-                io::ErrorKind::InvalidInput,
+            IoError::new(
+                IoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+        Err(EnvVarError::NotPresent) => Ok(3000),
+        Err(error) => Err(IoError::new(IoErrorKind::InvalidInput, error)),
     }
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> IoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = unix_signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+        select! {
+            Ok(()) = ctrl_c() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            pending::<()>().await;
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::tests::assert_error_response as tests_assert_error_response;
+    use poem::test::TestResponse;
+    use serde_json::Value as SerdeJsonValue;
+    use std::collections::HashSet;
+    use tokio::test as tokio_test;
+    use uuid::Uuid;
+
     pub(crate) fn assert_error_id(error: &str) {
-        let id = uuid::Uuid::parse_str(error).expect("error response must contain only a UUID");
+        let id = Uuid::parse_str(error).expect("error response must contain only a UUID");
         assert_eq!(id.get_version_num(), 7);
     }
 
-    pub(crate) fn assert_batch_errors(body: &serde_json::Value, count: usize) {
+    pub(crate) fn assert_batch_errors(body: &SerdeJsonValue, count: usize) {
         assert!(body["processed"].is_null(), "{body}");
         let errors = body["errors"].as_array().expect("batch errors array");
         assert_eq!(errors.len(), count, "{body}");
-        let mut ids = std::collections::HashSet::new();
+        let mut ids = HashSet::new();
         for error in errors {
             let error = error.as_str().expect("error ID string");
             assert_error_id(error);
@@ -370,12 +405,12 @@ mod tests {
         }
     }
 
-    pub(crate) async fn assert_error_response(response: poem::test::TestResponse) {
+    pub(crate) async fn assert_error_response(response: TestResponse) {
         let body = response.0.into_body().into_string().await.unwrap();
         assert_error_id(&body);
     }
 
-    pub(crate) async fn assert_batch_response(response: poem::test::TestResponse, count: usize) {
+    pub(crate) async fn assert_batch_response(response: TestResponse, count: usize) {
         let body = response.json().await.value().deserialize();
         assert_batch_errors(&body, count);
     }
@@ -387,7 +422,7 @@ mod tests {
 
     use super::{app, parse_port, test_pool};
 
-    #[tokio::test]
+    #[tokio_test]
     async fn health_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .get("/api/health")
@@ -397,7 +432,7 @@ mod tests {
         response.assert_text("ok").await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_health_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .post("/graphql")
@@ -410,7 +445,7 @@ mod tests {
             .await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_get_query_returns_ok() {
         let response = TestClient::new(app(test_pool()))
             .get("/graphql")
@@ -423,7 +458,7 @@ mod tests {
             .await;
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphiql_is_served_only_in_debug_builds() {
         let response = TestClient::new(app(test_pool()))
             .get("/graphql/ide")
@@ -436,7 +471,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn openapi_spec_matches_routes() {
         let client = TestClient::new(app(test_pool()));
         let response = client.get("/api/openapi.json").send().await;
@@ -498,7 +533,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn swagger_ui_is_served() {
         let response = TestClient::new(app(test_pool()))
             .get("/api/docs/")
@@ -507,7 +542,7 @@ mod tests {
         response.assert_status_is_ok();
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn queue_routes_validate_requests_and_report_failures() {
         let client = TestClient::new(app(test_pool()));
         for queue in ["inbox", "commands", "events", "outbox"] {
@@ -555,14 +590,14 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn tmp_import_reports_unavailable_storage() {
         let response = TestClient::new(app(test_pool()))
             .post("/api/tmp-import")
             .body_json(&json!({"retailer_code":"ankerau", "title":"Charger", "price_amount":1999, "currency":"AUD", "url":"https://example.com/charger"}))
             .send().await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-        crate::tests::assert_error_response(response).await;
+        tests_assert_error_response(response).await;
     }
 
     #[test]

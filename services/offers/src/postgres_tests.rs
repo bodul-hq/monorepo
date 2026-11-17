@@ -1,7 +1,51 @@
-fn reporting_now() -> chrono::DateTime<chrono::Utc> {
-    chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
+use crate::app_with_reporting_token;
+use crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND as COMMAND_CREATE_FROM_OFFER_DETAILS_COMMAND;
+use crate::offers::command::ImportOfferDetailsCommand;
+use crate::offers::event::OFFER_CREATED_EVENT;
+use crate::offers::event::OfferFacts;
+use crate::read_offer::entity::RetailerOffer;
+use crate::read_offer::repository::PostgresRetailerOfferRepository as RepositoryPostgresRetailerOfferRepository;
+use crate::read_offer::repository::tests::assert_insert_contract as tests_assert_insert_contract;
+use crate::read_offers_identifiers::repository::PostgresRetailerOfferIdentifiersRepository as RepositoryPostgresRetailerOfferIdentifiersRepository;
+use crate::read_offers_identifiers::repository::tests::assert_insert_contract as repository_tests_assert_insert_contract;
+use crate::reporting::DEFAULT_REPORTING_TOKEN;
+use crate::reporting::ReportingApi;
+use crate::start_mulac;
+use crate::subscribers::customer_facing::CustomerFacingSubscriber as CustomerFacingCustomerFacingSubscriber;
+use crate::tests::assert_batch_response;
+use crate::tests::assert_error_response;
+use chrono::DateTime;
+use chrono::Utc;
+use diesel::QueryableByName as DieselQueryableByName;
+use diesel::sql_query;
+use diesel::sql_types::BigInt;
+use diesel::sql_types::Integer;
+use diesel::sql_types::Jsonb as SqlTypesJsonb;
+use diesel::sql_types::Text as SqlTypesText;
+use diesel::sql_types::Timestamptz;
+use diesel::sql_types::Uuid as SqlTypesUuid;
+use inbox::prelude::testing::invalid_submissions;
+use kernel::NewEventEnvelope;
+use kernel::NewEventMetadata;
+use money::Currency;
+use money::Money;
+use outbox::prelude::AsyncOutboxService;
+use outbox::prelude::poem::OutboxAdapter;
+use poem::Route;
+use poem_openapi::OpenApiService;
+use retailer_sauce::offer_content::singleton;
+use serde_json::from_str as serde_json_from_str;
+use serde_json::from_value;
+use serde_json::to_string as serde_json_to_string;
+use shared::retailer::RetailerCode;
+use std::collections::HashSet;
+use std::env::var;
+use tokio::test as tokio_test;
+use url::Url;
+fn reporting_now() -> DateTime<Utc> {
+    DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
         .unwrap()
-        .with_timezone(&chrono::Utc)
+        .with_timezone(&Utc)
 }
 
 use diesel::{Connection, PgConnection, connection::SimpleConnection, r2d2::ConnectionManager};
@@ -34,12 +78,12 @@ impl Drop for TestSchema {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let input = json!({
         "retailer_code": "ankerau", "title": "USB charger", "price_amount": 1999,
         "currency": "AUD", "url": "https://example.com/charger?color=red"
@@ -57,7 +101,7 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
     let stored = inbox_test_snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i");
     assert_eq!(stored["id"], message_id.to_string());
     assert_eq!(
-        serde_json::from_str::<Value>(stored["payload"].as_str().unwrap()).unwrap(),
+        serde_json_from_str::<Value>(stored["payload"].as_str().unwrap()).unwrap(),
         json!({
             "retailer_code":"ankerau", "title":"USB charger",
             "price":{"amount":1999,"currency":"AUD"},
@@ -94,10 +138,10 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
     };
     assert_eq!(event.title, "USB charger");
     assert_eq!(event.url, input["url"].as_str().unwrap());
-    assert_eq!(event.price, money::Money::new(1999, money::Currency::AUD));
+    assert_eq!(event.price, Money::new(1999, Currency::AUD));
     assert_eq!(
         event.retailer_code,
-        shared::retailer::RetailerCode::from_str("ankerau").unwrap()
+        RetailerCode::from_str("ankerau").unwrap()
     );
 
     // Inbox storage failures hide database diagnostics.
@@ -111,14 +155,14 @@ async fn tmp_import_stores_command_in_inbox_and_reports_storage_failure() {
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    crate::tests::assert_error_response(response).await;
+    assert_error_response(response).await;
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).expect("connect to test database"),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -127,7 +171,7 @@ async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut url = url::Url::parse(&database_url).unwrap();
+    let mut url = Url::parse(&database_url).unwrap();
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
     let pool = DbPool::builder()
@@ -138,16 +182,10 @@ async fn reporting_returns_schema_statistics_and_exact_queue_counts() {
         .unwrap()
         .run_pending_migrations(MIGRATIONS)
         .unwrap();
-    let api = crate::reporting::ReportingApi::with_clock(
-        pool.clone(),
-        crate::reporting::DEFAULT_REPORTING_TOKEN.into(),
-        reporting_now,
-    );
-    let client = TestClient::new(poem::Route::new().nest(
-        "/api",
-        poem_openapi::OpenApiService::new(api, "Reporting", "test"),
-    ));
-    let token = format!("Bearer {}", crate::reporting::DEFAULT_REPORTING_TOKEN);
+    let api = ReportingApi::with_clock(pool.clone(), DEFAULT_REPORTING_TOKEN.into(), reporting_now);
+    let client =
+        TestClient::new(Route::new().nest("/api", OpenApiService::new(api, "Reporting", "test")));
+    let token = format!("Bearer {}", DEFAULT_REPORTING_TOKEN);
     let response = client
         .get("/api/reporting/database-tables")
         .header("authorization", &token)
@@ -241,7 +279,6 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
     use crate::infra::repository::PostgresRetailerOfferIdentifiersRepository;
     use crate::offers::handler::RetailerOfferIdentifiersRepository;
     use diesel::{QueryableByName, RunQueryDsl, sql_types::Text};
-    use shared::retailer::RetailerCode;
 
     #[derive(QueryableByName)]
     struct Identity {
@@ -253,7 +290,7 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
         url: String,
     }
 
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).expect("connect to test database"),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -262,7 +299,7 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut database_url = url::Url::parse(&database_url).unwrap();
+    let mut database_url = Url::parse(&database_url).unwrap();
     database_url
         .query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
@@ -316,7 +353,7 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
             != "20261019000003"
         {}
         let previous: Identity =
-            diesel::sql_query("SELECT id::text, retailer_code, url FROM offer_identities")
+            sql_query("SELECT id::text, retailer_code, url FROM offer_identities")
                 .get_result(&mut connection)
                 .unwrap();
         assert_eq!(previous.id, id.value());
@@ -324,10 +361,9 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
         assert_eq!(previous.url, url);
         connection.run_pending_migrations(MIGRATIONS).unwrap();
     }
-    let row: Identity =
-        diesel::sql_query("SELECT id::text, retailer_code, url FROM read_offer_identities")
-            .get_result(&mut pool.get().unwrap())
-            .unwrap();
+    let row: Identity = sql_query("SELECT id::text, retailer_code, url FROM read_offer_identities")
+        .get_result(&mut pool.get().unwrap())
+        .unwrap();
     assert_eq!(row.id, id.value());
     assert_eq!(row.retailer_code, "ankerau");
     assert_eq!(row.url, url);
@@ -362,7 +398,7 @@ fn identifiers_insert_preserves_identity_and_rejects_duplicates() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 fn read_repositories_insert_contracts() {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).expect("connect to test database"),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -371,7 +407,7 @@ fn read_repositories_insert_contracts() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut database_url = url::Url::parse(&database_url).unwrap();
+    let mut database_url = Url::parse(&database_url).unwrap();
     database_url
         .query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
@@ -392,13 +428,13 @@ fn read_repositories_insert_contracts() {
         connection.revert_all_migrations(MIGRATIONS).unwrap();
         assert!(connection.applied_migrations().unwrap().is_empty());
         use diesel::RunQueryDsl;
-        #[derive(diesel::QueryableByName)]
+        #[derive(DieselQueryableByName)]
         struct TableName {
-            #[diesel(sql_type = diesel::sql_types::Text)]
+            #[diesel(sql_type = SqlTypesText)]
             name: String,
         }
         let tables = |connection: &mut PgConnection| {
-            diesel::sql_query(
+            sql_query(
                 "SELECT tablename::text AS name FROM pg_tables WHERE schemaname = current_schema() AND tablename <> '__diesel_schema_migrations' ORDER BY tablename",
             ).load::<TableName>(connection).unwrap().into_iter().map(|row| row.name).collect::<Vec<_>>()
         };
@@ -418,28 +454,27 @@ fn read_repositories_insert_contracts() {
             ]
         );
     }
-    crate::read_offer::repository::tests::assert_insert_contract(
-        &crate::read_offer::repository::PostgresRetailerOfferRepository::new(pool.clone()),
+    tests_assert_insert_contract(&RepositoryPostgresRetailerOfferRepository::new(
+        pool.clone(),
+    ));
+    repository_tests_assert_insert_contract(
+        &RepositoryPostgresRetailerOfferIdentifiersRepository::new(pool.clone()),
     );
-    crate::read_offers_identifiers::repository::tests::assert_insert_contract(
-        &crate::read_offers_identifiers::repository::PostgresRetailerOfferIdentifiersRepository::new(pool.clone()),
-    );
-    #[derive(diesel::QueryableByName)]
+    #[derive(DieselQueryableByName)]
     struct StoredOffer {
-        #[diesel(sql_type = diesel::sql_types::Text)]
+        #[diesel(sql_type = SqlTypesText)]
         title: String,
-        #[diesel(sql_type = diesel::sql_types::BigInt)]
+        #[diesel(sql_type = BigInt)]
         price_amount: i64,
-        #[diesel(sql_type = diesel::sql_types::Text)]
+        #[diesel(sql_type = SqlTypesText)]
         currency: String,
-        #[diesel(sql_type = diesel::sql_types::Timestamptz)]
-        created_at: chrono::DateTime<chrono::Utc>,
+        #[diesel(sql_type = Timestamptz)]
+        created_at: DateTime<Utc>,
     }
     use diesel::RunQueryDsl;
-    let rows =
-        diesel::sql_query("SELECT title, price_amount, currency, created_at FROM read_offers")
-            .load::<StoredOffer>(&mut pool.get().unwrap())
-            .unwrap();
+    let rows = sql_query("SELECT title, price_amount, currency, created_at FROM read_offers")
+        .load::<StoredOffer>(&mut pool.get().unwrap())
+        .unwrap();
     assert_eq!(rows.len(), 2);
     for row in rows {
         assert_eq!(row.title, "Charger");
@@ -447,15 +482,15 @@ fn read_repositories_insert_contracts() {
         assert_eq!(row.currency, "AUD");
         assert_eq!(
             row.created_at,
-            chrono::DateTime::from_timestamp(1_700_000_000, 123_000_000).unwrap()
+            DateTime::from_timestamp(1_700_000_000, 123_000_000).unwrap()
         );
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn registered_projectors_create_and_update_read_models() {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).expect("connect to test database"),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -464,7 +499,7 @@ async fn registered_projectors_create_and_update_read_models() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut database_url = url::Url::parse(&database_url).unwrap();
+    let mut database_url = Url::parse(&database_url).unwrap();
     database_url
         .query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
@@ -482,8 +517,8 @@ async fn registered_projectors_create_and_update_read_models() {
     use crate::offers::event::{OfferPriceChangedEvent, OfferTitleChangedEvent};
     use diesel::RunQueryDsl;
     use kernel::ApplicationEvent;
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".to_owned()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".to_owned()));
     let response = client
         .post("/api/tmp-import")
         .body_json(&json!({
@@ -497,13 +532,13 @@ async fn registered_projectors_create_and_update_read_models() {
     run_queue(&client, "commands", 10, 1).await;
     run_queue(&client, "events", 10, 1).await;
     run_queue(&client, "events", 10, 0).await;
-    #[derive(diesel::QueryableByName)]
+    #[derive(DieselQueryableByName)]
     struct Projection {
-        #[diesel(sql_type = diesel::sql_types::Jsonb)]
+        #[diesel(sql_type = SqlTypesJsonb)]
         data: Value,
     }
     let read = || {
-        diesel::sql_query("SELECT to_jsonb(o) AS data FROM read_offers o JOIN read_offer_identities i USING (id, retailer_code, url)")
+        sql_query("SELECT to_jsonb(o) AS data FROM read_offers o JOIN read_offer_identities i USING (id, retailer_code, url)")
         .get_result::<Projection>(&mut pool.get().unwrap()).unwrap().data
     };
     let before = read();
@@ -520,20 +555,20 @@ async fn registered_projectors_create_and_update_read_models() {
     };
     let price = OfferPriceChangedEvent {
         id: id.clone(),
-        price: money::Money::new(1299, money::Currency::EUR),
+        price: Money::new(1299, Currency::EUR),
     };
     for (event_type, payload) in [
-        (title.event_type(), serde_json::to_string(&title).unwrap()),
-        (price.event_type(), serde_json::to_string(&price).unwrap()),
+        (title.event_type(), serde_json_to_string(&title).unwrap()),
+        (price.event_type(), serde_json_to_string(&price).unwrap()),
     ] {
         let event_id = Uuid::new_v4();
-        diesel::sql_query(
+        sql_query(
             "INSERT INTO event_entries (id, event_type, payload, meta) VALUES ($1, $2, $3, $4)",
         )
-        .bind::<diesel::sql_types::Uuid, _>(event_id)
-        .bind::<diesel::sql_types::Text, _>(event_type)
-        .bind::<diesel::sql_types::Text, _>(payload)
-        .bind::<diesel::sql_types::Jsonb, _>(json!({
+        .bind::<SqlTypesUuid, _>(event_id)
+        .bind::<SqlTypesText, _>(event_type)
+        .bind::<SqlTypesText, _>(payload)
+        .bind::<SqlTypesJsonb, _>(json!({
             "event_id": event_id,
             "correlation_id": Uuid::new_v4(),
             "causation_id": Uuid::new_v4(),
@@ -551,21 +586,20 @@ async fn registered_projectors_create_and_update_read_models() {
     assert_eq!(read(), expected);
     // Registration covers all offer events, preserving their wire payloads and metadata.
     use kernel::EventSubscriberPort;
-    let subscriber =
-        crate::subscribers::customer_facing::CustomerFacingSubscriber::new(pool.clone());
-    let events = diesel::sql_query("SELECT to_jsonb(e) AS data FROM event_entries e")
+    let subscriber = CustomerFacingCustomerFacingSubscriber::new(pool.clone());
+    let events = sql_query("SELECT to_jsonb(e) AS data FROM event_entries e")
         .load::<Projection>(&mut pool.get().unwrap())
         .unwrap();
     assert_eq!(events.len(), 3);
     for event in events {
-        let envelope = kernel::NewEventEnvelope {
+        let envelope = NewEventEnvelope {
             event_type: event.data["event_type"].as_str().unwrap().to_owned(),
             payload: event.data["payload"].as_str().unwrap().to_owned(),
-            metadata: Some(serde_json::from_value(event.data["meta"].clone()).unwrap()),
+            metadata: Some(from_value(event.data["meta"].clone()).unwrap()),
         };
         let read_outbox = || {
-            diesel::sql_query("SELECT to_jsonb(o) AS data FROM outbox_entries o WHERE id = $1")
-                .bind::<diesel::sql_types::Uuid, _>(envelope.metadata.as_ref().unwrap().event_id)
+            sql_query("SELECT to_jsonb(o) AS data FROM outbox_entries o WHERE id = $1")
+                .bind::<SqlTypesUuid, _>(envelope.metadata.as_ref().unwrap().event_id)
                 .get_result::<Projection>(&mut pool.get().unwrap())
                 .unwrap()
                 .data
@@ -582,18 +616,18 @@ async fn registered_projectors_create_and_update_read_models() {
         subscriber.handle(&envelope).unwrap();
         assert_eq!(read_outbox(), before);
     }
-    #[derive(diesel::QueryableByName)]
+    #[derive(DieselQueryableByName)]
     struct OutboxCount {
-        #[diesel(sql_type = diesel::sql_types::BigInt)]
+        #[diesel(sql_type = BigInt)]
         count: i64,
     }
-    let count = diesel::sql_query("SELECT count(*) AS count FROM outbox_entries")
+    let count = sql_query("SELECT count(*) AS count FROM outbox_entries")
         .get_result::<OutboxCount>(&mut pool.get().unwrap())
         .unwrap()
         .count;
     assert_eq!(count, 3);
     use crate::read_offer::repository::RetailerOfferRepository;
-    let repository = crate::read_offer::repository::PostgresRetailerOfferRepository::new(pool);
+    let repository = RepositoryPostgresRetailerOfferRepository::new(pool);
     let missing = RetailerOfferId::new(Uuid::new_v4().to_string());
     assert!(repository.update_title(&missing, "missing").is_err());
     assert!(repository.update_price(&missing, &price.price).is_err());
@@ -601,7 +635,7 @@ async fn registered_projectors_create_and_update_read_models() {
 }
 
 pub(crate) async fn run_queue(
-    client: &TestClient<poem::Route>,
+    client: &TestClient<Route>,
     queue: &str,
     limit: usize,
     processed: usize,
@@ -618,7 +652,7 @@ pub(crate) async fn run_queue(
 }
 
 pub(crate) fn inbox_test_database() -> (TestSchema, DbPool) {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).unwrap(),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -627,7 +661,7 @@ pub(crate) fn inbox_test_database() -> (TestSchema, DbPool) {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut url = url::Url::parse(&database_url).unwrap();
+    let mut url = Url::parse(&database_url).unwrap();
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
     let pool = DbPool::builder()
@@ -641,26 +675,26 @@ pub(crate) fn inbox_test_database() -> (TestSchema, DbPool) {
     (schema, pool)
 }
 
-#[derive(diesel::QueryableByName)]
+#[derive(DieselQueryableByName)]
 struct InboxTestSnapshot {
-    #[diesel(sql_type = diesel::sql_types::Jsonb)]
+    #[diesel(sql_type = SqlTypesJsonb)]
     data: Value,
 }
 
 pub(crate) fn inbox_test_snapshot(pool: &DbPool, sql: &str) -> Value {
     use diesel::RunQueryDsl;
-    diesel::sql_query(sql)
+    sql_query(sql)
         .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
         .unwrap()
         .data
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let message_id = Uuid::new_v4();
     let correlation_id = Uuid::new_v4();
     let input = json!({
@@ -677,7 +711,7 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
     let original = inbox_test_snapshot(&pool, sql);
     assert_eq!(original["id"], message_id.to_string());
     assert_eq!(
-        serde_json::from_str::<Value>(original["payload"].as_str().unwrap()).unwrap(),
+        serde_json_from_str::<Value>(original["payload"].as_str().unwrap()).unwrap(),
         input["payload"]
     );
     assert_eq!(
@@ -706,7 +740,7 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
     assert_eq!(inbox_test_snapshot(&pool, sql), original);
 
     // Rejected envelopes must not insert messages.
-    for body in inbox::prelude::testing::invalid_submissions() {
+    for body in invalid_submissions() {
         client
             .post("/api/inbox")
             .body_json(&body)
@@ -716,7 +750,7 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
     }
     assert_eq!(inbox_test_snapshot(&pool, sql), original);
 
-    let mut ids = std::collections::HashSet::from([message_id]);
+    let mut ids = HashSet::from([message_id]);
     for payload in [
         json!(0),
         json!([1, "two"]),
@@ -736,14 +770,13 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
         assert!(!id.is_nil());
         assert!(ids.insert(id));
         use diesel::RunQueryDsl;
-        let stored =
-            diesel::sql_query("SELECT to_jsonb(i) AS data FROM inbox_entries i WHERE id = $1")
-                .bind::<diesel::sql_types::Uuid, _>(id)
-                .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
-                .unwrap()
-                .data;
+        let stored = sql_query("SELECT to_jsonb(i) AS data FROM inbox_entries i WHERE id = $1")
+            .bind::<SqlTypesUuid, _>(id)
+            .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
+            .unwrap()
+            .data;
         assert_eq!(
-            serde_json::from_str::<Value>(stored["payload"].as_str().unwrap()).unwrap(),
+            serde_json_from_str::<Value>(stored["payload"].as_str().unwrap()).unwrap(),
             payload
         );
         assert_eq!(
@@ -766,17 +799,17 @@ async fn inbox_submission_preserves_payload_metadata_and_duplicate_rows() {
         .unwrap();
     let response = client.post("/api/inbox").body_json(&input).send().await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    crate::tests::assert_error_response(response).await;
+    assert_error_response(response).await;
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn inbox_submission_processes_offer_through_all_http_stages() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
-    let command = crate::offers::command::ImportOfferDetailsCommand {
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
+    let command = ImportOfferDetailsCommand {
         was_price: Default::default(),
         availability: Default::default(),
         item_condition: Default::default(),
@@ -787,9 +820,9 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
         localization: None,
         scraped_at: None,
         images: Vec::new(),
-        retailer_code: shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: RetailerCode::AnkerAu,
         title: "USB charger".into(),
-        price: money::Money::new(1999, money::Currency::AUD),
+        price: Money::new(1999, Currency::AUD),
         url: "https://example.com/Charger?q=red#details".into(),
     };
     let response = client
@@ -834,10 +867,10 @@ async fn inbox_submission_processes_offer_through_all_http_stages() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).unwrap(),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -846,7 +879,7 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut url = url::Url::parse(&database_url).unwrap();
+    let mut url = Url::parse(&database_url).unwrap();
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
     let pool = DbPool::builder()
@@ -857,14 +890,14 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
         .unwrap()
         .run_pending_migrations(MIGRATIONS)
         .unwrap();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     use diesel::{
         RunQueryDsl,
         sql_types::{Jsonb, Text, Uuid as SqlUuid},
     };
     for number in 0..3 {
-        let command = crate::offers::command::ImportOfferDetailsCommand {
+        let command = ImportOfferDetailsCommand {
             was_price: Default::default(),
             availability: Default::default(),
             item_condition: Default::default(),
@@ -875,16 +908,16 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
             localization: None,
             scraped_at: None,
             images: Vec::new(),
-            retailer_code: shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: RetailerCode::AnkerAu,
             title: "Charger".into(),
-            price: money::Money::new(1999, money::Currency::AUD),
+            price: Money::new(1999, Currency::AUD),
             url: format!("https://example.com/charger/{number}"),
         };
-        diesel::sql_query("INSERT INTO inbox_entries (id, payload, meta, scheduled_at) VALUES ($1, $2, $3, NOW() + $4 * INTERVAL '1 day')")
+        sql_query("INSERT INTO inbox_entries (id, payload, meta, scheduled_at) VALUES ($1, $2, $3, NOW() + $4 * INTERVAL '1 day')")
             .bind::<SqlUuid, _>(Uuid::new_v4())
-            .bind::<Text, _>(serde_json::to_string(&command).unwrap())
-            .bind::<Jsonb, _>(json!({"routing_key": crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND}))
-            .bind::<diesel::sql_types::Integer, _>(if number == 2 { 1 } else { 0 })
+            .bind::<Text, _>(serde_json_to_string(&command).unwrap())
+            .bind::<Jsonb, _>(json!({"routing_key": COMMAND_CREATE_FROM_OFFER_DETAILS_COMMAND}))
+            .bind::<Integer, _>(if number == 2 { 1 } else { 0 })
             .execute(&mut pool.get().unwrap()).unwrap();
     }
     // Each endpoint advances only its own queue, and respects the batch limit.
@@ -900,13 +933,13 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     run_queue(&client, "events", 1, 1).await;
     run_queue(&client, "events", 10, 0).await;
 
-    #[derive(diesel::QueryableByName)]
+    #[derive(DieselQueryableByName)]
     struct Snapshot {
         #[diesel(sql_type = Jsonb)]
         data: Value,
     }
     let snapshot = |sql: &str| {
-        diesel::sql_query(sql)
+        sql_query(sql)
             .get_result::<Snapshot>(&mut pool.get().unwrap())
             .unwrap()
             .data
@@ -953,10 +986,10 @@ async fn queue_endpoints_process_one_stage_and_preserve_unavailable_outbox() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
-    let database_url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
+    let database_url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST is required");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&database_url).unwrap(),
         name: format!("offers_test_{}", Uuid::new_v4().simple()),
@@ -965,7 +998,7 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut url = url::Url::parse(&database_url).unwrap();
+    let mut url = Url::parse(&database_url).unwrap();
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
     let pool = DbPool::builder()
@@ -998,20 +1031,20 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
         OutboxError::Transport("test broker unavailable".into())
     }
     let publisher = Arc::new(Publisher(AtomicBool::new(false)));
-    let (kernel, mut state) = crate::start_mulac(pool.clone()).unwrap();
-    state.outbox = outbox::prelude::poem::OutboxAdapter::new(
-        outbox::prelude::AsyncOutboxService::from_postgres(pool.clone(), publisher.clone()),
-    );
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, mut state) = start_mulac(pool.clone()).unwrap();
+    state.outbox = OutboxAdapter::new(AsyncOutboxService::from_postgres(
+        pool.clone(),
+        publisher.clone(),
+    ));
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     use kernel::EventSubscriberPort;
-    let subscriber =
-        crate::subscribers::customer_facing::CustomerFacingSubscriber::new(pool.clone());
+    let subscriber = CustomerFacingCustomerFacingSubscriber::new(pool.clone());
     for _ in 0..2 {
         subscriber
-            .handle(&kernel::NewEventEnvelope {
-                event_type: crate::offers::event::OFFER_CREATED_EVENT.into(),
+            .handle(&NewEventEnvelope {
+                event_type: OFFER_CREATED_EVENT.into(),
                 payload: "{}".into(),
-                metadata: Some(kernel::NewEventMetadata {
+                metadata: Some(NewEventMetadata {
                     sequence: None,
                     event_id: Uuid::new_v4(),
                     correlation_id: None,
@@ -1043,12 +1076,12 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
     let body: Value = response.json().await.value().deserialize();
     assert!(body["processed"].is_null());
     assert_eq!(body["errors"].as_array().unwrap().len(), 1);
-    #[derive(diesel::QueryableByName)]
+    #[derive(DieselQueryableByName)]
     struct Snapshot {
-        #[diesel(sql_type = diesel::sql_types::Jsonb)]
+        #[diesel(sql_type = SqlTypesJsonb)]
         data: Value,
     }
-    let failed: Snapshot = diesel::sql_query("SELECT jsonb_build_object('attempts', attempts, 'reserved', reservation_id IS NOT NULL, 'scheduled_later', scheduled_at > NOW(), 'processed', processed_at IS NOT NULL) AS data FROM outbox_entries WHERE attempts = 1").get_result(&mut pool.get().unwrap()).unwrap();
+    let failed: Snapshot = sql_query("SELECT jsonb_build_object('attempts', attempts, 'reserved', reservation_id IS NOT NULL, 'scheduled_later', scheduled_at > NOW(), 'processed', processed_at IS NOT NULL) AS data FROM outbox_entries WHERE attempts = 1").get_result(&mut pool.get().unwrap()).unwrap();
     assert_eq!(
         failed.data,
         json!({"attempts":1,"reserved":false,"scheduled_later":true,"processed":false})
@@ -1062,7 +1095,7 @@ async fn outbox_delivery_completes_only_confirmed_items_and_retries_failures() {
         .unwrap();
     run_queue(&client, "outbox", 1, 1).await;
     run_queue(&client, "outbox", 10, 0).await;
-    let completed: Snapshot = diesel::sql_query("SELECT to_jsonb(count(*)) AS data FROM outbox_entries WHERE processed_at IS NOT NULL AND reservation_id IS NULL").get_result(&mut pool.get().unwrap()).unwrap();
+    let completed: Snapshot = sql_query("SELECT to_jsonb(count(*)) AS data FROM outbox_entries WHERE processed_at IS NOT NULL AND reservation_id IS NULL").get_result(&mut pool.get().unwrap()).unwrap();
     assert_eq!(completed.data, 2);
     kernel.shutdown();
 }
@@ -1072,39 +1105,33 @@ fn insert_command(pool: &DbPool, id: Uuid, command_type: &str, payload: &str) {
         RunQueryDsl,
         sql_types::{Text, Uuid as SqlUuid},
     };
-    diesel::sql_query(
-        "INSERT INTO command_entries (id, command_type, payload) VALUES ($1, $2, $3)",
-    )
-    .bind::<SqlUuid, _>(id)
-    .bind::<Text, _>(command_type)
-    .bind::<Text, _>(payload)
-    .execute(&mut pool.get().unwrap())
-    .unwrap();
+    sql_query("INSERT INTO command_entries (id, command_type, payload) VALUES ($1, $2, $3)")
+        .bind::<SqlUuid, _>(id)
+        .bind::<Text, _>(command_type)
+        .bind::<Text, _>(payload)
+        .execute(&mut pool.get().unwrap())
+        .unwrap();
 }
 
 fn command_snapshot(pool: &DbPool, id: Uuid) -> Value {
     use diesel::RunQueryDsl;
-    diesel::sql_query(
+    sql_query(
         "SELECT jsonb_build_object('status', status, 'attempts', attempts, 'reserved', reservation_id IS NOT NULL, 'scheduled_later', scheduled_at > NOW(), 'processed', processed_at IS NOT NULL) AS data FROM command_entries WHERE id = $1",
     )
-    .bind::<diesel::sql_types::Uuid, _>(id)
+    .bind::<SqlTypesUuid, _>(id)
     .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
     .unwrap()
     .data
 }
 
-async fn run_commands_expecting_errors(
-    client: &TestClient<poem::Route>,
-    pool: &DbPool,
-    errors: Value,
-) {
+async fn run_commands_expecting_errors(client: &TestClient<Route>, pool: &DbPool, errors: Value) {
     let response = client
         .post("/api/commands/run")
         .body_json(&json!({"limit":10}))
         .send()
         .await;
     response.assert_status_is_ok();
-    crate::tests::assert_batch_response(response, errors.as_array().unwrap().len()).await;
+    assert_batch_response(response, errors.as_array().unwrap().len()).await;
     let history = inbox_test_snapshot(
         pool,
         "SELECT jsonb_agg(extra_info) AS data FROM command_entries WHERE status = 4",
@@ -1115,12 +1142,12 @@ async fn run_commands_expecting_errors(
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn commands_run_stops_retrying_after_six_failures() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let id = Uuid::new_v4();
     insert_command(&pool, id, "unregistered", "{}");
     let not_found = json!(["no handler registered for command type 'unregistered'"]);
@@ -1161,13 +1188,13 @@ async fn commands_run_stops_retrying_after_six_failures() {
     kernel.shutdown();
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
-    let command = crate::offers::command::ImportOfferDetailsCommand {
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
+    let command = ImportOfferDetailsCommand {
         was_price: Default::default(),
         availability: Default::default(),
         item_condition: Default::default(),
@@ -1178,9 +1205,9 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
         localization: None,
         scraped_at: None,
         images: Vec::new(),
-        retailer_code: shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: RetailerCode::AnkerAu,
         title: "Charger".into(),
-        price: money::Money::new(1999, money::Currency::AUD),
+        price: Money::new(1999, Currency::AUD),
         url: "https://example.com/charger".into(),
     };
     let valid = Uuid::new_v4();
@@ -1188,8 +1215,8 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
     insert_command(
         &pool,
         valid,
-        crate::offers::command::CREATE_FROM_OFFER_DETAILS_COMMAND,
-        &serde_json::to_string(&command).unwrap(),
+        COMMAND_CREATE_FROM_OFFER_DETAILS_COMMAND,
+        &serde_json_to_string(&command).unwrap(),
     );
     insert_command(&pool, unregistered, "unregistered", "{}");
 
@@ -1217,22 +1244,22 @@ async fn commands_run_keeps_successful_commands_of_a_failed_batch() {
 
 fn event_snapshot(pool: &DbPool, id: Uuid) -> Value {
     use diesel::RunQueryDsl;
-    diesel::sql_query(
+    sql_query(
         "SELECT jsonb_build_object('status', status, 'attempts', attempts, 'reserved', reservation_id IS NOT NULL, 'scheduled_later', scheduled_at > NOW(), 'processed', processed_at IS NOT NULL) AS data FROM event_entries WHERE id = $1",
     )
-    .bind::<diesel::sql_types::Uuid, _>(id)
+    .bind::<SqlTypesUuid, _>(id)
     .get_result::<InboxTestSnapshot>(&mut pool.get().unwrap())
     .unwrap()
     .data
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events() {
     use diesel::RunQueryDsl;
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     client
         .post("/api/tmp-import")
         .body_json(&json!({
@@ -1253,10 +1280,10 @@ async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events()
     let failing = Uuid::parse_str(failing.as_str().unwrap()).unwrap();
     // An event type without subscribers completes and is counted.
     let unsubscribed = Uuid::new_v4();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO event_entries (id, event_type, payload) VALUES ($1, 'unsubscribed', '{}')",
     )
-    .bind::<diesel::sql_types::Uuid, _>(unsubscribed)
+    .bind::<SqlTypesUuid, _>(unsubscribed)
     .execute(&mut pool.get().unwrap())
     .unwrap();
 
@@ -1266,7 +1293,7 @@ async fn events_run_reschedules_subscriber_failures_and_keeps_completed_events()
         .send()
         .await;
     response.assert_status_is_ok();
-    crate::tests::assert_batch_response(response, 1).await;
+    assert_batch_response(response, 1).await;
     assert_eq!(
         event_snapshot(&pool, failing),
         json!({"status":4, "attempts":1, "reserved":false, "scheduled_later":true, "processed":false})
@@ -1297,9 +1324,9 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
         Box::new(InMemoryRetailerOfferRepository::new()),
     ];
     for repository in repositories {
-        let entity = crate::read_offer::entity::RetailerOffer {
-            facts: crate::offers::event::OfferFacts {
-                content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+        let entity = RetailerOffer {
+            facts: OfferFacts {
+                content: singleton("Charger".into(), None, None),
                 ..Default::default()
             },
             identifiers: Default::default(),
@@ -1307,11 +1334,11 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
             scraped_at: None,
             images: Vec::new(),
             id: RetailerOfferId::new(Uuid::now_v7().to_string()),
-            retailer_code: shared::retailer::RetailerCode::AnkerAu,
+            retailer_code: RetailerCode::AnkerAu,
             title: "Charger".into(),
-            price: money::Money::new(1999, money::Currency::AUD),
+            price: Money::new(1999, Currency::AUD),
             url: "https://shop.example/charger".into(),
-            created_at: chrono::Utc::now(),
+            created_at: Utc::now(),
         };
         let a = OfferImageAddedEvent {
             id: entity.id.clone(),
@@ -1343,7 +1370,7 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
         }
         repository.update_title(&entity.id, "updated").unwrap();
         repository
-            .update_price(&entity.id, &money::Money::new(42, money::Currency::EUR))
+            .update_price(&entity.id, &Money::new(42, Currency::EUR))
             .unwrap();
         assert_eq!(
             repository.images(&entity.id).unwrap(),
@@ -1352,12 +1379,12 @@ fn image_projection_orders_and_rejects_conflicts_with_memory_parity() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn image_imports_emit_append_only_events_through_existing_handler() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let a = "https://shop.example/A";
     let b = "https://shop.example/B";
     let c = "https://shop.example/C";
@@ -1445,20 +1472,20 @@ fn image_migration_preserves_preexisting_offer_rows() {
 fn creation_projection_rolls_back_parent_and_images_together() {
     use crate::read_offer::repository::{PostgresRetailerOfferRepository, RetailerOfferRepository};
     let (_schema, pool) = inbox_test_database();
-    let entity = crate::read_offer::entity::RetailerOffer {
-        facts: crate::offers::event::OfferFacts {
-            content: retailer_sauce::offer_content::singleton("Charger".into(), None, None),
+    let entity = RetailerOffer {
+        facts: OfferFacts {
+            content: singleton("Charger".into(), None, None),
             ..Default::default()
         },
         identifiers: Default::default(),
         localization: Default::default(),
         scraped_at: None,
         id: RetailerOfferId::new(Uuid::now_v7().to_string()),
-        retailer_code: shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: RetailerCode::AnkerAu,
         title: "Charger".into(),
         url: "https://shop.example/atomic".into(),
-        price: money::Money::new(1999, money::Currency::AUD),
-        created_at: chrono::Utc::now(),
+        price: Money::new(1999, Currency::AUD),
+        created_at: Utc::now(),
         images: vec![
             "https://shop.example/A".into(),
             "https://shop.example/B".into(),
@@ -1487,12 +1514,12 @@ fn creation_projection_rolls_back_parent_and_images_together() {
     assert_eq!(repository.images(&entity.id).unwrap(), entity.images);
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn scrape_only_import_persists_history_projection_and_outbox() {
     let (_schema, pool) = inbox_test_database();
-    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/scrape", "scraped_at":"2026-10-26T14:00:00.123456+02:00"});
     for (time, events) in [
         ("2026-10-26T14:00:00.123456+02:00", 1),
@@ -1521,12 +1548,12 @@ async fn scrape_only_import_persists_history_projection_and_outbox() {
     assert_eq!(event["scraped_at"], "2026-10-26T12:00:01.123456Z");
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn every_event_keeps_its_testimony_revision_through_outbox_replay() {
     let (_schema, pool) = inbox_test_database();
-    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/revision"});
     for update in [false, true, true] {
         if update {
@@ -1597,12 +1624,12 @@ async fn every_event_keeps_its_testimony_revision_through_outbox_replay() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn localization_and_identifier_imports_preserve_identity_and_legacy_enrichment() {
     let (_schema, pool) = inbox_test_database();
-    let (_kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (_kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut input = json!({"retailer_code":"ankerau","title":"Charger","price_amount":100,"currency":"AUD","url":"https://shop.example/facts"});
     for step in 0..4 {
         if step == 1 {

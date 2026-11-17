@@ -1,6 +1,11 @@
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RetailerOfferId(pub String);
 
 impl RetailerOfferId {
@@ -13,8 +18,8 @@ impl RetailerOfferId {
     }
 }
 
-impl fmt::Display for RetailerOfferId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for RetailerOfferId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         f.write_str(self.value())
     }
 }

@@ -1,9 +1,16 @@
+use super::tests::aggregate;
 use super::*;
 use crate::infra::records::OfferEventRecord;
 use kernel::ApplicationEvent;
 use money::Currency;
+use offer_content::selected as offer_content_selected;
+use offer_content::singleton;
 use retailer_sauce::localization::Localization;
+use retailer_sauce::structuralized::content::Content;
+use serde_json::from_str;
+use serde_json::from_value as decode_json_value;
 use serde_json::json;
+use serde_json::to_string;
 
 fn observe(language: Option<&str>, description: Option<Option<&str>>) -> OfferObservation {
     OfferObservation {
@@ -11,11 +18,9 @@ fn observe(language: Option<&str>, description: Option<Option<&str>>) -> OfferOb
             target_market: None,
             language: language.map(str::to_owned),
         }),
-        content: description.map(
-            |description| retailer_sauce::structuralized::content::Content {
-                description: description.map(str::to_owned),
-            },
-        ),
+        content: description.map(|description| Content {
+            description: description.map(str::to_owned),
+        }),
         ..Default::default()
     }
 }
@@ -34,8 +39,8 @@ fn assert_replay(offer: &RetailerOfferAggregate) {
         .uncommitted_events
         .iter()
         .map(|event| {
-            let record = serde_json::to_string(&OfferEventRecord::from(event.event())).unwrap();
-            let record: OfferEventRecord = serde_json::from_str(&record).unwrap();
+            let record = to_string(&OfferEventRecord::from(event.event())).unwrap();
+            let record: OfferEventRecord = from_str(&record).unwrap();
             EventEnvelope::new(record.into(), event.sequence())
         })
         .collect();
@@ -47,7 +52,7 @@ fn assert_replay(offer: &RetailerOfferAggregate) {
 
 #[test]
 fn languages_merge_without_copying_descriptions_and_selection_only_is_an_event() {
-    let mut offer = super::tests::aggregate();
+    let mut offer = aggregate();
     update(
         &mut offer,
         " English ž ",
@@ -55,7 +60,7 @@ fn languages_merge_without_copying_descriptions_and_selection_only_is_an_event()
     );
     update(&mut offer, "Français", observe(Some("fr"), None));
     assert_eq!(
-        offer_content::selected(&offer.state.facts.content, &Some("fr".into()))
+        offer_content_selected(&offer.state.facts.content, &Some("fr".into()))
             .unwrap()
             .description,
         None
@@ -80,7 +85,7 @@ fn languages_merge_without_copying_descriptions_and_selection_only_is_an_event()
     assert_eq!(offer.state.facts.content[0].description, None);
     update(&mut offer, "Français", observe(Some("fr"), Some(None)));
     assert_eq!(
-        offer_content::selected(&offer.state.facts.content, &Some("fr".into()))
+        offer_content_selected(&offer.state.facts.content, &Some("fr".into()))
             .unwrap()
             .description,
         None
@@ -100,11 +105,11 @@ fn languages_merge_without_copying_descriptions_and_selection_only_is_an_event()
 
 #[test]
 fn combined_market_change_follows_content_and_reserves_capacity_atomically() {
-    let mut offer = super::tests::aggregate();
+    let mut offer = aggregate();
     let observation = || {
         let mut observation = observe(Some("de"), Some(Some("Details")));
         observation.localization.as_mut().unwrap().target_market =
-            serde_json::from_value(json!({"kind":"country","code":"DE"})).unwrap();
+            decode_json_value(json!({"kind":"country","code":"DE"})).unwrap();
         observation
     };
     offer.sequence = i64::MAX as u64 - 1;
@@ -167,14 +172,14 @@ fn actual_old_creation_records_and_mixed_history_keep_exact_scalar_tuples() {
         if version == 8 {
             historical["content"] = json!({"description":" <p>old &amp; text</p>\n"});
         }
-        let record: OfferEventRecord = serde_json::from_value(
+        let record: OfferEventRecord = decode_json_value(
             json!({"type":format!("OfferCreated.v{version}"),"data":historical.clone()}),
         )
         .unwrap();
-        let old: OfferCreatedEvent = serde_json::from_value(historical).unwrap();
+        let old: OfferCreatedEvent = decode_json_value(historical).unwrap();
         assert_eq!(
             old.facts.content,
-            offer_content::singleton(
+            singleton(
                 " Old ž ".into(),
                 if version >= 5 {
                     Some("en-US".into())
@@ -206,12 +211,12 @@ fn actual_old_creation_records_and_mixed_history_keep_exact_scalar_tuples() {
             json!({"type":"OfferContentChanged.v1","data":{"id":"legacy","content":{"description":" Exact legacy "}}}),
             json!({"type":"OfferLocalizationChanged.v1","data":{"id":"legacy","localization":{"target_market":null,"language":"en-US"}}}),
         ].into_iter().enumerate() {
-            let record: OfferEventRecord = serde_json::from_value(payload).unwrap();
+            let record: OfferEventRecord = decode_json_value(payload).unwrap();
             history.push(EventEnvelope::new(record.into(), index as u64 + 3));
         }
         let replay = RetailerOfferAggregate::from_history(RetailerOfferId::new("legacy"), history);
         let selected =
-            offer_content::selected(&replay.state.facts.content, &Some("en-US".into())).unwrap();
+            offer_content_selected(&replay.state.facts.content, &Some("en-US".into())).unwrap();
         assert_eq!(selected.title, " Corrected ");
         assert_eq!(selected.description.as_deref(), Some(" Exact legacy "));
         assert!(
@@ -228,7 +233,7 @@ fn actual_old_creation_records_and_mixed_history_keep_exact_scalar_tuples() {
         );
     }
     assert!(
-        serde_json::from_value::<OfferEventRecord>(json!({"type":"OfferCreated.v9","data":data}))
+        decode_json_value::<OfferEventRecord>(json!({"type":"OfferCreated.v9","data":data}))
             .is_err()
     );
 }
@@ -240,7 +245,7 @@ fn full_snapshot_records_require_complete_valid_lists_before_replay() {
         json!({"id":"offer","content":[]}),
         json!({"id":"offer","content":null,"language":null}),
     ] {
-        assert!(serde_json::from_value::<OfferContentsChangedEvent>(value).is_err());
+        assert!(decode_json_value::<OfferContentsChangedEvent>(value).is_err());
     }
     for (content, language) in [
         (json!([]), json!(null)),
@@ -254,8 +259,7 @@ fn full_snapshot_records_require_complete_valid_lists_before_replay() {
         ),
     ] {
         let event: OfferContentsChangedEvent =
-            serde_json::from_value(json!({"id":"offer","content":content,"language":language}))
-                .unwrap();
+            decode_json_value(json!({"id":"offer","content":content,"language":language})).unwrap();
         assert!(event.guard().is_err());
     }
 }

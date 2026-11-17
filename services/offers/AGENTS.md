@@ -80,5 +80,7 @@ let req = ImportOfferRequest {
     url: "https://example.com/Charger?q=red#details".into(),
 };
 
-let submission = inbox::SubmitInboxRequest::try_from(req).unwrap();
+use inbox::prelude::SubmitInboxRequest;
+
+let submission = SubmitInboxRequest::try_from(req).unwrap();
 ```

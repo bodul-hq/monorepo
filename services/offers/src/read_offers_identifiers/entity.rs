@@ -1,10 +1,11 @@
+use retailer_sauce::identifier::ProductIdentifiers;
 use shared::retailer::RetailerCode;
 
 use crate::offers::retailer_offer_id::RetailerOfferId;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct RetailerOfferIdentifiers {
-    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
+    pub identifiers: ProductIdentifiers,
     pub id: RetailerOfferId,
     pub retailer_code: RetailerCode,
     pub url: String,
