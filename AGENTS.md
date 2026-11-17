@@ -68,3 +68,11 @@ continue to `[~]` as implementation begins.
 ## Asking first
 
 - When a request has more than one reasonable reading, ask before acting.
+
+## Rust imports
+
+Import functions, types and macros with `use` instead of using module-qualified
+paths inline. Use descriptive import aliases when names collide. Keep associated
+calls and enum variants qualified by their type, for example `Uuid::now_v7()`
+and `SourceType::GraphQl`. Preserve paths required for macro hygiene and trait
+disambiguation.
