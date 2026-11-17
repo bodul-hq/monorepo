@@ -6,13 +6,14 @@ use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema, http::Grap
 use async_graphql_poem::GraphQL;
 use poem::{Route, get, handler, web::Html};
 use poem_openapi::OpenApiService;
+use shared::health as shared_health;
 
 struct Query;
 
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        shared::health()
+        shared_health()
     }
 }
 

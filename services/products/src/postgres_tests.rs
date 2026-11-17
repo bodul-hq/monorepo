@@ -1,7 +1,12 @@
+use crate::app;
+use crate::start_mulac;
 use crate::{
     bootstrap::MIGRATIONS,
     infra::{DbPool, PostgresEventStore},
 };
+use diesel::QueryableByName;
+use diesel::sql_query;
+use diesel::sql_types::Jsonb;
 use diesel::{
     Connection, PgConnection, RunQueryDsl, connection::SimpleConnection, r2d2::ConnectionManager,
 };
@@ -9,7 +14,11 @@ use diesel_migrations::MigrationHarness;
 use poem::{http::StatusCode, test::TestClient};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use std::env::var;
 use testimony::prelude::{EventEnvelope, EventStore, HasAggregateId};
+use tokio::test as tokio_test;
+use url::Url;
+use uuid::Uuid;
 
 struct TestSchema {
     connection: PgConnection,
@@ -23,16 +32,16 @@ impl Drop for TestSchema {
     }
 }
 fn database() -> (TestSchema, DbPool) {
-    let url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
+    let url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
     let mut schema = TestSchema {
         connection: PgConnection::establish(&url).unwrap(),
-        name: format!("foundation_{}", uuid::Uuid::new_v4().simple()),
+        name: format!("foundation_{}", Uuid::new_v4().simple()),
     };
     schema
         .connection
         .batch_execute(&format!("CREATE SCHEMA {}", schema.name))
         .unwrap();
-    let mut url = url::Url::parse(&url).unwrap();
+    let mut url = Url::parse(&url).unwrap();
     url.query_pairs_mut()
         .append_pair("options", &format!("-csearch_path={}", schema.name));
     let pool = DbPool::builder()
@@ -45,13 +54,13 @@ fn database() -> (TestSchema, DbPool) {
         .unwrap();
     (schema, pool)
 }
-#[derive(diesel::QueryableByName)]
+#[derive(QueryableByName)]
 struct Snapshot {
-    #[diesel(sql_type=diesel::sql_types::Jsonb)]
+    #[diesel(sql_type=Jsonb)]
     data: Value,
 }
 fn snapshot(pool: &DbPool, sql: &str) -> Value {
-    diesel::sql_query(sql)
+    sql_query(sql)
         .get_result::<Snapshot>(&mut pool.get().unwrap())
         .unwrap()
         .data
@@ -104,12 +113,12 @@ fn migrations_and_testimony_round_trip() {
     assert!(snapshot(&pool, "SELECT metadata AS data FROM event_store").is_object());
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST"]
 async fn durable_inbox_queues_and_reporting() {
     let (_schema, pool) = database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app(state, "test".into()));
     for queue in ["inbox", "commands", "events"] {
         client
             .post(format!("/api/{queue}/run"))
@@ -119,7 +128,7 @@ async fn durable_inbox_queues_and_reporting() {
             .assert_json(json!({"processed":0,"errors":[]}))
             .await;
     }
-    let id = uuid::Uuid::new_v4();
+    let id = Uuid::new_v4();
     let request = json!({"message_id":id,"payload":{"value":1},"routing_key":"UnknownCommand","source":"test"});
     client
         .post("/api/inbox")
@@ -141,8 +150,8 @@ async fn durable_inbox_queues_and_reporting() {
         snapshot(&pool, "SELECT to_jsonb(i) AS data FROM inbox_entries i")
     );
     kernel.shutdown();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app(state, "test".into()));
     client
         .post("/api/inbox/run")
         .body_json(&json!({"limit":10}))
@@ -158,11 +167,9 @@ async fn durable_inbox_queues_and_reporting() {
     response.assert_status_is_ok();
     let body: Value = response.json().await.value().deserialize();
     assert_eq!(body["errors"].as_array().unwrap().len(), 1);
-    diesel::sql_query(
-        "INSERT INTO outbox_entries(id,payload,meta) VALUES (gen_random_uuid(),'{}','{}')",
-    )
-    .execute(&mut pool.get().unwrap())
-    .unwrap();
+    sql_query("INSERT INTO outbox_entries(id,payload,meta) VALUES (gen_random_uuid(),'{}','{}')")
+        .execute(&mut pool.get().unwrap())
+        .unwrap();
     let before = snapshot(
         &pool,
         "SELECT coalesce(jsonb_agg(to_jsonb(o)), '[]') AS data FROM outbox_entries o",
