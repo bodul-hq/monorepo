@@ -45,6 +45,17 @@ continue to `[~]` as implementation begins.
 
 - Follow [docs/retailer-integration.md](docs/retailer-integration.md) step by step.
 
+## Imports
+
+- In every crate, import functions, types and macros with `use` instead of
+  using module-qualified paths inline. Use descriptive aliases for name
+  collisions. Keep associated calls and enum variants qualified by their type
+  (for example, `Uuid::now_v7()` and `SourceType::GraphQl`).
+- Keep test-only imports inside test modules, or just above the first test
+  when tests share a module with production code.
+- Place submodule declarations (`mod xyz;`) after module documentation and
+  before production imports.
+
 ## Dependencies
 
 - Declare a dependency used by several crates in the same workspace once, under `[workspace.dependencies]`, and use it with `name.workspace = true`.

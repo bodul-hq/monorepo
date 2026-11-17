@@ -1,3 +1,6 @@
+use chrono::DateTime;
+use chrono::Utc;
+
 use crate::error::Error;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -84,7 +87,7 @@ pub struct Record {
     #[diesel(sql_type = diesel::sql_types::Jsonb)]
     pub metadata: Value,
     #[diesel(sql_type = diesel::sql_types::Timestamptz)]
-    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize)]

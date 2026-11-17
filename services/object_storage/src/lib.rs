@@ -5,6 +5,22 @@ mod openapi;
 mod reporting;
 pub mod store;
 
+use async_graphql::http::GraphiQLSource;
+use axum::extract::rejection::JsonRejection;
+use axum::extract::rejection::PathRejection;
+use axum::http::Method;
+use graphql::handle;
+use graphql::schema as graphql_schema;
+use header::AUTHORIZATION;
+use header::CONTENT_TYPE;
+use header::LOCATION;
+use middleware::from_fn;
+use model::Record;
+use openapi::document;
+use reporting::routes as reporting_routes;
+use shared::health as shared_health;
+use tracing::Level;
+
 use axum::{
     Json, Router,
     extract::{DefaultBodyLimit, Path, Request, State},
@@ -23,7 +39,7 @@ use utoipa_swagger_ui::SwaggerUi;
 pub const BEARER_TOKEN: &str = "6fe0382d64bba74e205af86e397d902c0f5e6f3d8e15b1a4f87c6a309d752eb1";
 
 async fn authenticate(request: Request, next: Next) -> Response {
-    let mut values = request.headers().get_all(header::AUTHORIZATION).iter();
+    let mut values = request.headers().get_all(AUTHORIZATION).iter();
     let credential = values
         .next()
         .and_then(|v| v.to_str().ok())
@@ -46,12 +62,12 @@ async fn authenticate(request: Request, next: Next) -> Response {
 }
 
 async fn content_type(request: Request, next: Next) -> Response {
-    if request.method() != axum::http::Method::POST {
+    if request.method() != Method::POST {
         return next.run(request).await;
     }
     let supported = request
         .headers()
-        .get(header::CONTENT_TYPE)
+        .get(CONTENT_TYPE)
         .and_then(|v| v.to_str().ok())
         .and_then(|v| v.split(';').next())
         .is_some_and(|v| v.trim().eq_ignore_ascii_case("application/json"));
@@ -64,8 +80,8 @@ async fn content_type(request: Request, next: Next) -> Response {
 
 async fn create(
     State(store): State<Store>,
-    path: Result<Path<String>, axum::extract::rejection::PathRejection>,
-    input: Result<Json<Create>, axum::extract::rejection::JsonRejection>,
+    path: Result<Path<String>, PathRejection>,
+    input: Result<Json<Create>, JsonRejection>,
 ) -> Result<Response, Error> {
     let Path(bucket) = path.map_err(|_| Error::Input("Invalid bucket path."))?;
     let Json(input) = input.map_err(|_| {
@@ -80,12 +96,12 @@ async fn create(
         StatusCode::OK
     };
     let location = format!("/api/buckets/{bucket}/records/{}", created.id);
-    Ok((status, [(header::LOCATION, location)], Json(created)).into_response())
+    Ok((status, [(LOCATION, location)], Json(created)).into_response())
 }
 async fn retrieve(
     State(store): State<Store>,
-    path: Result<Path<(String, String)>, axum::extract::rejection::PathRejection>,
-) -> Result<Json<model::Record>, Error> {
+    path: Result<Path<(String, String)>, PathRejection>,
+) -> Result<Json<Record>, Error> {
     let Path((bucket, id)) = path.map_err(|_| Error::Input("Invalid record path."))?;
     store.get(bucket, id).await.map(Json)
 }
@@ -93,49 +109,37 @@ async fn retrieve(
 /// All routes (including fallbacks, documentation assets and health) require
 /// authentication. The outer auth layer runs before extractors read the body.
 pub fn app(store: Store) -> Router {
-    let schema = graphql::schema(store.clone());
+    let schema = graphql_schema(store.clone());
     let rest = Router::new()
         .route(
             "/api/buckets/{bucket}/records",
-            post(create).layer(middleware::from_fn(content_type)),
+            post(create).layer(from_fn(content_type)),
         )
         .route("/api/buckets/{bucket}/records/{id}", get(retrieve))
-        .merge(reporting::routes())
+        .merge(reporting_routes())
         .with_state(store);
     let graphql = Router::new()
-        .route(
-            "/graphql",
-            post(graphql::handle).layer(middleware::from_fn(content_type)),
-        )
+        .route("/graphql", post(handle).layer(from_fn(content_type)))
         .with_state(schema);
     let mut router = Router::new()
         .merge(rest)
         .merge(graphql)
-        .route("/api/health", get(|| async { shared::health() }))
-        .merge(
-            SwaggerUi::new("/api/docs")
-                .external_url_unchecked("/api/openapi.json", openapi::document()),
-        )
+        .route("/api/health", get(|| async { shared_health() }))
+        .merge(SwaggerUi::new("/api/docs").external_url_unchecked("/api/openapi.json", document()))
         .fallback(|| async { Error::NotFound });
     if cfg!(debug_assertions) {
         router = router.route(
             "/graphql/ide",
-            get(|| async {
-                Html(
-                    async_graphql::http::GraphiQLSource::build()
-                        .endpoint("/graphql")
-                        .finish(),
-                )
-            }),
+            get(|| async { Html(GraphiQLSource::build().endpoint("/graphql").finish()) }),
         );
     }
     router
         .method_not_allowed_fallback(|| async { Error::MethodNotAllowed })
         .layer(DefaultBodyLimit::disable())
-        .layer(middleware::from_fn(authenticate))
+        .layer(from_fn(authenticate))
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(DefaultMakeSpan::new().level(tracing::Level::INFO))
-                .on_response(DefaultOnResponse::new().level(tracing::Level::INFO)),
+                .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(DefaultOnResponse::new().level(Level::INFO)),
         )
 }

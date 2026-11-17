@@ -1,3 +1,5 @@
+use shared::health as shared_health;
+
 use poem_openapi::{OpenApi, payload::PlainText};
 
 pub struct HealthApi;
@@ -6,6 +8,6 @@ pub struct HealthApi;
 impl HealthApi {
     #[oai(path = "/health", method = "get")]
     async fn health(&self) -> PlainText<&'static str> {
-        PlainText(shared::health())
+        PlainText(shared_health())
     }
 }

@@ -1,11 +1,14 @@
+use serde_json::from_str;
+use std::env::var;
+
 use object_storage_client::{Client, CreateRecord, ErrorKind, Transport, Uuid};
 
 /// Run only against a disposable server/database: immutable artifacts remain.
 #[tokio::test]
 #[ignore = "requires OBJECT_STORAGE_URL and OBJECT_STORAGE_TOKEN; run make test-live"]
 async fn created_record_round_trips_all_input_fields() {
-    let url = std::env::var("OBJECT_STORAGE_URL").expect("OBJECT_STORAGE_URL is required");
-    let token = std::env::var("OBJECT_STORAGE_TOKEN").expect("OBJECT_STORAGE_TOKEN is required");
+    let url = var("OBJECT_STORAGE_URL").expect("OBJECT_STORAGE_URL is required");
+    let token = var("OBJECT_STORAGE_TOKEN").expect("OBJECT_STORAGE_TOKEN is required");
     let rest = Client::new(&url, &token, Transport::Rest).unwrap();
     let graphql = rest.with_transport(Transport::Graphql);
     let bucket = "sitemap_raw";
@@ -14,7 +17,7 @@ async fn created_record_round_trips_all_input_fields() {
         let input = CreateRecord {
             idempotency_key: Uuid::now_v7(),
             payload: "<urlset>\n  Živjo 雪 🌍 & \"quotes\" \\ slash\n</urlset>\n".into(),
-            metadata: serde_json::from_str(
+            metadata: from_str(
                 r#"{
                     "source": "client round-trip integration",
                     "nested": {"enabled": true, "missing": null, "text": "Živjo 雪 🌍"},
@@ -47,8 +50,8 @@ async fn created_record_round_trips_all_input_fields() {
 #[tokio::test]
 #[ignore = "requires OBJECT_STORAGE_URL and OBJECT_STORAGE_TOKEN; run make test-live"]
 async fn both_transports_share_creation_retries_and_retrieval() {
-    let url = std::env::var("OBJECT_STORAGE_URL").expect("OBJECT_STORAGE_URL is required");
-    let token = std::env::var("OBJECT_STORAGE_TOKEN").expect("OBJECT_STORAGE_TOKEN is required");
+    let url = var("OBJECT_STORAGE_URL").expect("OBJECT_STORAGE_URL is required");
+    let token = var("OBJECT_STORAGE_TOKEN").expect("OBJECT_STORAGE_TOKEN is required");
     let rest = Client::new(&url, &token, Transport::Rest).unwrap();
     let graphql = rest.with_transport(Transport::Graphql);
     rest.health().await.unwrap();
@@ -56,7 +59,7 @@ async fn both_transports_share_creation_retries_and_retrieval() {
     for (writer, reader) in [(&rest, &graphql), (&graphql, &rest)] {
         let input = CreateRecord {
             idempotency_key: Uuid::now_v7(), payload: "Client integration: Živjo 雪 🌍".into(),
-            metadata: serde_json::from_str(r#"{"number":123456789012345678901234567890,"decimal":0.123456789012345678901234567890}"#).unwrap(),
+            metadata: from_str(r#"{"number":123456789012345678901234567890,"decimal":0.123456789012345678901234567890}"#).unwrap(),
         };
         let id = writer.create("sitemap_raw", &input).await.unwrap();
         assert_eq!(reader.create("sitemap_raw", &input).await.unwrap(), id);

@@ -6,6 +6,13 @@
 //! automatic retries are disabled. Errors never include URLs, credentials or
 //! response bodies.
 
+use reqwest::header::CONTENT_TYPE;
+use reqwest::redirect::Policy;
+use reqwest::retry::never as reqwest_retry_never;
+use serde_json::from_slice;
+use serde_json::to_vec;
+use tokio::time::timeout as tokio_time_timeout;
+
 use std::{env::VarError, time::Duration};
 
 use reqwest::{Client, StatusCode, Url};
@@ -79,8 +86,8 @@ impl InboxClient {
     ) -> Result<Self, ConfigError> {
         let inbox_url = inbox_url(origin)?;
         let client = Client::builder()
-            .redirect(reqwest::redirect::Policy::none())
-            .retry(reqwest::retry::never())
+            .redirect(Policy::none())
+            .retry(reqwest_retry_never())
             .timeout(timeout)
             .build()
             .map_err(|_| ConfigError::Client)?;
@@ -95,9 +102,9 @@ impl InboxClient {
     /// Posts `submission` and waits for acceptance of `expected`. Blocks on
     /// the configured runtime, so call it from a blocking thread.
     pub fn submit(&self, submission: &impl Serialize, expected: Uuid) -> Result<(), SubmitError> {
-        let body = serde_json::to_vec(submission).map_err(|_| SubmitError::Payload)?;
+        let body = to_vec(submission).map_err(|_| SubmitError::Payload)?;
         self.runtime.block_on(async {
-            tokio::time::timeout(self.timeout, self.deliver(body, expected))
+            tokio_time_timeout(self.timeout, self.deliver(body, expected))
                 .await
                 .map_err(|_| SubmitError::Timeout)?
         })
@@ -107,7 +114,7 @@ impl InboxClient {
         let mut response = self
             .client
             .post(self.inbox_url.clone())
-            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .header(CONTENT_TYPE, "application/json")
             .body(body)
             .send()
             .await
@@ -129,7 +136,7 @@ impl InboxClient {
             bytes.extend_from_slice(&chunk);
         }
         let acknowledgement: Acknowledgement =
-            serde_json::from_slice(&bytes).map_err(|_| SubmitError::Acknowledgement)?;
+            from_slice(&bytes).map_err(|_| SubmitError::Acknowledgement)?;
         if Uuid::parse_str(&acknowledgement.message_id).ok() != Some(expected) {
             return Err(SubmitError::Acknowledgement);
         }

@@ -1,4 +1,7 @@
 //! Statistics for ordinary tables in this connection's active schema.
+use chrono::DateTime;
+use chrono::Utc as ChronoUtc;
+
 use diesel::prelude::*;
 use diesel::sql_types::{BigInt, Text};
 use serde::Serialize;
@@ -44,21 +47,25 @@ struct TableRecord {
 }
 
 pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables> {
+    use chrono::SecondsFormat;
+    use chrono::Utc;
+    use diesel::result::Error;
+    use diesel::sql_query;
+
     #[derive(QueryableByName)]
     struct Schema {
         #[diesel(sql_type = Text)]
         schema_name: String,
     }
     let schema: Schema =
-        diesel::sql_query("SELECT current_schema()::text AS schema_name").get_result(connection)?;
+        sql_query("SELECT current_schema()::text AS schema_name").get_result(connection)?;
     let records: Vec<TableRecord> =
-        diesel::sql_query(include_str!("database_tables.sql")).load(connection)?;
+        sql_query(include_str!("database_tables.sql")).load(connection)?;
     let tables = records
         .into_iter()
         .map(|record| {
             let unsigned = |value: i64| {
-                u64::try_from(value)
-                    .map_err(|e| diesel::result::Error::DeserializationError(Box::new(e)))
+                u64::try_from(value).map_err(|e| Error::DeserializationError(Box::new(e)))
             };
             let table_bytes = unsigned(record.table_bytes)?;
             let index_bytes = unsigned(record.index_bytes)?;
@@ -73,7 +80,7 @@ pub(super) fn load(connection: &mut PgConnection) -> QueryResult<DatabaseTables>
         .collect::<QueryResult<Vec<_>>>()?;
     Ok(DatabaseTables {
         schema_name: schema.schema_name,
-        generated_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        generated_at: Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true),
         row_count_kind: RowCountKind::Estimated,
         tables,
     })
@@ -102,10 +109,17 @@ pub(super) struct StatusCount {
 
 pub(super) fn load_entry_statuses_at(
     connection: &mut PgConnection,
-    now: chrono::DateTime<chrono::Utc>,
+    now: DateTime<ChronoUtc>,
 ) -> QueryResult<EntryStatuses> {
-    let start = now.date_naive().and_time(chrono::NaiveTime::MIN).and_utc();
-    let end = start + chrono::Duration::days(1);
+    use chrono::Duration;
+    use chrono::NaiveTime;
+    use chrono::SecondsFormat as ChronoSecondsFormat;
+    use diesel::result::Error as DieselResultError;
+    use diesel::sql_query as diesel_sql_query;
+    use diesel::sql_types::Timestamptz;
+
+    let start = now.date_naive().and_time(NaiveTime::MIN).and_utc();
+    let end = start + Duration::days(1);
     #[derive(QueryableByName)]
     struct Record {
         #[diesel(sql_type = Text)]
@@ -116,7 +130,7 @@ pub(super) fn load_entry_statuses_at(
         count: i64,
     }
     // One statement gives all four queues the same PostgreSQL snapshot.
-    let records: Vec<Record> = diesel::sql_query(
+    let records: Vec<Record> = diesel_sql_query(
         "SELECT 'command' AS kind, status, COUNT(*) AS count FROM command_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
          UNION ALL
          SELECT 'event' AS kind, status, COUNT(*) AS count FROM event_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
@@ -126,13 +140,13 @@ pub(super) fn load_entry_statuses_at(
          SELECT 'outbox' AS kind, status, COUNT(*) AS count FROM outbox_entries WHERE scheduled_at >= $1 AND scheduled_at < $2 GROUP BY status
          ORDER BY kind, status",
     )
-    .bind::<diesel::sql_types::Timestamptz, _>(start)
-    .bind::<diesel::sql_types::Timestamptz, _>(end)
+    .bind::<Timestamptz, _>(start)
+    .bind::<Timestamptz, _>(end)
     .load(connection)?;
     let mut report = EntryStatuses {
-        generated_at: now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
-        window_start: start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
-        window_end: end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        generated_at: now.to_rfc3339_opts(ChronoSecondsFormat::Secs, true),
+        window_start: start.to_rfc3339_opts(ChronoSecondsFormat::Secs, true),
+        window_end: end.to_rfc3339_opts(ChronoSecondsFormat::Secs, true),
         inbox_entries: Vec::new(),
         outbox_entries: Vec::new(),
         command_entries: Vec::new(),
@@ -153,7 +167,7 @@ pub(super) fn load_entry_statuses_at(
             status: record.status,
             status_text: status_text.into(),
             count: u64::try_from(record.count)
-                .map_err(|e| diesel::result::Error::DeserializationError(Box::new(e)))?,
+                .map_err(|e| DieselResultError::DeserializationError(Box::new(e)))?,
         };
         match record.kind.as_str() {
             "inbox" => report.inbox_entries.push(entry),
@@ -168,21 +182,30 @@ pub(super) fn load_entry_statuses_at(
 
 #[cfg(test)]
 mod postgres_tests {
+    use chrono::DateTime as ChronoDateTime;
+    use chrono::Duration as ChronoDuration;
+    use chrono::NaiveTime as ChronoNaiveTime;
+    use chrono::SecondsFormat as ChronoSecondsFormat2;
+    use chrono::Utc as ChronoUtc2;
+    use diesel::sql_query as diesel_sql_query2;
+    use diesel::sql_types::Timestamptz as DieselSqlTypesTimestamptz;
+    use std::env::var;
+
     use super::*;
     use diesel::connection::SimpleConnection;
 
     #[test]
     #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
     fn postgres_daily_window_and_rescheduling() {
-        let url = std::env::var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
+        let url = var("DATABASE_URL_TEST").expect("DATABASE_URL_TEST");
         let mut conn = PgConnection::establish(&url).unwrap();
         conn.batch_execute("CREATE TEMP TABLE command_entries(status integer, scheduled_at timestamptz, received_at timestamptz DEFAULT '2000-01-01Z'); CREATE TEMP TABLE event_entries(LIKE command_entries INCLUDING DEFAULTS); CREATE TEMP TABLE inbox_entries(LIKE command_entries INCLUDING DEFAULTS); CREATE TEMP TABLE outbox_entries(LIKE command_entries INCLUDING DEFAULTS); SET TIME ZONE 'America/New_York';").unwrap();
         for date in ["2026-03-08T12:00:00Z", "2026-12-31T23:59:59Z"] {
-            let now = chrono::DateTime::parse_from_rfc3339(date)
+            let now = ChronoDateTime::parse_from_rfc3339(date)
                 .unwrap()
-                .with_timezone(&chrono::Utc);
-            let start = now.date_naive().and_time(chrono::NaiveTime::MIN).and_utc();
-            let end = start + chrono::Duration::days(1);
+                .with_timezone(&ChronoUtc2);
+            let start = now.date_naive().and_time(ChronoNaiveTime::MIN).and_utc();
+            let end = start + ChronoDuration::days(1);
             conn.batch_execute(
                 "TRUNCATE command_entries, event_entries, inbox_entries, outbox_entries",
             )
@@ -199,23 +222,23 @@ mod postgres_tests {
                 "inbox_entries",
                 "outbox_entries",
             ] {
-                diesel::sql_query(format!("INSERT INTO {table}(status,scheduled_at) VALUES (0,$1 - interval '1 microsecond'),(0,$1),(5,$1 + interval '23 hours'),(99,$2 - interval '1 microsecond'),(0,$2)"))
-                    .bind::<diesel::sql_types::Timestamptz,_>(start)
-                    .bind::<diesel::sql_types::Timestamptz,_>(end)
+                diesel_sql_query2(format!("INSERT INTO {table}(status,scheduled_at) VALUES (0,$1 - interval '1 microsecond'),(0,$1),(5,$1 + interval '23 hours'),(99,$2 - interval '1 microsecond'),(0,$2)"))
+                    .bind::<DieselSqlTypesTimestamptz,_>(start)
+                    .bind::<DieselSqlTypesTimestamptz,_>(end)
                     .execute(&mut conn).unwrap();
             }
             let report = load_entry_statuses_at(&mut conn, now).unwrap();
             assert_eq!(
                 report.window_start,
-                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                start.to_rfc3339_opts(ChronoSecondsFormat2::Secs, true)
             );
             assert_eq!(
                 report.window_end,
-                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                end.to_rfc3339_opts(ChronoSecondsFormat2::Secs, true)
             );
             assert_eq!(
                 report.generated_at,
-                now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                now.to_rfc3339_opts(ChronoSecondsFormat2::Secs, true)
             );
             for entries in [
                 &report.command_entries,
@@ -262,11 +285,11 @@ mod postgres_tests {
             let report = load_entry_statuses_at(&mut conn, now).unwrap();
             assert_eq!(
                 report.window_start,
-                start.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                start.to_rfc3339_opts(ChronoSecondsFormat2::Secs, true)
             );
             assert_eq!(
                 report.window_end,
-                end.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                end.to_rfc3339_opts(ChronoSecondsFormat2::Secs, true)
             );
             assert_eq!(
                 report.command_entries.iter().map(|e| e.count).sum::<u64>(),
