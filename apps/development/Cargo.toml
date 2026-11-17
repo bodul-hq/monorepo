@@ -14,7 +14,7 @@ retailer_data_extractor = { path = "../../lib/retailer_data_extractor" }
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true
-sitemap = { path = "../../lib/sitemap" }
+sitemap = { version = "0.1.0", registry = "bodul" }
 tokio.workspace = true
 
 [dev-dependencies]

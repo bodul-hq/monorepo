@@ -1,4 +1,8 @@
 mod support;
+use std::env::temp_dir;
+use std::fs::remove_dir_all;
+use std::process::Command;
+
 use retailer_sourcing::object_storage::{
     Error, ObjectStorage, ObjectStorageMetadata, RAW_SITEMAPS_BUCKET,
 };
@@ -72,9 +76,9 @@ fn configuration_rejects_invalid_url_or_token() {
 
 #[test]
 fn pipeline_configuration_is_checked_before_connecting_or_migrating() {
-    let logs = std::env::temp_dir().join(format!("sourcing-startup-{}", Uuid::now_v7()));
+    let logs = temp_dir().join(format!("sourcing-startup-{}", Uuid::now_v7()));
     for missing in ["OBJECT_STORAGE_URL", "OBJECT_STORAGE_TOKEN"] {
-        let output = std::process::Command::new(env!("CARGO_BIN_EXE_retailer_sourcing"))
+        let output = Command::new(env!("CARGO_BIN_EXE_retailer_sourcing"))
             .env("DATABASE_URL", "not a database URL")
             .env("OBJECT_STORAGE_URL", "http://127.0.0.1:1")
             .env("OBJECT_STORAGE_TOKEN", "test-token")
@@ -87,11 +91,14 @@ fn pipeline_configuration_is_checked_before_connecting_or_migrating() {
         assert!(stderr.contains(missing), "{stderr}");
         assert!(!stderr.contains("database connection failed"), "{stderr}");
     }
-    std::fs::remove_dir_all(logs).unwrap();
+    remove_dir_all(logs).unwrap();
 }
 
 #[test]
 fn offer_replacements_get_distinct_external_ids_and_validate_typed_metadata() {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use retailer_sourcing::object_storage::{OfferStorageMetadata, RAW_OFFERS_BUCKET};
     let server = Server::new();
     let client = server.client();
@@ -116,11 +123,11 @@ fn offer_replacements_get_distinct_external_ids_and_validate_typed_metadata() {
         client.get_offer(RAW_OFFERS_BUCKET, &wrong_key),
         Err(Error::InvalidRecord)
     ));
-    let json = serde_json::to_value(second).unwrap();
+    let json = to_value(second).unwrap();
     for field in ["content_size", "object_storage_id", "external_id"] {
         let mut missing = json.clone();
         missing.as_object_mut().unwrap().remove(field);
-        assert!(serde_json::from_value::<OfferStorageMetadata>(missing).is_err());
+        assert!(from_value::<OfferStorageMetadata>(missing).is_err());
         for invalid in [
             json!(null),
             json!(-1),
@@ -130,10 +137,10 @@ fn offer_replacements_get_distinct_external_ids_and_validate_typed_metadata() {
         ] {
             let mut bad = json.clone();
             bad[field] = invalid;
-            assert!(serde_json::from_value::<OfferStorageMetadata>(bad).is_err());
+            assert!(from_value::<OfferStorageMetadata>(bad).is_err());
         }
     }
     let mut extra = json;
     extra["body_size"] = json!(7);
-    assert!(serde_json::from_value::<OfferStorageMetadata>(extra).is_err());
+    assert!(from_value::<OfferStorageMetadata>(extra).is_err());
 }

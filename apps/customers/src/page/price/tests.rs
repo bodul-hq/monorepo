@@ -34,6 +34,15 @@ fn every_currency_has_an_explicit_display_convention() {
         (Currency::DKK, 123456, "1.234,56\u{a0}DKK", "1234.56 DKK"),
         (Currency::ISK, 12990, "12.990\u{a0}ISK", "12990 ISK"),
         (Currency::INR, 12345678, "₹1,23,456.78", "123456.78 INR"),
+        (Currency::SAR, 123456, "1,234.56\u{a0}SAR", "1234.56 SAR"),
+        (Currency::MXN, 123456, "1,234.56\u{a0}MXN", "1234.56 MXN"),
+        (Currency::TRY, 123456, "1,234.56\u{a0}TRY", "1234.56 TRY"),
+        (Currency::THB, 123456, "1,234.56\u{a0}THB", "1234.56 THB"),
+        (Currency::SGD, 123456, "1,234.56\u{a0}SGD", "1234.56 SGD"),
+        (Currency::IDR, 123456, "1,234.56\u{a0}IDR", "1234.56 IDR"),
+        (Currency::MYR, 123456, "1,234.56\u{a0}MYR", "1234.56 MYR"),
+        (Currency::AED, 123456, "1,234.56\u{a0}AED", "1234.56 AED"),
+        (Currency::PHP, 123456, "1,234.56\u{a0}PHP", "1234.56 PHP"),
     ] {
         let result = format_price(&Price {
             amount: amount.to_string(),

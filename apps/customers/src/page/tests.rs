@@ -1,3 +1,9 @@
+use crate::app;
+use money::Currency;
+use serde_json::from_value;
+use serde_json::json;
+use serde_json::to_value;
+
 use super::*;
 use crate::offers::tests::{fixture, page};
 use poem::test::TestClient;
@@ -16,12 +22,11 @@ fn sale_prices_are_accessible_and_uncomparable_prices_and_content_are_hidden() {
     .into_iter()
     .enumerate()
     {
-        data["items"][position]["was_price"] =
-            serde_json::json!({"amount":amount,"currency":currency});
+        data["items"][position]["was_price"] = json!({"amount":amount,"currency":currency});
         data["items"][position]["content"] =
-            serde_json::json!({"description":"<script>unrendered_description()</script>"});
+            json!({"description":"<script>unrendered_description()</script>"});
     }
-    let data: Page = serde_json::from_value(data).unwrap();
+    let data: Page = from_value(data).unwrap();
     for html in [render(&data), render_page(&data, Some("charger"))] {
         let document = ParsedHtml::parse_document(&html);
         let deleted: Vec<_> = document
@@ -68,9 +73,9 @@ fn sale_cards_keep_exact_large_and_zero_decimal_amounts() {
     ];
     for (currency, current, previous, visible, accessible) in cases {
         let mut data = page(1, 0, false);
-        data["items"][0]["price"] = serde_json::json!({"amount":current,"currency":currency});
-        data["items"][0]["was_price"] = serde_json::json!({"amount":previous,"currency":currency});
-        let data: Page = serde_json::from_value(data).unwrap();
+        data["items"][0]["price"] = json!({"amount":current,"currency":currency});
+        data["items"][0]["was_price"] = json!({"amount":previous,"currency":currency});
+        let data: Page = from_value(data).unwrap();
         for html in [render(&data), render_page(&data, Some("charger"))] {
             let document = ParsedHtml::parse_document(&html);
             let deleted_selector = Selector::parse("del.was-price").unwrap();
@@ -90,7 +95,7 @@ fn sale_cards_keep_exact_large_and_zero_decimal_amounts() {
 #[test]
 fn historical_other_and_exact_content_remain_data_only() {
     let legacy = page(1, 0, false);
-    let baseline: Page = serde_json::from_value(legacy.clone()).unwrap();
+    let baseline: Page = from_value(legacy.clone()).unwrap();
     for description in [
         None,
         Some(""),
@@ -99,18 +104,18 @@ fn historical_other_and_exact_content_remain_data_only() {
     ] {
         let mut data = legacy.clone();
         data["items"][0]["availability"] =
-            serde_json::json!({"kind":"other","raw":"http://schema.org/OutOfStock"});
+            json!({"kind":"other","raw":"http://schema.org/OutOfStock"});
         data["items"][0]["item_condition"] =
-            serde_json::json!({"kind":"other","raw":"http://schema.org/NewCondition"});
-        data["items"][0]["content"] = serde_json::json!({"description":description});
-        let data: Page = serde_json::from_value(data).unwrap();
+            json!({"kind":"other","raw":"http://schema.org/NewCondition"});
+        data["items"][0]["content"] = json!({"description":description});
+        let data: Page = from_value(data).unwrap();
         assert_eq!(
-            serde_json::to_value(&data.items[0].availability).unwrap(),
-            serde_json::json!({"other":"http://schema.org/OutOfStock"})
+            to_value(&data.items[0].availability).unwrap(),
+            json!({"other":"http://schema.org/OutOfStock"})
         );
         assert_eq!(
-            serde_json::to_value(&data.items[0].item_condition).unwrap(),
-            serde_json::json!({"other":"http://schema.org/NewCondition"})
+            to_value(&data.items[0].item_condition).unwrap(),
+            json!({"other":"http://schema.org/NewCondition"})
         );
         assert_eq!(data.items[0].content[0].description.as_deref(), description);
         assert_eq!(render(&data), render(&baseline));
@@ -130,7 +135,7 @@ async fn homepage_fetches_and_renders_thirty_then_one_without_scripts() {
             &format!("/api/offers?limit=30&offset={offset}"),
             Duration::ZERO,
         );
-        let client = TestClient::new(crate::app(Arc::new(
+        let client = TestClient::new(app(Arc::new(
             OffersClient::new(&base, Duration::from_secs(1)).unwrap(),
         )));
         let response = client.get(page_url(offset)).send().await;
@@ -179,7 +184,7 @@ async fn homepage_fetches_and_renders_thirty_then_one_without_scripts() {
 
 #[tokio::test]
 async fn invalid_queries_are_html_errors_without_upstream_requests() {
-    let client = TestClient::new(crate::app(Arc::new(
+    let client = TestClient::new(app(Arc::new(
         OffersClient::new("http://127.0.0.1:1", Duration::from_millis(20)).unwrap(),
     )));
     for query in [
@@ -212,7 +217,7 @@ async fn unavailable_response_is_styled_sanitized_and_retryable() {
         "/api/offers?limit=30&offset=30",
         Duration::ZERO,
     );
-    let client = TestClient::new(crate::app(Arc::new(
+    let client = TestClient::new(app(Arc::new(
         OffersClient::new(&base, Duration::from_secs(1)).unwrap(),
     )));
     let response = client.get("/?offset=30").send().await;
@@ -226,7 +231,7 @@ async fn unavailable_response_is_styled_sanitized_and_retryable() {
 
 #[test]
 fn escapes_values_and_only_links_safe_absolute_urls() {
-    let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+    let mut data: Page = from_value(page(1, 0, false)).unwrap();
     let offer = &mut data.items[0];
     offer.title = "<script>alert(\"x\")</script> & 'quoted'".into();
     offer.retailer_code = "<img src=x onerror=alert(1)>".into();
@@ -257,10 +262,10 @@ fn escapes_values_and_only_links_safe_absolute_urls() {
 
 #[test]
 fn empty_states_and_navigation_handle_boundaries() {
-    let empty: Page = serde_json::from_value(page(0, 0, false)).unwrap();
+    let empty: Page = from_value(page(0, 0, false)).unwrap();
     assert!(render(&empty).contains("no offers here yet"));
     assert!(!render(&empty).contains("class=\"pagination\""));
-    let mut data: Page = serde_json::from_value(page(30, 1, true)).unwrap();
+    let mut data: Page = from_value(page(30, 1, true)).unwrap();
     assert!(render(&data).contains("rel=\"prev\" href=\"/\""));
     data.offset = i32::MAX;
     assert!(!render(&data).contains("rel=\"next\""));
@@ -268,7 +273,7 @@ fn empty_states_and_navigation_handle_boundaries() {
 
 #[test]
 fn first_image_only_with_escaping_and_safe_empty_states() {
-    let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+    let mut data: Page = from_value(page(1, 0, false)).unwrap();
     assert!(render(&data).contains("empty-image"));
     data.items[0].title = "A <charger> & \"test\"".into();
     data.items[0].images = vec![
@@ -298,7 +303,7 @@ fn first_image_only_with_escaping_and_safe_empty_states() {
 
 #[test]
 fn retailer_overlay_is_escaped_and_accessible_with_or_without_an_image() {
-    let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+    let mut data: Page = from_value(page(1, 0, false)).unwrap();
     data.items[0].retailer_code = "shop<&\"example".into();
     for images in [
         vec!["https://shop.example/front.jpg".into()],
@@ -343,7 +348,7 @@ fn cleaned_title_is_shared_by_heading_image_and_link_without_mutating_data() {
     ] {
         for has_image in [false, true] {
             for safe_url in [false, true] {
-                let mut data: Page = serde_json::from_value(page(1, 0, false)).unwrap();
+                let mut data: Page = from_value(page(1, 0, false)).unwrap();
                 data.items[0].title = raw.into();
                 if has_image {
                     data.items[0].images = vec!["https://shop.example/front.jpg".into()];
@@ -384,11 +389,11 @@ fn cleaned_title_is_shared_by_heading_image_and_link_without_mutating_data() {
 
 #[test]
 fn mixed_currency_prices_expose_one_accessible_amount_with_iso_currency() {
-    let mut data: Page = serde_json::from_value(page(3, 0, false)).unwrap();
+    let mut data: Page = from_value(page(3, 0, false)).unwrap();
     let cases = [
-        (money::Currency::USD, "$1,234.56", "1234.56 USD"),
-        (money::Currency::EUR, "1.234,56\u{a0}€", "1234.56 EUR"),
-        (money::Currency::JPY, "¥123,456", "123456 JPY"),
+        (Currency::USD, "$1,234.56", "1234.56 USD"),
+        (Currency::EUR, "1.234,56\u{a0}€", "1234.56 EUR"),
+        (Currency::JPY, "¥123,456", "123456 JPY"),
     ];
     for (offer, (currency, _, _)) in data.items.iter_mut().zip(cases) {
         offer.price.currency = currency;
@@ -409,7 +414,7 @@ fn mixed_currency_prices_expose_one_accessible_amount_with_iso_currency() {
 
 #[tokio::test]
 async fn search_prompt_and_validation_need_no_upstream() {
-    let client = TestClient::new(crate::app(Arc::new(
+    let client = TestClient::new(app(Arc::new(
         OffersClient::new("http://127.0.0.1:1", Duration::from_millis(20)).unwrap(),
     )));
     for query in ["", "?q=", "?q=%20%20&offset=2147483647"] {
@@ -444,7 +449,7 @@ async fn search_prompt_and_validation_need_no_upstream() {
 
 #[test]
 fn search_rendering_preserves_encoded_query_and_safe_cards() {
-    let data: Page = serde_json::from_value(page(30, 30, true)).unwrap();
+    let data: Page = from_value(page(30, 30, true)).unwrap();
     let query = "Čaj &+\"<b>";
     let html = render_page(&data, Some(query));
     assert!(html.contains("Most relevant first"));
@@ -478,7 +483,7 @@ fn search_rendering_preserves_encoded_query_and_safe_cards() {
         30
     );
     for (offset, expected) in [(0, "No matching offers"), (30, "You’ve reached the end")] {
-        let empty: Page = serde_json::from_value(page(0, offset, false)).unwrap();
+        let empty: Page = from_value(page(0, offset, false)).unwrap();
         assert!(render_page(&empty, Some(query)).contains(expected));
     }
 }
@@ -492,7 +497,7 @@ async fn search_route_normalizes_and_preserves_retry_context() {
             "/api/offers/search?q=USB+charger&limit=30&offset=30",
             Duration::ZERO,
         );
-        let client = TestClient::new(crate::app(Arc::new(
+        let client = TestClient::new(app(Arc::new(
             OffersClient::new(&base, Duration::from_secs(1)).unwrap(),
         )));
         let response = client
@@ -518,13 +523,13 @@ async fn search_route_normalizes_and_preserves_retry_context() {
 #[test]
 fn localized_descriptions_and_unselected_titles_do_not_change_cards() {
     let legacy = page(1, 0, false);
-    let baseline: Page = serde_json::from_value(legacy.clone()).unwrap();
+    let baseline: Page = from_value(legacy.clone()).unwrap();
     let mut value = legacy;
-    value["items"][0]["content"] = serde_json::json!([
+    value["items"][0]["content"] = json!([
         {"language":"fr","title":"never_render_localized_title","description":"<script>never_render_fr_description()</script>"},
         {"language":null,"title":value["items"][0]["title"],"description":"<script>never_render_selected_description()</script>"}
     ]);
-    let data: Page = serde_json::from_value(value).unwrap();
+    let data: Page = from_value(value).unwrap();
     assert_eq!(render(&data), render(&baseline));
     assert_eq!(
         render_page(&data, Some("charger")),

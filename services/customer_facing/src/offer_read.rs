@@ -1,5 +1,13 @@
 //! One bounded read path for REST and GraphQL, independent of queue execution.
 
+use crate::identifier::Identifier;
+use diesel::result::Error;
+use diesel::sql_query;
+use facts::content as facts_content;
+use facts::was_price as facts_was_price;
+use serde_json::Value;
+use tokio::task::spawn_blocking;
+
 use std::sync::Arc;
 
 use async_graphql::{ComplexObject, ID, SimpleObject};
@@ -80,22 +88,22 @@ struct Record {
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     was_price_currency: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    availability: Option<serde_json::Value>,
+    availability: Option<Value>,
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    item_condition: Option<serde_json::Value>,
+    item_condition: Option<Value>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     description: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Jsonb)]
-    content: serde_json::Value,
+    content: Value,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     gtin: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     sku: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Jsonb)]
-    external_identifiers: crate::identifier::Identifier,
+    external_identifiers: Identifier,
 
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Jsonb>)]
-    target_market: Option<serde_json::Value>,
+    target_market: Option<Value>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Text>)]
     language: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<Timestamptz>)]
@@ -121,7 +129,7 @@ struct Record {
 impl Repository for PostgresRepository {
     fn load(&self, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         let mut connection = self.0.get().map_err(|_| ())?;
-        let records = diesel::sql_query(
+        let records = sql_query(
             "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
              FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title, offer_selected_content(content)->>'description' AS description, offer_selected_content(content)->>'url' AS url, content->>'selected_language' AS language
              FROM offers ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2) page
@@ -136,11 +144,11 @@ impl Repository for PostgresRepository {
 
     fn search(&self, query: &str, limit: i64, offset: i64) -> Result<Vec<Offer>, ()> {
         let mut connection = self.0.get().map_err(|_| ())?;
-        let records = connection.transaction::<_, diesel::result::Error, _>(|connection| {
+        let records = connection.transaction::<_, Error, _>(|connection| {
             connection.batch_execute(
                 "SET LOCAL pg_trgm.word_similarity_threshold = 0.5; SET LOCAL statement_timeout = '3s'",
             )?;
-            diesel::sql_query(
+            sql_query(
                 "SELECT page.*, ARRAY(SELECT image_url FROM offer_images WHERE offer_id = page.id ORDER BY position) AS images
                  FROM (SELECT offers.*, offer_selected_content(content)->>'title' AS title,
                     offer_selected_content(content)->>'description' AS description,
@@ -165,14 +173,14 @@ fn map_records(records: Vec<Record>) -> Result<Vec<Offer>, ()> {
     records
         .into_iter()
         .map(|record| {
-            let content = facts::content(
+            let content = facts_content(
                 record.content,
                 &record.language,
                 &record.title,
                 &record.description,
             )?;
             Ok(Offer {
-                was_price: facts::was_price(
+                was_price: facts_was_price(
                     record.was_price_amount,
                     record.was_price_currency,
                     record.price_amount,
@@ -290,7 +298,7 @@ impl Offers {
             ));
         }
         let repository = self.0.clone();
-        let mut items = tokio::task::spawn_blocking(move || match query {
+        let mut items = spawn_blocking(move || match query {
             Some(query) => repository.search(&query, i64::from(limit) + 1, i64::from(offset)),
             None => repository.load(i64::from(limit) + 1, i64::from(offset)),
         })
@@ -397,15 +405,11 @@ pub struct OfferLocalization {
     pub language: Option<String>,
 }
 impl OfferLocalization {
-    fn from_record(
-        market: Option<serde_json::Value>,
-        language: Option<String>,
-    ) -> Result<Self, ()> {
-        use retailer_sauce::localization::{Localization, TargetMarket};
-        let target_market = market
-            .map(serde_json::from_value)
-            .transpose()
-            .map_err(|_| ())?;
+    fn from_record(market: Option<Value>, language: Option<String>) -> Result<Self, ()> {
+        use serde_json::from_value;
+
+        use retailer_sauce::prelude::{Localization, TargetMarket};
+        let target_market = market.map(from_value).transpose().map_err(|_| ())?;
         let localization = Localization {
             target_market,
             language,

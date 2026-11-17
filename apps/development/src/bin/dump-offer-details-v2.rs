@@ -1,0 +1,11 @@
+use std::process::exit;
+
+use development::offer_details_dump::{Version, run};
+
+#[tokio::main]
+async fn main() {
+    if let Err(error) = run(Version::V2).await {
+        eprintln!("error: {error}");
+        exit(1);
+    }
+}

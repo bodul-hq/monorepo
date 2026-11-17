@@ -1,3 +1,6 @@
+use poem::Response;
+use serde_json::json as serde_json_json;
+
 use poem::{Endpoint, EndpointExt, Error, Result, http::StatusCode};
 use poem_openapi::{OpenApi, SecurityScheme, auth::Bearer, payload::Json};
 
@@ -86,9 +89,9 @@ fn report_error(status: StatusCode) -> Error {
         _ => "Unable to generate the database report.",
     };
     Error::from_response(
-        poem::Response::builder()
+        Response::builder()
             .status(status)
             .content_type("application/json")
-            .body(serde_json::json!({"error": message}).to_string()),
+            .body(serde_json_json!({"error": message}).to_string()),
     )
 }

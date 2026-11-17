@@ -1,9 +1,17 @@
+use super::super::event::OfferFacts;
+use super::super::event::OfferPriceChangedEvent;
+use super::tests::aggregate;
+use offer_content::singleton;
+use serde_json::Value as SerdeJsonValue;
+use serde_json::from_value as serde_json_from_value;
+use serde_json::json as serde_json_json2;
+use serde_json::to_value as serde_json_to_value3;
+
 use super::*;
 use kernel::ApplicationEvent;
 use money::Currency;
-use retailer_sauce::{
-    availability::Availability, item_condition::ItemCondition, observation::Observation,
-    structuralized::content::Content,
+use retailer_sauce::prelude::{
+    Availability, ItemCondition, Observation, StructuralizedContent as Content,
 };
 
 fn observed() -> OfferObservation {
@@ -33,7 +41,7 @@ fn update(
 
 #[test]
 fn facts_change_independently_and_replay_without_reinterpreting_source() {
-    let mut offer = super::tests::aggregate();
+    let mut offer = aggregate();
     update(&mut offer, 1999, observed()).unwrap();
     assert_eq!(
         offer
@@ -71,8 +79,8 @@ fn facts_change_independently_and_replay_without_reinterpreting_source() {
     assert_eq!(offer.sequence, 9);
     assert_eq!(
         offer.state.facts,
-        super::super::event::OfferFacts {
-            content: offer_content::singleton("Charger".into(), None, None),
+        OfferFacts {
+            content: singleton("Charger".into(), None, None),
             ..Default::default()
         }
     );
@@ -80,7 +88,7 @@ fn facts_change_independently_and_replay_without_reinterpreting_source() {
 
 #[test]
 fn sale_changes_are_atomic_and_invalid_observations_leave_state_unchanged() {
-    let mut offer = super::tests::aggregate();
+    let mut offer = aggregate();
     update(&mut offer, 1999, observed()).unwrap();
     let original = RetailerOfferAggregate::from_history(
         offer.state.id().clone(),
@@ -113,10 +121,10 @@ fn sale_changes_are_atomic_and_invalid_observations_leave_state_unchanged() {
 
 #[test]
 fn legacy_price_event_changes_only_price_during_replay() {
-    let mut offer = super::tests::aggregate();
+    let mut offer = aggregate();
     update(&mut offer, 1999, observed()).unwrap();
     let facts = offer.state.facts.clone();
-    let legacy = super::super::event::OfferPriceChangedEvent {
+    let legacy = OfferPriceChangedEvent {
         id: offer.state.id().clone(),
         price: Money::new(3999, Currency::EUR),
     };
@@ -132,35 +140,41 @@ fn legacy_price_event_changes_only_price_during_replay() {
 
 #[test]
 fn event_records_keep_all_versions_and_do_not_confuse_nullable_events() {
+    use super::super::event::OfferFacts as EventOfferFacts;
+    use super::tests::aggregate as tests_aggregate;
+    use offer_content::singleton as offer_content_singleton;
+    use serde_json::Value;
+    use serde_json::from_value;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value;
+
     use crate::infra::records::OfferEventRecord;
-    let mut offer = super::tests::aggregate();
+    let mut offer = tests_aggregate();
     update(&mut offer, 1999, observed()).unwrap();
     for envelope in &offer.uncommitted_events {
-        let wire = serde_json::to_value(envelope.event()).unwrap();
-        let parsed: RetailerOfferEvent = serde_json::from_value(wire).unwrap();
+        let wire = to_value(envelope.event()).unwrap();
+        let parsed: RetailerOfferEvent = from_value(wire).unwrap();
         assert_eq!(parsed.event_type(), envelope.event().event_type());
         let record = OfferEventRecord::from(envelope.event());
-        let parsed: OfferEventRecord =
-            serde_json::from_value(serde_json::to_value(record).unwrap()).unwrap();
+        let parsed: OfferEventRecord = from_value(to_value(record).unwrap()).unwrap();
         let parsed: RetailerOfferEvent = parsed.into();
         assert_eq!(parsed.event_type(), envelope.event().event_type());
     }
-    let created =
-        serde_json::to_value(OfferEventRecord::from(offer.uncommitted_events[0].event())).unwrap();
+    let created = to_value(OfferEventRecord::from(offer.uncommitted_events[0].event())).unwrap();
     for version in 1..=8 {
         let mut old = created.clone();
-        old["type"] = serde_json::json!(format!("OfferCreated.v{version}"));
+        old["type"] = serde_json_json!(format!("OfferCreated.v{version}"));
         for field in ["was_price", "availability", "item_condition", "content"] {
             old["data"].as_object_mut().unwrap().remove(field);
         }
-        let parsed: OfferEventRecord = serde_json::from_value(old).unwrap();
+        let parsed: OfferEventRecord = from_value(old).unwrap();
         let RetailerOfferEvent::OfferCreated(parsed) = RetailerOfferEvent::from(parsed) else {
             panic!("expected creation")
         };
         assert_eq!(
             parsed.facts,
-            super::super::event::OfferFacts {
-                content: offer_content::singleton("Charger".into(), None, None),
+            EventOfferFacts {
+                content: offer_content_singleton("Charger".into(), None, None),
                 ..Default::default()
             }
         );
@@ -171,18 +185,18 @@ fn event_records_keep_all_versions_and_do_not_confuse_nullable_events() {
         ("OfferItemConditionChanged.v1", "item_condition"),
         ("OfferContentChanged.v1", "content"),
     ] {
-        let mut wire = serde_json::json!({"type":event_type,"data":{"id":"offer-1"}});
-        assert!(serde_json::from_value::<OfferEventRecord>(wire.clone()).is_err());
-        wire["data"][field] = serde_json::Value::Null;
+        let mut wire = serde_json_json!({"type":event_type,"data":{"id":"offer-1"}});
+        assert!(from_value::<OfferEventRecord>(wire.clone()).is_err());
+        wire["data"][field] = Value::Null;
         assert_eq!(
-            serde_json::from_value::<OfferEventRecord>(wire).is_ok(),
+            from_value::<OfferEventRecord>(wire).is_ok(),
             matches!(field, "availability" | "item_condition")
         );
     }
 }
 
-fn state_snapshot(state: &RetailerOfferState) -> serde_json::Value {
-    serde_json::json!({
+fn state_snapshot(state: &RetailerOfferState) -> SerdeJsonValue {
+    serde_json_json2!({
         "id":state.id(), "retailer_code":state.retailer_code(), "url":state.url(),
         "title":state.title(), "price":state.price(), "images":state.images(),
         "created_at":state.created_at(), "scraped_at":state.scraped_at(),
@@ -192,13 +206,13 @@ fn state_snapshot(state: &RetailerOfferState) -> serde_json::Value {
 
 fn populated_offer() -> RetailerOfferAggregate {
     let observation = OfferObservation {
-        identifiers: serde_json::from_value(serde_json::json!({
+        identifiers: serde_json_from_value(serde_json_json2!({
             "gtin":"0012345678905", "sku":" SKU ž ",
             "external_identifiers":{"shopify_handle":"charger"}
         }))
         .unwrap(),
         localization: Some(
-            serde_json::from_value(serde_json::json!({
+            serde_json_from_value(serde_json_json2!({
                 "target_market":{"kind":"country","code":"US"},"language":"en"
             }))
             .unwrap(),
@@ -219,17 +233,21 @@ fn populated_offer() -> RetailerOfferAggregate {
 }
 
 fn assert_exact_record_replay(offer: &RetailerOfferAggregate) {
+    use serde_json::from_str;
+    use serde_json::to_string;
+    use serde_json::to_value as serde_json_to_value;
+
     use crate::infra::records::OfferEventRecord;
     let history = offer
         .uncommitted_events
         .iter()
         .map(|envelope| {
-            let original = serde_json::to_value(envelope.event()).unwrap();
+            let original = serde_json_to_value(envelope.event()).unwrap();
             let record = OfferEventRecord::from(envelope.event());
-            let stored = serde_json::to_string(&record).unwrap();
-            let restored: OfferEventRecord = serde_json::from_str(&stored).unwrap();
+            let stored = to_string(&record).unwrap();
+            let restored: OfferEventRecord = from_str(&stored).unwrap();
             let event: RetailerOfferEvent = restored.into();
-            assert_eq!(serde_json::to_value(&event).unwrap(), original);
+            assert_eq!(serde_json_to_value(&event).unwrap(), original);
             EventEnvelope::new(event, envelope.sequence())
         })
         .collect();
@@ -239,17 +257,17 @@ fn assert_exact_record_replay(offer: &RetailerOfferAggregate) {
     assert!(restored.uncommitted_events.is_empty());
 }
 
-fn field_observation(field: &str, value: serde_json::Value) -> OfferObservation {
+fn field_observation(field: &str, value: SerdeJsonValue) -> OfferObservation {
     let mut observation = OfferObservation::default();
     match field {
         "availability" => {
-            observation.availability = Observation::Observed(serde_json::from_value(value).unwrap())
+            observation.availability = Observation::Observed(serde_json_from_value(value).unwrap())
         }
         "item_condition" => {
             observation.item_condition =
-                Observation::Observed(serde_json::from_value(value).unwrap())
+                Observation::Observed(serde_json_from_value(value).unwrap())
         }
-        "content" => observation.content = Some(serde_json::from_value(value).unwrap()),
+        "content" => observation.content = Some(serde_json_from_value(value).unwrap()),
         _ => panic!("unsupported test fact"),
     }
     observation
@@ -257,6 +275,8 @@ fn field_observation(field: &str, value: serde_json::Value) -> OfferObservation 
 
 #[test]
 fn independent_transitions_preserve_neighbors_and_exact_historical_values() {
+    use serde_json::to_value as serde_json_to_value2;
+
     use serde_json::json;
     let mut offer = populated_offer();
     let cases = [
@@ -341,7 +361,7 @@ fn independent_transitions_preserve_neighbors_and_exact_historical_values() {
         let event = offer.uncommitted_events.last().unwrap().event();
         assert_eq!(event.event_type(), event_type);
         assert_eq!(
-            serde_json::to_value(event).unwrap(),
+            serde_json_to_value2(event).unwrap(),
             if field == "content" {
                 json!({"id":"offer-1","content":expected["facts"]["content"],"language":"en"})
             } else {
@@ -384,15 +404,15 @@ fn comparison_only_and_combined_pricing_changes_keep_exact_large_amounts() {
         offer
             .update_with_observation("Charger".into(), price.clone(), vec![], observation)
             .unwrap();
-        expected["price"] = serde_json::to_value(&price).unwrap();
-        expected["facts"]["was_price"] = serde_json::to_value(&comparison).unwrap();
+        expected["price"] = serde_json_to_value3(&price).unwrap();
+        expected["facts"]["was_price"] = serde_json_to_value3(&comparison).unwrap();
         assert_eq!(state_snapshot(&offer.state), expected);
         assert_eq!(offer.sequence, before + 1);
         let event = offer.uncommitted_events.last().unwrap().event();
         assert_eq!(event.event_type(), "OfferPricingChanged");
         assert_eq!(
-            serde_json::to_value(event).unwrap(),
-            serde_json::json!({
+            serde_json_to_value3(event).unwrap(),
+            serde_json_json2!({
                 "id":"offer-1", "pricing":{"price":price,"was_price":comparison}
             })
         );

@@ -1,3 +1,9 @@
+use diesel::result::Error;
+use diesel::sql_query;
+use serde_json::from_value;
+use serde_json::to_string as serde_json_to_string;
+use serde_json::to_value;
+
 use crate::platform::db::Json;
 use crate::platform::object_storage::{
     CONSOLIDATED_SITEMAPS_BUCKET, ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET,
@@ -24,19 +30,16 @@ struct JsonRow {
     value: Value,
 }
 fn json_query(conn: &mut PgConnection, sql: &str) -> Value {
-    diesel::sql_query(sql)
-        .get_result::<JsonRow>(conn)
-        .unwrap()
-        .value
+    sql_query(sql).get_result::<JsonRow>(conn).unwrap().value
 }
 
 fn seed_processed(conn: &mut PgConnection) -> (Uuid, Uuid, Value) {
     let id = Uuid::now_v7();
     let retrieval_id = Uuid::now_v7();
-    let document = serde_json::to_value(SitemapDocument::default()).unwrap();
-    diesel::sql_query("INSERT INTO sitemaps_processed (id,retrieval_id,retailer_code,storage,url_count) VALUES ($1,$2,'ugreenca',jsonb_build_object('content_size',0),0)")
+    let document = to_value(SitemapDocument::default()).unwrap();
+    sql_query("INSERT INTO sitemaps_processed (id,retrieval_id,retailer_code,storage,url_count) VALUES ($1,$2,'ugreenca',jsonb_build_object('content_size',0),0)")
         .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(retrieval_id).execute(conn).unwrap();
-    diesel::sql_query("INSERT INTO processed_sitemaps_data (id,document) VALUES ($1,$2)")
+    sql_query("INSERT INTO processed_sitemaps_data (id,document) VALUES ($1,$2)")
         .bind::<SqlUuid, _>(id)
         .bind::<Jsonb, _>(&document)
         .execute(conn)
@@ -47,12 +50,12 @@ fn seed_processed(conn: &mut PgConnection) -> (Uuid, Uuid, Value) {
 fn seed_object_processed(conn: &mut PgConnection, objects: &ObjectStorage) -> (Uuid, Uuid, Value) {
     let id = Uuid::now_v7();
     let retrieval_id = Uuid::now_v7();
-    let document = serde_json::to_value(SitemapDocument::default()).unwrap();
+    let document = to_value(SitemapDocument::default()).unwrap();
     let body = document.to_string();
     let object_storage_id = objects
         .create(PROCESSED_SITEMAPS_BUCKET, id, &body)
         .unwrap();
-    diesel::sql_query("INSERT INTO sitemaps_processed (id,retrieval_id,retailer_code,storage,url_count) VALUES ($1,$2,'ugreenca',$3,0)")
+    sql_query("INSERT INTO sitemaps_processed (id,retrieval_id,retailer_code,storage,url_count) VALUES ($1,$2,'ugreenca',$3,0)")
         .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(retrieval_id)
         .bind::<Jsonb,_>(Json(ObjectStorageMetadata { content_size: body.len() as u64, object_storage_id }))
         .execute(conn).unwrap();
@@ -65,7 +68,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
     let (id, retrieval_id, document) = seed_object_processed(&mut conn, &objects);
     let processed = store.processed_sitemap(id).unwrap();
     assert_eq!(processed.retrieval_id, retrieval_id);
-    assert_eq!(serde_json::to_value(&processed.document).unwrap(), document);
+    assert_eq!(to_value(&processed.document).unwrap(), document);
     let entity = ConsolidatedSitemap::new(
         &processed,
         GroupedLinks {
@@ -87,13 +90,13 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
         row["stats"],
         json!({"product_count":1,"catalog_count":0,"content_count":0,"not_interested_count":0,"unknown_count":0})
     );
-    let storage: ObjectStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+    let storage: ObjectStorageMetadata = from_value(row["storage"].clone()).unwrap();
     assert_eq!(storage.object_storage_id, stored.object_storage_id);
     assert_eq!(
         objects
             .get(CONSOLIDATED_SITEMAPS_BUCKET, entity.id, &storage)
             .unwrap(),
-        serde_json::to_string(entity.links()).unwrap()
+        serde_json_to_string(entity.links()).unwrap()
     );
     let duplicate = ConsolidatedSitemap::new(&processed, GroupedLinks::default());
     assert!(matches!(
@@ -169,18 +172,18 @@ fn postgres_failed_objects_and_local_inserts() {
     ));
     assert!(matches!(
         store.processed_sitemap(Uuid::now_v7()),
-        Err(StoreError::Database(diesel::result::Error::NotFound))
+        Err(StoreError::Database(Error::NotFound))
     ));
 }
 
 fn seed_legacy_consolidated(conn: &mut PgConnection, processed: Uuid, retrieval: Uuid) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,$2,$3,$4)")
+    sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,$2,$3,$4)")
         .bind::<SqlUuid,_>(id)
         .bind::<Jsonb,_>(json!({"product_count":0,"catalog_count":0,"content_count":0,"not_interested_count":0,"unknown_count":0}))
         .bind::<Jsonb,_>(json!({"processed_sitemap_id":processed,"retrieval_id":retrieval,"retailer_code":"ugreenca"}))
         .bind::<Jsonb,_>(json!({"content_size":2})).execute(conn).unwrap();
-    diesel::sql_query("INSERT INTO consolidated_sitemaps_data (id,content) VALUES ($1,'{}')")
+    sql_query("INSERT INTO consolidated_sitemaps_data (id,content) VALUES ($1,'{}')")
         .bind::<SqlUuid, _>(id)
         .execute(conn)
         .unwrap();
@@ -202,9 +205,9 @@ fn postgres_migration_preserves_populated_rows_through_up_down_up() {
     for counts in [[0, 0, 0, 0, 0], [1, 2, 3, 4, i32::MAX]] {
         let (processed_id, retrieval_id, _) = seed_processed_legacy(&mut conn);
         let id = Uuid::now_v7();
-        diesel::sql_query(format!("INSERT INTO consolidated_sitemaps (id,processed_sitemap_id,retrieval_id,retailer_code,content_size,product_count,catalog_count,content_count,not_interested_count,unknown_count,consolidated_at) VALUES ($1,$2,$3,'ugreenca',123,{},{},{},{},{},'2026-10-14T12:34:56.123456Z')", counts[0],counts[1],counts[2],counts[3],counts[4]))
+        sql_query(format!("INSERT INTO consolidated_sitemaps (id,processed_sitemap_id,retrieval_id,retailer_code,content_size,product_count,catalog_count,content_count,not_interested_count,unknown_count,consolidated_at) VALUES ($1,$2,$3,'ugreenca',123,{},{},{},{},{},'2026-10-14T12:34:56.123456Z')", counts[0],counts[1],counts[2],counts[3],counts[4]))
             .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(processed_id).bind::<SqlUuid,_>(retrieval_id).execute(&mut conn).unwrap();
-        diesel::sql_query("INSERT INTO consolidated_sitemaps_data VALUES ($1, $2)")
+        sql_query("INSERT INTO consolidated_sitemaps_data VALUES ($1, $2)")
             .bind::<SqlUuid, _>(id)
             .bind::<Jsonb, _>(json!({"product":["ž 🔎"],"unknown":[]}))
             .execute(&mut conn)
@@ -284,7 +287,7 @@ fn postgres_downgrade_rejects_invalid_stats_atomically() {
         json!({"product_count":2147483648_i64}),
         json!({"product_count":"bad"}),
     ] {
-        diesel::sql_query("UPDATE consolidated_sitemaps SET stats=$1")
+        sql_query("UPDATE consolidated_sitemaps SET stats=$1")
             .bind::<Jsonb, _>(bad)
             .execute(&mut conn)
             .unwrap();
@@ -296,7 +299,7 @@ fn postgres_downgrade_rejects_invalid_stats_atomically() {
             "20261015000007"
         );
     }
-    diesel::sql_query("UPDATE consolidated_sitemaps SET stats=$1")
+    sql_query("UPDATE consolidated_sitemaps SET stats=$1")
         .bind::<Jsonb, _>(valid)
         .execute(&mut conn)
         .unwrap();
@@ -316,9 +319,9 @@ fn postgres_references_storage_migration_preserves_rows_and_restores_constraints
     for size in [0, i32::MAX] {
         let (processed_id, retrieval_id, _) = seed_processed_legacy(&mut conn);
         let id = Uuid::now_v7();
-        diesel::sql_query(format!("INSERT INTO consolidated_sitemaps (id,processed_sitemap_id,retrieval_id,retailer_code,content_size,stats,consolidated_at) VALUES ($1,$2,$3,'ugreenca',{size},'{{\"product_count\":1,\"catalog_count\":0,\"content_count\":0,\"not_interested_count\":0,\"unknown_count\":0}}','2026-10-14T12:34:56.123456Z')"))
+        sql_query(format!("INSERT INTO consolidated_sitemaps (id,processed_sitemap_id,retrieval_id,retailer_code,content_size,stats,consolidated_at) VALUES ($1,$2,$3,'ugreenca',{size},'{{\"product_count\":1,\"catalog_count\":0,\"content_count\":0,\"not_interested_count\":0,\"unknown_count\":0}}','2026-10-14T12:34:56.123456Z')"))
             .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(processed_id).bind::<SqlUuid,_>(retrieval_id).execute(&mut conn).unwrap();
-        diesel::sql_query("INSERT INTO consolidated_sitemaps_data VALUES ($1, $2)")
+        sql_query("INSERT INTO consolidated_sitemaps_data VALUES ($1, $2)")
             .bind::<SqlUuid, _>(id)
             .bind::<Jsonb, _>(json!({"product":["ž 🔎"]}))
             .execute(&mut conn)
@@ -384,7 +387,7 @@ fn postgres_legacy_reference_downgrade_rejects_dangling_parent() {
     conn.revert_last_migration(MIGRATIONS).unwrap(); // Undo remaining object storage.
     let (id, retrieval, _) = seed_processed(&mut conn);
     seed_legacy_consolidated(&mut conn, id, retrieval);
-    diesel::sql_query("DELETE FROM sitemaps_processed WHERE id=$1")
+    sql_query("DELETE FROM sitemaps_processed WHERE id=$1")
         .bind::<SqlUuid, _>(id)
         .execute(&mut conn)
         .unwrap();
@@ -459,7 +462,7 @@ fn postgres_references_storage_downgrade_rejects_missing_or_invalid_values() {
             json!({"content_size":"invalid"}),
         ),
     ] {
-        diesel::sql_query("UPDATE consolidated_sitemaps SET \"references\"=$1, storage=$2")
+        sql_query("UPDATE consolidated_sitemaps SET \"references\"=$1, storage=$2")
             .bind::<Jsonb, _>(references)
             .bind::<Jsonb, _>(storage)
             .execute(&mut conn)
@@ -472,7 +475,7 @@ fn postgres_references_storage_downgrade_rejects_missing_or_invalid_values() {
             "20261015000008"
         );
     }
-    diesel::sql_query("UPDATE consolidated_sitemaps SET \"references\"=$1, storage=$2")
+    sql_query("UPDATE consolidated_sitemaps SET \"references\"=$1, storage=$2")
         .bind::<Jsonb, _>(&valid["references"])
         .bind::<Jsonb, _>(&valid["storage"])
         .execute(&mut conn)
@@ -483,10 +486,10 @@ fn postgres_references_storage_downgrade_rejects_missing_or_invalid_values() {
 fn seed_processed_legacy(conn: &mut PgConnection) -> (Uuid, Uuid, Value) {
     let id = Uuid::now_v7();
     let retrieval_id = Uuid::now_v7();
-    let document = serde_json::to_value(SitemapDocument::default()).unwrap();
-    diesel::sql_query("INSERT INTO processed_sitemaps (id,retrieval_id,retailer_code,document_size,url_count) VALUES ($1,$2,'ugreenca',0,0)")
+    let document = to_value(SitemapDocument::default()).unwrap();
+    sql_query("INSERT INTO processed_sitemaps (id,retrieval_id,retailer_code,document_size,url_count) VALUES ($1,$2,'ugreenca',0,0)")
         .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(retrieval_id).execute(conn).unwrap();
-    diesel::sql_query("INSERT INTO processed_sitemaps_data (id,document) VALUES ($1,$2)")
+    sql_query("INSERT INTO processed_sitemaps_data (id,document) VALUES ($1,$2)")
         .bind::<SqlUuid, _>(id)
         .bind::<Jsonb, _>(&document)
         .execute(conn)

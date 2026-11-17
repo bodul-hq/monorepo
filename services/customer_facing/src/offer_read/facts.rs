@@ -1,5 +1,9 @@
+use crate::stored_content::StoredContent;
+use serde_json::Value;
+use serde_json::from_value;
+
 use super::*;
-use retailer_sauce::{availability::Availability, item_condition::ItemCondition};
+use retailer_sauce::prelude::{Availability, ItemCondition};
 
 #[derive(Clone, Copy, poem_openapi::Enum, async_graphql::Enum, serde::Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -25,8 +29,8 @@ pub struct OfferAvailability {
 }
 
 impl OfferAvailability {
-    pub(super) fn from_record(value: serde_json::Value) -> Result<Self, ()> {
-        let value: Availability = serde_json::from_value(value).map_err(|_| ())?;
+    pub(super) fn from_record(value: Value) -> Result<Self, ()> {
+        let value: Availability = from_value(value).map_err(|_| ())?;
         value.guard().map_err(|_| ())?;
         let (kind, raw) = match value {
             Availability::Available => (AvailabilityKind::Available, None),
@@ -56,8 +60,8 @@ pub struct OfferItemCondition {
 }
 
 impl OfferItemCondition {
-    pub(super) fn from_record(value: serde_json::Value) -> Result<Self, ()> {
-        let value: ItemCondition = serde_json::from_value(value).map_err(|_| ())?;
+    pub(super) fn from_record(value: Value) -> Result<Self, ()> {
+        let value: ItemCondition = from_value(value).map_err(|_| ())?;
         value.guard().map_err(|_| ())?;
         let (kind, raw) = match value {
             ItemCondition::New => (ItemConditionKind::New, None),
@@ -95,13 +99,12 @@ pub(super) fn was_price(
 
 /// Refuse inconsistent projection state instead of exposing mismatched display fields.
 pub(super) fn content(
-    value: serde_json::Value,
+    value: Value,
     language: &Option<String>,
     title: &str,
     description: &Option<String>,
 ) -> Result<Vec<OfferContent>, ()> {
-    let mut stored: crate::stored_content::StoredContent =
-        serde_json::from_value(value).map_err(|_| ())?;
+    let mut stored: StoredContent = from_value(value).map_err(|_| ())?;
     let selected = stored.selected().map_err(|_| ())?;
     if &stored.selected_language != language
         || selected.title != title
@@ -124,6 +127,8 @@ pub(super) fn content(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::to_value;
+
     use super::*;
     use serde_json::json;
 
@@ -153,10 +158,7 @@ mod tests {
             "sold_out",
         ] {
             let fact = OfferAvailability::from_record(json!(value)).unwrap();
-            assert_eq!(
-                serde_json::to_value(fact).unwrap(),
-                json!({"kind":value,"raw":null})
-            );
+            assert_eq!(to_value(fact).unwrap(), json!({"kind":value,"raw":null}));
         }
         for raw in [
             " https://schema.org/PreOrder ž ",
@@ -164,10 +166,7 @@ mod tests {
             "https://schema.org/InStock",
         ] {
             let fact = OfferAvailability::from_record(json!({"other":raw})).unwrap();
-            assert_eq!(
-                serde_json::to_value(fact).unwrap(),
-                json!({"kind":"other","raw":raw})
-            );
+            assert_eq!(to_value(fact).unwrap(), json!({"kind":"other","raw":raw}));
         }
         for raw in [
             " Refurbished ž ",
@@ -175,13 +174,10 @@ mod tests {
             "https://schema.org/NewCondition",
         ] {
             let fact = OfferItemCondition::from_record(json!({"other":raw})).unwrap();
-            assert_eq!(
-                serde_json::to_value(fact).unwrap(),
-                json!({"kind":"other","raw":raw})
-            );
+            assert_eq!(to_value(fact).unwrap(), json!({"kind":"other","raw":raw}));
         }
         assert_eq!(
-            serde_json::to_value(OfferItemCondition::from_record(json!("new")).unwrap()).unwrap(),
+            to_value(OfferItemCondition::from_record(json!("new")).unwrap()).unwrap(),
             json!({"kind":"new","raw":null})
         );
         assert!(OfferAvailability::from_record(json!("guessed")).is_err());

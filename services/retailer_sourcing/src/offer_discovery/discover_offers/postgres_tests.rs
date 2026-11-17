@@ -1,3 +1,6 @@
+use diesel::result::Error;
+use diesel::sql_query;
+
 use super::handler::Store;
 use super::store::{PgStore, StoreError};
 use crate::platform::db::Json;
@@ -19,7 +22,7 @@ fn postgres_discovery_returns_entities_and_rejects_bad_content() {
     let mut conn = db.pool.get().unwrap();
     assert!(matches!(
         store.consolidated_sitemap(Uuid::now_v7()),
-        Err(StoreError::Database(diesel::result::Error::NotFound))
+        Err(StoreError::Database(Error::NotFound))
     ));
     for (content, valid) in [
         (
@@ -34,7 +37,7 @@ fn postgres_discovery_returns_entities_and_rejects_bad_content() {
         let object_storage_id = objects
             .create(CONSOLIDATED_SITEMAPS_BUCKET, id, &body)
             .unwrap();
-        diesel::sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,'{}','{}',$2)")
+        sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,'{}','{}',$2)")
             .bind::<SqlUuid,_>(id).bind::<Jsonb,_>(Json(ObjectStorageMetadata { content_size: body.len() as u64, object_storage_id }))
             .execute(&mut conn).unwrap();
         let result = store.consolidated_sitemap(id);

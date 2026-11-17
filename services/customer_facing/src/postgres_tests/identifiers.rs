@@ -1,3 +1,12 @@
+use crate::app;
+use bootstrap::migrate;
+use diesel::sql_query;
+use retailer_sauce::prelude::ExternalIdentifiers;
+use retailer_sauce::prelude::ShopifyHandle;
+use serde_json::Map;
+use serde_json::from_value;
+use serde_json::to_value;
+
 use super::*;
 use crate::identifier::Identifier;
 use diesel::sql_types::{Jsonb, Nullable, Text, Uuid as SqlUuid};
@@ -42,7 +51,7 @@ fn auxiliary_snapshot(pool: &DbPool) -> Value {
 fn as_nested(mut rows: Value) -> Value {
     for row in rows.as_array_mut().unwrap() {
         let object = row.as_object_mut().unwrap();
-        let mut external = serde_json::Map::new();
+        let mut external = Map::new();
         for key in [
             "shopify_product_gid",
             "shopify_product_variation_gid",
@@ -70,14 +79,14 @@ async fn migration_preserves_existing_values_and_rolls_back_latest_json_values()
         (2, None, Some("00001"), None),
         (3, None, None, None),
     ] {
-        diesel::sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,scraped_at,target_market,language,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) VALUES ($1,'ankerau','Charger',1999,'AUD',$2,'2026-10-26T12:00:00Z','2026-10-26T12:01:00Z','{\"kind\":\"country\",\"code\":\"IT\"}','it','0012345678905','sku 001',$3,$4,$5)")
+        sql_query("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,scraped_at,target_market,language,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) VALUES ($1,'ankerau','Charger',1999,'AUD',$2,'2026-10-26T12:00:00Z','2026-10-26T12:01:00Z','{\"kind\":\"country\",\"code\":\"IT\"}','it','0012345678905','sku 001',$3,$4,$5)")
             .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Text,_>(format!("https://example.com/{id}"))
             .bind::<Nullable<Text>,_>(product).bind::<Nullable<Text>,_>(variant).bind::<Nullable<Text>,_>(handle)
             .execute(&mut pool.get().unwrap()).unwrap();
     }
     pool.get().unwrap().batch_execute("INSERT INTO offer_images(offer_id,position,image_url) VALUES ('00000000-0000-0000-0000-000000000001',0,'https://example.com/image'); INSERT INTO applied_offer_messages(message_id) VALUES ('00000000-0000-0000-0000-000000000011')").unwrap();
     let (kernel, state) = start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for (kind, payload) in [
         (
             "OfferCreated",
@@ -96,7 +105,7 @@ async fn migration_preserves_existing_values_and_rolls_back_latest_json_values()
     );
     let before = offers_snapshot(&pool);
     let auxiliary = auxiliary_snapshot(&pool);
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(offers_snapshot(&pool), as_nested(before.clone()));
     assert_eq!(auxiliary_snapshot(&pool), auxiliary);
     assert_eq!(
@@ -114,8 +123,8 @@ async fn migration_preserves_existing_values_and_rolls_back_latest_json_values()
         1
     );
     let changed = json!({"shopify_product_gid":null,"shopify_product_variation_gid":"002","shopify_handle":"new ž \\\""});
-    let identifier = Identifier(serde_json::from_value(changed.clone()).unwrap());
-    diesel::sql_query("UPDATE offers SET external_identifiers=$1 WHERE id=$2")
+    let identifier = Identifier(from_value(changed.clone()).unwrap());
+    sql_query("UPDATE offers SET external_identifiers=$1 WHERE id=$2")
         .bind::<Jsonb, _>(identifier)
         .bind::<SqlUuid, _>(Uuid::from_u128(1))
         .execute(&mut pool.get().unwrap())
@@ -127,7 +136,7 @@ async fn migration_preserves_existing_values_and_rolls_back_latest_json_values()
     assert_eq!(rolled_back[0]["shopify_handle"], changed["shopify_handle"]);
     assert_eq!(as_nested(rolled_back), after);
     assert_eq!(auxiliary_snapshot(&pool), auxiliary);
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(offers_snapshot(&pool), after);
     assert_eq!(auxiliary_snapshot(&pool), auxiliary);
     assert_eq!(
@@ -163,13 +172,13 @@ fn typed_jsonb_and_database_shape_reject_invalid_values() {
     assert_eq!(offers_snapshot(&pool)[0]["external_identifiers"], empty);
     let full = json!({"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":" Ž\\\" "});
     for json in [empty.clone(), full] {
-        let identifier = Identifier(serde_json::from_value(json.clone()).unwrap());
-        let row = diesel::sql_query("SELECT $1 AS identifiers")
+        let identifier = Identifier(from_value(json.clone()).unwrap());
+        let row = sql_query("SELECT $1 AS identifiers")
             .bind::<Jsonb, _>(&identifier)
             .get_result::<Typed>(&mut connection)
             .unwrap();
         assert_eq!(row.identifiers, identifier);
-        assert_eq!(serde_json::to_value(row.identifiers.0).unwrap(), json);
+        assert_eq!(to_value(row.identifiers.0).unwrap(), json);
     }
     let mut shapes = vec![
         Value::Null,
@@ -198,14 +207,14 @@ fn typed_jsonb_and_database_shape_reject_invalid_values() {
     shapes.push(extra);
     for value in shapes {
         assert!(
-            diesel::sql_query("SELECT $1 AS identifiers")
+            sql_query("SELECT $1 AS identifiers")
                 .bind::<Jsonb, _>(&value)
                 .get_result::<Typed>(&mut connection)
                 .is_err(),
             "{value}"
         );
         assert!(
-            diesel::sql_query("UPDATE offers SET external_identifiers=$1")
+            sql_query("UPDATE offers SET external_identifiers=$1")
                 .bind::<Jsonb, _>(&value)
                 .execute(&mut connection)
                 .is_err(),
@@ -213,24 +222,24 @@ fn typed_jsonb_and_database_shape_reject_invalid_values() {
         );
     }
     assert!(
-        diesel::sql_query("UPDATE offers SET external_identifiers=NULL")
+        sql_query("UPDATE offers SET external_identifiers=NULL")
             .execute(&mut connection)
             .is_err()
     );
     assert!(
-        diesel::sql_query("SELECT NULL::jsonb AS identifiers")
+        sql_query("SELECT NULL::jsonb AS identifiers")
             .get_result::<Typed>(&mut connection)
             .is_err()
     );
     for value in ["", "a\0b"] {
-        let invalid = Identifier(retailer_sauce::identifier::ExternalIdentifiers {
-            shopify_handle: Some(retailer_sauce::identifier::ShopifyHandle {
+        let invalid = Identifier(ExternalIdentifiers {
+            shopify_handle: Some(ShopifyHandle {
                 value: value.into(),
             }),
             ..Default::default()
         });
         assert!(
-            diesel::sql_query("UPDATE offers SET external_identifiers=$1")
+            sql_query("UPDATE offers SET external_identifiers=$1")
                 .bind::<Jsonb, _>(invalid)
                 .execute(&mut connection)
                 .is_err()
@@ -246,7 +255,7 @@ fn migration_failure_retains_old_columns_and_values() {
     revert_to(&pool, "20261026000004");
     pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,title,price_amount,currency,url,created_at,shopify_handle) VALUES ('00000000-0000-0000-0000-000000000001','ankerau','Charger',0,'AUD','https://example.com/1',now(),'')").unwrap();
     let before = offers_snapshot(&pool);
-    assert!(bootstrap::migrate(&pool).is_err());
+    assert!(migrate(&pool).is_err());
     assert_eq!(offers_snapshot(&pool), before);
     assert_eq!(
         snapshot(
@@ -259,7 +268,7 @@ fn migration_failure_retains_old_columns_and_values() {
         .unwrap()
         .batch_execute("UPDATE offers SET shopify_handle='  '")
         .unwrap();
-    bootstrap::migrate(&pool).unwrap();
+    migrate(&pool).unwrap();
     assert_eq!(
         offers_snapshot(&pool)[0]["external_identifiers"]["shopify_handle"],
         "  "
@@ -273,7 +282,7 @@ async fn invalid_stored_identifier_errors_are_sanitized_in_browse_and_search() {
     // The SQL constraint checks shape, while Rust also validates string values.
     pool.get().unwrap().batch_execute("INSERT INTO offers(id,retailer_code,price_amount,currency,created_at,content,external_identifiers) VALUES ('00000000-0000-0000-0000-000000000001','ankerau',0,'AUD',now(),jsonb_build_object('selected_language',NULL,'entries',jsonb_build_array(jsonb_build_object('language',NULL,'title','Charger','description',NULL,'url','https://example.com/1'))),'{\"shopify_product_gid\":null,\"shopify_product_variation_gid\":null,\"shopify_handle\":\"\"}')").unwrap();
     let (kernel, state) = start_mulac(pool).unwrap();
-    let client = TestClient::new(crate::app(state));
+    let client = TestClient::new(app(state));
     for route in ["/api/offers", "/api/offers/search?q=charger"] {
         let response = client.get(route).send().await;
         response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);

@@ -1,3 +1,10 @@
+use crate::app_with_reporting_token;
+use crate::infra::identifiers_repository::PostgresRetailerOfferIdentifiersRepository as InfraIdentifiersRepositoryPostgresRetailerOfferIdentifiersRepository;
+use crate::start_mulac;
+use diesel::sql_query;
+use serde_json::from_value;
+use shared::retailer::RetailerCode;
+
 use diesel::{
     RunQueryDsl,
     connection::SimpleConnection,
@@ -5,7 +12,7 @@ use diesel::{
 };
 use diesel_migrations::MigrationHarness;
 use poem::{http::StatusCode, test::TestClient};
-use retailer_sauce::identifier::ProductIdentifiers;
+use retailer_sauce::prelude::ProductIdentifiers;
 use serde_json::{Value, json};
 use testimony_infra::prelude::DbPool;
 use uuid::Uuid;
@@ -70,7 +77,7 @@ fn seed_legacy_rows(pool: &DbPool) {
         (2, None, Some("partial"), None, Some("0002"), None),
         (3, None, None, None, None, None),
     ] {
-        diesel::sql_query("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) VALUES ($1,'ankerau',$2,'Charger',1999,'AUD',now(),$3,$4,$5,$6,$7)")
+        sql_query("INSERT INTO read_offers (id,retailer_code,url,title,price_amount,currency,created_at,gtin,sku,shopify_product_gid,shopify_product_variation_gid,shopify_handle) VALUES ($1,'ankerau',$2,'Charger',1999,'AUD',now(),$3,$4,$5,$6,$7)")
             .bind::<SqlUuid,_>(Uuid::from_u128(id)).bind::<Text,_>(format!("https://example.com/{id}"))
             .bind::<Nullable<Text>,_>(gtin).bind::<Nullable<Text>,_>(sku).bind::<Nullable<Text>,_>(product)
             .bind::<Nullable<Text>,_>(variant).bind::<Nullable<Text>,_>(handle)
@@ -186,14 +193,12 @@ fn identity_repositories_preserve_exact_values_replace_nulls_and_keep_url_matchi
     let (_schema, pool) = inbox_test_database();
     let writer = PostgresRetailerOfferIdentifiersRepository::new(pool.clone());
     let lookup =
-        crate::infra::identifiers_repository::PostgresRetailerOfferIdentifiersRepository::new(
-            pool.clone(),
-        );
-    let identifiers: ProductIdentifiers = serde_json::from_value(json!({"gtin":"0012345678905","sku":" Sku ","external_identifiers":{"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":" Ž \\\" "}})).unwrap();
+        InfraIdentifiersRepositoryPostgresRetailerOfferIdentifiersRepository::new(pool.clone());
+    let identifiers: ProductIdentifiers = from_value(json!({"gtin":"0012345678905","sku":" Sku ","external_identifiers":{"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":" Ž \\\" "}})).unwrap();
     let entity = RetailerOfferIdentifiers {
         identifiers: identifiers.clone(),
         id: RetailerOfferId::new(Uuid::new_v4().to_string()),
-        retailer_code: shared::retailer::RetailerCode::AnkerAu,
+        retailer_code: RetailerCode::AnkerAu,
         url: "https://example.com/Charger?q=Red#details".into(),
     };
     writer.insert(&entity).unwrap();
@@ -220,8 +225,7 @@ fn identity_repositories_preserve_exact_values_replace_nulls_and_keep_url_matchi
         lookup.find(entity.retailer_code, &entity.url).unwrap(),
         Some(entity.clone())
     );
-    let replacement: ProductIdentifiers =
-        serde_json::from_value(json!({"sku":"replacement"})).unwrap();
+    let replacement: ProductIdentifiers = from_value(json!({"sku":"replacement"})).unwrap();
     for _ in 0..2 {
         writer.update_identifiers(&entity.id, &replacement).unwrap();
     }
@@ -267,8 +271,8 @@ fn identity_repositories_preserve_exact_values_replace_nulls_and_keep_url_matchi
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn registered_identity_projector_tracks_creation_and_identifier_only_imports() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut payload = json!({"retailer_code":"AnkerAu","title":"Charger","price":{"amount":1999,"currency":"AUD"},"url":"https://example.com/Charger","gtin":"0012345678905","sku":"original","external_identifiers":{"shopify_product_gid":"001","shopify_product_variation_gid":"002","shopify_handle":"handle"}});
     for sku in ["original", "updated"] {
         payload["sku"] = json!(sku);

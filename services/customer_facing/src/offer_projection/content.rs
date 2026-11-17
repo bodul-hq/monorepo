@@ -1,27 +1,37 @@
 //! Content reconciliation stays inside the inbox receipt transaction.
+use crate::stored_content::StoredContent;
+use diesel::QueryResult;
+use diesel::result::Error;
+use diesel::sql_query;
+use offer_content::singleton;
+use offer_content::sort;
+use retailer_sauce::prelude::Localization;
+use serde_json::from_value;
+use serde_json::to_value;
+use std::io::Error as StdIoError;
+
 use diesel::{
     PgConnection, RunQueryDsl,
     sql_types::{Jsonb, Uuid as SqlUuid},
 };
-use retailer_sauce::{
-    offer_content::{self, Content},
-    structuralized::content::Content as LegacyContent,
+use retailer_sauce::prelude::{
+    OfferContent as Content, StructuralizedContent as LegacyContent, offer_content,
 };
 use serde_json::Value;
 use uuid::Uuid;
 
 pub(super) fn normalize_creation(payload: &mut Value) -> Result<(), String> {
     if payload.get("content").is_some_and(Value::is_array) {
-        let mut list: Vec<Content> = serde_json::from_value(payload["content"].clone())
-            .map_err(|cause| cause.to_string())?;
-        offer_content::sort(&mut list);
-        payload["content"] = serde_json::to_value(list).expect("serializable content");
+        let mut list: Vec<Content> =
+            from_value(payload["content"].clone()).map_err(|cause| cause.to_string())?;
+        sort(&mut list);
+        payload["content"] = to_value(list).expect("serializable content");
         return Ok(());
     }
     let description = match payload.get("content") {
         None => None,
         Some(value) if value.is_object() => {
-            serde_json::from_value::<LegacyContent>(value.clone())
+            from_value::<LegacyContent>(value.clone())
                 .map_err(|error| error.to_string())?
                 .description
         }
@@ -32,17 +42,12 @@ pub(super) fn normalize_creation(payload: &mut Value) -> Result<(), String> {
         .and_then(Value::as_str)
         .ok_or("title is required")?
         .to_owned();
-    let localization: retailer_sauce::localization::Localization = match payload.get("localization")
-    {
+    let localization: Localization = match payload.get("localization") {
         None => Default::default(),
-        Some(value) => serde_json::from_value(value.clone()).map_err(|error| error.to_string())?,
+        Some(value) => from_value(value.clone()).map_err(|error| error.to_string())?,
     };
-    payload["content"] = serde_json::to_value(offer_content::singleton(
-        title,
-        localization.language,
-        description,
-    ))
-    .expect("serializable content");
+    payload["content"] = to_value(singleton(title, localization.language, description))
+        .expect("serializable content");
     Ok(())
 }
 
@@ -57,12 +62,12 @@ struct Record {
     content: Value,
 }
 
-pub(super) fn lock(connection: &mut PgConnection, id: Uuid) -> diesel::QueryResult<Current> {
-    let row = diesel::sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
+pub(super) fn lock(connection: &mut PgConnection, id: Uuid) -> QueryResult<Current> {
+    let row = sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
         .bind::<SqlUuid, _>(id)
         .get_result::<Record>(connection)?;
-    let stored: crate::stored_content::StoredContent =
-        serde_json::from_value(row.content).map_err(|cause| error(cause.to_string()))?;
+    let stored: StoredContent =
+        from_value(row.content).map_err(|cause| error(cause.to_string()))?;
     stored.guard().map_err(error)?;
     Ok(Current {
         content: stored.contents(),
@@ -75,7 +80,7 @@ pub(super) fn write(
     id: Uuid,
     content: &[Content],
     language: &Option<String>,
-) -> diesel::QueryResult<usize> {
+) -> QueryResult<usize> {
     write_inner(connection, id, content, language, false)
 }
 
@@ -84,7 +89,7 @@ pub(super) fn write_language(
     id: Uuid,
     content: &[Content],
     language: &Option<String>,
-) -> diesel::QueryResult<usize> {
+) -> QueryResult<usize> {
     write_inner(connection, id, content, language, true)
 }
 fn write_inner(
@@ -93,14 +98,13 @@ fn write_inner(
     content: &[Content],
     language: &Option<String>,
     renamed: bool,
-) -> diesel::QueryResult<usize> {
-    let row = diesel::sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
+) -> QueryResult<usize> {
+    let row = sql_query("SELECT content FROM offers WHERE id=$1 FOR UPDATE")
         .bind::<SqlUuid, _>(id)
         .get_result::<Record>(connection)?;
-    let stored: crate::stored_content::StoredContent =
-        serde_json::from_value(row.content).map_err(|e| error(e.to_string()))?;
+    let stored: StoredContent = from_value(row.content).map_err(|e| error(e.to_string()))?;
     let mut list = content.to_vec();
-    offer_content::sort(&mut list);
+    sort(&mut list);
     let stored = stored
         .reconcile(
             &list,
@@ -108,18 +112,20 @@ fn write_inner(
             renamed && stored.selected_language != *language,
         )
         .map_err(error)?;
-    diesel::sql_query("UPDATE offers SET content=$2 WHERE id=$1")
+    sql_query("UPDATE offers SET content=$2 WHERE id=$1")
         .bind::<SqlUuid, _>(id)
-        .bind::<Jsonb, _>(serde_json::to_value(stored).expect("serializable content"))
+        .bind::<Jsonb, _>(to_value(stored).expect("serializable content"))
         .execute(connection)
 }
 
-pub(super) fn error(message: String) -> diesel::result::Error {
-    diesel::result::Error::DeserializationError(std::io::Error::other(message).into())
+pub(super) fn error(message: String) -> Error {
+    Error::DeserializationError(StdIoError::other(message).into())
 }
 
 #[cfg(test)]
 mod tests {
+    use offer_content::singleton as offer_content_singleton;
+
     use super::super::Change;
     use super::*;
     use serde_json::json;
@@ -158,7 +164,7 @@ mod tests {
             };
             assert_eq!(
                 offer.content,
-                offer_content::singleton(
+                offer_content_singleton(
                     "Selected".into(),
                     Some("EN-au".into()),
                     description.map(str::to_owned)

@@ -7,12 +7,10 @@ publish = ["null-labs-hq"]
 [dependencies]
 html-extractor.workspace = true
 retailer_sauce.workspace = true
-retailers_anker = { path = "../retailers_anker" }
-retailers_mi = { path = "../retailers_mi" }
-retailers_minisforum = { path = "../retailers_minisforum" }
-retailers_ugreen = { path = "../retailers_ugreen" }
-retailers_wip = { path = "../retailers_wip" }
-scraper = { version = "0.27.0", default-features = false }
+retailers_anker = { version = "0.2.0", registry = "bodul" }
+retailers_minisforum = { version = "0.2.0", registry = "bodul" }
+retailers_ugreen = { version = "0.2.0", registry = "bodul" }
+scraper.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 shared.workspace = true

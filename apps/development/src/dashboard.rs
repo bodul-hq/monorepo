@@ -1,5 +1,11 @@
 //! Server-rendered reporting dashboard. Service credentials never reach the browser.
 mod client;
+use client::StatusCount;
+use layout::end;
+use layout::start;
+use reqwest::Error;
+use tokio::join;
+
 use crate::layout::{self, Page};
 use client::{EntryStatuses, Report, ReportError, ReportingClients, RowCountKind};
 use poem::{
@@ -12,7 +18,7 @@ pub(crate) struct Dashboard {
     clients: ReportingClients,
 }
 impl Dashboard {
-    pub(crate) fn from_env() -> Result<Self, reqwest::Error> {
+    pub(crate) fn from_env() -> Result<Self, Error> {
         Ok(Self {
             clients: ReportingClients::from_env()?,
         })
@@ -32,7 +38,7 @@ pub(crate) async fn page(Data(state): Data<&Arc<Dashboard>>) -> Response {
         products_entries,
         training,
         training_entries,
-    ) = tokio::join!(
+    ) = join!(
         state.clients.reports(),
         state.clients.entry_statuses(),
         state.clients.offers_report(),
@@ -107,7 +113,7 @@ fn render(
         .filter_map(|(r, _, _, _)| r.as_ref().ok())
         .map(|r| r.tables.len())
         .sum();
-    let mut html = layout::start("Database overview · Development", Page::Dashboard);
+    let mut html = start("Database overview · Development", Page::Dashboard);
     html.push_str(r#"<main><div class="hero"><div><p class="eyebrow">SYSTEM VISIBILITY</p><h1>Database overview<span class="title-dot">.</span></h1><p class="lede">A clear view of the tables behind your pipeline.</p></div><a class="refresh" href="/dashboard"><span aria-hidden="true">↻</span> Refresh reports</a></div>"#);
     let _ = write!(
         html,
@@ -168,7 +174,7 @@ fn render(
         html.push_str("</section>");
     }
     html.push_str(r#"</div><footer class="footnote"><span>DATABASE TABLE ROW COUNTS ARE ESTIMATES</span><p>PostgreSQL statistics may lag behind writes. Table storage includes TOAST and auxiliary storage; totals include indexes. Reports cover each service’s active schema.</p></footer></main>"#);
-    layout::end(&mut html);
+    end(&mut html);
     html
 }
 fn render_entries(
@@ -242,12 +248,7 @@ fn render_queue_start(html: &mut String, title: &str, image: &str, empty: bool) 
     );
 }
 
-fn render_entry_boxes(
-    html: &mut String,
-    title: &str,
-    image: &str,
-    entries: &[client::StatusCount],
-) {
+fn render_entry_boxes(html: &mut String, title: &str, image: &str, entries: &[StatusCount]) {
     let statuses = [
         (0, "New", "new"),
         (2, "Processing", "processing"),

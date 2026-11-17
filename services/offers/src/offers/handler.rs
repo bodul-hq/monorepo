@@ -1,3 +1,11 @@
+use super::command::OfferObservation;
+use kernel::CommandError;
+use kernel::CommandHandlerPort;
+use retailer_sauce::prelude::ProductIdentifiers;
+use shared::retailer::RetailerCode as SharedRetailerRetailerCode;
+use std::fmt::Display;
+use testimony::prelude::EventStoreError;
+
 use crate::offers::aggregate::RetailerOfferAggregate;
 use crate::offers::command::ImportOfferDetailsCommand;
 use crate::offers::event::{RetailerOfferEvent, SequencedOfferEvent};
@@ -44,12 +52,12 @@ where
         &self,
         command: ImportOfferDetailsCommand,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
-        let observation = super::command::OfferObservation {
+        let observation = OfferObservation {
             was_price: command.was_price,
             availability: command.availability,
             item_condition: command.item_condition,
             content: command.content,
-            identifiers: retailer_sauce::identifier::ProductIdentifiers {
+            identifiers: ProductIdentifiers {
                 gtin: command.gtin,
                 sku: command.sku,
                 external_identifiers: command.external_identifiers,
@@ -96,7 +104,7 @@ where
         price: Money,
         url: String,
         images: Vec<String>,
-        observation: super::command::OfferObservation,
+        observation: OfferObservation,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let id = RetailerOfferId::new(Uuid::now_v7().to_string());
 
@@ -130,7 +138,7 @@ where
         title: String,
         price: Money,
         images: Vec<String>,
-        observation: super::command::OfferObservation,
+        observation: OfferObservation,
     ) -> Result<Vec<SequencedOfferEvent>, RepositoryError> {
         let mut aggregate = self
             .repository
@@ -165,7 +173,7 @@ pub enum UpdateChannelsError {
 
 // Mulac publishes the returned events, so this adapter uses Testimony's no-op
 // publisher to avoid publishing the same event through both systems.
-impl<S, R> kernel::CommandHandlerPort<ImportOfferDetailsCommand, SequencedOfferEvent>
+impl<S, R> CommandHandlerPort<ImportOfferDetailsCommand, SequencedOfferEvent>
     for ProcessOfferHandler<S, NoOpEventPublisher, R>
 where
     S: EventStore<RetailerOfferId, RetailerOfferEvent> + Send + Sync,
@@ -174,9 +182,9 @@ where
     fn execute(
         &self,
         command: ImportOfferDetailsCommand,
-    ) -> Result<Vec<SequencedOfferEvent>, kernel::CommandError> {
+    ) -> Result<Vec<SequencedOfferEvent>, CommandError> {
         self.process_offer(command)
-            .map_err(|error| kernel::CommandError::HandlerExecution(error.to_string()))
+            .map_err(|error| CommandError::HandlerExecution(error.to_string()))
     }
 }
 
@@ -188,13 +196,13 @@ pub trait RetailerOfferIdentifiersRepository {
     fn insert(
         &self,
         id: &RetailerOfferId,
-        retailer_code: shared::retailer::RetailerCode,
+        retailer_code: SharedRetailerRetailerCode,
         url: &str,
     ) -> Result<(), RetailerOfferIdentifiersError>;
 
     fn find(
         &self,
-        retailer_code: shared::retailer::RetailerCode,
+        retailer_code: SharedRetailerRetailerCode,
         url: &str,
     ) -> Result<Option<RetailerOfferIdentifiers>, RetailerOfferIdentifiersError>;
 }
@@ -202,6 +210,6 @@ pub trait RetailerOfferIdentifiersRepository {
 pub type RetailerOfferRepository<S, P = NoOpEventPublisher> =
     EventSourcedRepository<RetailerOfferAggregate, S, P>;
 
-fn err_update(error: impl std::fmt::Display) -> RepositoryError {
-    testimony::prelude::EventStoreError::LoadFailed(error.to_string()).into()
+fn err_update(error: impl Display) -> RepositoryError {
+    EventStoreError::LoadFailed(error.to_string()).into()
 }

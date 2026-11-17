@@ -1,3 +1,7 @@
+use serde_json::Error as SerdeJsonError;
+use serde_json::to_string;
+use tracing::info;
+
 use diesel::r2d2::PoolError;
 use uuid::Uuid;
 
@@ -37,7 +41,7 @@ pub enum ListenerError {
     #[error("offer export {0} does not match the event's source or schema")]
     Mismatch(Uuid),
     #[error("offer export {0} payload serialization failed: {1}")]
-    Serialization(Uuid, serde_json::Error),
+    Serialization(Uuid, SerdeJsonError),
     #[error(transparent)]
     Store(#[from] StoreError),
 }
@@ -83,7 +87,7 @@ impl<S: Store> Listen for Listener<S> {
             .map(|entry| {
                 Ok(OutgoingMessage {
                     id: entry.id,
-                    payload: serde_json::to_string(&entry.payload)
+                    payload: to_string(&entry.payload)
                         .map_err(|error| ListenerError::Serialization(export_id, error))?,
                     routing_key: ROUTING_KEY,
                     event_type: OfferExportWasPrepared::NAME,
@@ -91,7 +95,7 @@ impl<S: Store> Listen for Listener<S> {
             })
             .collect::<Result<Vec<_>, ListenerError>>()?;
         self.store.record(&messages, context)?;
-        tracing::info!(
+        info!(
             %export_id,
             offer_id = %export.source.offer_id,
             recorded = messages.len(),
@@ -104,6 +108,10 @@ impl<S: Store> Listen for Listener<S> {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+    use serde_json::from_value;
+    use shared::retailer::RetailerCode;
+
     use std::sync::Mutex;
 
     use money::Money;
@@ -161,12 +169,9 @@ mod tests {
                 localization: None,
                 scraped_at: None,
                 images: None,
-                retailer_code: shared::retailer::RetailerCode::AnkerAu,
+                retailer_code: RetailerCode::AnkerAu,
                 title: "USB charger".into(),
-                price: serde_json::from_value::<Money>(
-                    json!({"amount": amount, "currency": "AUD"}),
-                )
-                .unwrap(),
+                price: from_value::<Money>(json!({"amount": amount, "currency": "AUD"})).unwrap(),
                 url: format!("https://shop.example/Charger?variant={variation_index}#details"),
             },
         }
@@ -235,7 +240,7 @@ mod tests {
                 assert_eq!(message.routing_key, "offers");
                 assert_eq!(message.event_type, "OfferExportWasPrepared");
                 assert_eq!(
-                    serde_json::from_str::<OfferImport>(&message.payload).unwrap(),
+                    from_str::<OfferImport>(&message.payload).unwrap(),
                     entry.payload
                 );
             }
@@ -250,7 +255,7 @@ mod tests {
         listener.listen(event(&export), &context()).unwrap();
 
         let recorded = listener.store.recorded.lock().unwrap();
-        let payload: Value = serde_json::from_str(&recorded[0].0[0].payload).unwrap();
+        let payload: Value = from_str(&recorded[0].0[0].payload).unwrap();
         assert_eq!(
             payload,
             json!({

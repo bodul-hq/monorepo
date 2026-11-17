@@ -9,6 +9,16 @@
 //! The dump keeps only each file's body, so the tree has no `Last-Modified`
 //! dates from the fetch, only the `<lastmod>` dates the sitemap indexes list.
 
+use env::args;
+use fs::create_dir_all;
+use fs::read_dir;
+use fs::read_to_string;
+use fs::write;
+use process::exit;
+use retailer_data_extractor::sitemap_config_for;
+use retailer_data_extractor::sitemap_greylisted_for;
+use serde_json::to_string_pretty;
+
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
 use std::io::ErrorKind;
@@ -21,12 +31,12 @@ use sitemap::{RawSitemapDocument, SitemapDocument, build_tree_with, file_name};
 fn main() {
     if let Err(error) = run() {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: process-sitemap-sources <data_dir>")?;
@@ -78,7 +88,7 @@ fn run() -> Result<(), String> {
 /// `ugreeneu`.
 fn root_sitemaps(name: &str) -> Result<Vec<String>, String> {
     let retailer = RetailerCode::try_from(name).map_err(|e| e.to_string())?;
-    retailer_data_extractor::sitemap_config_for(&retailer)
+    sitemap_config_for(&retailer)
         .map(|config| config.sitemap_url)
         .ok_or_else(|| "the retailer has no sitemap configuration".to_string())
 }
@@ -88,7 +98,7 @@ fn root_sitemaps(name: &str) -> Result<Vec<String>, String> {
 fn sitemap_greylisted(name: &str, url: &str) -> bool {
     RetailerCode::try_from(name)
         .ok()
-        .and_then(|retailer| retailer_data_extractor::sitemap_greylisted_for(retailer, url))
+        .and_then(|retailer| sitemap_greylisted_for(retailer, url))
         .unwrap_or(true)
 }
 
@@ -140,7 +150,7 @@ fn process_retrieval(
             return None;
         }
 
-        let body = match fs::read_to_string(dir.join(&name)) {
+        let body = match read_to_string(dir.join(&name)) {
             Ok(body) => body,
             // Reported as left out of the tree.
             Err(error) if error.kind() == ErrorKind::NotFound => return None,
@@ -159,7 +169,7 @@ fn process_retrieval(
     })
     .map_err(|e| e.to_string())?;
 
-    let files: BTreeSet<String> = fs::read_dir(dir)
+    let files: BTreeSet<String> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.file_name().to_string_lossy().into_owned())
@@ -184,7 +194,7 @@ fn process_retrieval(
 
 /// The folders directly inside `dir`, sorted by name.
 fn subfolders(dir: &Path) -> Result<Vec<PathBuf>, String> {
-    let mut folders: Vec<PathBuf> = fs::read_dir(dir)
+    let mut folders: Vec<PathBuf> = read_dir(dir)
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -202,28 +212,34 @@ fn folder_name(path: &Path) -> String {
 
 fn write_json(path: &Path, document: &SitemapDocument) -> Result<(), String> {
     if let Some(dir) = path.parent() {
-        fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     }
-    let json = serde_json::to_string_pretty(document).map_err(|e| e.to_string())?;
-    fs::write(path, json).map_err(|e| format!("{}: {e}", path.display()))
+    let json = to_string_pretty(document).map_err(|e| e.to_string())?;
+    write(path, json).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 #[cfg(test)]
 mod tests {
+    use env::temp_dir;
+    use fs::create_dir_all as fs_create_dir_all;
+    use fs::remove_dir_all;
+    use fs::write as fs_write;
+    use process::id as process_id;
+
     use super::*;
 
     const ROOT: &str = "https://shop.test/sitemap.xml";
 
     fn folder(files: &[(&str, &str)]) -> PathBuf {
-        let dir = env::temp_dir().join(format!(
+        let dir = temp_dir().join(format!(
             "process-sitemap-sources-{}-{}",
-            process::id(),
+            process_id(),
             files.len()
         ));
-        let _ = fs::remove_dir_all(&dir);
-        fs::create_dir_all(&dir).unwrap();
+        let _ = remove_dir_all(&dir);
+        fs_create_dir_all(&dir).unwrap();
         for (name, body) in files {
-            fs::write(dir.join(name), body).unwrap();
+            fs_write(dir.join(name), body).unwrap();
         }
         dir
     }
@@ -243,7 +259,7 @@ mod tests {
         ]);
 
         let retrieval = process_retrieval(&dir, &[ROOT.to_string()], |_| true).unwrap();
-        fs::remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).unwrap();
 
         assert_eq!(retrieval.document.all_urls("").count(), 2);
         assert_eq!(retrieval.document.location.as_deref(), Some(ROOT));
@@ -258,7 +274,7 @@ mod tests {
         let dir = folder(&[]);
 
         let retrieval = process_retrieval(&dir, &[ROOT.to_string()], |_| true).unwrap();
-        fs::remove_dir_all(&dir).unwrap();
+        remove_dir_all(&dir).unwrap();
 
         assert_eq!(retrieval.document.all_urls("").count(), 0);
         assert_eq!(retrieval.left_out.len(), 1);

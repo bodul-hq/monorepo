@@ -1,4 +1,6 @@
 //! Private PostgreSQL metadata and domain mappings.
+use serde_json::from_str;
+
 use super::super::super::schema::offer_details_normalized;
 use super::super::entity::{ExtractedOffer, NormalizedOffer};
 use super::StoreError;
@@ -18,7 +20,7 @@ impl ExtractedOfferPgRecord {
         Ok(ExtractedOffer {
             offer_id: self.offer_id,
             object_storage_id: self.storage.0.object_storage_id,
-            document: serde_json::from_str(&body)?,
+            document: from_str(&body)?,
         })
     }
 }

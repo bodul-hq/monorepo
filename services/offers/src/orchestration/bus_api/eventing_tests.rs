@@ -1,3 +1,13 @@
+use crate::app;
+use crate::app_with_reporting_token;
+use crate::start_mulac;
+use crate::test_pool;
+use crate::tests::assert_error_id;
+use crate::tests::assert_error_response;
+use testing::invalid_run_requests;
+use testing::panicking_consumer;
+use testing::valid_run_requests;
+
 use eventing::prelude::poem::EventingAdapter;
 use eventing::prelude::testing;
 use poem::{http::StatusCode, test::TestClient};
@@ -5,8 +15,8 @@ use serde_json::{Value, json};
 
 #[tokio::test]
 async fn events_run_validates_the_shared_run_request_table() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
-    for body in testing::valid_run_requests() {
+    let client = TestClient::new(app(test_pool()));
+    for body in valid_run_requests() {
         // Validation passed when the unavailable test database is reached.
         let response = client.post("/api/events/run").body_json(&body).send().await;
         response.assert_status_is_ok();
@@ -14,9 +24,9 @@ async fn events_run_validates_the_shared_run_request_table() {
         assert!(body["processed"].is_null());
         let errors = body["errors"].as_array().unwrap();
         assert_eq!(errors.len(), 1);
-        crate::tests::assert_error_id(errors[0].as_str().unwrap());
+        assert_error_id(errors[0].as_str().unwrap());
     }
-    for body in testing::invalid_run_requests() {
+    for body in invalid_run_requests() {
         let response = client.post("/api/events/run").body_json(&body).send().await;
         assert_eq!(response.0.status(), StatusCode::BAD_REQUEST, "{body}");
     }
@@ -36,7 +46,7 @@ async fn events_run_validates_the_shared_run_request_table() {
 
 #[tokio::test]
 async fn events_run_requires_json_content_type() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
+    let client = TestClient::new(app(test_pool()));
     for content_type in [None, Some("text/plain")] {
         let mut request = client.post("/api/events/run").body(r#"{"limit":1}"#);
         if let Some(content_type) = content_type {
@@ -51,7 +61,7 @@ async fn events_run_requires_json_content_type() {
 
 #[tokio::test]
 async fn events_run_publishes_the_shared_run_schemas() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
+    let client = TestClient::new(app(test_pool()));
     let spec: Value = client
         .get("/api/openapi.json")
         .send()
@@ -92,15 +102,15 @@ async fn events_run_publishes_the_shared_run_schemas() {
 
 #[tokio::test]
 async fn events_run_sanitizes_blocking_task_failures() {
-    let (kernel, mut state) = crate::start_mulac(crate::test_pool()).unwrap();
-    state.events = EventingAdapter::new(testing::panicking_consumer());
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, mut state) = start_mulac(test_pool()).unwrap();
+    state.events = EventingAdapter::new(panicking_consumer());
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let response = client
         .post("/api/events/run")
         .body_json(&json!({"limit":1}))
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    crate::tests::assert_error_response(response).await;
+    assert_error_response(response).await;
     kernel.shutdown();
 }

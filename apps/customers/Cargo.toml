@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-money = { path = "../../lib/money" }
+money = { version = "0.1.2", registry = "bodul" }
 poem.workspace = true
 reqwest.workspace = true
-retailer_sauce = { path = "../../lib/retailer_sauce" }
+retailer_sauce = { version = "0.3.0", registry = "bodul" }
 scraper = { version = "0.27.0", default-features = false }
 serde.workspace = true
 serde_json.workspace = true

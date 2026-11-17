@@ -1,3 +1,7 @@
+use crate::app_with_reporting_token;
+use crate::start_mulac;
+use poem::Route;
+
 use diesel::connection::SimpleConnection;
 use diesel_migrations::MigrationHarness;
 use poem::{http::StatusCode, test::TestClient};
@@ -92,7 +96,7 @@ fn fact_projection(pool: &DbPool) -> Value {
     )
 }
 
-async fn import(client: &TestClient<poem::Route>, input: &Value, expected_events: usize) {
+async fn import(client: &TestClient<Route>, input: &Value, expected_events: usize) {
     client
         .post("/api/tmp-import")
         .body_json(input)
@@ -108,8 +112,8 @@ async fn import(client: &TestClient<poem::Route>, input: &Value, expected_events
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn created_facts_survive_legacy_imports_then_clear_and_publish_once() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let legacy = json!({"retailer_code":"ankerau","title":"Charger","price_amount":1999,"currency":"AUD","url":"https://example.com/facts"});
     let observed = json!({"was_price":{"amount":2999,"currency":"AUD"},"availability":{"other":" exact status "},"item_condition":"new","content":{"description":" <p>Exact &amp; source ž</p>\n"}});
     let mut input = legacy.clone();
@@ -197,8 +201,8 @@ async fn created_facts_survive_legacy_imports_then_clear_and_publish_once() {
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn independent_fact_imports_preserve_neighbors_and_replay_exact_outbox_messages() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut legacy = json!({
         "retailer_code":"ankerau","title":"Charger","price_amount":1999,"currency":"AUD",
         "url":"https://example.com/independent-facts","images":["https://example.com/image.png"],

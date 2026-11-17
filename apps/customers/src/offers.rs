@@ -1,5 +1,23 @@
 //! Server-only client for the customer-facing browse contract.
 
+use facts::LocalizedContent;
+use facts::guard_content as facts_guard_content;
+use io::Error as IoError;
+use io::ErrorKind;
+use io::Result as IoResult;
+use reqwest::StatusCode;
+use reqwest::redirect::Policy;
+use reqwest::retry::never;
+use retailer_sauce::prelude::Availability;
+use retailer_sauce::prelude::ItemCondition;
+use retailer_sauce::prelude::Localization;
+use retailer_sauce::prelude::ProductIdentifiers;
+use serde::Deserializer;
+use serde::de::Error as SerdeDeError;
+use serde_json::Value as SerdeJsonValue;
+use serde_json::from_value as serde_json_from_value;
+use std::env::var;
+
 use money::Currency;
 use reqwest::{Client, Url};
 use serde::Deserialize;
@@ -20,11 +38,11 @@ pub struct Page {
 #[derive(Debug)]
 pub struct Offer {
     pub was_price: Option<Price>,
-    pub availability: Option<retailer_sauce::availability::Availability>,
-    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
-    pub content: Vec<facts::LocalizedContent>,
-    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
-    pub localization: retailer_sauce::localization::Localization,
+    pub availability: Option<Availability>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Vec<LocalizedContent>,
+    pub identifiers: ProductIdentifiers,
+    pub localization: Localization,
     pub images: Vec<String>,
     pub id: String,
     pub retailer_code: String,
@@ -39,14 +57,14 @@ struct OfferWire {
     #[serde(default)]
     pub was_price: Option<Price>,
     #[serde(default, deserialize_with = "facts::read_availability")]
-    pub availability: Option<retailer_sauce::availability::Availability>,
+    pub availability: Option<Availability>,
     #[serde(default, deserialize_with = "facts::read_condition")]
-    pub item_condition: Option<retailer_sauce::item_condition::ItemCondition>,
-    pub content: Vec<facts::LocalizedContent>,
+    pub item_condition: Option<ItemCondition>,
+    pub content: Vec<LocalizedContent>,
     #[serde(flatten)]
-    pub identifiers: retailer_sauce::identifier::ProductIdentifiers,
+    pub identifiers: ProductIdentifiers,
     #[serde(default, deserialize_with = "read_localization")]
-    pub localization: retailer_sauce::localization::Localization,
+    pub localization: Localization,
     #[serde(default)]
     pub images: Vec<String>,
     pub id: String,
@@ -58,13 +76,17 @@ struct OfferWire {
 }
 
 impl<'de> Deserialize<'de> for Offer {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use facts::guard_content;
+        use facts::normalize_content;
+        use serde_json::Value;
+        use serde_json::from_value;
+
         use serde::de::Error;
-        let mut value = serde_json::Value::deserialize(deserializer)?;
-        facts::normalize_content(&mut value).map_err(D::Error::custom)?;
-        let wire: OfferWire = serde_json::from_value(value).map_err(D::Error::custom)?;
-        facts::guard_content(&wire.content, &wire.localization.language)
-            .map_err(D::Error::custom)?;
+        let mut value = Value::deserialize(deserializer)?;
+        normalize_content(&mut value).map_err(D::Error::custom)?;
+        let wire: OfferWire = from_value(value).map_err(D::Error::custom)?;
+        guard_content(&wire.content, &wire.localization.language).map_err(D::Error::custom)?;
         let selected = wire
             .content
             .iter()
@@ -126,12 +148,12 @@ pub struct OffersClient {
 }
 
 impl OffersClient {
-    pub fn from_env() -> io::Result<Self> {
-        let base = configuration(std::env::var("CUSTOMER_FACING_URL"))?;
+    pub fn from_env() -> IoResult<Self> {
+        let base = configuration(var("CUSTOMER_FACING_URL"))?;
         Self::new(&base, Duration::from_secs(5))
     }
 
-    pub fn new(base: &str, timeout: Duration) -> io::Result<Self> {
+    pub fn new(base: &str, timeout: Duration) -> IoResult<Self> {
         let mut endpoint = Url::parse(base).map_err(|_| invalid_configuration())?;
         if !matches!(endpoint.scheme(), "http" | "https")
             || endpoint.host_str().is_none()
@@ -149,10 +171,10 @@ impl OffersClient {
         ));
         let http = Client::builder()
             .timeout(timeout)
-            .redirect(reqwest::redirect::Policy::none())
-            .retry(reqwest::retry::never())
+            .redirect(Policy::none())
+            .retry(never())
             .build()
-            .map_err(|_| io::Error::other("could not initialize offers client"))?;
+            .map_err(|_| IoError::other("could not initialize offers client"))?;
         Ok(Self { http, endpoint })
     }
 
@@ -177,7 +199,7 @@ impl OffersClient {
             .append_pair("limit", &PAGE_SIZE.to_string())
             .append_pair("offset", &offset.to_string());
         let response = self.http.get(url).send().await.map_err(|_| ())?;
-        if response.status() != reqwest::StatusCode::OK {
+        if response.status() != StatusCode::OK {
             return Err(());
         }
         let page: Page = response.json().await.map_err(|_| ())?;
@@ -188,7 +210,7 @@ impl OffersClient {
             || page.items.iter().any(|offer| {
                 offer.identifiers.guard().is_err()
                     || offer.localization.guard().is_err()
-                    || facts::guard_content(&offer.content, &offer.localization.language).is_err()
+                    || facts_guard_content(&offer.content, &offer.localization.language).is_err()
                     || offer
                         .availability
                         .as_ref()
@@ -213,7 +235,7 @@ impl OffersClient {
     }
 }
 
-fn configuration(value: Result<String, VarError>) -> io::Result<String> {
+fn configuration(value: Result<String, VarError>) -> IoResult<String> {
     match value {
         Ok(value) if !value.trim().is_empty() => Ok(value),
         Err(VarError::NotPresent) => Ok("http://localhost:3003".into()),
@@ -221,9 +243,9 @@ fn configuration(value: Result<String, VarError>) -> io::Result<String> {
     }
 }
 
-fn invalid_configuration() -> io::Error {
-    io::Error::new(
-        io::ErrorKind::InvalidInput,
+fn invalid_configuration() -> IoError {
+    IoError::new(
+        ErrorKind::InvalidInput,
         "CUSTOMER_FACING_URL must be an absolute HTTP(S) URL without credentials, query or fragment",
     )
 }
@@ -231,24 +253,22 @@ fn invalid_configuration() -> io::Error {
 #[cfg(test)]
 pub(crate) mod tests;
 
-fn read_localization<'de, D: serde::Deserializer<'de>>(
-    deserializer: D,
-) -> Result<retailer_sauce::localization::Localization, D::Error> {
-    let mut value = serde_json::Value::deserialize(deserializer)?;
+fn read_localization<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Localization, D::Error> {
+    let mut value = SerdeJsonValue::deserialize(deserializer)?;
     if let Some(market) = value
         .get_mut("target_market")
-        .and_then(serde_json::Value::as_object_mut)
+        .and_then(SerdeJsonValue::as_object_mut)
     {
-        if market.get("code").is_some_and(serde_json::Value::is_null) {
+        if market.get("code").is_some_and(SerdeJsonValue::is_null) {
             market.remove("code");
         }
-        if market.get("label").is_some_and(serde_json::Value::is_null) {
+        if market.get("label").is_some_and(SerdeJsonValue::is_null) {
             market.remove("label");
         }
     }
-    serde_json::from_value::<retailer_sauce::localization::Localization>(value)
+    serde_json_from_value::<Localization>(value)
         .map(|value| value.canonicalized())
-        .map_err(serde::de::Error::custom)
+        .map_err(SerdeDeError::custom)
 }
 
 /// Keep these boundary rules aligned with the customers app.

@@ -1,3 +1,7 @@
+use tracing::debug;
+use tracing::info;
+use tracing::warn;
+
 use crate::platform::object_storage::Stored;
 use shared::retailer::RetailerCode;
 use uuid::Uuid;
@@ -86,7 +90,7 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
             .ok_or(ProcessSitemapError::NoSitemapConfig(retailer_code))?;
         let raw_documents = self.store.raw_documents(retrieval_id)?;
         for raw in &raw_documents {
-            tracing::debug!(raw_sitemap_id = %raw.id, object_storage_id = %raw.object_storage_id, "raw sitemap loaded");
+            debug!(raw_sitemap_id = %raw.id, object_storage_id = %raw.object_storage_id, "raw sitemap loaded");
         }
         let raw_documents: Vec<_> = raw_documents.into_iter().map(|raw| raw.document).collect();
 
@@ -94,13 +98,13 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
         let greylisted = |url: &str| self.retailers.sitemap_greylisted(retailer_code, url);
         let (document, errors) = build_tree(&root_urls, &raw_documents, greylisted)?;
         for error in &errors {
-            tracing::warn!(%retrieval_id, ?retailer_code, "sitemap left out of the tree: {error}");
+            warn!(%retrieval_id, ?retailer_code, "sitemap left out of the tree: {error}");
         }
 
         let processed = ProcessedSitemap::new(retrieval_id, retailer_code, document);
         let url_count = processed.url_count();
         let stored = self.store.store_processed(&processed)?;
-        tracing::info!(
+        info!(
             object_storage_id = %stored.object_storage_id,
             %retrieval_id,
             ?retailer_code,
@@ -120,6 +124,10 @@ impl<S: Store, R: RootSitemaps> Handle for Handler<S, R> {
 
 #[cfg(test)]
 mod tests {
+    use crate::platform::object_storage::Error as PlatformObjectStorageError;
+    use sitemap::RawSitemapDocument as SitemapRawSitemapDocument;
+    use uuid::Uuid as UuidUuid;
+
     use std::sync::Mutex;
 
     use super::*;
@@ -155,7 +163,7 @@ mod tests {
         ) -> Result<Stored<ProcessedSitemap>, StoreError> {
             if self.fail {
                 return Err(StoreError::ObjectStorage(
-                    crate::platform::object_storage::Error::InvalidRecord,
+                    PlatformObjectStorageError::InvalidRecord,
                 ));
             }
 
@@ -166,7 +174,7 @@ mod tests {
                 .push((sitemap.retrieval_id, url_count));
             Ok(Stored {
                 entity: sitemap.clone(),
-                object_storage_id: uuid::Uuid::now_v7(),
+                object_storage_id: UuidUuid::now_v7(),
             })
         }
     }
@@ -183,7 +191,7 @@ mod tests {
         RawSitemapDocument {
             id: Uuid::now_v7(),
             object_storage_id: Uuid::now_v7(),
-            document: sitemap::RawSitemapDocument {
+            document: SitemapRawSitemapDocument {
                 url: url.to_string(),
                 last_modified: None,
                 body_size: body.len(),

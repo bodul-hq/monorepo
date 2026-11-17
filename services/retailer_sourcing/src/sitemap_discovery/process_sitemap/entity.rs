@@ -1,4 +1,6 @@
 //! Domain values used by sitemap processing.
+use sitemap::RawSitemapDocument as SitemapRawSitemapDocument;
+
 use chrono::{DateTime, Utc};
 use shared::retailer::RetailerCode;
 use sitemap::{ROOT_SITEMAP_SOURCE, SitemapDocument};
@@ -9,7 +11,7 @@ use uuid::Uuid;
 pub(super) struct RawSitemapDocument {
     pub id: Uuid,
     pub object_storage_id: Uuid,
-    pub document: sitemap::RawSitemapDocument,
+    pub document: SitemapRawSitemapDocument,
 }
 
 /// A retrieval's sitemap tree and its domain count.

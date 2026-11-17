@@ -6,13 +6,16 @@
 //! retailer is a folder name such as `ankerau`. With none given, every retailer
 //! folder with extracted pages is processed.
 
+use offer_details::main as offer_details_main;
+
 use development::offer_details::{self, Stage};
-use retailer_data_extractor::normalize_for;
+use retailer_data_extractor::normalize_offer_details_for;
 use shared::retailer::RetailerCode;
 
 fn main() {
-    offer_details::main(&Stage {
+    offer_details_main(&Stage {
         name: "normalize-offer-details",
+        directory: "offer_details",
         input: "extracted",
         input_extension: "json",
         output: "normalized",
@@ -22,7 +25,7 @@ fn main() {
 
 /// `None` when the retailer has no normalizer or the page no document.
 fn normalize(code: RetailerCode, json: &str) -> Result<Option<String>, String> {
-    let Some(normalized) = normalize_for(code, json) else {
+    let Some(normalized) = normalize_offer_details_for(code, json) else {
         return Ok(None);
     };
     let normalized = normalized.map_err(|e| format!("normalize: {e}"))?;

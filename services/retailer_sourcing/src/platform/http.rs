@@ -1,11 +1,36 @@
 //! Blocking HTTP client for fetching remote documents.
 
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use reqwest::Proxy;
+use reqwest::blocking::Client as ReqwestBlockingClient;
+use reqwest::blocking::ClientBuilder;
+use reqwest::header::CONTENT_TYPE;
+use reqwest::header::HeaderMap;
+use reqwest::header::HeaderValue;
+use reqwest::redirect::Policy;
+use std::env::var_os;
+use std::error::Error;
+use std::io::Error as StdIoError;
+use std::io::ErrorKind;
+use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
+use std::time::Duration;
+use url::Url;
+
 use std::fmt;
 use std::io::Read;
 
 use flate2::read::GzDecoder;
 
-use super::logging::TIMING_TARGET;
+mod diagnostics;
+#[cfg(test)]
+mod network_tests;
+
+use diagnostics::Request;
+pub use diagnostics::safe_url;
 
 /// A browser-like User-Agent. Many storefronts reject the default `reqwest/x.y`
 /// agent with `403 Forbidden`; sending a common one is enough for basic fetching.
@@ -20,13 +45,13 @@ pub struct FetchError {
     pub message: String,
 }
 
-impl fmt::Display for FetchError {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for FetchError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         formatter.write_str(&self.message)
     }
 }
 
-impl std::error::Error for FetchError {}
+impl Error for FetchError {}
 
 /// A minimal blocking HTTP client.
 ///
@@ -43,13 +68,22 @@ impl Client {
     /// by gzip magic bytes, so it works regardless of the URL suffix or a
     /// mislabelled `Content-Type`.
     pub fn get(&self, url: &str) -> Result<String, FetchError> {
-        self.get_with_builder(url, reqwest::blocking::Client::builder(), "default")
+        self.get_with_builder(url, ReqwestBlockingClient::builder(), "default")
+    }
+
+    /// Bounded storefront/bootstrap fetch, separate from legacy sitemap GET settings.
+    pub fn get_storefront(&self, url: &str) -> Result<String, FetchError> {
+        self.get_with_builder(
+            url,
+            ReqwestBlockingClient::builder().timeout(Duration::from_secs(60)),
+            "storefront",
+        )
     }
 
     fn get_with_builder(
         &self,
         url: &str,
-        builder: reqwest::blocking::ClientBuilder,
+        builder: ClientBuilder,
         route: &str,
     ) -> Result<String, FetchError> {
         self.request_with_builder(url, None, builder, route)
@@ -59,55 +93,64 @@ impl Client {
         &self,
         url: &str,
         json_body: Option<&str>,
-        builder: reqwest::blocking::ClientBuilder,
+        builder: ClientBuilder,
         route: &str,
     ) -> Result<String, FetchError> {
+        let context = Request::new(url, if json_body.is_some() { "POST" } else { "GET" }, route);
+        self.request_with_context(url, json_body, builder, context)
+    }
+
+    fn request_with_context(
+        &self,
+        url: &str,
+        json_body: Option<&str>,
+        builder: ClientBuilder,
+        context: Request,
+    ) -> Result<String, FetchError> {
         let builder = if json_body.is_some() {
-            builder.timeout(std::time::Duration::from_secs(60))
+            builder.timeout(Duration::from_secs(60))
         } else {
             builder
         };
         let client = builder
             .user_agent(USER_AGENT)
             .build()
-            .map_err(|error| FetchError {
-                message: error.to_string(),
-            })?;
-
-        // Time just the network fetch (request -> response bytes), excluding decoding.
-        let start = std::time::Instant::now();
+            .map_err(|error| context.failure("build", &error, None))?;
         let request = match json_body {
             Some(body) => client
                 .post(url)
-                .header(reqwest::header::CONTENT_TYPE, "application/json")
+                .header(CONTENT_TYPE, "application/json")
                 .body(body.to_owned()),
             None => client.get(url),
-        };
-        let fetched = request
-            .send()
-            .and_then(|response| response.error_for_status())
-            .and_then(|response| response.bytes());
-        let elapsed_ms = start.elapsed().as_millis() as u64;
-        let status = if fetched.is_ok() { "ok" } else { "error" };
-        tracing::info!(target: TIMING_TARGET, kind = "fetch", route, url, elapsed_ms, status);
-
-        let bytes = fetched.map_err(|error| FetchError {
-            message: error.to_string(),
-        })?;
-
-        decode_body(&bytes)
+        }
+        .build()
+        .map_err(|error| context.failure("build", &error, None))?;
+        let response = client
+            .execute(request)
+            .map_err(|error| context.failure("send", &error, None))?;
+        let status = response.status();
+        if !status.is_success() {
+            return Err(context.failure(
+                "status",
+                &StdIoError::other(format!("HTTP request failed with status {status}")),
+                Some(status.as_u16()),
+            ));
+        }
+        let bytes = response
+            .bytes()
+            .map_err(|error| context.failure("read_body", &error, Some(status.as_u16())))?;
+        let body = decode_body(&bytes)
+            .map_err(|error| context.failure("decode", &error, Some(status.as_u16())))?;
+        context.success(status.as_u16());
+        Ok(body)
     }
 }
 
 /// Decodes a response body to text, gunzipping it first when it is a gzip stream.
-fn decode_body(bytes: &[u8]) -> Result<String, FetchError> {
+fn decode_body(bytes: &[u8]) -> Result<String, StdIoError> {
     if bytes.starts_with(&GZIP_MAGIC) {
         let mut text = String::new();
-        GzDecoder::new(bytes)
-            .read_to_string(&mut text)
-            .map_err(|error| FetchError {
-                message: format!("gzip decode failed: {error}"),
-            })?;
+        GzDecoder::new(bytes).read_to_string(&mut text)?;
         Ok(text)
     } else {
         // Lossy decoding keeps a stray byte from failing the whole fetch.
@@ -124,13 +167,17 @@ mod tests {
 
     #[test]
     fn source_post_sends_json_and_preserves_the_response_body() {
+        use reqwest::blocking::Client as ReqwestBlockingClient2;
+        use std::thread::spawn;
+        use std::time::Duration as StdTimeDuration;
+
         use std::net::TcpListener;
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}/graphql", listener.local_addr().unwrap());
-        let server = std::thread::spawn(move || {
+        let server = spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
             stream
-                .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+                .set_read_timeout(Some(StdTimeDuration::from_secs(5)))
                 .unwrap();
             let mut request = Vec::new();
             let mut byte = [0];
@@ -150,12 +197,53 @@ mod tests {
             .request_with_builder(
                 &url,
                 Some("{}"),
-                reqwest::blocking::Client::builder().no_proxy(),
+                ReqwestBlockingClient2::builder().no_proxy(),
                 "test",
             )
             .unwrap();
         server.join().unwrap();
         assert_eq!(body, "{\"data\":1}");
+    }
+
+    #[test]
+    fn invalid_header_reports_build_failure_without_exposing_inputs() {
+        let error = OfferClient::default()
+            .post_storefront_json(
+                "https://example.com/graphql?key=query-secret#private-fragment",
+                "body-secret",
+                "invalid\nsecret-token",
+            )
+            .unwrap_err();
+        for expected in [
+            "request_id=",
+            "method=POST",
+            "stage=build",
+            "endpoint=https://example.com/graphql",
+            "failed to parse header value",
+        ] {
+            assert!(error.message.contains(expected), "{error}");
+        }
+        for secret in [
+            "query-secret",
+            "private-fragment",
+            "secret-token",
+            "body-secret",
+        ] {
+            assert!(!error.message.contains(secret), "{error}");
+        }
+    }
+
+    #[test]
+    fn malformed_request_url_reports_build_stage_for_both_get_clients() {
+        for result in [
+            Client.get("invalid URL"),
+            Client.get_storefront("invalid URL"),
+        ] {
+            let message = result.unwrap_err().message;
+            assert!(message.contains("method=GET"), "{message}");
+            assert!(message.contains("stage=build"), "{message}");
+            assert!(message.contains("builder error"), "{message}");
+        }
     }
 
     fn gzip(text: &str) -> Vec<u8> {
@@ -180,20 +268,25 @@ mod tests {
 /// Process-wide offer routing, shared by cloned handlers.
 #[derive(Clone, Default)]
 pub struct OfferClient {
-    proxies: std::sync::Arc<Vec<reqwest::Proxy>>,
-    cursor: std::sync::Arc<std::sync::atomic::AtomicUsize>,
-    nordic_storefront_token: Option<reqwest::header::HeaderValue>,
+    proxies: Arc<Vec<OfferProxy>>,
+    cursor: Arc<AtomicUsize>,
+    nordic_storefront_token: Option<HeaderValue>,
+}
+
+struct OfferProxy {
+    client: Proxy,
+    url: String,
 }
 
 const OFFER_PROXIES: &[&str] = &["http://10.1.0.102:8888"];
 
 impl OfferClient {
-    pub fn configured() -> Result<Self, std::io::Error> {
+    pub fn configured() -> Result<Self, StdIoError> {
         let mut client = Self::from_urls(OFFER_PROXIES)?;
-        if let Some(value) = std::env::var_os("ANKER_NORDICS_STOREFRONT_TOKEN") {
+        if let Some(value) = var_os("ANKER_NORDICS_STOREFRONT_TOKEN") {
             let invalid = || {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
+                StdIoError::new(
+                    ErrorKind::InvalidInput,
                     "invalid ANKER_NORDICS_STOREFRONT_TOKEN",
                 )
             };
@@ -201,48 +294,87 @@ impl OfferClient {
                 .to_str()
                 .filter(|s| !s.trim().is_empty())
                 .ok_or_else(invalid)?;
-            let mut token = reqwest::header::HeaderValue::from_str(value).map_err(|_| invalid())?;
+            let mut token = HeaderValue::from_str(value).map_err(|_| invalid())?;
             token.set_sensitive(true);
             client.nordic_storefront_token = Some(token);
         }
         Ok(client)
     }
 
-    fn from_urls(urls: &[&str]) -> Result<Self, std::io::Error> {
-        let invalid = || {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                "invalid hardcoded offer proxy URL",
-            )
-        };
+    fn from_urls(urls: &[&str]) -> Result<Self, StdIoError> {
+        let invalid =
+            || StdIoError::new(ErrorKind::InvalidInput, "invalid hardcoded offer proxy URL");
         let mut proxies = Vec::new();
         {
             for entry in urls {
-                let url = url::Url::parse(entry).map_err(|_| invalid())?;
+                let url = Url::parse(entry).map_err(|_| invalid())?;
                 if !matches!(url.scheme(), "http" | "https") || url.host_str().is_none() {
                     return Err(invalid());
                 }
-                proxies.push(reqwest::Proxy::all(url.as_str()).map_err(|_| invalid())?);
+                proxies.push(OfferProxy {
+                    client: Proxy::all(url.as_str()).map_err(|_| invalid())?,
+                    url: url.to_string(),
+                });
             }
         }
         Ok(Self {
-            proxies: std::sync::Arc::new(proxies),
+            proxies: Arc::new(proxies),
             ..Self::default()
         })
     }
 
     fn next_route(&self) -> usize {
         self.cursor
-            .fetch_update(
-                std::sync::atomic::Ordering::Relaxed,
-                std::sync::atomic::Ordering::Relaxed,
-                |current| Some((current + 1) % (self.proxies.len() + 1)),
-            )
+            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+                Some((current + 1) % (self.proxies.len() + 1))
+            })
             .unwrap()
     }
 
     pub fn get(&self, url: &str) -> Result<String, FetchError> {
         self.request(url, None)
+    }
+
+    /// Explicit public Storefront token; the caller resolves a trusted endpoint from retailer configuration.
+    pub fn post_storefront_json(
+        &self,
+        url: &str,
+        body: &str,
+        token: &str,
+    ) -> Result<String, FetchError> {
+        self.post_storefront_json_with_access(url, body, Some(token))
+    }
+
+    /// A missing token deliberately uses the configured public Storefront channel.
+    pub fn post_storefront_json_with_access(
+        &self,
+        url: &str,
+        body: &str,
+        token: Option<&str>,
+    ) -> Result<String, FetchError> {
+        let mut context = Request::new(url, "POST", "unselected");
+        let mut headers = HeaderMap::new();
+        if let Some(value) = token {
+            context.redact(value);
+            let mut token = HeaderValue::from_str(value)
+                .map_err(|error| context.failure("build", &error, None))?;
+            token.set_sensitive(true);
+            headers.insert("X-Shopify-Storefront-Access-Token", token);
+        }
+        let mut builder = ReqwestBlockingClient::builder()
+            .no_proxy()
+            .default_headers(headers)
+            .redirect(Policy::none());
+        let index = self.next_route();
+        let route = if index == 0 {
+            "direct".to_string()
+        } else {
+            context.proxy(&self.proxies[index - 1].url);
+            builder = builder.proxy(self.proxies[index - 1].client.clone());
+            format!("proxy_{index}")
+        };
+        context.route(&route);
+        Client.request_with_context(url, Some(body), builder, context)
     }
 
     pub fn post_json(&self, url: &str, body: &str) -> Result<String, FetchError> {
@@ -251,39 +383,50 @@ impl OfferClient {
 
     fn request(&self, url: &str, json_body: Option<&str>) -> Result<String, FetchError> {
         let index = self.next_route();
-        let mut builder = reqwest::blocking::Client::builder().no_proxy();
-        if json_body.is_some() {
-            if url != "https://ankerneu.myshopify.com/api/2026-10/graphql.json" {
-                return Err(FetchError {
-                    message: "unsupported offer POST endpoint".into(),
-                });
-            }
-            let token = self
-                .nordic_storefront_token
-                .clone()
-                .ok_or_else(|| FetchError {
-                    message:
-                        "ANKER_NORDICS_STOREFRONT_TOKEN is required for Nordic market downloads"
-                            .into(),
-                })?;
-            let mut headers = reqwest::header::HeaderMap::new();
-            headers.insert("X-Shopify-Storefront-Access-Token", token);
-            builder = builder
-                .default_headers(headers)
-                .redirect(reqwest::redirect::Policy::none());
-        }
         let route = if index == 0 {
-            "direct".to_owned()
+            "direct".into()
         } else {
-            builder = builder.proxy(self.proxies[index - 1].clone());
             format!("proxy_{index}")
         };
-        Client.request_with_builder(url, json_body, builder, &route)
+        let mut context = Request::new(
+            url,
+            if json_body.is_some() { "POST" } else { "GET" },
+            &route,
+        );
+        let mut builder = ReqwestBlockingClient::builder().no_proxy();
+        if index > 0 {
+            context.proxy(&self.proxies[index - 1].url);
+            builder = builder.proxy(self.proxies[index - 1].client.clone());
+        }
+        if json_body.is_some() {
+            if url != "https://ankerneu.myshopify.com/api/2026-10/graphql.json" {
+                return Err(context.failure(
+                    "build",
+                    &StdIoError::other("unsupported offer POST endpoint"),
+                    None,
+                ));
+            }
+            let token = self.nordic_storefront_token.clone().ok_or_else(|| {
+                let error = StdIoError::other(
+                    "ANKER_NORDICS_STOREFRONT_TOKEN is required for Nordic market downloads",
+                );
+                context.failure("build", &error, None)
+            })?;
+            if let Ok(value) = token.to_str() {
+                context.redact(value);
+            }
+            let mut headers = HeaderMap::new();
+            headers.insert("X-Shopify-Storefront-Access-Token", token);
+            builder = builder.default_headers(headers).redirect(Policy::none());
+        }
+        Client.request_with_context(url, json_body, builder, context)
     }
 }
 
 #[cfg(test)]
 mod routing_tests {
+    use reqwest::header::HeaderValue as ReqwestHeaderHeaderValue;
+
     use super::*;
     #[test]
     fn nordic_posts_require_a_token_and_cannot_send_it_to_another_endpoint() {
@@ -299,17 +442,17 @@ mod routing_tests {
                 .contains("ANKER_NORDICS_STOREFRONT_TOKEN")
         );
         let client = OfferClient {
-            nordic_storefront_token: Some(reqwest::header::HeaderValue::from_static(
+            nordic_storefront_token: Some(ReqwestHeaderHeaderValue::from_static(
                 "test-public-token",
             )),
             ..Default::default()
         };
-        assert_eq!(
+        assert!(
             client
                 .post_json("https://other.example/graphql", "{}")
                 .unwrap_err()
-                .message,
-            "unsupported offer POST endpoint"
+                .message
+                .contains("unsupported offer POST endpoint")
         );
     }
     #[test]

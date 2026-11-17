@@ -10,6 +10,32 @@ mod queue_tests;
 mod reporting;
 mod stored_content;
 
+use async_graphql::Error;
+use async_graphql::Result as AsyncGraphqlResult;
+use async_graphql::http::GraphiQLSource;
+use bootstrap::database_pool;
+use offer_read::OfferPage;
+use offer_read::Offers;
+use offer_read::OffersApi;
+use orchestration::start_mulac;
+use reporting::DEFAULT_REPORTING_TOKEN;
+use reporting::ReportingApi;
+use shared::health as shared_health;
+use std::env::VarError as StdEnvVarError;
+use std::env::var;
+#[cfg(not(unix))]
+use std::future::pending;
+use std::io::Error as StdIoError;
+use std::io::ErrorKind as StdIoErrorKind;
+use std::io::Result as StdIoResult;
+use std::io::stderr;
+use tokio::select;
+use tokio::signal::ctrl_c;
+use tokio::signal::unix::SignalKind;
+use tokio::signal::unix::signal;
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt;
+
 use async_graphql::{EmptyMutation, EmptySubscription, Object, Schema};
 use async_graphql_poem::GraphQL;
 use orchestration::{AppState, QueueApi};
@@ -22,16 +48,16 @@ struct Api;
 impl Api {
     #[oai(path = "/health", method = "get")]
     async fn health(&self) -> PlainText<&'static str> {
-        PlainText(shared::health())
+        PlainText(shared_health())
     }
 }
 
-struct Query(offer_read::Offers);
+struct Query(Offers);
 
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        shared::health()
+        shared_health()
     }
 
     async fn search_offers(
@@ -39,49 +65,40 @@ impl Query {
         q: String,
         #[graphql(default = 30)] limit: i32,
         #[graphql(default = 0)] offset: i32,
-    ) -> async_graphql::Result<offer_read::OfferPage> {
+    ) -> AsyncGraphqlResult<OfferPage> {
         self.0
             .search(&q, limit, offset)
             .await
-            .map_err(|error| async_graphql::Error::new(error.message()))
+            .map_err(|error| Error::new(error.message()))
     }
 
     async fn offers(
         &self,
         #[graphql(default = 30)] limit: i32,
         #[graphql(default = 0)] offset: i32,
-    ) -> async_graphql::Result<offer_read::OfferPage> {
+    ) -> AsyncGraphqlResult<OfferPage> {
         self.0
             .list(limit, offset)
             .await
-            .map_err(|error| async_graphql::Error::new(error.message()))
+            .map_err(|error| Error::new(error.message()))
     }
 }
 
 #[handler]
 async fn graphiql() -> Html<String> {
-    Html(
-        async_graphql::http::GraphiQLSource::build()
-            .endpoint("/graphql")
-            .finish(),
-    )
+    Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
 #[cfg(test)]
 fn app(state: AppState) -> Route {
-    app_with_reporting_token(state, reporting::DEFAULT_REPORTING_TOKEN.into())
+    app_with_reporting_token(state, DEFAULT_REPORTING_TOKEN.into())
 }
 
 fn app_with_reporting_token(state: AppState, token: String) -> Route {
-    let reports = reporting::ReportingApi::new(state.reporting.clone(), token);
+    let reports = ReportingApi::new(state.reporting.clone(), token);
     let offers = state.offers.clone();
     let api = OpenApiService::new(
-        (
-            Api,
-            QueueApi(state),
-            offer_read::OffersApi(offers.clone()),
-            reports,
-        ),
+        (Api, QueueApi(state), OffersApi(offers.clone()), reports),
         "Customer Facing",
         env!("CARGO_PKG_VERSION"),
     )
@@ -101,42 +118,40 @@ fn app_with_reporting_token(state: AppState, token: String) -> Route {
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, std::env::VarError>) -> std::io::Result<u16> {
+fn parse_port(value: Result<String, StdEnvVarError>) -> StdIoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            StdIoError::new(
+                StdIoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
-        Err(std::env::VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, error)),
+        Err(StdEnvVarError::NotPresent) => Ok(3000),
+        Err(error) => Err(StdIoError::new(StdIoErrorKind::InvalidInput, error)),
     }
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
-        )
-        .with_writer(std::io::stderr)
+async fn main() -> StdIoResult<()> {
+    fmt()
+        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()))
+        .with_writer(stderr)
         .init();
-    let port = parse_port(std::env::var("PORT"))?;
-    let token = match std::env::var("CUSTOMER_FACING_REPORTING_TOKEN") {
+    let port = parse_port(var("PORT"))?;
+    let token = match var("CUSTOMER_FACING_REPORTING_TOKEN") {
         Ok(token) => token,
-        Err(std::env::VarError::NotPresent) => reporting::DEFAULT_REPORTING_TOKEN.into(),
+        Err(StdEnvVarError::NotPresent) => DEFAULT_REPORTING_TOKEN.into(),
         Err(_) => {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
+            return Err(StdIoError::new(
+                StdIoErrorKind::InvalidInput,
                 "CUSTOMER_FACING_REPORTING_TOKEN must be valid Unicode",
             ));
         }
     };
-    let pool = bootstrap::database_pool()?;
+    let pool = database_pool()?;
     let shutdown = shutdown_signal()?;
-    let (kernel, state) = orchestration::start_mulac(pool)
-        .map_err(|_| std::io::Error::other("Mulac kernel could not start"))?;
+    let (kernel, state) =
+        start_mulac(pool).map_err(|_| StdIoError::other("Mulac kernel could not start"))?;
     let result = Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
         .run_with_graceful_shutdown(app_with_reporting_token(state, token), shutdown, None)
         .await;
@@ -146,34 +161,41 @@ async fn main() -> std::io::Result<()> {
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> std::io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> StdIoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
-            Ok(()) = tokio::signal::ctrl_c() => {}
+        select! {
+            Ok(()) = ctrl_c() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            pending::<()>().await;
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
+    use super::app as imported_app;
+    use crate::queue_tests::state as queue_tests_state;
+    use poem::Route as PoemRoute;
+    use poem::test::TestResponse;
+    use std::collections::HashSet;
+    use uuid::Uuid;
+
     pub(crate) fn assert_error_id(error: &str) {
-        let id = uuid::Uuid::parse_str(error).expect("error response must contain only a UUID");
+        let id = Uuid::parse_str(error).expect("error response must contain only a UUID");
         assert_eq!(id.get_version_num(), 7);
     }
 
-    pub(crate) fn assert_batch_errors(body: &serde_json::Value, count: usize) {
+    pub(crate) fn assert_batch_errors(body: &Value, count: usize) {
         assert!(body["processed"].is_null(), "{body}");
         let errors = body["errors"].as_array().expect("batch errors array");
         assert_eq!(errors.len(), count, "{body}");
-        let mut ids = std::collections::HashSet::new();
+        let mut ids = HashSet::new();
         for error in errors {
             let error = error.as_str().expect("error ID string");
             assert_error_id(error);
@@ -181,12 +203,12 @@ mod tests {
         }
     }
 
-    pub(crate) async fn assert_error_response(response: poem::test::TestResponse) {
+    pub(crate) async fn assert_error_response(response: TestResponse) {
         let body = response.0.into_body().into_string().await.unwrap();
         assert_error_id(&body);
     }
 
-    pub(crate) async fn assert_batch_response(response: poem::test::TestResponse, count: usize) {
+    pub(crate) async fn assert_batch_response(response: TestResponse, count: usize) {
         let body = response.json().await.value().deserialize();
         assert_batch_errors(&body, count);
     }
@@ -198,8 +220,8 @@ mod tests {
 
     use super::parse_port;
 
-    fn app() -> poem::Route {
-        super::app(crate::queue_tests::state())
+    fn app() -> PoemRoute {
+        imported_app(queue_tests_state())
     }
 
     #[tokio::test]

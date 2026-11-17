@@ -25,6 +25,15 @@ pub(super) fn format_price(price: &Price) -> FormattedPrice {
         Currency::VND => ("₫", true, '.', '.'),
         Currency::NZD => ("NZ$", false, ',', '.'),
         Currency::INR => ("₹", false, ',', '.'),
+        Currency::SAR => ("SAR", true, ',', '.'),
+        Currency::MXN => ("MXN", true, ',', '.'),
+        Currency::TRY => ("TRY", true, ',', '.'),
+        Currency::THB => ("THB", true, ',', '.'),
+        Currency::SGD => ("SGD", true, ',', '.'),
+        Currency::IDR => ("IDR", true, ',', '.'),
+        Currency::MYR => ("MYR", true, ',', '.'),
+        Currency::AED => ("AED", true, ',', '.'),
+        Currency::PHP => ("PHP", true, ',', '.'),
     };
     // The HTTP client has validated the canonical i64 representation.
     let amount = price.amount.parse::<i64>().expect("validated price amount");

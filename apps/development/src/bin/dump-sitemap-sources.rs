@@ -9,6 +9,14 @@
 //! API needs a bearer token; `RETAILER_SOURCING_TOKEN` overrides the one the
 //! service hardcodes for now.
 
+use env::args;
+use env::var;
+use fs::create_dir_all;
+use fs::write;
+use process::exit;
+use reqwest::blocking::Client;
+use std::error::Error;
+
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
@@ -41,22 +49,22 @@ struct Source {
 fn main() {
     if let Err(error) = run() {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: dump-sitemap-sources <data_dir>")?;
-    let base_url = env::var("RETAILER_SOURCING_URL").unwrap_or_else(|_| DEFAULT_URL.to_string());
-    let token = env::var("RETAILER_SOURCING_TOKEN").unwrap_or_else(|_| DEFAULT_TOKEN.to_string());
+    let base_url = var("RETAILER_SOURCING_URL").unwrap_or_else(|_| DEFAULT_URL.to_string());
+    let token = var("RETAILER_SOURCING_TOKEN").unwrap_or_else(|_| DEFAULT_TOKEN.to_string());
     let endpoint = format!(
         "{}/api/development/sitemaps/sources",
         base_url.trim_end_matches('/')
     );
-    let client = reqwest::blocking::Client::new();
+    let client = Client::new();
 
     // The URL written to each path, so two URLs with the same slug don't
     // overwrite each other.
@@ -92,7 +100,7 @@ fn run() -> Result<(), String> {
 }
 
 fn fetch_page(
-    client: &reqwest::blocking::Client,
+    client: &Client,
     endpoint: &str,
     token: &str,
     offset: usize,
@@ -116,7 +124,7 @@ fn fetch_page(
 
 /// The error followed by each of its causes, since reqwest's own message leaves out why a request
 /// failed, such as the connection being refused.
-fn with_causes(error: &dyn std::error::Error) -> String {
+fn with_causes(error: &dyn Error) -> String {
     let mut message = error.to_string();
     let mut source = error.source();
     while let Some(cause) = source {
@@ -158,8 +166,8 @@ fn write_source(
         ));
     }
 
-    fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    fs::write(&path, &source.body).map_err(|e| format!("{}: {e}", path.display()))?;
+    create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    write(&path, &source.body).map_err(|e| format!("{}: {e}", path.display()))?;
     written_urls.insert(path.clone(), source.url.clone());
     Ok(path)
 }

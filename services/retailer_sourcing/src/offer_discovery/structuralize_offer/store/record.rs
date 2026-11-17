@@ -1,4 +1,6 @@
 //! Private PostgreSQL metadata and domain mappings.
+use serde_json::from_str;
+
 use super::super::super::schema::offer_details_structuralized;
 use super::super::entity::{NormalizedOffer, StructuralizedOffer};
 use super::StoreError;
@@ -18,7 +20,7 @@ impl NormalizedOfferPgRecord {
         Ok(NormalizedOffer {
             offer_id: self.offer_id,
             object_storage_id: self.storage.0.object_storage_id,
-            document: serde_json::from_str(&body)?,
+            document: from_str(&body)?,
         })
     }
 }

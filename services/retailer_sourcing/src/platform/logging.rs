@@ -12,6 +12,15 @@
 //! The log folder is `LOG_DIR`, or `logs` in the working directory. The level
 //! comes from `RUST_LOG` (for example `RUST_LOG=debug`), and defaults to `info`.
 
+use fmt::layer;
+use std::env::var;
+use std::fs::create_dir_all;
+use std::io::stderr as std_io_stderr;
+use tracing::Metadata;
+use tracing_appender::non_blocking;
+use tracing_appender::rolling::daily as tracing_appender_rolling_daily;
+use tracing_subscriber::registry;
+
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::filter::filter_fn;
 use tracing_subscriber::layer::SubscriberExt;
@@ -33,7 +42,7 @@ pub struct LogGuards {
     _timing: WorkerGuard,
 }
 
-fn is_timing(metadata: &tracing::Metadata<'_>) -> bool {
+fn is_timing(metadata: &Metadata<'_>) -> bool {
     metadata.target() == TIMING_TARGET
 }
 
@@ -41,38 +50,37 @@ fn is_timing(metadata: &tracing::Metadata<'_>) -> bool {
 /// keep the returned guards alive.
 #[must_use]
 pub fn init() -> LogGuards {
-    let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| DEFAULT_LOG_DIR.to_string());
+    let log_dir = var("LOG_DIR").unwrap_or_else(|_| DEFAULT_LOG_DIR.to_string());
     // If the folder can't be created, the file writers report it; stderr still
     // works.
-    let _ = std::fs::create_dir_all(&log_dir);
+    let _ = create_dir_all(&log_dir);
 
     let (main_writer, main_guard) =
-        tracing_appender::non_blocking(tracing_appender::rolling::daily(&log_dir, LOG_FILE_PREFIX));
-    let (timing_writer, timing_guard) = tracing_appender::non_blocking(
-        tracing_appender::rolling::daily(&log_dir, TIMING_FILE_PREFIX),
-    );
+        non_blocking(tracing_appender_rolling_daily(&log_dir, LOG_FILE_PREFIX));
+    let (timing_writer, timing_guard) =
+        non_blocking(tracing_appender_rolling_daily(&log_dir, TIMING_FILE_PREFIX));
 
     let filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(DEFAULT_FILTER));
 
     // Plain text everywhere: a span's fields are formatted once and shared by
     // every output, so colours on stderr would leak escape codes into the files.
-    let stderr = fmt::layer()
+    let stderr = layer()
         .with_ansi(false)
-        .with_writer(std::io::stderr)
+        .with_writer(std_io_stderr)
         .with_filter(filter_fn(|metadata| !is_timing(metadata)));
-    let main_file = fmt::layer()
+    let main_file = layer()
         .with_ansi(false)
         .with_writer(main_writer)
         .with_filter(filter_fn(|metadata| !is_timing(metadata)));
-    let timing_file = fmt::layer()
+    let timing_file = layer()
         .with_ansi(false)
         .with_writer(timing_writer)
         .with_filter(filter_fn(is_timing));
 
     // `try_init` leaves an already installed subscriber in place instead of
     // panicking.
-    let _ = tracing_subscriber::registry()
+    let _ = registry()
         .with(filter)
         .with(stderr)
         .with(main_file)

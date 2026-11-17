@@ -27,6 +27,11 @@ mod normalize_offer;
 mod processing_for_export;
 mod structuralize_offer;
 
+use panic::catch_unwind;
+use retailer_data_extractor::extract_offer_details_for;
+use retailer_data_extractor::normalize_offer_details_for;
+use retailer_data_extractor::structuralize_offer_details_for;
+
 use std::any::Any;
 use std::panic::{self, AssertUnwindSafe};
 
@@ -43,14 +48,14 @@ struct Retailers;
 impl Retailers {
     /// The page extracted into JSON text.
     fn extract(self, retailer_code: RetailerCode, html: &str) -> Result<String, String> {
-        catch_panic(|| retailer_data_extractor::extract_for(retailer_code, html))
+        catch_panic(|| extract_offer_details_for(retailer_code, html))
     }
 
     /// The normalized document, or `None` when the retailer produces none for
     /// this page.
     fn normalize(self, retailer_code: RetailerCode, json: &str) -> Result<Option<String>, String> {
         catch_panic(|| {
-            retailer_data_extractor::normalize_for(retailer_code, json)
+            normalize_offer_details_for(retailer_code, json)
                 .ok_or_else(|| format!("no normalizer for retailer {retailer_code:?}"))?
                 .map(|data| data.document_json)
         })
@@ -64,7 +69,7 @@ impl Retailers {
         json: &str,
     ) -> Result<Option<String>, String> {
         catch_panic(|| {
-            retailer_data_extractor::structuralize_for(retailer_code, json)
+            structuralize_offer_details_for(retailer_code, json)
                 .ok_or_else(|| format!("no structuralizer for retailer {retailer_code:?}"))?
                 .map(|data| data.document_json)
         })
@@ -73,7 +78,7 @@ impl Retailers {
 
 /// Runs `step`, turning a panic into an error with the panic's message.
 fn catch_panic<T>(step: impl FnOnce() -> Result<T, String>) -> Result<T, String> {
-    panic::catch_unwind(AssertUnwindSafe(step))
+    catch_unwind(AssertUnwindSafe(step))
         .unwrap_or_else(|payload| Err(format!("panicked: {}", panic_message(&*payload))))
 }
 

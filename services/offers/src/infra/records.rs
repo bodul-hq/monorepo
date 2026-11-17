@@ -1,3 +1,10 @@
+use crate::offers::event::LegacyOfferCreatedEvent;
+use crate::offers::event::OfferAvailabilityChangedEvent;
+use crate::offers::event::OfferContentChangedEvent;
+use crate::offers::event::OfferContentsChangedEvent;
+use crate::offers::event::OfferItemConditionChangedEvent;
+use crate::offers::event::OfferPricingChangedEvent;
+
 use crate::offers::event::OfferIdentifiersChangedEvent;
 use serde::{Deserialize, Serialize};
 use testimony::prelude::HasAggregateId;
@@ -11,15 +18,15 @@ use crate::offers::event::{
 #[serde(tag = "type", content = "data")]
 pub enum OfferEventRecord {
     #[serde(rename = "OfferContentsChanged.v1")]
-    ContentsChanged(crate::offers::event::OfferContentsChangedEvent),
+    ContentsChanged(OfferContentsChangedEvent),
     #[serde(rename = "OfferContentChanged.v1")]
-    ContentChanged(crate::offers::event::OfferContentChangedEvent),
+    ContentChanged(OfferContentChangedEvent),
     #[serde(rename = "OfferItemConditionChanged.v1")]
-    ItemConditionChanged(crate::offers::event::OfferItemConditionChangedEvent),
+    ItemConditionChanged(OfferItemConditionChangedEvent),
     #[serde(rename = "OfferAvailabilityChanged.v1")]
-    AvailabilityChanged(crate::offers::event::OfferAvailabilityChangedEvent),
+    AvailabilityChanged(OfferAvailabilityChangedEvent),
     #[serde(rename = "OfferPricingChanged.v1")]
-    PricingChanged(crate::offers::event::OfferPricingChangedEvent),
+    PricingChanged(OfferPricingChangedEvent),
     #[serde(
         rename = "OfferCreated.v8",
         alias = "OfferCreated.v7",
@@ -30,7 +37,7 @@ pub enum OfferEventRecord {
         alias = "OfferCreated.v1",
         alias = "OfferCreated.v2"
     )]
-    LegacyCreated(Box<crate::offers::event::LegacyOfferCreatedEvent>),
+    LegacyCreated(Box<LegacyOfferCreatedEvent>),
     #[serde(rename = "OfferCreated.v9")]
     LegacyRegionCreated(
         #[serde(deserialize_with = "crate::offers::event::current_creation")]
@@ -139,6 +146,9 @@ impl HasAggregateId for OfferEventRecord {
 
 #[cfg(test)]
 mod regional_versions {
+    use serde_json::from_value;
+    use serde_json::to_value;
+
     use super::*;
     use serde_json::json;
 
@@ -147,13 +157,13 @@ mod regional_versions {
         let localization =
             json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"});
         let change = json!({"type":"OfferLocalizationChanged.v1","data":{"id":"example","localization":localization}});
-        let old: OfferEventRecord = serde_json::from_value(change.clone()).unwrap();
-        assert_eq!(serde_json::to_value(&old).unwrap(), change);
+        let old: OfferEventRecord = from_value(change.clone()).unwrap();
+        assert_eq!(to_value(&old).unwrap(), change);
         let mut event: RetailerOfferEvent = old.into();
         if let RetailerOfferEvent::OfferLocalizationChanged(value) = &mut event {
             value.localization = value.localization.clone().canonicalized();
         }
-        let new = serde_json::to_value(OfferEventRecord::from(&event)).unwrap();
+        let new = to_value(OfferEventRecord::from(&event)).unwrap();
         assert_eq!(new["type"], "OfferLocalizationChanged.v2");
         assert_eq!(
             new["data"]["localization"]["target_market"],
@@ -164,8 +174,8 @@ mod regional_versions {
             "price":{"amount":100,"currency":"AUD"},"created_at":"2026-10-29T00:00:00Z",
             "localization":localization,"content":[{"language":"en","title":"Charger","description":null}]
         }});
-        let old: OfferEventRecord = serde_json::from_value(created).unwrap();
-        let old_json = serde_json::to_value(&old).unwrap();
+        let old: OfferEventRecord = from_value(created).unwrap();
+        let old_json = to_value(&old).unwrap();
         assert_eq!(old_json["type"], "OfferCreated.v9");
         assert_eq!(
             old_json["data"]["localization"]["target_market"]["label"],
@@ -173,7 +183,7 @@ mod regional_versions {
         );
         let event: RetailerOfferEvent = old.into();
         assert_eq!(
-            serde_json::to_value(OfferEventRecord::from(&event)).unwrap()["type"],
+            to_value(OfferEventRecord::from(&event)).unwrap()["type"],
             "OfferCreated.v10"
         );
     }

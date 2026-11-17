@@ -1,7 +1,18 @@
+use crate::app_with_reporting_token;
+use crate::start_mulac;
+use diesel::sql_query;
+use diesel::sql_types::Nullable;
+use diesel::sql_types::Text;
+use diesel::sql_types::Uuid as DieselSqlTypesUuid;
+use poem::http::StatusCode;
+use retailer_sauce::prelude::Localization;
+use retailer_sauce::prelude::OfferContent;
+use retailer_sauce::prelude::StructuralizedContent;
+use serde_json::from_value;
+
 use diesel::{RunQueryDsl, connection::SimpleConnection};
 use diesel_migrations::MigrationHarness;
 use poem::test::TestClient;
-use retailer_sauce::offer_content;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -28,11 +39,11 @@ fn localized_migration_preserves_exact_values_and_pending_work_through_round_tri
         (2, Some("EN-au"), Some("")),
         (3, Some("fr"), Some(" \t<p>ž &amp;</p>\n")),
     ] {
-        diesel::sql_query("INSERT INTO read_offers(id,retailer_code,title,price_amount,currency,url,created_at,language,description) VALUES ($1,'ankerau',' Original charger ',10,'AUD',$2,now(),$3,$4)")
-            .bind::<diesel::sql_types::Uuid,_>(Uuid::from_u128(index))
-            .bind::<diesel::sql_types::Text,_>(format!("https://example.com/{index}"))
-            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Text>,_>(language)
-            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Text>,_>(description)
+        sql_query("INSERT INTO read_offers(id,retailer_code,title,price_amount,currency,url,created_at,language,description) VALUES ($1,'ankerau',' Original charger ',10,'AUD',$2,now(),$3,$4)")
+            .bind::<DieselSqlTypesUuid,_>(Uuid::from_u128(index))
+            .bind::<Text,_>(format!("https://example.com/{index}"))
+            .bind::<Nullable<Text>,_>(language)
+            .bind::<Nullable<Text>,_>(description)
             .execute(&mut connection).unwrap();
     }
     connection.batch_execute("INSERT INTO command_entries(id,command_type,payload) VALUES ('00000000-0000-0000-0000-000000000009','LegacyPending','{}'); INSERT INTO read_offer_images(offer_id,position,image_url) VALUES ('00000000-0000-0000-0000-000000000001',0,'https://example.com/image.png')").unwrap();
@@ -90,8 +101,8 @@ fn localized_migration_preserves_exact_values_and_pending_work_through_round_tri
 #[ignore = "requires DATABASE_URL_TEST with CREATE SCHEMA permission"]
 async fn imports_merge_languages_and_publish_selection_only_snapshots() {
     let (_schema, pool) = inbox_test_database();
-    let (kernel, state) = crate::start_mulac(pool.clone()).unwrap();
-    let client = TestClient::new(crate::app_with_reporting_token(state, "test".into()));
+    let (kernel, state) = start_mulac(pool.clone()).unwrap();
+    let client = TestClient::new(app_with_reporting_token(state, "test".into()));
     let mut input = json!({"retailer_code":"ankerau","title":"English charger","price_amount":100,"currency":"AUD","url":"https://shop.example/localized","localization":{"language":"en","target_market":null},"content":{"description":" <p>English ž &amp;</p> "}});
     for step in 0..5 {
         match step {
@@ -117,7 +128,7 @@ async fn imports_merge_languages_and_publish_selection_only_snapshots() {
             .body_json(&input)
             .send()
             .await
-            .assert_status(poem::http::StatusCode::ACCEPTED);
+            .assert_status(StatusCode::ACCEPTED);
         run_queue(&client, "inbox", 100, 1).await;
         run_queue(&client, "commands", 100, 1).await;
         run_queue(&client, "events", 100, [1, 1, 1, 0, 1][step]).await;
@@ -182,8 +193,7 @@ fn full_and_legacy_projection_updates_keep_content_and_selected_scalars_atomic()
     let id = RetailerOfferId::new(Uuid::from_u128(1).to_string());
     let row = || snapshot(&pool, "SELECT to_jsonb(o) AS data FROM read_offers o");
     let before = row();
-    let content: Vec<offer_content::Content> =
-        serde_json::from_value(before["content"].clone()).unwrap();
+    let content: Vec<OfferContent> = from_value(before["content"].clone()).unwrap();
     pool.get()
         .unwrap()
         .batch_execute(
@@ -197,9 +207,9 @@ fn full_and_legacy_projection_updates_keep_content_and_selected_scalars_atomic()
     );
     assert_eq!(row(), before);
     pool.get().unwrap().batch_execute("ALTER TABLE read_offers DROP CONSTRAINT force_content_rollback; ALTER TABLE read_offers ADD CONSTRAINT force_market_rollback CHECK (target_market IS NULL)").unwrap();
-    let localization = retailer_sauce::localization::Localization {
+    let localization = Localization {
         language: Some("fr".into()),
-        target_market: Some(serde_json::from_value(json!({"kind":"country","code":"FR"})).unwrap()),
+        target_market: Some(from_value(json!({"kind":"country","code":"FR"})).unwrap()),
     };
     assert!(repository.update_localization(&id, &localization).is_err());
     assert_eq!(row(), before);
@@ -213,11 +223,11 @@ fn full_and_legacy_projection_updates_keep_content_and_selected_scalars_atomic()
     assert_eq!(row()["title"], "French");
     assert!(row()["description"].is_null());
     repository.update_title(&id, "Latest French").unwrap();
-    let description = retailer_sauce::structuralized::content::Content {
+    let description = StructuralizedContent {
         description: Some(" \tž &amp;\n".into()),
     };
     repository.update_content(&id, &description).unwrap();
-    let localization = retailer_sauce::localization::Localization {
+    let localization = Localization {
         language: Some("en".into()),
         target_market: None,
     };
@@ -233,7 +243,7 @@ fn full_and_legacy_projection_updates_keep_content_and_selected_scalars_atomic()
         json!([]),
         json!([{"language":null,"title":"x","description":null}]),
     ] {
-        let invalid: Vec<offer_content::Content> = serde_json::from_value(invalid).unwrap();
+        let invalid: Vec<OfferContent> = from_value(invalid).unwrap();
         assert!(
             repository
                 .update_contents(&id, &invalid, &Some("en".into()))

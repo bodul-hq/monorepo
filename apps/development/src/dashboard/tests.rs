@@ -1,3 +1,13 @@
+use super::render as imported_render;
+use crate::app as imported_app;
+use client::StatusCount;
+use poem::test::TestClient;
+use serde_json::Value;
+use serde_json::from_value;
+use serde_json::json;
+use std::array::from_fn;
+use std::time::Duration;
+
 use super::*;
 use client::TableStats;
 
@@ -7,20 +17,20 @@ fn render(
     storage: Result<Report, ReportError>,
     entries: Result<EntryStatuses, ReportError>,
 ) -> String {
-    super::render(
+    imported_render(
         sourcing,
         storage,
         entries,
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
         (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
-        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
+        from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     )
 }
 
 #[test]
 fn offers_contributes_to_totals_and_has_its_own_status_panel() {
-    let html = super::render(
+    let html = imported_render(
         Ok(report()),
         Ok(report()),
         Err(ReportError::Unavailable),
@@ -32,14 +42,14 @@ fn offers_contributes_to_totals_and_has_its_own_status_panel() {
             outbox_entries: Some(vec![]),
             generated_at: "2026-10-19T12:00:00Z".into(),
             command_entries: vec![],
-            event_entries: vec![client::StatusCount {
+            event_entries: vec![StatusCount {
                 status: 5,
                 status_text: "completed".into(),
                 count: 42,
             }],
         }),
         (Err(ReportError::Unavailable), Err(ReportError::Unavailable)),
-        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
+        from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
     assert!(html.contains("3<small> / 6</small>"));
     assert!(html.contains("<h2>Offers</h2>"));
@@ -146,19 +156,10 @@ fn formats_zero_boundaries_and_large_values() {
 
 #[tokio::test]
 async fn dashboard_route_renders_when_services_are_unconfigured() {
-    let clients = ReportingClients::new(
-        "invalid",
-        "",
-        "invalid",
-        "",
-        std::time::Duration::from_secs(1),
-    )
-    .unwrap();
-    let app = crate::app(Arc::new(Dashboard { clients }));
-    let response = poem::test::TestClient::new(app)
-        .get("/dashboard")
-        .send()
-        .await;
+    let clients =
+        ReportingClients::new("invalid", "", "invalid", "", Duration::from_secs(1)).unwrap();
+    let app = imported_app(Arc::new(Dashboard { clients }));
+    let response = TestClient::new(app).get("/dashboard").send().await;
     response.assert_status_is_ok();
     assert_eq!(response.0.headers()["cache-control"], "no-store");
     let html = response.0.into_body().into_string().await.unwrap();
@@ -174,7 +175,7 @@ fn renders_exact_status_counts_and_empty_queues() {
         inbox_entries: Some(vec![]),
         outbox_entries: Some(vec![]),
         generated_at: "2026-10-18T12:00:00Z".into(),
-        command_entries: vec![client::StatusCount {
+        command_entries: vec![StatusCount {
             status: 4,
             status_text: "failed <test>".into(),
             count: 1234,
@@ -203,14 +204,14 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         command_entries: vec![],
         event_entries: vec![],
     };
-    let html = super::render(
+    let html = imported_render(
         Ok(report()),
         Ok(report()),
         Ok(empty_entries()),
         Ok(report()),
         Ok(empty_entries()),
         (Ok(report()), Ok(empty_entries())),
-        std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
+        from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
     );
     assert!(html.contains("4<small> / 6</small>"));
     assert!(html.contains("<h2>Customer Facing</h2>"));
@@ -247,14 +248,14 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
         ReportError::Malformed,
         ReportError::Configuration,
     ] {
-        let html = super::render(
+        let html = imported_render(
             Ok(report()),
             Ok(report()),
             Ok(empty_entries()),
             Ok(report()),
             Ok(empty_entries()),
             (Err(error), Ok(empty_entries())),
-            std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
+            from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
         assert!(html.contains("3<small> / 6</small>"));
         assert!(html.contains("<h2>Offers</h2>"));
@@ -264,14 +265,14 @@ fn customer_facing_contributes_to_totals_with_independent_reports() {
 
         let mut customer = report();
         customer.tables[0].table_name = "<customer-table>".into();
-        let html = super::render(
+        let html = imported_render(
             Ok(report()),
             Ok(report()),
             Ok(empty_entries()),
             Ok(report()),
             Ok(empty_entries()),
             (Ok(customer), Err(error)),
-            std::array::from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
+            from_fn(|_| (Err(ReportError::Unavailable), Err(ReportError::Unavailable))),
         );
         assert!(html.contains("4<small> / 6</small>"));
         assert!(html.contains("&lt;customer-table&gt;"));
@@ -292,7 +293,7 @@ fn inbox_outbox_counts_and_older_service_reports() {
         ("Offers", "offers"),
         ("Customer Facing", "customer-facing"),
     ] {
-        let report = serde_json::from_value(serde_json::json!({
+        let report = from_value(json!({
             "generated_at": "2026-10-29T12:00:00Z",
             "window_start": "2026-10-29T00:00:00Z",
             "window_end": "2026-10-30T00:00:00Z",
@@ -329,7 +330,7 @@ fn inbox_outbox_counts_and_older_service_reports() {
         assert!(!html[command..outbox].contains("1,234"));
         assert!(html[outbox..].contains("77"));
 
-        let old = serde_json::from_value(serde_json::json!({
+        let old = from_value(json!({
             "generated_at": "2026-10-29T12:00:00Z",
             "command_entries": [], "event_entries": []
         }))
@@ -346,7 +347,7 @@ fn inbox_outbox_counts_and_older_service_reports() {
 fn compact_boxes_require_the_whole_queue_to_be_empty() {
     for status in [0, 2, 4, 5, 7, 8, 99] {
         for count in [0, 1] {
-            let entries = vec![client::StatusCount {
+            let entries = vec![StatusCount {
                 status,
                 status_text: "test".into(),
                 count,
@@ -374,7 +375,7 @@ fn daily_counts_require_an_explicit_valid_window() {
         ("Offers", "offers"),
         ("Customer Facing", "customer-facing"),
     ] {
-        let legacy = serde_json::json!({
+        let legacy = json!({
             "generated_at": "2026-10-30T01:00:00+02:00",
             "command_entries": [{"status":5,"status_text":"completed","count":120000}],
             "event_entries": []
@@ -382,16 +383,11 @@ fn daily_counts_require_an_explicit_valid_window() {
         for with_queues in [false, true] {
             let mut value = legacy.clone();
             if with_queues {
-                value["inbox_entries"] = serde_json::json!([]);
-                value["outbox_entries"] = serde_json::json!([]);
+                value["inbox_entries"] = json!([]);
+                value["outbox_entries"] = json!([]);
             }
             let mut html = String::new();
-            render_entries(
-                &mut html,
-                service,
-                image,
-                Ok(serde_json::from_value(value).unwrap()),
-            );
+            render_entries(&mut html, service, image, Ok(from_value(value).unwrap()));
             assert!(html.contains("Upgrade this service"));
             assert!(!html.contains("120,000"));
             assert!(!html.contains("Report UTC date"));
@@ -405,7 +401,7 @@ fn daily_counts_require_an_explicit_valid_window() {
             &mut html,
             service,
             image,
-            Ok(serde_json::from_value(value.clone()).unwrap()),
+            Ok(from_value(value.clone()).unwrap()),
         );
         assert!(html.contains("Report UTC date: 2026-10-29"));
         assert!(html.contains("120,000"));
@@ -421,14 +417,14 @@ fn daily_counts_require_an_explicit_valid_window() {
                 &mut html,
                 service,
                 image,
-                Ok(serde_json::from_value(value.clone()).unwrap()),
+                Ok(from_value(value.clone()).unwrap()),
             );
             assert!(html.contains("Invalid reporting window"));
             assert!(!html.contains("120,000"));
             assert!(!html.contains("Report UTC date"));
         }
         value.as_object_mut().unwrap().remove("window_end");
-        let report: EntryStatuses = serde_json::from_value(value).unwrap();
+        let report: EntryStatuses = from_value(value).unwrap();
         assert!(report.window_date().is_err());
     }
 }
@@ -436,17 +432,13 @@ fn daily_counts_require_an_explicit_valid_window() {
 #[test]
 fn present_window_bounds_must_be_strings() {
     for field in ["window_start", "window_end"] {
-        for invalid in [
-            serde_json::Value::Null,
-            serde_json::json!(42),
-            serde_json::json!([]),
-        ] {
-            let mut value = serde_json::json!({
+        for invalid in [Value::Null, json!(42), json!([])] {
+            let mut value = json!({
                 "generated_at": "2026-10-29T12:00:00Z",
                 "command_entries": [], "event_entries": []
             });
             value[field] = invalid;
-            assert!(serde_json::from_value::<EntryStatuses>(value).is_err());
+            assert!(from_value::<EntryStatuses>(value).is_err());
         }
     }
 }
@@ -510,7 +502,7 @@ fn missing_queues_are_distinct_from_empty_and_unknown_only_queues() {
         ("Customer Facing", "customer-facing"),
         ("Retailer Sourcing", "retailer-sourcing"),
     ] {
-        let report = serde_json::from_value(serde_json::json!({
+        let report = from_value(json!({
             "generated_at": "2026-12-31T12:00:00Z",
             "window_start": "2026-12-31T00:00:00Z",
             "window_end": "2027-01-01T00:00:00Z",
@@ -530,7 +522,7 @@ fn missing_queues_are_distinct_from_empty_and_unknown_only_queues() {
 
 #[test]
 fn foundation_reports_contribute_independently() {
-    let html = super::render(
+    let html = imported_render(
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),
         Err(ReportError::Unavailable),

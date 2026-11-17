@@ -1,5 +1,7 @@
 //! HTTP entry point: queues sitemap retrievals for the posted retailers.
 
+use tokio::task::spawn_blocking;
+
 use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -84,7 +86,7 @@ pub async fn request_retrievals(
         .collect();
 
     // Queuing writes to Postgres through a blocking connection.
-    let queued = tokio::task::spawn_blocking(move || {
+    let queued = spawn_blocking(move || {
         queue(commands, |command| {
             bus.dispatcher().dispatch(command, "api")
         })
@@ -158,6 +160,8 @@ fn error(status: StatusCode, error: String) -> Response {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::to_value;
+
     use super::*;
 
     #[test]
@@ -191,7 +195,7 @@ mod tests {
                 queued.iter().map(|r| r.retrieval_id).collect::<Vec<_>>(),
                 ids[..fail_at]
             );
-            let body = serde_json::to_value(QueueFailure {
+            let body = to_value(QueueFailure {
                 error: error.into(),
                 retrievals: queued,
             })

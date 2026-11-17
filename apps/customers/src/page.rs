@@ -1,3 +1,8 @@
+use crate::offers::Offer as OffersOffer;
+use crate::offers::normalize_query;
+use poem::Result;
+use reqwest::Url;
+
 use std::{fmt::Write, sync::Arc};
 
 use crate::offers::{OffersClient, PAGE_SIZE, Page};
@@ -22,7 +27,7 @@ struct Parameters {
 
 #[handler]
 pub async fn index(
-    parameters: poem::Result<Query<Parameters>>,
+    parameters: Result<Query<Parameters>>,
     Data(client): Data<&Arc<OffersClient>>,
 ) -> Response {
     let offset = match parameters {
@@ -62,7 +67,7 @@ struct SearchParameters {
 
 #[handler]
 pub async fn search(
-    parameters: poem::Result<Query<SearchParameters>>,
+    parameters: Result<Query<SearchParameters>>,
     Data(client): Data<&Arc<OffersClient>>,
 ) -> Response {
     let parameters = match parameters {
@@ -104,7 +109,7 @@ pub async fn search(
             ),
         );
     }
-    let query = match crate::offers::normalize_query(&parameters.q) {
+    let query = match normalize_query(&parameters.q) {
         Ok(query) => query,
         Err(message) => {
             return response(
@@ -142,7 +147,7 @@ fn search_message(query: &str, title: &str, message: &str, href: &str) -> String
 }
 
 fn search_url(query: &str, offset: i32) -> String {
-    let mut url = reqwest::Url::parse("http://localhost/search").unwrap();
+    let mut url = Url::parse("http://localhost/search").unwrap();
     url.query_pairs_mut()
         .append_pair("q", query)
         .append_pair("offset", &offset.to_string());
@@ -329,7 +334,7 @@ fn page_url(offset: i32) -> String {
     }
 }
 
-fn image_html(offer: &crate::offers::Offer, title: &str) -> String {
+fn image_html(offer: &OffersOffer, title: &str) -> String {
     let retailer = format!(
         r#"<span class="retailer"><span>{}</span></span>"#,
         escape(&offer.retailer_code)
@@ -357,7 +362,7 @@ fn safe_link(value: &str) -> bool {
             .contains('@')
     }) && value.trim() == value
         && !value.chars().any(char::is_control)
-        && reqwest::Url::parse(value).is_ok_and(|url| {
+        && Url::parse(value).is_ok_and(|url| {
             matches!(url.scheme(), "http" | "https")
                 && url.host_str().is_some()
                 && url.username().is_empty()

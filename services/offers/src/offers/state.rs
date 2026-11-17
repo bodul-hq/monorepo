@@ -1,3 +1,8 @@
+use super::event::OfferFacts;
+use retailer_sauce::prelude::Localization;
+use retailer_sauce::prelude::ProductIdentifiers;
+use retailer_sauce::prelude::offer_content::singleton;
+
 use chrono::{DateTime, Utc};
 use money::Money;
 use shared::retailer::RetailerCode;
@@ -6,9 +11,9 @@ use super::retailer_offer_id::RetailerOfferId;
 
 #[derive(Debug, PartialEq)]
 pub struct RetailerOfferState {
-    pub(super) facts: super::event::OfferFacts,
-    pub(super) identifiers: retailer_sauce::identifier::ProductIdentifiers,
-    pub(super) localization: retailer_sauce::localization::Localization,
+    pub(super) facts: OfferFacts,
+    pub(super) identifiers: ProductIdentifiers,
+    pub(super) localization: Localization,
     id: RetailerOfferId,
     retailer_code: RetailerCode,
     title: String,
@@ -37,8 +42,8 @@ impl RetailerOfferState {
         created_at: DateTime<Utc>,
     ) -> Self {
         let title = title.into();
-        let facts = super::event::OfferFacts {
-            content: retailer_sauce::offer_content::singleton(title.clone(), None, None),
+        let facts = OfferFacts {
+            content: singleton(title.clone(), None, None),
             ..Default::default()
         };
         Self {

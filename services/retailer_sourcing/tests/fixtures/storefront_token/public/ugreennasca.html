@@ -1,0 +1,53 @@
+<script>
+  (function () {
+    try {
+      const widgets = [{"bar":{"sticky":true,"justify":"center","position":"top","closeButton":{"color":"#000000","enabled":true}},"key":"GSC-BAR-ebyifmyVmECL","type":"bar","timer":{"date":"2026-10-10T15:00:00.000+08:00","mode":"date","daily":{"tz":"Etc\/GMT-0","endHours":14,"endMinutes":0,"repeatDays":[0,1,2,3,4,5,6],"startHours":10,"startMinutes":0},"hours":72,"onEnd":"hide","minutes":0,"seconds":0,"scheduling":{"end":null,"start":null}},"content":{"gap":{"mobile":"6px","desktop":"24px"},"align":"center","items":[{"id":"text-XPMldCjDVNJD","type":"text","align":"left","color":"#000000","value":"Prime Autumn Sale","enabled":true,"padding":{"mobile":{},"desktop":{}},"fontSize":{"mobile":"16px","desktop":"24px"},"fontFamily":"inherit","fontWeight":"700","lineHeight":{"mobile":"1.3","desktop":"1.2"},"letterSpacing":{"mobile":"0","desktop":"0"},"textTransform":"unset"},{"id":"text-LAXzAFtselXI","type":"text","align":"left","color":"#000000","value":"Sale Up to 25%","enabled":true,"padding":{"mobile":{},"desktop":{}},"fontSize":{"mobile":"12px","desktop":"15px"},"fontFamily":"inherit","fontWeight":"400","lineHeight":{"mobile":"1.3","desktop":"1.3"},"letterSpacing":{"mobile":"0","desktop":"0"},"textTransform":"unset"},{"id":"timer-cMPWfcdoeOAj","type":"timer","view":"custom","width":{"mobile":"160px","desktop":"224px"},"border":{"size":"2px","color":"#FFFFFF","enabled":false},"digits":{"gap":"0px","color":"#007934","fontSize":"60px","fontFamily":"inherit","fontWeight":"600"},"labels":{"ms":"ms","days":"days","color":"#000000","hours":"hours","enabled":true,"minutes":"mins","seconds":"secs","fontSize":"24px","fontFamily":"inherit","fontWeight":"500","textTransform":"unset"},"layout":"separate","margin":{"mobile":{},"desktop":{}},"radius":{"value":"16px","enabled":false},"shadow":{"type":"","color":"black","enabled":true},"enabled":true,"padding":{"mobile":{},"desktop":{"top":"0px"}},"fontSize":{"mobile":"14px","desktop":"18px"},"separator":{"type":"colon","color":"#00194d","enabled":true},"background":{"blur":"2px","color":"#ffb720","enabled":true},"unitFormat":"d:h:m:s"},{"id":"button-uXyVtQxybVnn","href":"https:\/\/ai-ca.ugreen.com\/pages\/ugreen-nas-prime-day-deals","type":"button","label":"Buy Now","width":"content","border":{"size":"2px","color":"#000000","enabled":false},"margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"8px","enabled":true},"target":"_self","enabled":true,"padding":{"mobile":{"top":"8px","left":"12px","right":"12px","bottom":"8px"},"desktop":{"top":"12px","left":"32px","right":"32px","bottom":"12px"}},"fontSize":{"mobile":"12px","desktop":"14px"},"textColor":"#00194d","background":{"blur":"0px","color":"#ffb720","enabled":true},"fontFamily":"inherit","fontWeight":"500","letterSpacing":{"mobile":"0","desktop":"0"},"textTransform":"unset"},{"id":"coupon-GKHAuOKuKwrJ","code":"PASTE YOUR CODE","icon":{"url":"https:\/\/assets.getsitecontrol.com\/shopify-apps\/shared\/icons\/shopping-discounts\/badge-percent-filled.svg","mask":true,"source":"gallery","enabled":true},"type":"coupon","label":"Save 35%","action":"copy","border":{"size":"1px","color":"#9e9e9e","enabled":true},"margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"6px","enabled":true},"enabled":false,"padding":{"mobile":{"top":"4px","left":"12px","right":"12px","bottom":"4px"},"desktop":{"top":"8px","left":"16px","right":"16px","bottom":"8px"}},"fontSize":{"mobile":"12px","desktop":"14px"},"textColor":"#000000","background":{"blur":"0px","color":"#eeeeee","enabled":true},"fontFamily":"inherit","fontWeight":"600","textTransform":"uppercase"}],"width":{"mobile":"100%","desktop":"400px"},"border":{"size":"1px","color":"#000000","enabled":false},"layout":"column","margin":{"mobile":{"top":"0px","left":"0px","right":"0px","bottom":"0px"},"desktop":{"top":"0px","left":"0px","right":"0px","bottom":"0px"}},"radius":{"value":"8px","enabled":false},"padding":{"mobile":{"top":"4px","left":"0px","right":"0px","bottom":"4px"},"desktop":{"top":"8px","left":"28px","right":"28px","bottom":"8px"}},"background":{"src":null,"blur":"0px","source":"color","bgColor":"#fce5b6","enabled":true,"overlayColor":"rgba(0,0,0,0)"},"backgroundClick":{"url":"","target":"_self","enabled":false}},"enabled":false,"general":{"preset":"bar1","breakpoint":"768px"},"section":null,"version":2,"targeting":{"geo":null,"pages":{"cart":true,"home":true,"other":true,"password":true,"products":{"mode":"all","tags":[],"enabled":true,"specificProducts":[],"productsInCollections":[]},"collections":{"mode":"all","items":[],"enabled":true}}}}] || [];
+
+      if (Array.isArray(window.GSC_COUNTDOWN_WIDGETS)) {
+        // Embed and inline countdown blocks may load on the same page. Inline
+        // pushes a single widget keyed by `key`; embed pushes the whole metafield
+        // array. Dedup by `key` so the same widget isn't duplicated when both
+        // blocks reference it. Widgets without a key push through (no dedup).
+        widgets.forEach(function(w) {
+          if (!w.key || !window.GSC_COUNTDOWN_WIDGETS.find(function(e) { return e.key === w.key; })) {
+            window.GSC_COUNTDOWN_WIDGETS.push(w);
+          }
+        });
+      } else {
+        window.GSC_COUNTDOWN_WIDGETS = widgets;
+      }
+
+      // Stale-metafield guard via theme_store_id (TAE Liquid has `theme.id`
+      // always null, so the check runs on JS). Mismatch = merchant switched
+      // theme family after the last backend sync — fall back to runtime
+      // defaults until re-sync writes a fresh metafield.
+      
+      
+if (!window.GSC_COUNTDOWN_META) {
+        window.GSC_COUNTDOWN_META = {
+          product_tags: ["5%","GOCERTIFY","Nas","product-compare","SHOW_AMOUNT","Ugreen","US Nasync"],
+          storefrontToken:"synthetic-ugreennasca",
+          productData:{
+            handle: "ugreen-nasync-dxp4800-plus-nas-storage",
+            id: 8878392738042,
+            tags: ["5%","GOCERTIFY","Nas","product-compare","SHOW_AMOUNT","Ugreen","US Nasync"],
+            collections: ["451878027514","451877994746","451878093050","451878125818"],
+            available: true,
+            compareAtPrice: 94999,
+            price: 80799,
+            createdAt: "2025-08-04T16:11:20+0800",selectedVariantId: "48775427555578",
+            variants: [{
+                id: "48775427555578",
+                available: true,options: {"Select Model": "UGREEN NASync DXP4800 Plus",
+}
+              },{
+                id: "48775427588346",
+                available: true,options: {"Select Model": "UGREEN NASync DXP4800 Plus + UPS",
+}
+              }]
+          }};
+      }} catch (e) {
+      console.log(e);
+    }
+  })();
+</script>

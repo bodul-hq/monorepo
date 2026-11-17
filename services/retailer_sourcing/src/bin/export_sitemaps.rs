@@ -9,6 +9,17 @@
 //! Requires DATABASE_URL, OBJECT_STORAGE_URL and OBJECT_STORAGE_TOKEN.
 //! Usage: `export_sitemaps <data_dir>`
 
+use diesel::sql_query;
+use env::args;
+use env::var;
+use fs::create_dir_all;
+use fs::write as fs_write;
+use json::Json;
+use process::exit;
+use serde_json::from_str;
+use serde_json::to_string_pretty;
+use tokio::runtime::Runtime;
+
 use retailer_sourcing::json;
 use retailer_sourcing::object_storage::{
     CONSOLIDATED_SITEMAPS_BUCKET, ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET,
@@ -52,24 +63,24 @@ struct CrawlRecord {
     #[diesel(sql_type = SqlUuid)]
     retrieval_id: Uuid,
     #[diesel(sql_type = Jsonb)]
-    storage: json::Json<ObjectStorageMetadata>,
+    storage: Json<ObjectStorageMetadata>,
     #[diesel(sql_type = Nullable<SqlUuid>)]
     consolidated_id: Option<Uuid>,
     #[diesel(sql_type = Nullable<Jsonb>)]
-    consolidated_storage: Option<json::Json<ObjectStorageMetadata>>,
+    consolidated_storage: Option<Json<ObjectStorageMetadata>>,
 }
 
 fn fetch_crawl(record: CrawlRecord, objects: &ObjectStorage) -> Result<Crawl, String> {
     let body = objects
         .get(PROCESSED_SITEMAPS_BUCKET, record.id, &record.storage.0)
         .map_err(|e| e.to_string())?;
-    let document = serde_json::from_str(&body).map_err(|e| e.to_string())?;
+    let document = from_str(&body).map_err(|e| e.to_string())?;
     let content = match (record.consolidated_id, record.consolidated_storage) {
         (Some(id), Some(storage)) => {
             let body = objects
                 .get(CONSOLIDATED_SITEMAPS_BUCKET, id, &storage.0)
                 .map_err(|e| e.to_string())?;
-            Some(serde_json::from_str(&body).map_err(|e| e.to_string())?)
+            Some(from_str(&body).map_err(|e| e.to_string())?)
         }
         (None, None) => None,
         _ => return Err("incomplete consolidated sitemap reference".into()),
@@ -94,28 +105,28 @@ struct SourceRecord {
     #[diesel(sql_type = Text)]
     url: String,
     #[diesel(sql_type = Jsonb)]
-    storage: json::Json<ObjectStorageMetadata>,
+    storage: Json<ObjectStorageMetadata>,
 }
 
 fn main() {
     if let Err(error) = run() {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: export_sitemaps <data_dir>")?;
-    let database_url = env::var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
-    let runtime = tokio::runtime::Runtime::new().map_err(|error| error.to_string())?;
+    let database_url = var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
+    let runtime = Runtime::new().map_err(|error| error.to_string())?;
     let objects =
         ObjectStorage::from_env(runtime.handle().clone()).map_err(|error| error.to_string())?;
     let mut connection = PgConnection::establish(&database_url).map_err(|e| e.to_string())?;
 
-    let crawls: Vec<CrawlRecord> = diesel::sql_query(CRAWLS_QUERY)
+    let crawls: Vec<CrawlRecord> = sql_query(CRAWLS_QUERY)
         .load(&mut connection)
         .map_err(|e| e.to_string())?;
 
@@ -125,7 +136,7 @@ fn run() -> Result<(), String> {
     for record in crawls {
         let crawl = fetch_crawl(record, &objects)?;
         let mut connection = PgConnection::establish(&database_url).map_err(|e| e.to_string())?;
-        let records: Vec<SourceRecord> = diesel::sql_query(SOURCES_QUERY)
+        let records: Vec<SourceRecord> = sql_query(SOURCES_QUERY)
             .bind::<SqlUuid, _>(crawl.retrieval_id)
             .load(&mut connection)
             .map_err(|e| e.to_string())?;
@@ -204,7 +215,7 @@ fn write_crawl(data_dir: &Path, crawl: &Crawl, sources: &[Source]) -> Result<(),
 
     let retrieval_id = crawl.retrieval_id.to_string();
     let sources_dir = dir.join("sources").join(&retrieval_id);
-    fs::create_dir_all(&sources_dir).map_err(|e| e.to_string())?;
+    create_dir_all(&sources_dir).map_err(|e| e.to_string())?;
     for (name, source) in named {
         write(&sources_dir.join(name), &source.body)?;
     }
@@ -217,13 +228,13 @@ fn write_crawl(data_dir: &Path, crawl: &Crawl, sources: &[Source]) -> Result<(),
 }
 
 fn write_json(dir: &Path, retrieval_id: &str, value: &Value) -> Result<(), String> {
-    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
-    let json = serde_json::to_string_pretty(value).map_err(|e| e.to_string())?;
+    create_dir_all(dir).map_err(|e| e.to_string())?;
+    let json = to_string_pretty(value).map_err(|e| e.to_string())?;
     write(&dir.join(format!("{retrieval_id}.json")), &json)
 }
 
 fn write(path: &Path, contents: &str) -> Result<(), String> {
-    fs::write(path, contents).map_err(|e| format!("{}: {e}", path.display()))
+    fs_write(path, contents).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// The decoded URL path with `/` replaced by `-`, as for offer pages, followed by the query with
@@ -253,6 +264,16 @@ mod test_objects;
 
 #[cfg(test)]
 mod tests {
+    use fs::read_to_string as fs_read_to_string;
+    use fs::remove_dir_all as fs_remove_dir_all;
+    use json::Json as JsonJson;
+    use serde_json::from_str as serde_json_from_str;
+    use serde_json::json as serde_json_json;
+    use std::env::temp_dir;
+    use std::fs::read_to_string;
+    use std::fs::remove_dir_all;
+    use test_objects::Server;
+
     use super::*;
 
     #[test]
@@ -292,7 +313,7 @@ mod tests {
     }
     #[test]
     fn exports_object_storage_bodies_and_rejects_missing_sources() {
-        let server = test_objects::Server::new();
+        let server = Server::new();
         let objects = server.client();
         let id = Uuid::now_v7();
         let body = "<urlset>ž 🔎</urlset>";
@@ -301,7 +322,7 @@ mod tests {
             vec![SourceRecord {
                 id,
                 url: "https://shop.test/sitemap.xml".into(),
-                storage: json::Json(ObjectStorageMetadata {
+                storage: JsonJson(ObjectStorageMetadata {
                     content_size: body.len() as u64,
                     object_storage_id: object_id,
                 }),
@@ -310,18 +331,18 @@ mod tests {
         let crawl = Crawl {
             retailer_code: "ankerau".into(),
             retrieval_id: Uuid::now_v7(),
-            document: serde_json::json!({}),
+            document: serde_json_json!({}),
             content: None,
         };
         let sources = fetch_sources(records(), &objects, crawl.retrieval_id).unwrap();
-        let output = std::env::temp_dir().join(format!("sitemap-export-{}", Uuid::now_v7()));
+        let output = temp_dir().join(format!("sitemap-export-{}", Uuid::now_v7()));
         write_crawl(&output, &crawl, &sources).unwrap();
         let path = output
             .join("ankerau/sitemap/sources")
             .join(crawl.retrieval_id.to_string())
             .join("sitemap.xml");
-        assert_eq!(std::fs::read_to_string(path).unwrap(), body);
-        std::fs::remove_dir_all(output).unwrap();
+        assert_eq!(read_to_string(path).unwrap(), body);
+        remove_dir_all(output).unwrap();
         assert!(fetch_sources(vec![], &objects, crawl.retrieval_id).is_err());
         server.data.lock().unwrap().get_response = Some((404, "{}".into()));
         assert!(fetch_sources(records(), &objects, crawl.retrieval_id).is_err());
@@ -329,14 +350,14 @@ mod tests {
 
     #[test]
     fn exports_processed_and_consolidated_objects_and_rejects_invalid_content() {
-        let server = test_objects::Server::new();
+        let server = Server::new();
         let objects = server.client();
         let id = Uuid::now_v7();
         let consolidated_id = Uuid::now_v7();
-        let document = serde_json::json!({"urls": ["ž 🔎"]});
-        let content = serde_json::json!({"product": ["https://shop.test/a"]});
+        let document = serde_json_json!({"urls": ["ž 🔎"]});
+        let content = serde_json_json!({"product": ["https://shop.test/a"]});
         let upload = |bucket, id, body: &str| {
-            json::Json(ObjectStorageMetadata {
+            JsonJson(ObjectStorageMetadata {
                 content_size: body.len() as u64,
                 object_storage_id: objects.create(bucket, id, body).unwrap(),
             })
@@ -358,18 +379,18 @@ mod tests {
         let crawl = fetch_crawl(record(), &objects).unwrap();
         assert_eq!(crawl.document, document);
         assert_eq!(crawl.content, Some(content.clone()));
-        let dir = std::env::temp_dir().join(format!("crawl-export-{}", Uuid::now_v7()));
+        let dir = temp_dir().join(format!("crawl-export-{}", Uuid::now_v7()));
         write_crawl(&dir, &crawl, &[]).unwrap();
         let base = dir.join("ankerau/sitemap");
         for (stage, expected) in [("processed", document), ("consolidated", content)] {
-            let text = fs::read_to_string(
+            let text = fs_read_to_string(
                 base.join(stage)
                     .join(format!("{}.json", crawl.retrieval_id)),
             )
             .unwrap();
-            assert_eq!(serde_json::from_str::<Value>(&text).unwrap(), expected);
+            assert_eq!(serde_json_from_str::<Value>(&text).unwrap(), expected);
         }
-        fs::remove_dir_all(dir).unwrap();
+        fs_remove_dir_all(dir).unwrap();
         let mut unconsolidated = record();
         unconsolidated.consolidated_id = None;
         unconsolidated.consolidated_storage = None;

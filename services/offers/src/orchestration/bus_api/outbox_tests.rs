@@ -1,3 +1,19 @@
+use crate::app;
+use crate::app_with_reporting_token;
+use crate::orchestration::customer_facing_publisher::CustomerFacingPublisher;
+use crate::start_mulac;
+use crate::test_pool;
+use crate::tests::assert_batch_response;
+use crate::tests::assert_error_id;
+use crate::tests::assert_error_response;
+use poem::Route;
+use testing::invalid_run_requests;
+use testing::panicking_consumer;
+use testing::partially_failing_consumer;
+use testing::publisher_consumer;
+use testing::valid_run_requests;
+use tokio::runtime::Handle;
+
 use outbox::prelude::poem::OutboxAdapter;
 use outbox::prelude::{AsyncOutboxService, testing};
 use outbox::prelude::{OutboundMessageEnvelope, OutboxError, OutboxPublisherPort};
@@ -12,16 +28,16 @@ impl OutboxPublisherPort for UnusedPublisher {
     }
 }
 
-fn client_with(outbox: OutboxAdapter) -> TestClient<poem::Route> {
-    let (_, mut state) = crate::start_mulac(crate::test_pool()).unwrap();
+fn client_with(outbox: OutboxAdapter) -> TestClient<Route> {
+    let (_, mut state) = start_mulac(test_pool()).unwrap();
     state.outbox = outbox;
-    TestClient::new(crate::app_with_reporting_token(state, "test".into()))
+    TestClient::new(app_with_reporting_token(state, "test".into()))
 }
 
 #[tokio::test]
 async fn configured_outbox_reports_storage_failure() {
     let client = client_with(OutboxAdapter::new(AsyncOutboxService::from_postgres(
-        crate::test_pool(),
+        test_pool(),
         Arc::new(UnusedPublisher),
     )));
     for limit in [1, 1000] {
@@ -35,14 +51,14 @@ async fn configured_outbox_reports_storage_failure() {
         assert!(body["processed"].is_null());
         let errors = body["errors"].as_array().unwrap();
         assert_eq!(errors.len(), 1);
-        crate::tests::assert_error_id(errors[0].as_str().unwrap());
+        assert_error_id(errors[0].as_str().unwrap());
     }
 }
 
 #[tokio::test]
 async fn outbox_run_validates_the_shared_run_request_table() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
-    for body in testing::valid_run_requests() {
+    let client = TestClient::new(app(test_pool()));
+    for body in valid_run_requests() {
         // Validation passed when the unconfigured publisher is reached.
         let response = client.post("/api/outbox/run").body_json(&body).send().await;
         response.assert_status(StatusCode::SERVICE_UNAVAILABLE);
@@ -50,7 +66,7 @@ async fn outbox_run_validates_the_shared_run_request_table() {
             .assert_text("outbox publisher is not configured")
             .await;
     }
-    for body in testing::invalid_run_requests() {
+    for body in invalid_run_requests() {
         let response = client.post("/api/outbox/run").body_json(&body).send().await;
         assert_eq!(response.0.status(), StatusCode::BAD_REQUEST, "{body}");
     }
@@ -70,7 +86,7 @@ async fn outbox_run_validates_the_shared_run_request_table() {
 
 #[tokio::test]
 async fn outbox_run_requires_json_content_type() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
+    let client = TestClient::new(app(test_pool()));
     for content_type in [None, Some("text/plain")] {
         let mut request = client.post("/api/outbox/run").body(r#"{"limit":1}"#);
         if let Some(content_type) = content_type {
@@ -85,7 +101,7 @@ async fn outbox_run_requires_json_content_type() {
 
 #[tokio::test]
 async fn outbox_run_publishes_the_shared_run_schemas() {
-    let client = TestClient::new(crate::app(crate::test_pool()));
+    let client = TestClient::new(app(test_pool()));
     let spec: Value = client
         .get("/api/openapi.json")
         .send()
@@ -119,14 +135,14 @@ async fn outbox_run_publishes_the_shared_run_schemas() {
 
 #[tokio::test]
 async fn outbox_run_keeps_published_items_of_a_partial_batch() {
-    let (service, outcomes) = testing::partially_failing_consumer();
+    let (service, outcomes) = partially_failing_consumer();
     let response = client_with(OutboxAdapter::new(service))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":5}))
         .send()
         .await;
     response.assert_status_is_ok();
-    crate::tests::assert_batch_response(response, 1).await;
+    assert_batch_response(response, 1).await;
     assert_eq!(
         *outcomes.lock().unwrap(),
         vec!["completed", "failed", "completed"]
@@ -135,30 +151,26 @@ async fn outbox_run_keeps_published_items_of_a_partial_batch() {
 
 #[tokio::test]
 async fn outbox_run_sanitizes_blocking_task_failures() {
-    let response = client_with(OutboxAdapter::new(testing::panicking_consumer()))
+    let response = client_with(OutboxAdapter::new(panicking_consumer()))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":1}))
         .send()
         .await;
     response.assert_status(StatusCode::INTERNAL_SERVER_ERROR);
-    crate::tests::assert_error_response(response).await;
+    assert_error_response(response).await;
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn outbox_run_reports_distinct_ids_for_customer_facing_publisher_errors() {
     // Mulac's test rows are not routed to customer_facing, so each fails
     // before any request is sent.
-    let publisher = crate::orchestration::customer_facing_publisher::CustomerFacingPublisher::new(
-        "http://127.0.0.1:9",
-        tokio::runtime::Handle::current(),
-    )
-    .unwrap();
-    let service = testing::publisher_consumer(2, Arc::new(publisher));
+    let publisher = CustomerFacingPublisher::new("http://127.0.0.1:9", Handle::current()).unwrap();
+    let service = publisher_consumer(2, Arc::new(publisher));
     let response = client_with(OutboxAdapter::new(service))
         .post("/api/outbox/run")
         .body_json(&json!({"limit":5}))
         .send()
         .await;
     response.assert_status_is_ok();
-    crate::tests::assert_batch_response(response, 2).await;
+    assert_batch_response(response, 2).await;
 }

@@ -1,3 +1,7 @@
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result;
+
 use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -13,8 +17,8 @@ impl RetailerOfferId {
     }
 }
 
-impl fmt::Display for RetailerOfferId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for RetailerOfferId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.write_str(self.value())
     }
 }

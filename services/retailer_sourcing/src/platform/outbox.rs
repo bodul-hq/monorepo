@@ -5,13 +5,20 @@
 //! the first metadata, status, attempts and reservation. Reusing an ID for
 //! different content fails instead.
 
+use crate::platform::db::describe;
+use diesel::result::Error;
+use diesel::sql_query;
+use serde_json::Value;
+use serde_json::from_str;
+use serde_json::from_value;
+use serde_json::to_value;
+
 use diesel::prelude::*;
 use diesel::sql_types::{Array, Integer, Jsonb, Text, Uuid as SqlUuid};
 use outbox::prelude::{OutboxEntryMetadata, OutboxStatus};
 use uuid::Uuid;
 
 use super::bus::EventContext;
-use super::db;
 
 const CONTENT_TYPE: &str = "application/json";
 
@@ -28,8 +35,8 @@ pub struct OutgoingMessage {
 
 #[derive(Debug, thiserror::Error)]
 pub enum RecordError {
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] Error),
     #[error("outbox message {0} payload is not a JSON object")]
     InvalidPayload(Uuid),
     #[error("outbox message {0} is listed more than once")]
@@ -47,7 +54,7 @@ struct ExistingRow {
     #[diesel(sql_type = Text)]
     payload: String,
     #[diesel(sql_type = Jsonb)]
-    meta: serde_json::Value,
+    meta: Value,
 }
 
 /// Records every message in one transaction, or none of them.
@@ -72,12 +79,12 @@ pub fn record(
     let ids: Vec<Uuid> = messages.iter().map(|message| message.id).collect();
     let metas = messages
         .iter()
-        .map(|message| serde_json::to_value(metadata(message, context)))
+        .map(|message| to_value(metadata(message, context)))
         .collect::<Result<Vec<_>, _>>()
         .expect("outbox metadata serializes");
 
     conn.transaction(|conn| {
-        diesel::sql_query(
+        sql_query(
             "INSERT INTO outbox_entries (id, status, payload, meta)
              SELECT id, $2, payload, meta FROM unnest($1, $3, $4) AS m(id, payload, meta)
              ORDER BY id
@@ -94,7 +101,7 @@ pub fn record(
         .bind::<Array<Jsonb>, _>(&metas)
         .execute(conn)?;
 
-        let existing: Vec<ExistingRow> = diesel::sql_query(
+        let existing: Vec<ExistingRow> = sql_query(
             "SELECT id, payload, meta FROM outbox_entries WHERE id = ANY($1) ORDER BY id",
         )
         .bind::<Array<SqlUuid>, _>(&ids)
@@ -128,23 +135,20 @@ fn metadata(message: &OutgoingMessage, context: &EventContext) -> OutboxEntryMet
     }
 }
 
-fn parse_object(id: Uuid, payload: &str) -> Result<serde_json::Value, RecordError> {
-    match serde_json::from_str(payload) {
-        Ok(value @ serde_json::Value::Object(_)) => Ok(value),
+fn parse_object(id: Uuid, payload: &str) -> Result<Value, RecordError> {
+    match from_str(payload) {
+        Ok(value @ Value::Object(_)) => Ok(value),
         _ => Err(RecordError::InvalidPayload(id)),
     }
 }
 
 /// The delivery content must match; the causing event's metadata may differ,
 /// since a repeated notification keeps the first one recorded.
-fn same_content(message: &OutgoingMessage, payload: &serde_json::Value, row: &ExistingRow) -> bool {
-    let Ok(meta) = serde_json::from_value::<OutboxEntryMetadata>(row.meta.clone()) else {
+fn same_content(message: &OutgoingMessage, payload: &Value, row: &ExistingRow) -> bool {
+    let Ok(meta) = from_value::<OutboxEntryMetadata>(row.meta.clone()) else {
         return false;
     };
-    serde_json::from_str::<serde_json::Value>(&row.payload)
-        .ok()
-        .as_ref()
-        == Some(payload)
+    from_str::<Value>(&row.payload).ok().as_ref() == Some(payload)
         && meta.message_id == message.id
         && meta.routing_key == message.routing_key
         && meta.event_type == message.event_type
@@ -153,6 +157,8 @@ fn same_content(message: &OutgoingMessage, payload: &serde_json::Value, row: &Ex
 
 #[cfg(test)]
 mod tests {
+    use serde_json::to_value as serde_json_to_value;
+
     use super::*;
 
     fn message(payload: &str) -> OutgoingMessage {
@@ -215,7 +221,7 @@ mod tests {
         let row = |payload: &str, meta: OutboxEntryMetadata| ExistingRow {
             id: message.id,
             payload: payload.to_string(),
-            meta: serde_json::to_value(meta).unwrap(),
+            meta: serde_json_to_value(meta).unwrap(),
         };
         let meta = metadata(&message, &other_event);
 

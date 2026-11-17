@@ -1,3 +1,5 @@
+use serde_json::from_value;
+
 use super::entity::RetrievedSitemapDocument;
 use super::handler::Store;
 use super::store::{PgStore, StoreError};
@@ -49,8 +51,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
             row["storage"],
             json!({"content_size": input.document.body_size,"object_storage_id":stored.object_storage_id})
         );
-        let metadata: ObjectStorageMetadata =
-            serde_json::from_value(row["storage"].clone()).unwrap();
+        let metadata: ObjectStorageMetadata = from_value(row["storage"].clone()).unwrap();
         assert_eq!(
             objects
                 .get(RAW_SITEMAPS_BUCKET, input.id, &metadata)

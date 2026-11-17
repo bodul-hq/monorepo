@@ -98,3 +98,10 @@ export-offer-sources: require-database-url
 .PHONY: export-sitemaps
 export-sitemaps: require-database-url
 	cargo run --release --bin export_sitemaps -- $(DATA_DIR)
+
+# Reads all configured Anker storefronts and stores one complete product artifact each.
+.PHONY: test-initial-fill-live
+test-initial-fill-live:
+	@test -n "$$OBJECT_STORAGE_URL" || { echo "OBJECT_STORAGE_URL is required"; exit 1; }
+	@test -n "$$OBJECT_STORAGE_TOKEN" || { echo "OBJECT_STORAGE_TOKEN is required"; exit 1; }
+	INITIAL_FILL_LIVE=1 cargo test --bin retailer_sourcing live_shopify_tests:: -- --ignored
