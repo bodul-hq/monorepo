@@ -1,0 +1,6887 @@
+{
+  "checked_at": "2026-11-13T18:53:58.534421+00:00",
+  "entries": [
+    {
+      "retailer": "minisforumeu",
+      "locale": "en",
+      "url": "https://minisforumpc.eu/",
+      "language": "EN",
+      "observation": {
+        "url": "https://minisforumpc.eu/",
+        "checked_at": "2026-11-13T18:53:30.278154+00:00",
+        "status": 200,
+        "final_url": "https://minisforumpc.eu/",
+        "html_lang": "en",
+        "canonical": [
+          "https://minisforumpc.eu/"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "b5fbfb2c397d3ab0d007018ef63968ae13509cbeafeaeb22266af2cddb1c372a"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "minisforumeu",
+      "locale": "de (advertised only)",
+      "url": "https://minisforumpc.eu/de",
+      "language": "DE",
+      "observation": {
+        "url": "https://minisforumpc.eu/de",
+        "checked_at": "2026-11-13T18:53:30.279323+00:00",
+        "status": 200,
+        "final_url": "https://minisforumpc.eu/de",
+        "html_lang": "de",
+        "canonical": [
+          "https://minisforumpc.eu/de"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "de"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "5727e0400791c4bc383c6f303bc7156cc2c4c9c13093ae432c1a0d531ebdb9bf"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "minisforumfr",
+      "locale": "en (advertised only)",
+      "url": "https://minisforumpc.fr/en",
+      "language": "EN",
+      "observation": {
+        "url": "https://minisforumpc.fr/en",
+        "checked_at": "2026-11-13T18:53:30.279907+00:00",
+        "status": 200,
+        "final_url": "https://minisforumpc.fr/en",
+        "html_lang": "en",
+        "canonical": [
+          "https://minisforumpc.fr/en"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum-fr.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "HK"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "d093eda19565ff230cb6a96123e298002fb5a7694e8c79082140f4eb77689b6b"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "minisforumus",
+      "locale": "en-CA (advertised only)",
+      "url": "https://store.minisforum.com/en-ca",
+      "language": "EN",
+      "observation": {
+        "url": "https://store.minisforum.com/en-ca",
+        "checked_at": "2026-11-13T18:53:30.280395+00:00",
+        "status": 200,
+        "final_url": "https://store.minisforum.com/en-ca",
+        "html_lang": "en",
+        "canonical": [
+          "https://store.minisforum.com/en-ca"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "CA"
+        ],
+        "currency": [
+          "{\"active\":\"CAD\",\"rate\":\"1.4550096\"}"
+        ],
+        "sha256": "4b339b86010d52c438fe0c90c37ede84c087df05103cdc19077e3d8eca24aacf"
+      },
+      "verified_country": "CA",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "CA",
+              "currency": {
+                "isoCode": "CAD"
+              }
+            },
+            "language": {
+              "isoCode": "EN"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "CA",
+            "language": "EN"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "minisforumus",
+      "locale": "en-CL (advertised only)",
+      "url": "https://store.minisforum.com/en-os",
+      "language": "EN",
+      "observation": {
+        "url": "https://store.minisforum.com/en-os",
+        "checked_at": "2026-11-13T18:53:30.280961+00:00",
+        "status": 200,
+        "final_url": "https://store.minisforum.com/en-os",
+        "html_lang": "en",
+        "canonical": [
+          "https://store.minisforum.com/en-os"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "PE"
+        ],
+        "currency": [
+          "{\"active\":\"USD\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "0708c0de9278fd069a5991bfd7b86ff520cd6f7d38422f214bd9a9d74165e213"
+      },
+      "verified_country": null,
+      "result": "unresolved: page country does not match advertised country"
+    },
+    {
+      "retailer": "minisforumus",
+      "locale": "en-PE (advertised only)",
+      "url": "https://store.minisforum.com/en-os",
+      "language": "EN",
+      "observation": {
+        "url": "https://store.minisforum.com/en-os",
+        "checked_at": "2026-11-13T18:53:30.280961+00:00",
+        "status": 200,
+        "final_url": "https://store.minisforum.com/en-os",
+        "html_lang": "en",
+        "canonical": [
+          "https://store.minisforum.com/en-os"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "minisforum.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "PE"
+        ],
+        "currency": [
+          "{\"active\":\"USD\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "0708c0de9278fd069a5991bfd7b86ff520cd6f7d38422f214bd9a9d74165e213"
+      },
+      "verified_country": "PE",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "PE",
+              "currency": {
+                "isoCode": "USD"
+              }
+            },
+            "language": {
+              "isoCode": "EN"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "PE",
+            "language": "EN"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreenca",
+      "locale": "fr (advertised only)",
+      "url": "https://ca.ugreen.com/fr",
+      "language": "FR",
+      "observation": {
+        "url": "https://ca.ugreen.com/fr",
+        "checked_at": "2026-11-13T18:53:30.281414+00:00",
+        "status": 200,
+        "final_url": "https://ca.ugreen.com/fr",
+        "html_lang": "fr",
+        "canonical": [
+          "https://ca.ugreen.com/fr"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-ca.myshopify.com"
+        ],
+        "shopify_locale": [
+          "fr"
+        ],
+        "shopify_country": [
+          "CA"
+        ],
+        "currency": [
+          "{\"active\":\"CAD\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "733b636ad4c32cba86be0fdeeb7482318923d0322489273d94eecbc1192fdbd5"
+      },
+      "verified_country": "CA",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "CA",
+              "currency": {
+                "isoCode": "CAD"
+              }
+            },
+            "language": {
+              "isoCode": "FR"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "CA",
+            "language": "FR"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en",
+      "url": "https://eu.ugreen.com/",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/",
+        "checked_at": "2026-11-13T18:53:30.666950+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/",
+        "html_lang": "en",
+        "canonical": [
+          "https://eu.ugreen.com/"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "d41dafa3d83849554708d7becaffa588dac9a550f55ff324362b8c4d13093d3c"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "bg (advertised only)",
+      "url": "https://eu.ugreen.com/bg",
+      "language": "BG",
+      "observation": {
+        "url": "https://eu.ugreen.com/bg",
+        "checked_at": "2026-11-13T18:53:30.863798+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/bg",
+        "html_lang": "bg",
+        "canonical": [
+          "https://eu.ugreen.com/bg"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "bg"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "db45c6d600b5191214c92f5a7148485dbecd36c5db2a77a2ee407475a0b74a5b"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "bg-BG (advertised only)",
+      "url": "https://eu.ugreen.com/bg-bg",
+      "language": "BG",
+      "observation": {
+        "url": "https://eu.ugreen.com/bg-bg",
+        "checked_at": "2026-11-13T18:53:30.919758+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/bg-bg",
+        "html_lang": "bg",
+        "canonical": [
+          "https://eu.ugreen.com/bg-bg"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "bg"
+        ],
+        "shopify_country": [
+          "BG"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "9a634890496a3fd14f36f5baea6492585cf4eb052cdb242d04fe6b85cde53601"
+      },
+      "verified_country": "BG",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "BG",
+              "currency": {
+                "isoCode": "EUR"
+              }
+            },
+            "language": {
+              "isoCode": "BG"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "BG",
+            "language": "BG"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "cs (advertised only)",
+      "url": "https://eu.ugreen.com/cs",
+      "language": "CS",
+      "observation": {
+        "url": "https://eu.ugreen.com/cs",
+        "checked_at": "2026-11-13T18:53:31.365100+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/cs",
+        "html_lang": "cs",
+        "canonical": [
+          "https://eu.ugreen.com/cs"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "cs"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "37baca336b54b7946c3c0a1f52303ee5e792c71d8a6bca82220b25d261ac7953"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "cs-CZ (advertised only)",
+      "url": "https://eu.ugreen.com/cs-cz",
+      "language": "CS",
+      "observation": {
+        "url": "https://eu.ugreen.com/cs-cz",
+        "checked_at": "2026-11-13T18:53:31.444811+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/cs-cz",
+        "html_lang": "cs",
+        "canonical": [
+          "https://eu.ugreen.com/cs-cz"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "cs"
+        ],
+        "shopify_country": [
+          "CZ"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "00da529dec0277dd1294dad4e8046bbf95cf423a5647b23308297db8ac929cbb"
+      },
+      "verified_country": "CZ",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "CZ",
+              "currency": {
+                "isoCode": "EUR"
+              }
+            },
+            "language": {
+              "isoCode": "CS"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "CZ",
+            "language": "CS"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "da (advertised only)",
+      "url": "https://eu.ugreen.com/da",
+      "language": "DA",
+      "observation": {
+        "url": "https://eu.ugreen.com/da",
+        "checked_at": "2026-11-13T18:53:31.794712+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/da",
+        "html_lang": "da",
+        "canonical": [
+          "https://eu.ugreen.com/da"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "da"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "264f42965e6f3075556c3c2bb448a583c4668777151dad61e49f61a5fe446561"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "da-DK (advertised only)",
+      "url": "https://eu.ugreen.com/da-dk",
+      "language": "DA",
+      "observation": {
+        "url": "https://eu.ugreen.com/da-dk",
+        "checked_at": "2026-11-13T18:53:32.106058+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/da-dk",
+        "html_lang": "da",
+        "canonical": [
+          "https://eu.ugreen.com/da-dk"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "da"
+        ],
+        "shopify_country": [
+          "DK"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "2e9927b4c07a23d4a0d90fa98026b00a4ff6dfd3154f468f8f58276eaff49ed9"
+      },
+      "verified_country": "DK",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "DK",
+              "currency": {
+                "isoCode": "EUR"
+              }
+            },
+            "language": {
+              "isoCode": "DA"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "DK",
+            "language": "DA"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "de (advertised only)",
+      "url": "https://eu.ugreen.com/de",
+      "language": "DE",
+      "observation": {
+        "url": "https://eu.ugreen.com/de",
+        "checked_at": "2026-11-13T18:53:32.477097+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/de",
+        "html_lang": "de",
+        "canonical": [
+          "https://eu.ugreen.com/de"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "de"
+        ],
+        "shopify_country": [
+          "DE"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "a557744746403e7423ee9e4fd5f0be2aef20ad6222fab1e1519a58034e1e90df"
+      },
+      "verified_country": null,
+      "result": "language page observed; collection country remains a policy decision"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "de-AT (advertised only)",
+      "url": "https://eu.ugreen.com/de-at",
+      "language": "DE",
+      "observation": {
+        "url": "https://eu.ugreen.com/de-at",
+        "checked_at": "2026-11-13T18:53:32.617026+00:00",
+        "status": 200,
+        "final_url": "https://eu.ugreen.com/de-at",
+        "html_lang": "de",
+        "canonical": [
+          "https://eu.ugreen.com/de-at"
+        ],
+        "localization_inputs": [],
+        "shopify_shop": [
+          "ugreen-eu.myshopify.com"
+        ],
+        "shopify_locale": [
+          "de"
+        ],
+        "shopify_country": [
+          "AT"
+        ],
+        "currency": [
+          "{\"active\":\"EUR\",\"rate\":\"1.0\"}"
+        ],
+        "sha256": "85389ba86c4fcf11a11cfcf26e7153922237406ac9d56ff50c81e275652307d8"
+      },
+      "verified_country": "AT",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "AT",
+              "currency": {
+                "isoCode": "EUR"
+              }
+            },
+            "language": {
+              "isoCode": "DE"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "AT",
+            "language": "DE"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "de-BE (advertised only)",
+      "url": "https://eu.ugreen.com/de-be",
+      "language": "DE",
+      "observation": {
+        "url": "https://eu.ugreen.com/de-be",
+        "checked_at": "2026-11-13T18:53:32.856367+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "de-CH (advertised only)",
+      "url": "https://eu.ugreen.com/de-ch",
+      "language": "DE",
+      "observation": {
+        "url": "https://eu.ugreen.com/de-ch",
+        "checked_at": "2026-11-13T18:53:32.896786+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "el (advertised only)",
+      "url": "https://eu.ugreen.com/el",
+      "language": "EL",
+      "observation": {
+        "url": "https://eu.ugreen.com/el",
+        "checked_at": "2026-11-13T18:53:32.935673+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "el-GR (advertised only)",
+      "url": "https://eu.ugreen.com/el-gr",
+      "language": "EL",
+      "observation": {
+        "url": "https://eu.ugreen.com/el-gr",
+        "checked_at": "2026-11-13T18:53:32.974939+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-AT (advertised only)",
+      "url": "https://eu.ugreen.com/en-at",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-at",
+        "checked_at": "2026-11-13T18:53:33.046187+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-BE (advertised only)",
+      "url": "https://eu.ugreen.com/en-be",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-be",
+        "checked_at": "2026-11-13T18:53:33.140093+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-BG (advertised only)",
+      "url": "https://eu.ugreen.com/en-bg",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-bg",
+        "checked_at": "2026-11-13T18:53:33.144310+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-CH (advertised only)",
+      "url": "https://eu.ugreen.com/en-ch",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-ch",
+        "checked_at": "2026-11-13T18:53:33.178089+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-CZ (advertised only)",
+      "url": "https://eu.ugreen.com/en-cz",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-cz",
+        "checked_at": "2026-11-13T18:53:33.186099+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-DK (advertised only)",
+      "url": "https://eu.ugreen.com/en-dk",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-dk",
+        "checked_at": "2026-11-13T18:53:33.218244+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-EE (advertised only)",
+      "url": "https://eu.ugreen.com/en-ee",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-ee",
+        "checked_at": "2026-11-13T18:53:33.221396+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-ES (advertised only)",
+      "url": "https://eu.ugreen.com/en-es",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-es",
+        "checked_at": "2026-11-13T18:53:33.263712+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-FI (advertised only)",
+      "url": "https://eu.ugreen.com/en-fi",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-fi",
+        "checked_at": "2026-11-13T18:53:33.265580+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-FR (advertised only)",
+      "url": "https://eu.ugreen.com/en-fr",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-fr",
+        "checked_at": "2026-11-13T18:53:33.343864+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-GR (advertised only)",
+      "url": "https://eu.ugreen.com/en-gr",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-gr",
+        "checked_at": "2026-11-13T18:53:33.413447+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-HR (advertised only)",
+      "url": "https://eu.ugreen.com/en-hr",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-hr",
+        "checked_at": "2026-11-13T18:53:33.423243+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-HU (advertised only)",
+      "url": "https://eu.ugreen.com/en-hu",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-hu",
+        "checked_at": "2026-11-13T18:53:33.427224+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-IT (advertised only)",
+      "url": "https://eu.ugreen.com/en-it",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-it",
+        "checked_at": "2026-11-13T18:53:33.464744+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-LV (advertised only)",
+      "url": "https://eu.ugreen.com/en-lv",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-lv",
+        "checked_at": "2026-11-13T18:53:33.467736+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-NL (advertised only)",
+      "url": "https://eu.ugreen.com/en-nl",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-nl",
+        "checked_at": "2026-11-13T18:53:33.471229+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-PL (advertised only)",
+      "url": "https://eu.ugreen.com/en-pl",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-pl",
+        "checked_at": "2026-11-13T18:53:33.508223+00:00",
+        "error": "<urlopen error [Errno 101] Network is unreachable>"
+      },
+      "verified_country": null,
+      "result": "blocked: <urlopen error [Errno 101] Network is unreachable>"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-PT (advertised only)",
+      "url": "https://eu.ugreen.com/en-pt",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-pt",
+        "checked_at": "2026-11-13T18:53:33.510062+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-RO (advertised only)",
+      "url": "https://eu.ugreen.com/en-ro",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-ro",
+        "checked_at": "2026-11-13T18:53:33.513664+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-SE (advertised only)",
+      "url": "https://eu.ugreen.com/en-se",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-se",
+        "checked_at": "2026-11-13T18:53:33.563482+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-SI (advertised only)",
+      "url": "https://eu.ugreen.com/en-si",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-si",
+        "checked_at": "2026-11-13T18:53:33.566156+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "en-SK (advertised only)",
+      "url": "https://eu.ugreen.com/en-sk",
+      "language": "EN",
+      "observation": {
+        "url": "https://eu.ugreen.com/en-sk",
+        "checked_at": "2026-11-13T18:53:33.641877+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "es (advertised only)",
+      "url": "https://eu.ugreen.com/es",
+      "language": "ES",
+      "observation": {
+        "url": "https://eu.ugreen.com/es",
+        "checked_at": "2026-11-13T18:53:33.648391+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "es-ES (advertised only)",
+      "url": "https://eu.ugreen.com/es-es",
+      "language": "ES",
+      "observation": {
+        "url": "https://eu.ugreen.com/es-es",
+        "checked_at": "2026-11-13T18:53:33.729817+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "et (advertised only)",
+      "url": "https://eu.ugreen.com/et",
+      "language": "ET",
+      "observation": {
+        "url": "https://eu.ugreen.com/et",
+        "checked_at": "2026-11-13T18:53:33.740039+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "et-EE (advertised only)",
+      "url": "https://eu.ugreen.com/et-ee",
+      "language": "ET",
+      "observation": {
+        "url": "https://eu.ugreen.com/et-ee",
+        "checked_at": "2026-11-13T18:53:33.758037+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "fi (advertised only)",
+      "url": "https://eu.ugreen.com/fi",
+      "language": "FI",
+      "observation": {
+        "url": "https://eu.ugreen.com/fi",
+        "checked_at": "2026-11-13T18:53:33.783582+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "fr (advertised only)",
+      "url": "https://eu.ugreen.com/fr",
+      "language": "FR",
+      "observation": {
+        "url": "https://eu.ugreen.com/fr",
+        "checked_at": "2026-11-13T18:53:33.788874+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "fr-BE (advertised only)",
+      "url": "https://eu.ugreen.com/fr-be",
+      "language": "FR",
+      "observation": {
+        "url": "https://eu.ugreen.com/fr-be",
+        "checked_at": "2026-11-13T18:53:33.803354+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "fr-FR (advertised only)",
+      "url": "https://eu.ugreen.com/fr-fr",
+      "language": "FR",
+      "observation": {
+        "url": "https://eu.ugreen.com/fr-fr",
+        "checked_at": "2026-11-13T18:53:33.864343+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "hr (advertised only)",
+      "url": "https://eu.ugreen.com/hr",
+      "language": "HR",
+      "observation": {
+        "url": "https://eu.ugreen.com/hr",
+        "checked_at": "2026-11-13T18:53:33.864890+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "hr-HR (advertised only)",
+      "url": "https://eu.ugreen.com/hr-hr",
+      "language": "HR",
+      "observation": {
+        "url": "https://eu.ugreen.com/hr-hr",
+        "checked_at": "2026-11-13T18:53:33.917291+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "hu (advertised only)",
+      "url": "https://eu.ugreen.com/hu",
+      "language": "HU",
+      "observation": {
+        "url": "https://eu.ugreen.com/hu",
+        "checked_at": "2026-11-13T18:53:33.954826+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "hu-HU (advertised only)",
+      "url": "https://eu.ugreen.com/hu-hu",
+      "language": "HU",
+      "observation": {
+        "url": "https://eu.ugreen.com/hu-hu",
+        "checked_at": "2026-11-13T18:53:33.955050+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "it (advertised only)",
+      "url": "https://eu.ugreen.com/it",
+      "language": "IT",
+      "observation": {
+        "url": "https://eu.ugreen.com/it",
+        "checked_at": "2026-11-13T18:53:33.958611+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "it-IT (advertised only)",
+      "url": "https://eu.ugreen.com/it-it",
+      "language": "IT",
+      "observation": {
+        "url": "https://eu.ugreen.com/it-it",
+        "checked_at": "2026-11-13T18:53:33.974238+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "lv (advertised only)",
+      "url": "https://eu.ugreen.com/lv",
+      "language": "LV",
+      "observation": {
+        "url": "https://eu.ugreen.com/lv",
+        "checked_at": "2026-11-13T18:53:33.998560+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "lv-LV (advertised only)",
+      "url": "https://eu.ugreen.com/lv-lv",
+      "language": "LV",
+      "observation": {
+        "url": "https://eu.ugreen.com/lv-lv",
+        "checked_at": "2026-11-13T18:53:33.999293+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "nl (advertised only)",
+      "url": "https://eu.ugreen.com/nl",
+      "language": "NL",
+      "observation": {
+        "url": "https://eu.ugreen.com/nl",
+        "checked_at": "2026-11-13T18:53:34.007344+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "nl-BE (advertised only)",
+      "url": "https://eu.ugreen.com/nl-be",
+      "language": "NL",
+      "observation": {
+        "url": "https://eu.ugreen.com/nl-be",
+        "checked_at": "2026-11-13T18:53:34.024567+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "nl-NL (advertised only)",
+      "url": "https://eu.ugreen.com/nl-nl",
+      "language": "NL",
+      "observation": {
+        "url": "https://eu.ugreen.com/nl-nl",
+        "checked_at": "2026-11-13T18:53:34.045151+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "pl (advertised only)",
+      "url": "https://eu.ugreen.com/pl",
+      "language": "PL",
+      "observation": {
+        "url": "https://eu.ugreen.com/pl",
+        "checked_at": "2026-11-13T18:53:34.048651+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "pl-PL (advertised only)",
+      "url": "https://eu.ugreen.com/pl-pl",
+      "language": "PL",
+      "observation": {
+        "url": "https://eu.ugreen.com/pl-pl",
+        "checked_at": "2026-11-13T18:53:34.049652+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "pt (advertised only)",
+      "url": "https://eu.ugreen.com/pt",
+      "language": "PT",
+      "observation": {
+        "url": "https://eu.ugreen.com/pt",
+        "checked_at": "2026-11-13T18:53:34.070505+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "pt-PT (advertised only)",
+      "url": "https://eu.ugreen.com/pt-pt",
+      "language": "PT",
+      "observation": {
+        "url": "https://eu.ugreen.com/pt-pt",
+        "checked_at": "2026-11-13T18:53:34.089370+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "ro (advertised only)",
+      "url": "https://eu.ugreen.com/ro",
+      "language": "RO",
+      "observation": {
+        "url": "https://eu.ugreen.com/ro",
+        "checked_at": "2026-11-13T18:53:34.094473+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "ro-RO (advertised only)",
+      "url": "https://eu.ugreen.com/ro-ro",
+      "language": "RO",
+      "observation": {
+        "url": "https://eu.ugreen.com/ro-ro",
+        "checked_at": "2026-11-13T18:53:34.101031+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sk (advertised only)",
+      "url": "https://eu.ugreen.com/sk",
+      "language": "SK",
+      "observation": {
+        "url": "https://eu.ugreen.com/sk",
+        "checked_at": "2026-11-13T18:53:34.113446+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sk-SK (advertised only)",
+      "url": "https://eu.ugreen.com/sk-sk",
+      "language": "SK",
+      "observation": {
+        "url": "https://eu.ugreen.com/sk-sk",
+        "checked_at": "2026-11-13T18:53:34.137951+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sl (advertised only)",
+      "url": "https://eu.ugreen.com/sl",
+      "language": "SL",
+      "observation": {
+        "url": "https://eu.ugreen.com/sl",
+        "checked_at": "2026-11-13T18:53:34.139656+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sl-SI (advertised only)",
+      "url": "https://eu.ugreen.com/sl-si",
+      "language": "SL",
+      "observation": {
+        "url": "https://eu.ugreen.com/sl-si",
+        "checked_at": "2026-11-13T18:53:34.149396+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sv (advertised only)",
+      "url": "https://eu.ugreen.com/sv",
+      "language": "SV",
+      "observation": {
+        "url": "https://eu.ugreen.com/sv",
+        "checked_at": "2026-11-13T18:53:34.164192+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreeneu",
+      "locale": "sv-SE (advertised only)",
+      "url": "https://eu.ugreen.com/sv-se",
+      "language": "SV",
+      "observation": {
+        "url": "https://eu.ugreen.com/sv-se",
+        "checked_at": "2026-11-13T18:53:34.187620+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreennaseu",
+      "locale": "en (selector)",
+      "url": "https://nas-eu.ugreen.com/",
+      "language": "EN",
+      "observation": {
+        "url": "https://nas-eu.ugreen.com/",
+        "checked_at": "2026-11-13T18:53:34.191014+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "ar (advertised only)",
+      "url": "https://www.ugreen.com/ar-ae",
+      "language": "AR",
+      "observation": {
+        "url": "https://www.ugreen.com/ar-ae",
+        "checked_at": "2026-11-13T18:53:34.196256+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "ar-SA (advertised only)",
+      "url": "https://www.ugreen.com/ar-sa",
+      "language": "AR",
+      "observation": {
+        "url": "https://www.ugreen.com/ar-sa",
+        "checked_at": "2026-11-13T18:53:34.225190+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "de-DE (advertised only)",
+      "url": "https://www.ugreen.com/de-de",
+      "language": "DE",
+      "observation": {
+        "url": "https://www.ugreen.com/de-de",
+        "checked_at": "2026-11-13T18:53:34.289008+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en (advertised only)",
+      "url": "https://www.ugreen.com/en-ae",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-ae",
+        "checked_at": "2026-11-13T18:53:34.310045+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-AU (advertised only)",
+      "url": "https://www.ugreen.com/en-au",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-au",
+        "checked_at": "2026-11-13T18:53:34.342192+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-CA (advertised only)",
+      "url": "https://www.ugreen.com/en-ca",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-ca",
+        "status": 200,
+        "final_url": "https://www.ugreen.com/en-ca",
+        "html_lang": "en",
+        "shopify_shop": [
+          "ugreen-brandsite.myshopify.com"
+        ],
+        "shopify_locale": [
+          "en"
+        ],
+        "shopify_country": [
+          "CA"
+        ],
+        "source": "Initial successful probe before batch throttling"
+      },
+      "verified_country": "CA",
+      "context_probe": {
+        "data": {
+          "localization": {
+            "country": {
+              "isoCode": "CA",
+              "currency": {
+                "isoCode": "CAD"
+              }
+            },
+            "language": {
+              "isoCode": "EN"
+            }
+          }
+        },
+        "extensions": {
+          "context": {
+            "country": "CA",
+            "language": "EN"
+          },
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      },
+      "result": "verified page/backend and API country/language context"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-DE (advertised only)",
+      "url": "https://www.ugreen.com/en-de",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-de",
+        "checked_at": "2026-11-13T18:53:34.347596+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-ES (advertised only)",
+      "url": "https://www.ugreen.com/en-es",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-es",
+        "checked_at": "2026-11-13T18:53:34.384659+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-AT (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-BE (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-BG (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-CH (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-CY (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-CZ (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-DK (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-EE (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-FI (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-HR (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-HU (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-IS (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-LT (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-LU (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-LV (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-MT (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-NO (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-PL (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-PT (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-RO (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-SE (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-SI (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-SK (advertised only)",
+      "url": "https://www.ugreen.com/en-eu",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-eu",
+        "checked_at": "2026-11-13T18:53:34.386091+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-FR (advertised only)",
+      "url": "https://www.ugreen.com/en-fr",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-fr",
+        "checked_at": "2026-11-13T18:53:34.393213+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-GB (advertised only)",
+      "url": "https://www.ugreen.com/en-gb",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-gb",
+        "checked_at": "2026-11-13T18:53:34.402591+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-ID (advertised only)",
+      "url": "https://www.ugreen.com/en-id",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-id",
+        "checked_at": "2026-11-13T18:53:34.406556+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-IT (advertised only)",
+      "url": "https://www.ugreen.com/en-it",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-it",
+        "checked_at": "2026-11-13T18:53:34.436326+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-MY (advertised only)",
+      "url": "https://www.ugreen.com/en-my",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-my",
+        "checked_at": "2026-11-13T18:53:34.444612+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-NL (advertised only)",
+      "url": "https://www.ugreen.com/en-nl",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-nl",
+        "checked_at": "2026-11-13T18:53:34.449270+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-PH (advertised only)",
+      "url": "https://www.ugreen.com/en-ph",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-ph",
+        "checked_at": "2026-11-13T18:53:34.458448+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-SA (advertised only)",
+      "url": "https://www.ugreen.com/en-sa",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-sa",
+        "checked_at": "2026-11-13T18:53:34.460288+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-SG (advertised only)",
+      "url": "https://www.ugreen.com/en-sg",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-sg",
+        "checked_at": "2026-11-13T18:53:34.490583+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-TH (advertised only)",
+      "url": "https://www.ugreen.com/en-th",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-th",
+        "checked_at": "2026-11-13T18:53:34.497314+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-TR (advertised only)",
+      "url": "https://www.ugreen.com/en-tr",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-tr",
+        "checked_at": "2026-11-13T18:53:34.504751+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "en-VN (advertised only)",
+      "url": "https://www.ugreen.com/en-vn",
+      "language": "EN",
+      "observation": {
+        "url": "https://www.ugreen.com/en-vn",
+        "checked_at": "2026-11-13T18:53:34.510462+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "es-ES (advertised only)",
+      "url": "https://www.ugreen.com/es-es",
+      "language": "ES",
+      "observation": {
+        "url": "https://www.ugreen.com/es-es",
+        "checked_at": "2026-11-13T18:53:34.517628+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "fr-FR (advertised only)",
+      "url": "https://www.ugreen.com/fr-fr",
+      "language": "FR",
+      "observation": {
+        "url": "https://www.ugreen.com/fr-fr",
+        "checked_at": "2026-11-13T18:53:34.547628+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "id-ID (advertised only)",
+      "url": "https://www.ugreen.com/id-id",
+      "language": "ID",
+      "observation": {
+        "url": "https://www.ugreen.com/id-id",
+        "checked_at": "2026-11-13T18:53:34.554372+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "it-IT (advertised only)",
+      "url": "https://www.ugreen.com/it-it",
+      "language": "IT",
+      "observation": {
+        "url": "https://www.ugreen.com/it-it",
+        "checked_at": "2026-11-13T18:53:34.564303+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "nl-US (advertised only)",
+      "url": "https://www.ugreen.com/nl",
+      "language": "NL",
+      "observation": {
+        "url": "https://www.ugreen.com/nl",
+        "checked_at": "2026-11-13T18:53:34.566765+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "nl-NL (advertised only)",
+      "url": "https://www.ugreen.com/nl-nl",
+      "language": "NL",
+      "observation": {
+        "url": "https://www.ugreen.com/nl-nl",
+        "checked_at": "2026-11-13T18:53:34.573586+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "th-TH (advertised only)",
+      "url": "https://www.ugreen.com/th-th",
+      "language": "TH",
+      "observation": {
+        "url": "https://www.ugreen.com/th-th",
+        "checked_at": "2026-11-13T18:53:34.598174+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "tr-US (advertised only)",
+      "url": "https://www.ugreen.com/tr",
+      "language": "TR",
+      "observation": {
+        "url": "https://www.ugreen.com/tr",
+        "checked_at": "2026-11-13T18:53:34.605067+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "tr-TR (advertised only)",
+      "url": "https://www.ugreen.com/tr-tr",
+      "language": "TR",
+      "observation": {
+        "url": "https://www.ugreen.com/tr-tr",
+        "checked_at": "2026-11-13T18:53:34.617098+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "vi-US (advertised only)",
+      "url": "https://www.ugreen.com/vi",
+      "language": "VI",
+      "observation": {
+        "url": "https://www.ugreen.com/vi",
+        "checked_at": "2026-11-13T18:53:34.631578+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreencom",
+      "locale": "vi-VN (advertised only)",
+      "url": "https://www.ugreen.com/vi-vn",
+      "language": "VI",
+      "observation": {
+        "url": "https://www.ugreen.com/vi-vn",
+        "checked_at": "2026-11-13T18:53:34.632614+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreenin",
+      "locale": "en (advertised only)",
+      "url": "https://ugreenindia.com/",
+      "language": "EN",
+      "observation": {
+        "url": "https://ugreenindia.com/",
+        "checked_at": "2026-11-13T18:53:34.663209+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "retailer": "ugreenin",
+      "locale": "hi (advertised only)",
+      "url": "https://ugreenindia.com/hi",
+      "language": "HI",
+      "observation": {
+        "url": "https://ugreenindia.com/hi",
+        "checked_at": "2026-11-13T18:53:34.664355+00:00",
+        "error": "HTTP Error 429: Too Many Requests"
+      },
+      "verified_country": null,
+      "result": "blocked: HTTP Error 429: Too Many Requests"
+    }
+  ],
+  "api_discovery": [
+    {
+      "retailer": "minisforumeu",
+      "endpoint": "https://minisforum-eu.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AD",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BA",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BG",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BY",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CH",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CY",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "EE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ES",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GB",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IS",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LV",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MC",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MD",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ME",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RS",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SM",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "UA",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VA",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "minisforumfr",
+      "endpoint": "https://minisforum-fr.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CA",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CH",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ES",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GB",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "JP",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MY",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SG",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "US",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "minisforumus",
+      "endpoint": "https://minisforum.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AF",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AI",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AU",
+                "currency": {
+                  "isoCode": "AUD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BB",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BD",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BF",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BH",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BI",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BJ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BQ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BS",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BT",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CA",
+                "currency": {
+                  "isoCode": "CAD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CD",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CF",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CI",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CK",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CL",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CV",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DJ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "EC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ER",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ET",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FJ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FK",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GD",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GF",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GH",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GL",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GP",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GQ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GT",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HT",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ID",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IL",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IQ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "JM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "JO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KH",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KI",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KY",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LB",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LK",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LS",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LY",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ML",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MQ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MS",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MU",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MV",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MX",
+                "currency": {
+                  "isoCode": "MXN"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MY",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NI",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NP",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NU",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "OM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PH",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PK",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PY",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SA",
+                "currency": {
+                  "isoCode": "SAR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SB",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SL",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SV",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SX",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TD",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TH",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TJ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TO",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TR",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TT",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TV",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "UG",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "US",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "UY",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "UZ",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VC",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VN",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VU",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "WF",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "WS",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "YE",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "YT",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ZA",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ZM",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ZW",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "ugreenca",
+      "endpoint": "https://ugreen-ca.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "CA",
+                "currency": {
+                  "isoCode": "CAD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "US",
+                "currency": {
+                  "isoCode": "CAD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "ugreeneu",
+      "endpoint": "https://ugreen-eu.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "NL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BG",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CH",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CN",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CY",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "EE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ET"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ES",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "HR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "HU"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IS",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "IT"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LV",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "LV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "NL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "PL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "RO"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "SL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "SK"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TW",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ZW",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "BG"
+                  },
+                  {
+                    "isoCode": "CS"
+                  },
+                  {
+                    "isoCode": "DA"
+                  },
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EL"
+                  },
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  },
+                  {
+                    "isoCode": "ET"
+                  },
+                  {
+                    "isoCode": "FI"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "HR"
+                  },
+                  {
+                    "isoCode": "HU"
+                  },
+                  {
+                    "isoCode": "IT"
+                  },
+                  {
+                    "isoCode": "LV"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "PL"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  },
+                  {
+                    "isoCode": "RO"
+                  },
+                  {
+                    "isoCode": "SK"
+                  },
+                  {
+                    "isoCode": "SL"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "ugreennaseu",
+      "endpoint": "https://ugreen-nas-eu.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  },
+                  {
+                    "isoCode": "NL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BG",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ES",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "IT"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "NL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "PT_PT"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "RO"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "SV"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "ugreencom",
+      "endpoint": "https://ugreen-brandsite.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "AE",
+                "currency": {
+                  "isoCode": "AED"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "AR"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "AU",
+                "currency": {
+                  "isoCode": "AUD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "BG",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CA",
+                "currency": {
+                  "isoCode": "CAD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CH",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CY",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "CZ",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "DE"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "DK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "EE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ES",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ES"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "FR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "FR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "GB",
+                "currency": {
+                  "isoCode": "GBP"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HR",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "HU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "ID",
+                "currency": {
+                  "isoCode": "IDR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "ID"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IS",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "IT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "IT"
+                  }
+                ]
+              },
+              {
+                "isoCode": "KR",
+                "currency": {
+                  "isoCode": "KRW"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "KO"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LU",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "LV",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "MY",
+                "currency": {
+                  "isoCode": "MYR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "NL"
+                  }
+                ]
+              },
+              {
+                "isoCode": "NO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PH",
+                "currency": {
+                  "isoCode": "PHP"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PL",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "PT",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "RO",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SA",
+                "currency": {
+                  "isoCode": "SAR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "AR"
+                  },
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SE",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SG",
+                "currency": {
+                  "isoCode": "SGD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SI",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "SK",
+                "currency": {
+                  "isoCode": "EUR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TH",
+                "currency": {
+                  "isoCode": "THB"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "TH"
+                  }
+                ]
+              },
+              {
+                "isoCode": "TR",
+                "currency": {
+                  "isoCode": "TRY"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "TR"
+                  }
+                ]
+              },
+              {
+                "isoCode": "US",
+                "currency": {
+                  "isoCode": "USD"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "NL"
+                  },
+                  {
+                    "isoCode": "TR"
+                  },
+                  {
+                    "isoCode": "VI"
+                  }
+                ]
+              },
+              {
+                "isoCode": "VN",
+                "currency": {
+                  "isoCode": "VND"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "VI"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    },
+    {
+      "retailer": "ugreenin",
+      "endpoint": "https://990f9c-b7.myshopify.com/api/2026-10/graphql.json",
+      "response": {
+        "data": {
+          "localization": {
+            "availableCountries": [
+              {
+                "isoCode": "IN",
+                "currency": {
+                  "isoCode": "INR"
+                },
+                "availableLanguages": [
+                  {
+                    "isoCode": "EN"
+                  },
+                  {
+                    "isoCode": "HI"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "extensions": {
+          "cost": {
+            "requestedQueryCost": 4
+          }
+        }
+      }
+    }
+  ],
+  "verification_date": "2026-11-13"
+}

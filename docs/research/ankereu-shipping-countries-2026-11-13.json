@@ -1,0 +1,87 @@
+{
+  "checked_at": "2026-11-13T19:55:09.958623+00:00",
+  "storefront_url": "https://www.anker.com/eu-en",
+  "page_data_path": "props.pageProps.shop.shipsToCountries",
+  "page_countries": [
+    "AT",
+    "BE",
+    "BG",
+    "CZ",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "GR",
+    "HR",
+    "HU",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+  ],
+  "graphql_endpoint": "https://ankereu.myshopify.com/api/2026-10/graphql.json",
+  "query": "query ShippingDestinations { shop { name primaryDomain { host url } shipsToCountries } }",
+  "response": {
+    "data": {
+      "shop": {
+        "name": "Anker",
+        "primaryDomain": {
+          "host": "eu.anker.com",
+          "url": "https://eu.anker.com"
+        },
+        "shipsToCountries": [
+          "AT",
+          "BE",
+          "BG",
+          "CZ",
+          "DE",
+          "DK",
+          "EE",
+          "ES",
+          "FI",
+          "FR",
+          "GR",
+          "HR",
+          "HU",
+          "IT",
+          "LT",
+          "LU",
+          "LV",
+          "NL",
+          "PL",
+          "PT",
+          "RO",
+          "SE",
+          "SI",
+          "SK"
+        ]
+      }
+    },
+    "extensions": {
+      "cost": {
+        "requestedQueryCost": 2
+      }
+    }
+  },
+  "policy_url": "https://www.anker.com/eu-en/policies/shipping-policy",
+  "policy_countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "HU",
+    "LU",
+    "PL",
+    "PT",
+    "NL"
+  ],
+  "limitation": "Shop-level configured shipping destinations; individual product/address eligibility and shipping rates were not tested."
+}

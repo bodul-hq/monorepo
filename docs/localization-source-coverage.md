@@ -2,8 +2,10 @@
 
 The Nordic HTML results below remain historical. The five new country codes
 use the Storefront API's returned localization; portable market-specific
-fixtures and isolation tests live in `lib/retailers_anker/src/nordic`.
-See [ADR 47](adr/0047-nordic-retailer-markets.md).
+fixtures live in each `lib/retailers_anker/src/<country>/offer_details/v1/graphql`
+directory, with cross-country checks in `lib/retailers_anker/src/registry/tests.rs`.
+The aggregate's historical HTML integration is retired; see
+[ADR 86](adr/0086-country-owned-legacy-anker-integrations.md).
 
 Surveyed the saved corpus on 2026-10-26 through the shared extraction,
 normalization and structuralization facade. No corpus files were modified.
