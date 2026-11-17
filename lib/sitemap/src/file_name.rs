@@ -1,15 +1,17 @@
 //! Names a sitemap file on disk after the URL it was fetched from.
 
 use percent_encoding::percent_decode_str;
+use thiserror::Error as ThiserrorError;
+use url::ParseError;
 use url::Url;
 
-#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+#[derive(Debug, Clone, PartialEq, ThiserrorError)]
 pub enum FileNameError {
     #[error("{url} isn't a valid URL: {source}")]
     InvalidUrl {
         url: String,
         #[source]
-        source: url::ParseError,
+        source: ParseError,
     },
 
     #[error("{0} has no path")]

@@ -5,7 +5,12 @@
 //! [`Parsed`]; fetching the children and assembling the tree is up to the
 //! caller.
 
+use escape::unescape;
+use quick_xml::Error as QuickXmlError;
+use quick_xml::encoding::EncodingError;
+use quick_xml::escape::EscapeError;
 use std::str::FromStr;
+use thiserror::Error as ThiserrorError;
 
 use crate::document::{ChangeFrequency, SitemapImage, SitemapUrl};
 use chrono::{DateTime, NaiveDate, TimeZone, Utc};
@@ -13,16 +18,16 @@ use quick_xml::Reader;
 use quick_xml::escape;
 use quick_xml::events::{BytesRef, Event};
 
-#[derive(Debug, thiserror::Error, Clone)]
+#[derive(Debug, ThiserrorError, Clone)]
 pub enum SitemapParseError {
     #[error("XML error: {0}")]
-    Xml(#[from] quick_xml::Error),
+    Xml(#[from] QuickXmlError),
 
     #[error("XML escape error: {0}")]
-    Escape(#[from] quick_xml::escape::EscapeError),
+    Escape(#[from] EscapeError),
 
     #[error("encoding error: {0}")]
-    Encoding(#[from] quick_xml::encoding::EncodingError),
+    Encoding(#[from] EncodingError),
 
     #[error("unknown XML entity: &{0};")]
     UnknownEntity(String),
@@ -89,7 +94,7 @@ pub fn parse(xml: &str, source: &str) -> Result<Parsed, SitemapParseError> {
                 _ => {}
             },
             Event::Text(event) if leaf.is_some() => {
-                text.push_str(&escape::unescape(event.as_ref())?);
+                text.push_str(&unescape(event.as_ref())?);
             }
             Event::CData(event) if leaf.is_some() => {
                 text.push_str(event.as_ref());

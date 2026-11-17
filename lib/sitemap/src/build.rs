@@ -2,6 +2,7 @@
 
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
+use thiserror::Error as ThiserrorError;
 
 use chrono::{DateTime, Utc};
 
@@ -9,7 +10,7 @@ use crate::MAX_SITEMAP_DEPTH;
 use crate::document::{RawSitemapDocument, SitemapDocument};
 use crate::parse::{ChildRef, Parsed, SitemapParseError, parse};
 
-#[derive(Debug, Clone, thiserror::Error)]
+#[derive(Debug, Clone, ThiserrorError)]
 pub enum BuildError {
     #[error("failed to parse {url}: {source}")]
     Parse {

@@ -47,6 +47,10 @@ impl GroupedLinks {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use serde_json::to_value;
+
     use super::*;
 
     fn url(location: &str) -> SitemapUrl {
@@ -99,11 +103,8 @@ mod tests {
             ..GroupedLinks::default()
         };
 
-        let value = serde_json::to_value(&links).unwrap();
+        let value = to_value(&links).unwrap();
 
-        assert_eq!(
-            serde_json::from_value::<GroupedLinks>(value).unwrap(),
-            links
-        );
+        assert_eq!(from_value::<GroupedLinks>(value).unwrap(), links);
     }
 }
