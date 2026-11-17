@@ -1,4 +1,7 @@
 //! Domain input and output for this feature slice.
+
+use chrono::DateTime;
+use chrono::Utc;
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -11,7 +14,7 @@ pub(super) struct RawOffer {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct ExtractedOffer {
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
     pub offer_id: Uuid,
     pub document: Value,
 }

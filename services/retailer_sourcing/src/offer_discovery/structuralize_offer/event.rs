@@ -1,3 +1,5 @@
+use chrono::DateTime;
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use shared::retailer::RetailerCode;
 use uuid::Uuid;
@@ -9,7 +11,7 @@ use crate::platform::object_storage::OfferStorageMetadata;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OfferWasStructuralized {
     #[serde(default)]
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
 
     pub offer_id: Uuid,
     pub consolidated_sitemap_id: Uuid,

@@ -40,6 +40,7 @@ fn stored_size(size: usize) -> Result<i32, StoreError> {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
     #[test]
     fn checks_storage_size_bounds() {

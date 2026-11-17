@@ -1,4 +1,22 @@
+use retailer_sauce::availability::Availability;
+use retailer_sauce::identifier::ExternalIdentifiers;
+use retailer_sauce::identifier::Gtin;
+use retailer_sauce::identifier::ProductIdentifiers;
+use retailer_sauce::identifier::Sku;
+use retailer_sauce::item_condition::ItemCondition;
+use retailer_sauce::localization::Localization;
+use retailer_sauce::observation::object_observation as retailer_sauce_observation_object_observation;
+use retailer_sauce::structuralized::content::Content;
+use retailer_sauce::structuralized::content::observation as retailer_sauce_structuralized_content_observation;
+use serde_json::Value as SerdeJsonValue;
+use serde_json::from_str;
+use serde_json::from_value;
+use serde_json::json as serde_json_json;
+use shared::images::filter;
 use std::collections::HashSet;
+use thiserror::Error as ThiserrorError;
+use tracing::info;
+use url::Url;
 
 use money::Money;
 use retailer_sauce::observation::Observation;
@@ -18,40 +36,40 @@ struct StructuralizedDocument {
 struct Variation {
     #[serde(
         default,
-        deserialize_with = "retailer_sauce::observation::object_observation"
+        deserialize_with = "retailer_sauce_observation_object_observation"
     )]
     was_price: Observation<Money>,
     #[serde(default)]
-    availability: Observation<retailer_sauce::availability::Availability>,
+    availability: Observation<Availability>,
     #[serde(default)]
-    item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    item_condition: Observation<ItemCondition>,
     #[serde(
         default,
-        deserialize_with = "retailer_sauce::structuralized::content::observation"
+        deserialize_with = "retailer_sauce_structuralized_content_observation"
     )]
-    content: Option<retailer_sauce::structuralized::content::Content>,
+    content: Option<Content>,
 
     #[serde(default)]
     identifiers: VariationIdentifiers,
     #[serde(default)]
-    localization: retailer_sauce::localization::Localization,
+    localization: Localization,
     title: String,
     url: String,
     price: Option<Money>,
     #[serde(default = "empty_images")]
-    images: serde_json::Value,
+    images: SerdeJsonValue,
 }
 
 #[derive(Default, Deserialize)]
 struct VariationIdentifiers {
-    gtin: Option<retailer_sauce::identifier::Gtin>,
-    sku: Option<retailer_sauce::identifier::Sku>,
+    gtin: Option<Gtin>,
+    sku: Option<Sku>,
     #[serde(flatten)]
-    external: retailer_sauce::identifier::ExternalIdentifiers,
+    external: ExternalIdentifiers,
 }
 impl VariationIdentifiers {
-    fn into_identifiers(self) -> retailer_sauce::identifier::ProductIdentifiers {
-        retailer_sauce::identifier::ProductIdentifiers {
+    fn into_identifiers(self) -> ProductIdentifiers {
+        ProductIdentifiers {
             gtin: self.gtin,
             sku: self.sku,
             external_identifiers: self.external,
@@ -59,11 +77,11 @@ impl VariationIdentifiers {
     }
 }
 
-fn empty_images() -> serde_json::Value {
-    serde_json::json!([])
+fn empty_images() -> SerdeJsonValue {
+    serde_json_json!([])
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 #[error("offer export conversion failed: {0}")]
 pub struct ConversionError(String);
 
@@ -81,7 +99,7 @@ pub(super) fn convert(
         ));
     }
     let input: StructuralizedDocument =
-        serde_json::from_str(body).map_err(|error| ConversionError(error.to_string()))?;
+        from_str(body).map_err(|error| ConversionError(error.to_string()))?;
     let mut entries = Vec::new();
     let mut exclusions = Vec::new();
     let mut urls = HashSet::new();
@@ -101,11 +119,10 @@ pub(super) fn convert(
             )));
         }
         let images = if schema_version >= 2 {
-            let (images, skipped) = shared::images::filter(
-                serde_json::from_value(variation.images)
-                    .map_err(|error| ConversionError(error.to_string()))?,
+            let (images, skipped) = filter(
+                from_value(variation.images).map_err(|error| ConversionError(error.to_string()))?,
             );
-            tracing::info!(skipped_images = skipped, "filtered offer images");
+            info!(skipped_images = skipped, "filtered offer images");
             Some(images)
         } else {
             None
@@ -189,7 +206,7 @@ impl Variation {
         if self.url.len() > 2048
             || self.url.trim() != self.url
             || self.url.chars().any(char::is_control)
-            || !url::Url::parse(&self.url)
+            || !Url::parse(&self.url)
                 .is_ok_and(|url| matches!(url.scheme(), "http" | "https") && url.has_host())
         {
             return Err(ConversionError(format!(
@@ -223,16 +240,19 @@ impl Variation {
 }
 
 #[cfg(test)]
-fn canonical_fixture(json: &str) -> serde_json::Value {
-    let mut fixture: serde_json::Value = serde_json::from_str(json).unwrap();
+fn canonical_fixture(json: &str) -> SerdeJsonValue {
+    let mut fixture: SerdeJsonValue = from_str(json).unwrap();
     // Keep historical fixture bytes intact; newly serialized typed exports canonicalize.
     assert_eq!(fixture["retailer_code"], "AnkerAu");
-    fixture["retailer_code"] = serde_json::json!("ankerau");
+    fixture["retailer_code"] = serde_json_json!("ankerau");
     fixture
 }
 
 #[cfg(test)]
 pub(super) mod tests {
+    use serde_json::from_str;
+    use serde_json::to_value;
+
     use super::*;
     use crate::platform::object_storage::OfferStorageMetadata;
     use serde_json::{Value, json};
@@ -266,10 +286,7 @@ pub(super) mod tests {
         let expected = canonical_fixture(include_str!(
             "../../../tests/fixtures/offer_export/import_payload.json"
         ));
-        assert_eq!(
-            serde_json::to_value(&output.entries[0].payload).unwrap(),
-            expected
-        );
+        assert_eq!(to_value(&output.entries[0].payload).unwrap(), expected);
         assert_eq!(output.entries.len(), 2);
         assert_eq!(output.entries[1].payload.price.amount(), 0);
         assert_eq!(output.entries[1].variation_index, 1);
@@ -316,7 +333,7 @@ pub(super) mod tests {
         let output = convert(source(), r#"{"variations":[]}"#, 1).unwrap();
         assert!(output.entries.is_empty());
         assert!(output.exclusions.is_empty());
-        let mut input: Value = serde_json::from_str(MINISFORUM).unwrap();
+        let mut input: Value = from_str(MINISFORUM).unwrap();
         input["variations"][0]
             .as_object_mut()
             .unwrap()
@@ -330,11 +347,11 @@ pub(super) mod tests {
     fn preserves_exact_integer_money_including_zero_decimal_currencies() {
         for currency in ["AUD", "JPY", "KRW", "VND"] {
             for amount in [0, 1, i64::MAX] {
-                let mut input: Value = serde_json::from_str(MINISFORUM).unwrap();
+                let mut input: Value = from_str(MINISFORUM).unwrap();
                 input["variations"][0]["price"] = json!({"amount":amount,"currency":currency});
                 let output = convert(source(), &input.to_string(), 1).unwrap();
                 assert_eq!(
-                    serde_json::to_value(&output.entries[0].payload.price).unwrap(),
+                    to_value(&output.entries[0].payload.price).unwrap(),
                     json!({"amount":amount,"currency":currency})
                 );
             }
@@ -363,11 +380,11 @@ pub(super) mod tests {
             ("price", json!({"amount":"1","currency":"AUD"})),
             ("price", json!({"amount":1,"currency":"BAD"})),
         ] {
-            let mut input: Value = serde_json::from_str(MINISFORUM).unwrap();
+            let mut input: Value = from_str(MINISFORUM).unwrap();
             input["variations"][0][field] = value;
             assert!(convert(source(), &input.to_string(), 1).is_err(), "{input}");
         }
-        let mut input: Value = serde_json::from_str(ANKER).unwrap();
+        let mut input: Value = from_str(ANKER).unwrap();
         input["variations"][1]["url"] = input["variations"][0]["url"].clone();
         assert!(
             convert(source(), &input.to_string(), 1)
@@ -379,14 +396,14 @@ pub(super) mod tests {
 
     #[test]
     fn v2_images_are_ordered_filtered_and_v1_shape_is_immutable() {
-        let mut input: Value = serde_json::from_str(ANKER).unwrap();
+        let mut input: Value = from_str(ANKER).unwrap();
         let a = "https://shop.example/A?q=1&x=2#front";
         let b = "http://shop.example/B";
         input["variations"][0]["images"] =
             json!([a, a, "/relative", b, "https://user@shop.example/a"]);
         let legacy = convert(source(), &input.to_string(), 1).unwrap();
         assert!(
-            serde_json::to_value(&legacy.entries[0].payload)
+            to_value(&legacy.entries[0].payload)
                 .unwrap()
                 .get("images")
                 .is_none()
@@ -433,22 +450,24 @@ pub(super) mod tests {
         let fixture = canonical_fixture(include_str!(
             "../../../tests/fixtures/offer_export/import_payload_v2.json"
         ));
-        assert_eq!(
-            serde_json::to_value(&output.entries[0].payload).unwrap(),
-            fixture
-        );
+        assert_eq!(to_value(&output.entries[0].payload).unwrap(), fixture);
     }
 }
 
 #[cfg(test)]
 mod scrape_tests {
+    use chrono::DateTime;
+    use serde_json::to_value;
+    use tests::ANKER as TESTS_ANKER;
+    use tests::source as tests_source;
+
     use super::*;
     #[test]
     fn v3_preserves_time_while_legacy_versions_preserve_their_shape() {
-        let mut source = tests::source();
+        let mut source = tests_source();
         for version in [1, 2] {
-            let snapshot = convert(source.clone(), tests::ANKER, version).unwrap();
-            let json = serde_json::to_value(&snapshot).unwrap();
+            let snapshot = convert(source.clone(), TESTS_ANKER, version).unwrap();
+            let json = to_value(&snapshot).unwrap();
             assert!(json["source"]["storage"].get("scraped_at").is_none());
             for entry in json["entries"].as_array().unwrap() {
                 assert!(entry["payload"].get("scraped_at").is_none());
@@ -456,13 +475,13 @@ mod scrape_tests {
             assert!(snapshot.valid_schema());
         }
         source.storage.scraped_at =
-            Some(chrono::DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap());
-        let snapshot = convert(source.clone(), tests::ANKER, 3).unwrap();
+            Some(DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap());
+        let snapshot = convert(source.clone(), TESTS_ANKER, 3).unwrap();
         assert!(snapshot.valid_schema());
         for entry in &snapshot.entries {
             assert_eq!(entry.payload.scraped_at, source.storage.scraped_at);
         }
-        assert!(convert(source, tests::ANKER, 2).is_err());
+        assert!(convert(source, TESTS_ANKER, 2).is_err());
         let mut invalid = snapshot.clone();
         invalid.entries[0].payload.scraped_at = None;
         assert!(!invalid.valid_schema());
@@ -471,42 +490,50 @@ mod scrape_tests {
 
 #[cfg(test)]
 mod extended_contract_tests {
+    use serde_json::Value as SerdeJsonValue;
+    use serde_json::from_slice;
+    use serde_json::from_str;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value;
+    use serde_json::to_vec;
+    use tests::ANKER as TESTS_ANKER;
+    use tests::MINISFORUM as TESTS_MINISFORUM;
+    use tests::UGREEN as TESTS_UGREEN;
+    use tests::source as tests_source;
+
     use super::*;
     #[test]
     fn localization_policy_is_not_reapplied_to_exports() {
         for localization in [
-            serde_json::json!({"target_market":null,"language":"it-IT"}),
-            serde_json::json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
-            serde_json::json!({"target_market":null,"language":"en-EU"}),
-            serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"}),
+            serde_json_json!({"target_market":null,"language":"it-IT"}),
+            serde_json_json!({"target_market":{"kind":"country","code":"IT"},"language":"it"}),
+            serde_json_json!({"target_market":null,"language":"en-EU"}),
+            serde_json_json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"}),
         ] {
-            let mut body: serde_json::Value = serde_json::from_str(tests::ANKER).unwrap();
+            let mut body: SerdeJsonValue = from_str(TESTS_ANKER).unwrap();
             for variation in body["variations"].as_array_mut().unwrap() {
                 variation["localization"] = localization.clone();
             }
-            let export = convert(tests::source(), &body.to_string(), 5).unwrap();
+            let export = convert(tests_source(), &body.to_string(), 5).unwrap();
             assert!(!export.entries.is_empty());
             for entry in &export.entries {
-                assert_eq!(
-                    serde_json::to_value(&entry.payload.localization).unwrap(),
-                    localization
-                );
+                assert_eq!(to_value(&entry.payload.localization).unwrap(), localization);
             }
-            let bytes = serde_json::to_vec(&export).unwrap();
-            let replay: OfferExport = serde_json::from_slice(&bytes).unwrap();
-            assert_eq!(serde_json::to_vec(&replay).unwrap(), bytes);
+            let bytes = to_vec(&export).unwrap();
+            let replay: OfferExport = from_slice(&bytes).unwrap();
+            assert_eq!(to_vec(&replay).unwrap(), bytes);
         }
     }
 
     #[test]
     fn v5_keeps_exact_identifiers_and_legacy_exports_omit_new_fields() {
-        let body = serde_json::json!({"variations":[{"title":" USB charger ž ","url":"https://shop.example/Charger?q=red&variant=1#details","price":{"amount":1999,"currency":"AUD"},"images":["https://example.com/a.png"],"localization":{"target_market":{"kind":"country","code":"AU"},"language":"en-AU"},"identifiers":{"gtin":"0012345678905","sku":"A1-BLACK","shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}}]});
-        let mut source = tests::source();
+        let body = serde_json_json!({"variations":[{"title":" USB charger ž ","url":"https://shop.example/Charger?q=red&variant=1#details","price":{"amount":1999,"currency":"AUD"},"images":["https://example.com/a.png"],"localization":{"target_market":{"kind":"country","code":"AU"},"language":"en-AU"},"identifiers":{"gtin":"0012345678905","sku":"A1-BLACK","shopify_product_gid":"gid://shopify/Product/1","shopify_product_variation_gid":"gid://shopify/ProductVariant/2","shopify_handle":"usb-charger"}}]});
+        let mut source = tests_source();
         source.storage.scraped_at = Some("2026-10-26T12:00:00.123456Z".parse().unwrap());
         let snapshot = convert(source.clone(), &body.to_string(), 5).unwrap();
         assert!(snapshot.valid_schema());
         assert_eq!(
-            serde_json::to_value(&snapshot.entries[0].payload).unwrap(),
+            to_value(&snapshot.entries[0].payload).unwrap(),
             canonical_fixture(include_str!(
                 "../../../tests/fixtures/offer_export/import_payload_v5.json"
             ))
@@ -518,22 +545,22 @@ mod extended_contract_tests {
             }
             let snapshot = convert(source, &body.to_string(), version).unwrap();
             assert!(snapshot.valid_schema());
-            let json = serde_json::to_value(&snapshot.entries[0].payload).unwrap();
+            let json = to_value(&snapshot.entries[0].payload).unwrap();
             for field in ["gtin", "sku", "external_identifiers"] {
                 assert!(json.get(field).is_none());
             }
         }
         for value in [
-            serde_json::json!(null),
-            serde_json::json!({"gtin":""}),
-            serde_json::json!({"sku":123}),
-            serde_json::json!({"shopify_handle":"\0"}),
+            serde_json_json!(null),
+            serde_json_json!({"gtin":""}),
+            serde_json_json!({"sku":123}),
+            serde_json_json!({"shopify_handle":"\0"}),
         ] {
             let mut invalid = body.clone();
             invalid["variations"][0]["identifiers"] = value;
             assert!(convert(source.clone(), &invalid.to_string(), 5).is_err());
         }
-        for fixture in [tests::ANKER, tests::UGREEN, tests::MINISFORUM] {
+        for fixture in [TESTS_ANKER, TESTS_UGREEN, TESTS_MINISFORUM] {
             let snapshot = convert(source.clone(), fixture, 5).unwrap();
             assert!(snapshot.valid_schema());
             assert!(
@@ -548,11 +575,18 @@ mod extended_contract_tests {
 
 #[cfg(test)]
 mod facts_tests {
+    use serde_json::from_slice;
+    use serde_json::from_str;
+    use serde_json::to_value;
+    use serde_json::to_vec;
+    use tests::ANKER as TESTS_ANKER;
+    use tests::source as tests_source;
+
     use super::*;
     use serde_json::{Value, json};
 
     fn document() -> Value {
-        let payload: Value = serde_json::from_str(include_str!(
+        let payload: Value = from_str(include_str!(
             "../../../tests/fixtures/offer_export/import_payload_v8.json"
         ))
         .unwrap();
@@ -563,7 +597,7 @@ mod facts_tests {
 
     #[test]
     fn new_export_contracts_preserve_values_and_versioned_shapes() {
-        let mut source = tests::source();
+        let mut source = tests_source();
         source.storage.scraped_at = Some("2026-10-26T12:00:00.123456Z".parse().unwrap());
         for (version, fixture) in [
             (
@@ -581,11 +615,11 @@ mod facts_tests {
         ] {
             let snapshot = convert(source.clone(), &document().to_string(), version).unwrap();
             assert!(snapshot.valid_schema());
-            let payload = serde_json::to_value(&snapshot.entries[0].payload).unwrap();
+            let payload = to_value(&snapshot.entries[0].payload).unwrap();
             assert_eq!(payload, canonical_fixture(fixture));
-            let bytes = serde_json::to_vec(&snapshot).unwrap();
-            let restored: OfferExport = serde_json::from_slice(&bytes).unwrap();
-            assert_eq!(serde_json::to_vec(&restored).unwrap(), bytes);
+            let bytes = to_vec(&snapshot).unwrap();
+            let restored: OfferExport = from_slice(&bytes).unwrap();
+            assert_eq!(to_vec(&restored).unwrap(), bytes);
         }
         for version in 1..=5 {
             let mut source = source.clone();
@@ -594,7 +628,7 @@ mod facts_tests {
             }
             let old = convert(source, &document().to_string(), version).unwrap();
             assert!(old.valid_schema());
-            let payload = serde_json::to_value(&old.entries[0].payload).unwrap();
+            let payload = to_value(&old.entries[0].payload).unwrap();
             for field in ["was_price", "availability", "item_condition", "content"] {
                 assert!(payload.get(field).is_none());
             }
@@ -603,7 +637,7 @@ mod facts_tests {
 
     #[test]
     fn new_exports_distinguish_legacy_omission_from_explicit_unknown() {
-        let missing = convert(tests::source(), tests::ANKER, 8).unwrap();
+        let missing = convert(tests_source(), TESTS_ANKER, 8).unwrap();
         assert!(missing.valid_schema());
         let payload = &missing.entries[0].payload;
         assert!(payload.was_price.is_missing());
@@ -615,7 +649,7 @@ mod facts_tests {
             body["variations"][0][key] = Value::Null;
         }
         body["variations"][0]["content"] = json!({"description":null});
-        let snapshot = convert(tests::source(), &body.to_string(), 8).unwrap();
+        let snapshot = convert(tests_source(), &body.to_string(), 8).unwrap();
         assert!(snapshot.valid_schema());
         let payload = &snapshot.entries[0].payload;
         assert_eq!(payload.was_price, Observation::Observed(None));
@@ -644,7 +678,7 @@ mod facts_tests {
             let mut body = document();
             body["variations"][0][field] = invalid;
             assert!(
-                convert(tests::source(), &body.to_string(), 8).is_err(),
+                convert(tests_source(), &body.to_string(), 8).is_err(),
                 "{body}"
             );
         }
@@ -653,15 +687,22 @@ mod facts_tests {
 
 #[cfg(test)]
 mod regional_versions {
+    use serde_json::Value as SerdeJsonValue;
+    use serde_json::from_str;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value;
+    use tests::ANKER as TESTS_ANKER;
+    use tests::source as tests_source;
+
     use super::*;
     #[test]
     fn old_export_versions_keep_labels_and_v9_writes_codes() {
-        let mut body: serde_json::Value = serde_json::from_str(tests::ANKER).unwrap();
+        let mut body: SerdeJsonValue = from_str(TESTS_ANKER).unwrap();
         for variation in body["variations"].as_array_mut().unwrap() {
-            variation["localization"] = serde_json::json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"});
+            variation["localization"] = serde_json_json!({"target_market":{"kind":"region","label":"European Union"},"language":"en"});
         }
         for version in 4..=9 {
-            let snapshot = convert(tests::source(), &body.to_string(), version).unwrap();
+            let snapshot = convert(tests_source(), &body.to_string(), version).unwrap();
             assert!(snapshot.valid_schema());
             let mut invalid = snapshot.clone();
             for entry in &mut invalid.entries {
@@ -676,11 +717,11 @@ mod regional_versions {
             }
             assert!(!invalid.valid_schema());
             for entry in snapshot.entries {
-                let value = serde_json::to_value(entry.payload.localization).unwrap();
+                let value = to_value(entry.payload.localization).unwrap();
                 let expected = if version == 9 {
-                    serde_json::json!({"kind":"region","code":"eu"})
+                    serde_json_json!({"kind":"region","code":"eu"})
                 } else {
-                    serde_json::json!({"kind":"region","label":"European Union"})
+                    serde_json_json!({"kind":"region","label":"European Union"})
                 };
                 assert_eq!(value["target_market"], expected);
             }

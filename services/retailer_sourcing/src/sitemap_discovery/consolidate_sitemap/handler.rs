@@ -2,6 +2,8 @@ use crate::platform::object_storage::Stored;
 use shared::link::LinkKind;
 use shared::retailer::RetailerCode;
 use sitemap::{GroupedLinks, SitemapUrl};
+use tracing::debug;
+use tracing::info;
 use uuid::Uuid;
 
 use super::super::Retailers;
@@ -50,7 +52,7 @@ impl<S: Store, C: ClassifyLink> Handle for Handler<S, C> {
 
     fn handle(&self, command: ConsolidateSitemap) -> Result<Vec<SitemapConsolidated>, StoreError> {
         let processed = self.store.processed_sitemap(command.processed_sitemap_id)?;
-        tracing::debug!(object_storage_id = %processed.object_storage_id, "input object loaded");
+        debug!(object_storage_id = %processed.object_storage_id, "input object loaded");
         let links = GroupedLinks::from_document(&processed.document, |url| {
             self.classifier.classify(processed.retailer_code, url)
         });
@@ -58,7 +60,7 @@ impl<S: Store, C: ClassifyLink> Handle for Handler<S, C> {
 
         let stored = self.store.store_consolidated(&consolidated)?;
 
-        tracing::info!(
+        info!(
             object_storage_id = %stored.object_storage_id,
             retrieval_id = %consolidated.retrieval_id,
             retailer_code = ?consolidated.retailer_code,
@@ -86,6 +88,9 @@ impl<S: Store, C: ClassifyLink> Handle for Handler<S, C> {
 
 #[cfg(test)]
 mod tests {
+    use crate::platform::object_storage::Error as ObjectStorageError;
+    use uuid::Uuid;
+
     use sitemap::SitemapDocument;
     use std::sync::Mutex;
 
@@ -100,7 +105,7 @@ mod tests {
     impl Store for FakeStore {
         fn processed_sitemap(&self, id: Uuid) -> Result<ProcessedSitemap, StoreError> {
             Ok(ProcessedSitemap {
-                object_storage_id: uuid::Uuid::now_v7(),
+                object_storage_id: Uuid::now_v7(),
                 id,
                 retrieval_id: Uuid::nil(),
                 retailer_code: RetailerCode::UgreenCa,
@@ -113,15 +118,13 @@ mod tests {
             consolidated: &ConsolidatedSitemap,
         ) -> Result<Stored<ConsolidatedSitemap>, StoreError> {
             if self.fail {
-                return Err(StoreError::ObjectStorage(
-                    crate::platform::object_storage::Error::InvalidRecord,
-                ));
+                return Err(StoreError::ObjectStorage(ObjectStorageError::InvalidRecord));
             }
 
             self.consolidated.lock().unwrap().push(consolidated.clone());
             Ok(Stored {
                 entity: consolidated.clone(),
-                object_storage_id: uuid::Uuid::now_v7(),
+                object_storage_id: Uuid::now_v7(),
             })
         }
     }

@@ -3,6 +3,7 @@
 pub(crate) use retailer_sourcing::json::Json;
 #[cfg(test)]
 pub(crate) use retailer_sourcing::json::Storage;
+use thiserror::Error as ThiserrorError;
 
 use diesel::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool, PoolError};
@@ -13,7 +14,7 @@ pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum DbError {
     #[error("database connection failed: {0}")]
     Pool(#[from] PoolError),

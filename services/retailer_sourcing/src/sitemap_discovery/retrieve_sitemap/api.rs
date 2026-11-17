@@ -6,7 +6,9 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 use shared::retailer::RetailerCode;
+use tokio::task::spawn_blocking;
 use utoipa::ToSchema;
+use utoipa::path as utoipa_path;
 use uuid::Uuid;
 
 use super::super::Retailers;
@@ -52,7 +54,7 @@ pub struct QueueFailure {
 /// Queues a sitemap retrieval for each posted retailer, as a `RetrieveSitemap`
 /// command in `command_entries`. Nothing runs them in the background: they run
 /// when `POST /commands/run` processes the queue.
-#[utoipa::path(
+#[utoipa_path(
     post,
     path = "/sitemap-retrievals",
     request_body = RetrievalRequest,
@@ -84,7 +86,7 @@ pub async fn request_retrievals(
         .collect();
 
     // Queuing writes to Postgres through a blocking connection.
-    let queued = tokio::task::spawn_blocking(move || {
+    let queued = spawn_blocking(move || {
         queue(commands, |command| {
             bus.dispatcher().dispatch(command, "api")
         })
@@ -158,6 +160,8 @@ fn error(status: StatusCode, error: String) -> Response {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::to_value;
+
     use super::*;
 
     #[test]
@@ -191,7 +195,7 @@ mod tests {
                 queued.iter().map(|r| r.retrieval_id).collect::<Vec<_>>(),
                 ids[..fail_at]
             );
-            let body = serde_json::to_value(QueueFailure {
+            let body = to_value(QueueFailure {
                 error: error.into(),
                 retrievals: queued,
             })

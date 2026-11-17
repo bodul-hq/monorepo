@@ -1,7 +1,9 @@
 use super::{listener, store};
 use crate::platform::{Platform, bus::Bus};
+use listener::Listener;
+use store::PgStore;
 
 pub fn register(bus: &mut Bus, platform: &Platform) {
-    let store = store::PgStore::new(platform.db.clone(), platform.object_storage.clone());
-    bus.listen(listener::Listener::new(store));
+    let store = PgStore::new(platform.db.clone(), platform.object_storage.clone());
+    bus.listen(Listener::new(store));
 }

@@ -1,3 +1,5 @@
+use tracing::debug;
+use tracing::info;
 use uuid::Uuid;
 
 use super::command::DiscoverOffers;
@@ -34,10 +36,10 @@ impl<S: Store> Handle for Handler<S> {
         } = command;
 
         let sitemap = self.store.consolidated_sitemap(consolidated_sitemap_id)?;
-        tracing::debug!(object_storage_id = %sitemap.object_storage_id, "input object loaded");
+        debug!(object_storage_id = %sitemap.object_storage_id, "input object loaded");
         let urls = sitemap.product_urls;
 
-        tracing::info!(
+        info!(
             %consolidated_sitemap_id,
             ?retailer_code,
             offers = urls.len(),

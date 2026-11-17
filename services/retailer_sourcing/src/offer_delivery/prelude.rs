@@ -3,8 +3,9 @@
 use super::record_export_messages;
 use crate::platform::Platform;
 use crate::platform::bus::Bus;
+use record_export_messages::prelude::register as prelude_register;
 
 /// Registers every offer delivery slice.
 pub fn register(bus: &mut Bus, platform: &Platform) {
-    record_export_messages::prelude::register(bus, platform);
+    prelude_register(bus, platform);
 }

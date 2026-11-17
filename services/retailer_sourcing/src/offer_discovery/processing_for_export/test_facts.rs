@@ -1,4 +1,10 @@
 //! Fact observations shared by persistence and outbox integration tests.
+
+use super::conversion::convert;
+use super::conversion::tests::source as tests_source;
+use serde_json::from_str;
+use serde_json::to_string as serde_json_to_string;
+use serde_json::to_value;
 use serde_json::{Value, json};
 
 use super::entity::OfferExport;
@@ -46,7 +52,7 @@ pub(crate) fn assert_payloads(export: &OfferExport, document: &Value) {
     assert!(export.exclusions.is_empty());
     for (index, entry) in export.entries.iter().enumerate() {
         assert_eq!(entry.variation_index, index);
-        let payload = serde_json::to_value(&entry.payload).unwrap();
+        let payload = to_value(&entry.payload).unwrap();
         let source = &variations[index];
         for field in ["title", "price", "url"] {
             assert_eq!(payload[field], source[field]);
@@ -74,16 +80,11 @@ pub(crate) fn assert_payloads(export: &OfferExport, document: &Value) {
 fn persistence_fixture_preserves_missing_null_raw_and_exact_fact_values() {
     let document = document();
     for version in [1, 5, 6, 7, 8] {
-        let export = super::conversion::convert(
-            super::conversion::tests::source(),
-            &document.to_string(),
-            version,
-        )
-        .unwrap();
+        let export = convert(tests_source(), &document.to_string(), version).unwrap();
         assert_payloads(&export, &document);
-        let bytes = serde_json::to_string(&export).unwrap();
-        let restored: OfferExport = serde_json::from_str(&bytes).unwrap();
+        let bytes = serde_json_to_string(&export).unwrap();
+        let restored: OfferExport = from_str(&bytes).unwrap();
         assert_payloads(&restored, &document);
-        assert_eq!(serde_json::to_string(&restored).unwrap(), bytes);
+        assert_eq!(serde_json_to_string(&restored).unwrap(), bytes);
     }
 }

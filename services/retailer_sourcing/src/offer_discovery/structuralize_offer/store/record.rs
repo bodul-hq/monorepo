@@ -1,10 +1,12 @@
 //! Private PostgreSQL metadata and domain mappings.
+
 use super::super::super::schema::offer_details_structuralized;
 use super::super::entity::{NormalizedOffer, StructuralizedOffer};
 use super::StoreError;
 use crate::platform::db::Json;
 use crate::platform::object_storage::OfferStorageMetadata;
 use diesel::prelude::*;
+use serde_json::from_str;
 use uuid::Uuid;
 
 #[derive(Queryable)]
@@ -18,7 +20,7 @@ impl NormalizedOfferPgRecord {
         Ok(NormalizedOffer {
             offer_id: self.offer_id,
             object_storage_id: self.storage.0.object_storage_id,
-            document: serde_json::from_str(&body)?,
+            document: from_str(&body)?,
         })
     }
 }

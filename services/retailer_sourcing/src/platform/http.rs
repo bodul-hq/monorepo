@@ -1,7 +1,28 @@
 //! Blocking HTTP client for fetching remote documents.
 
+use fmt::Display;
+use fmt::Formatter;
+use fmt::Result as FmtResult;
+use reqwest::Proxy;
+use reqwest::blocking::Client as BlockingClient;
+use reqwest::blocking::ClientBuilder;
+use reqwest::header::CONTENT_TYPE;
+use reqwest::header::HeaderMap;
+use reqwest::header::HeaderValue;
+use reqwest::redirect::Policy;
+use std::env::var_os;
+use std::error::Error as ErrorError;
 use std::fmt;
+use std::io::Error as IoError;
+use std::io::ErrorKind;
 use std::io::Read;
+use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
+use std::time::Duration;
+use std::time::Instant;
+use tracing::info;
+use url::Url;
 
 use flate2::read::GzDecoder;
 
@@ -20,13 +41,13 @@ pub struct FetchError {
     pub message: String,
 }
 
-impl fmt::Display for FetchError {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for FetchError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         formatter.write_str(&self.message)
     }
 }
 
-impl std::error::Error for FetchError {}
+impl ErrorError for FetchError {}
 
 /// A minimal blocking HTTP client.
 ///
@@ -43,13 +64,13 @@ impl Client {
     /// by gzip magic bytes, so it works regardless of the URL suffix or a
     /// mislabelled `Content-Type`.
     pub fn get(&self, url: &str) -> Result<String, FetchError> {
-        self.get_with_builder(url, reqwest::blocking::Client::builder(), "default")
+        self.get_with_builder(url, BlockingClient::builder(), "default")
     }
 
     fn get_with_builder(
         &self,
         url: &str,
-        builder: reqwest::blocking::ClientBuilder,
+        builder: ClientBuilder,
         route: &str,
     ) -> Result<String, FetchError> {
         self.request_with_builder(url, None, builder, route)
@@ -59,11 +80,11 @@ impl Client {
         &self,
         url: &str,
         json_body: Option<&str>,
-        builder: reqwest::blocking::ClientBuilder,
+        builder: ClientBuilder,
         route: &str,
     ) -> Result<String, FetchError> {
         let builder = if json_body.is_some() {
-            builder.timeout(std::time::Duration::from_secs(60))
+            builder.timeout(Duration::from_secs(60))
         } else {
             builder
         };
@@ -75,11 +96,11 @@ impl Client {
             })?;
 
         // Time just the network fetch (request -> response bytes), excluding decoding.
-        let start = std::time::Instant::now();
+        let start = Instant::now();
         let request = match json_body {
             Some(body) => client
                 .post(url)
-                .header(reqwest::header::CONTENT_TYPE, "application/json")
+                .header(CONTENT_TYPE, "application/json")
                 .body(body.to_owned()),
             None => client.get(url),
         };
@@ -89,7 +110,7 @@ impl Client {
             .and_then(|response| response.bytes());
         let elapsed_ms = start.elapsed().as_millis() as u64;
         let status = if fetched.is_ok() { "ok" } else { "error" };
-        tracing::info!(target: TIMING_TARGET, kind = "fetch", route, url, elapsed_ms, status);
+        info!(target: TIMING_TARGET, kind = "fetch", route, url, elapsed_ms, status);
 
         let bytes = fetched.map_err(|error| FetchError {
             message: error.to_string(),
@@ -117,6 +138,10 @@ fn decode_body(bytes: &[u8]) -> Result<String, FetchError> {
 
 #[cfg(test)]
 mod tests {
+    use reqwest::blocking::Client as BlockingClient;
+    use std::thread::spawn;
+    use std::time::Duration;
+
     use super::*;
     use flate2::Compression;
     use flate2::write::GzEncoder;
@@ -127,10 +152,10 @@ mod tests {
         use std::net::TcpListener;
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}/graphql", listener.local_addr().unwrap());
-        let server = std::thread::spawn(move || {
+        let server = spawn(move || {
             let (mut stream, _) = listener.accept().unwrap();
             stream
-                .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+                .set_read_timeout(Some(Duration::from_secs(5)))
                 .unwrap();
             let mut request = Vec::new();
             let mut byte = [0];
@@ -150,7 +175,7 @@ mod tests {
             .request_with_builder(
                 &url,
                 Some("{}"),
-                reqwest::blocking::Client::builder().no_proxy(),
+                BlockingClient::builder().no_proxy(),
                 "test",
             )
             .unwrap();
@@ -180,20 +205,20 @@ mod tests {
 /// Process-wide offer routing, shared by cloned handlers.
 #[derive(Clone, Default)]
 pub struct OfferClient {
-    proxies: std::sync::Arc<Vec<reqwest::Proxy>>,
-    cursor: std::sync::Arc<std::sync::atomic::AtomicUsize>,
-    nordic_storefront_token: Option<reqwest::header::HeaderValue>,
+    proxies: Arc<Vec<Proxy>>,
+    cursor: Arc<AtomicUsize>,
+    nordic_storefront_token: Option<HeaderValue>,
 }
 
 const OFFER_PROXIES: &[&str] = &["http://10.1.0.102:8888"];
 
 impl OfferClient {
-    pub fn configured() -> Result<Self, std::io::Error> {
+    pub fn configured() -> Result<Self, IoError> {
         let mut client = Self::from_urls(OFFER_PROXIES)?;
-        if let Some(value) = std::env::var_os("ANKER_NORDICS_STOREFRONT_TOKEN") {
+        if let Some(value) = var_os("ANKER_NORDICS_STOREFRONT_TOKEN") {
             let invalid = || {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
+                IoError::new(
+                    ErrorKind::InvalidInput,
                     "invalid ANKER_NORDICS_STOREFRONT_TOKEN",
                 )
             };
@@ -201,43 +226,36 @@ impl OfferClient {
                 .to_str()
                 .filter(|s| !s.trim().is_empty())
                 .ok_or_else(invalid)?;
-            let mut token = reqwest::header::HeaderValue::from_str(value).map_err(|_| invalid())?;
+            let mut token = HeaderValue::from_str(value).map_err(|_| invalid())?;
             token.set_sensitive(true);
             client.nordic_storefront_token = Some(token);
         }
         Ok(client)
     }
 
-    fn from_urls(urls: &[&str]) -> Result<Self, std::io::Error> {
-        let invalid = || {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                "invalid hardcoded offer proxy URL",
-            )
-        };
+    fn from_urls(urls: &[&str]) -> Result<Self, IoError> {
+        let invalid = || IoError::new(ErrorKind::InvalidInput, "invalid hardcoded offer proxy URL");
         let mut proxies = Vec::new();
         {
             for entry in urls {
-                let url = url::Url::parse(entry).map_err(|_| invalid())?;
+                let url = Url::parse(entry).map_err(|_| invalid())?;
                 if !matches!(url.scheme(), "http" | "https") || url.host_str().is_none() {
                     return Err(invalid());
                 }
-                proxies.push(reqwest::Proxy::all(url.as_str()).map_err(|_| invalid())?);
+                proxies.push(Proxy::all(url.as_str()).map_err(|_| invalid())?);
             }
         }
         Ok(Self {
-            proxies: std::sync::Arc::new(proxies),
+            proxies: Arc::new(proxies),
             ..Self::default()
         })
     }
 
     fn next_route(&self) -> usize {
         self.cursor
-            .fetch_update(
-                std::sync::atomic::Ordering::Relaxed,
-                std::sync::atomic::Ordering::Relaxed,
-                |current| Some((current + 1) % (self.proxies.len() + 1)),
-            )
+            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+                Some((current + 1) % (self.proxies.len() + 1))
+            })
             .unwrap()
     }
 
@@ -251,7 +269,7 @@ impl OfferClient {
 
     fn request(&self, url: &str, json_body: Option<&str>) -> Result<String, FetchError> {
         let index = self.next_route();
-        let mut builder = reqwest::blocking::Client::builder().no_proxy();
+        let mut builder = BlockingClient::builder().no_proxy();
         if json_body.is_some() {
             if url != "https://ankerneu.myshopify.com/api/2026-10/graphql.json" {
                 return Err(FetchError {
@@ -266,11 +284,9 @@ impl OfferClient {
                         "ANKER_NORDICS_STOREFRONT_TOKEN is required for Nordic market downloads"
                             .into(),
                 })?;
-            let mut headers = reqwest::header::HeaderMap::new();
+            let mut headers = HeaderMap::new();
             headers.insert("X-Shopify-Storefront-Access-Token", token);
-            builder = builder
-                .default_headers(headers)
-                .redirect(reqwest::redirect::Policy::none());
+            builder = builder.default_headers(headers).redirect(Policy::none());
         }
         let route = if index == 0 {
             "direct".to_owned()
@@ -284,6 +300,8 @@ impl OfferClient {
 
 #[cfg(test)]
 mod routing_tests {
+    use reqwest::header::HeaderValue;
+
     use super::*;
     #[test]
     fn nordic_posts_require_a_token_and_cannot_send_it_to_another_endpoint() {
@@ -299,9 +317,7 @@ mod routing_tests {
                 .contains("ANKER_NORDICS_STOREFRONT_TOKEN")
         );
         let client = OfferClient {
-            nordic_storefront_token: Some(reqwest::header::HeaderValue::from_static(
-                "test-public-token",
-            )),
+            nordic_storefront_token: Some(HeaderValue::from_static("test-public-token")),
             ..Default::default()
         };
         assert_eq!(

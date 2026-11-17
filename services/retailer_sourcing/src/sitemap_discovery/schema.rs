@@ -1,6 +1,8 @@
+use diesel::allow_tables_to_appear_in_same_query;
+use diesel::table;
 // @generated automatically by Diesel CLI.
 
-diesel::table! {
+table! {
     sitemaps_consolidated (id) {
         id -> Uuid,
         consolidated_at -> Timestamptz,
@@ -10,7 +12,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     sitemaps_processed (id) {
         id -> Uuid,
         retrieval_id -> Uuid,
@@ -21,7 +23,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     sitemaps_raw (id) {
         id -> Uuid,
         retrieval_id -> Uuid,
@@ -32,8 +34,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    sitemaps_consolidated,
-    sitemaps_processed,
-    sitemaps_raw,
-);
+allow_tables_to_appear_in_same_query!(sitemaps_consolidated, sitemaps_processed, sitemaps_raw,);

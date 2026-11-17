@@ -1,3 +1,13 @@
+use db::describe;
+use diesel::insert_into;
+use diesel::result::Error as ResultError;
+use object_storage::Error as ObjectStorageError;
+use record::validate;
+use serde_json::Error as SerdeJsonError;
+use serde_json::to_string;
+use sitemaps_consolidated::table as sitemaps_consolidated_table;
+use sitemaps_processed::table as sitemaps_processed_table;
+use thiserror::Error as ThiserrorError;
 mod record;
 
 use diesel::prelude::*;
@@ -15,18 +25,18 @@ use crate::platform::object_storage::{
     PROCESSED_SITEMAPS_BUCKET, Stored,
 };
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum StoreError {
     #[error(transparent)]
-    ObjectStorage(#[from] object_storage::Error),
+    ObjectStorage(#[from] ObjectStorageError),
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
 
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] ResultError),
 
     #[error("serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
+    Serialization(#[from] SerdeJsonError),
 
     #[error("invalid stored retailer code: {0}")]
     InvalidRetailerCode(#[from] RetailerCodeConversionError),
@@ -50,7 +60,7 @@ impl PgStore {
 impl Store for PgStore {
     fn processed_sitemap(&self, id: Uuid) -> Result<ProcessedSitemap, StoreError> {
         let mut connection = self.pool.get()?;
-        let record = sitemaps_processed::table
+        let record = sitemaps_processed_table
             .find(id)
             .select(ProcessedSitemapPgRecord::as_select())
             .get_result::<ProcessedSitemapPgRecord>(&mut connection)?;
@@ -65,8 +75,8 @@ impl Store for PgStore {
         &self,
         consolidated: &ConsolidatedSitemap,
     ) -> Result<Stored<ConsolidatedSitemap>, StoreError> {
-        let body = serde_json::to_string(consolidated.links())?;
-        record::validate(consolidated, &body)?;
+        let body = to_string(consolidated.links())?;
+        validate(consolidated, &body)?;
         let object_storage_id =
             self.objects
                 .create(CONSOLIDATED_SITEMAPS_BUCKET, consolidated.id, &body)?;
@@ -77,7 +87,7 @@ impl Store for PgStore {
                 object_storage_id,
             },
         )?;
-        diesel::insert_into(sitemaps_consolidated::table)
+        insert_into(sitemaps_consolidated_table)
             .values(record)
             .execute(&mut self.pool.get()?)?;
         Ok(Stored {

@@ -1,6 +1,7 @@
 //! Breadth-first crawl from the root sitemaps through every child index.
 
 use std::collections::{HashSet, VecDeque};
+use thiserror::Error as ThiserrorError;
 
 use chrono::{DateTime, Utc};
 
@@ -9,7 +10,7 @@ use crate::platform::http::FetchError;
 use sitemap::{ChildRef, MAX_SITEMAP_DEPTH, Parsed, RawSitemapDocument, SitemapParseError, parse};
 
 /// A problem with one sitemap file. The crawl skips that file and carries on.
-#[derive(Debug, Clone, thiserror::Error)]
+#[derive(Debug, Clone, ThiserrorError)]
 pub enum CrawlError {
     #[error("failed to fetch {url}: {source}")]
     Fetch {

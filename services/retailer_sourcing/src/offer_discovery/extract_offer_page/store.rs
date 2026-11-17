@@ -1,3 +1,19 @@
+use crate::platform::object_storage::OfferStorageMetadata;
+use db::describe;
+use diesel::dsl::now;
+use diesel::insert_into;
+use diesel::result::Error as ResultError;
+use object_storage::Error as ObjectStorageError;
+use offer_details_extracted::extracted_at;
+use offer_details_extracted::offer_id as offer_details_extracted_offer_id;
+use offer_details_extracted::storage as offer_details_extracted_storage;
+use offer_details_extracted::table as offer_details_extracted_table;
+use offer_details_raw::offer_id as offer_details_raw_offer_id;
+use offer_details_raw::storage as offer_details_raw_storage;
+use offer_details_raw::table as offer_details_raw_table;
+use serde_json::Error as SerdeJsonError;
+use serde_json::to_string;
+use thiserror::Error as ThiserrorError;
 mod record;
 
 use self::record::{ExtractedOfferPgRecord, RawOfferPgRecord};
@@ -12,16 +28,16 @@ use diesel::prelude::*;
 use diesel::r2d2::PoolError;
 use uuid::Uuid;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum StoreError {
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] ResultError),
     #[error(transparent)]
-    ObjectStorage(#[from] object_storage::Error),
+    ObjectStorage(#[from] ObjectStorageError),
     #[error("serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
+    Serialization(#[from] SerdeJsonError),
 }
 
 pub struct PgStore {
@@ -38,7 +54,7 @@ impl Store for PgStore {
     fn raw_offer(
         &self,
         offer_id: Uuid,
-        storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+        storage: Option<OfferStorageMetadata>,
     ) -> Result<Option<RawOffer>, StoreError> {
         if let Some(storage) = storage {
             let body = self.objects.get_offer(RAW_OFFERS_BUCKET, &storage)?;
@@ -49,9 +65,9 @@ impl Store for PgStore {
             }));
         }
         let mut connection = self.pool.get()?;
-        let record = offer_details_raw::table
-            .filter(offer_details_raw::offer_id.eq(offer_id))
-            .select((offer_details_raw::offer_id, offer_details_raw::storage))
+        let record = offer_details_raw_table
+            .filter(offer_details_raw_offer_id.eq(offer_id))
+            .select((offer_details_raw_offer_id, offer_details_raw_storage))
             .first::<RawOfferPgRecord>(&mut connection)
             .optional()?;
         drop(connection);
@@ -68,18 +84,18 @@ impl Store for PgStore {
     fn store_extracted_offer(
         &self,
         entity: &ExtractedOffer,
-    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
-        let body = serde_json::to_string(&entity.document)?;
+    ) -> Result<OfferStorageMetadata, StoreError> {
+        let body = to_string(&entity.document)?;
         let mut storage = self.objects.create_offer(EXTRACTED_OFFERS_BUCKET, &body)?;
         storage.scraped_at = entity.scraped_at;
         let record = ExtractedOfferPgRecord::new(entity, storage);
-        diesel::insert_into(offer_details_extracted::table)
+        insert_into(offer_details_extracted_table)
             .values(&record)
-            .on_conflict(offer_details_extracted::offer_id)
+            .on_conflict(offer_details_extracted_offer_id)
             .do_update()
             .set((
-                offer_details_extracted::extracted_at.eq(diesel::dsl::now),
-                offer_details_extracted::storage.eq(&record.storage),
+                extracted_at.eq(now),
+                offer_details_extracted_storage.eq(&record.storage),
             ))
             .execute(&mut self.pool.get()?)?;
         Ok(storage)

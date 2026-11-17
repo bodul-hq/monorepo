@@ -1,3 +1,44 @@
+use axum::serve;
+use development::prelude::register as prelude_register;
+use development::prelude::routes as prelude_routes;
+use io::Error as IoError;
+use io::ErrorKind as IoErrorKind;
+use io::Result as IoResult;
+use monitoring::prelude::register as monitoring_prelude_register;
+use offer_delivery::prelude::register as offer_delivery_prelude_register;
+use offer_discovery::prelude::register as offer_discovery_prelude_register;
+use outbox::prelude::AsyncOutboxService;
+use outbox::prelude::axum::OutboxAdapter;
+use platform::auth::SECURITY_SCHEME;
+use platform::bus_api::routes as bus_api_routes;
+use platform::http::OfferClient;
+use platform::logging::init;
+use platform::object_storage::ObjectStorage;
+use platform::offers_publisher::OffersPublisher;
+use reporting::prelude::register as reporting_prelude_register;
+use reporting::prelude::routes as reporting_prelude_routes;
+use shared::health as shared_health;
+use sitemap_discovery::prelude::register as sitemap_discovery_prelude_register;
+use sitemap_discovery::prelude::routes as sitemap_discovery_prelude_routes;
+use std::env::var as env_var;
+#[cfg(not(unix))]
+use std::future::pending as future_pending;
+use std::sync::Arc;
+use tokio::main as tokio_main;
+use tokio::net::TcpListener;
+use tokio::runtime::Handle;
+#[cfg(unix)]
+use tokio::select;
+#[cfg(not(unix))]
+use tokio::signal::ctrl_c;
+#[cfg(unix)]
+use tokio::signal::unix::SignalKind;
+#[cfg(unix)]
+use tokio::signal::unix::signal as unix_signal;
+use tokio::task::spawn_blocking;
+use tracing::info as tracing_info;
+use utoipa::openapi::OpenApi as OpenapiOpenApi;
+use utoipa::path as utoipa_path;
 mod development;
 mod monitoring;
 mod offer_delivery;
@@ -35,21 +76,18 @@ struct ApiDoc;
 struct BearerScheme;
 
 impl Modify for BearerScheme {
-    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+    fn modify(&self, openapi: &mut OpenapiOpenApi) {
         let scheme = HttpBuilder::new().scheme(HttpAuthScheme::Bearer).build();
         openapi
             .components
             .get_or_insert_with(Default::default)
-            .add_security_scheme(
-                platform::auth::SECURITY_SCHEME,
-                SecurityScheme::Http(scheme),
-            );
+            .add_security_scheme(SECURITY_SCHEME, SecurityScheme::Http(scheme));
     }
 }
 
-#[utoipa::path(get, path = "/health", responses((status = 200, body = String)))]
+#[utoipa_path(get, path = "/health", responses((status = 200, body = String)))]
 async fn health() -> &'static str {
-    shared::health()
+    shared_health()
 }
 
 struct Query;
@@ -57,7 +95,7 @@ struct Query;
 #[Object]
 impl Query {
     async fn health(&self) -> &'static str {
-        shared::health()
+        shared_health()
     }
 }
 
@@ -69,10 +107,10 @@ async fn graphiql() -> Html<String> {
 fn app(state: AppState) -> Router {
     let (api, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health))
-        .merge(platform::bus_api::routes())
-        .merge(sitemap_discovery::prelude::routes())
-        .merge(development::prelude::routes())
-        .merge(reporting::prelude::routes())
+        .merge(bus_api_routes())
+        .merge(sitemap_discovery_prelude_routes())
+        .merge(prelude_routes())
+        .merge(reporting_prelude_routes())
         .split_for_parts();
     let api = api.with_state(state);
     let schema = Schema::new(Query, EmptyMutation, EmptySubscription);
@@ -94,24 +132,24 @@ fn app(state: AppState) -> Router {
 
 /// Parses the `PORT` environment variable as returned by `std::env::var`.
 /// An unset variable selects the default port, 3000.
-fn parse_port(value: Result<String, VarError>) -> io::Result<u16> {
+fn parse_port(value: Result<String, VarError>) -> IoResult<u16> {
     match value {
         Ok(value) => value.parse().map_err(|_| {
-            io::Error::new(
-                io::ErrorKind::InvalidInput,
+            IoError::new(
+                IoErrorKind::InvalidInput,
                 "PORT must be an integer between 0 and 65535",
             )
         }),
         Err(VarError::NotPresent) => Ok(3000),
-        Err(error) => Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+        Err(error) => Err(IoError::new(IoErrorKind::InvalidInput, error)),
     }
 }
 
 /// Parses the number of concurrent command loops; zero keeps command runs manual.
-fn parse_command_workers(value: Result<String, VarError>) -> io::Result<usize> {
+fn parse_command_workers(value: Result<String, VarError>) -> IoResult<usize> {
     let invalid = || {
-        io::Error::new(
-            io::ErrorKind::InvalidInput,
+        IoError::new(
+            IoErrorKind::InvalidInput,
             "COMMAND_WORKERS must be a non-negative integer that fits usize",
         )
     };
@@ -127,44 +165,37 @@ fn parse_command_workers(value: Result<String, VarError>) -> io::Result<usize> {
 /// Connects to the database and starts the command and event bus when
 /// `DATABASE_URL` is set, after applying pending migrations. Without it the
 /// service only serves HTTP.
-async fn start_features(database_url: Result<String, VarError>) -> io::Result<AppState> {
-    let publisher =
-        platform::offers_publisher::OffersPublisher::from_env(tokio::runtime::Handle::current())?;
+async fn start_features(database_url: Result<String, VarError>) -> IoResult<AppState> {
+    let publisher = OffersPublisher::from_env(Handle::current())?;
     let database_url = match database_url {
         Ok(database_url) if database_url.is_empty() => return Ok(AppState::default()),
         Ok(database_url) => database_url,
         Err(VarError::NotPresent) => return Ok(AppState::default()),
-        Err(error) => return Err(io::Error::new(io::ErrorKind::InvalidInput, error)),
+        Err(error) => return Err(IoError::new(IoErrorKind::InvalidInput, error)),
     };
-    let object_storage =
-        platform::object_storage::ObjectStorage::from_env(tokio::runtime::Handle::current())
-            .map_err(io::Error::other)?;
-    let offer_http = platform::http::OfferClient::configured()?;
-    let platform = tokio::task::spawn_blocking(move || {
-        Platform::connect(&database_url, object_storage, offer_http)
-    })
-    .await
-    .map_err(io::Error::other)?
-    .map_err(io::Error::other)?;
+    let object_storage = ObjectStorage::from_env(Handle::current()).map_err(IoError::other)?;
+    let offer_http = OfferClient::configured()?;
+    let platform =
+        spawn_blocking(move || Platform::connect(&database_url, object_storage, offer_http))
+            .await
+            .map_err(IoError::other)?
+            .map_err(IoError::other)?;
 
     let mut bus = Bus::default();
-    sitemap_discovery::prelude::register(&mut bus, &platform);
-    offer_discovery::prelude::register(&mut bus, &platform);
-    offer_delivery::prelude::register(&mut bus, &platform);
-    development::prelude::register(&mut bus, &platform);
-    monitoring::prelude::register(&mut bus, &platform);
-    reporting::prelude::register(&mut bus, &platform);
+    sitemap_discovery_prelude_register(&mut bus, &platform);
+    offer_discovery_prelude_register(&mut bus, &platform);
+    offer_delivery_prelude_register(&mut bus, &platform);
+    prelude_register(&mut bus, &platform);
+    monitoring_prelude_register(&mut bus, &platform);
+    reporting_prelude_register(&mut bus, &platform);
 
     let db = platform.db.clone();
     let outbox = publisher.map(|publisher| {
-        let service = outbox::prelude::AsyncOutboxService::from_postgres(
-            db.clone(),
-            std::sync::Arc::new(publisher),
-        );
-        outbox::prelude::axum::OutboxAdapter::new(service)
+        let service = AsyncOutboxService::from_postgres(db.clone(), Arc::new(publisher));
+        OutboxAdapter::new(service)
     });
     let object_storage = platform.object_storage.clone();
-    let bus = bus.start(platform.db).map_err(io::Error::other)?;
+    let bus = bus.start(platform.db).map_err(IoError::other)?;
     Ok(AppState {
         bus: Some(bus),
         db: Some(db),
@@ -173,22 +204,22 @@ async fn start_features(database_url: Result<String, VarError>) -> io::Result<Ap
     })
 }
 
-#[tokio::main]
-async fn main() -> io::Result<()> {
-    let _logs = platform::logging::init();
-    let port = parse_port(std::env::var("PORT"))?;
-    let command_workers = parse_command_workers(std::env::var("COMMAND_WORKERS"))?;
-    let features = start_features(std::env::var("DATABASE_URL")).await?;
+#[tokio_main]
+async fn main() -> IoResult<()> {
+    let _logs = init();
+    let port = parse_port(env_var("PORT"))?;
+    let command_workers = parse_command_workers(env_var("COMMAND_WORKERS"))?;
+    let features = start_features(env_var("DATABASE_URL")).await?;
     let bus = features.bus.clone();
 
     // Complete all fallible startup before spawning workers.
     let routes = app(features);
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await?;
     let signal = shutdown_signal()?;
     let workers = match &bus {
         Some(bus) => bus.start_command_workers(command_workers),
         None => {
-            tracing::info!(
+            tracing_info!(
                 configured_command_workers = command_workers,
                 "command workers disabled: DATABASE_URL is not configured"
             );
@@ -196,7 +227,7 @@ async fn main() -> io::Result<()> {
         }
     };
     let shutdown_bus = bus.clone();
-    let result = axum::serve(listener, routes)
+    let result = serve(listener, routes)
         .with_graceful_shutdown(async move {
             signal.await;
             if let Some(bus) = shutdown_bus {
@@ -208,42 +239,53 @@ async fn main() -> io::Result<()> {
     if let Some(bus) = bus {
         bus.shutdown();
     }
-    let joined = workers.join().await.map_err(io::Error::other);
+    let joined = workers.join().await.map_err(IoError::other);
     result.and(joined)
 }
 
 /// Resolves on Ctrl+C or, on Unix, SIGTERM, so in-flight requests can finish
 /// before the server exits.
-fn shutdown_signal() -> io::Result<impl Future<Output = ()> + Send + 'static> {
+fn shutdown_signal() -> IoResult<impl Future<Output = ()> + Send + 'static> {
     #[cfg(unix)]
-    let mut interrupt = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
+    let mut interrupt = unix_signal(SignalKind::interrupt())?;
     #[cfg(unix)]
-    let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+    let mut terminate = unix_signal(SignalKind::terminate())?;
     Ok(async move {
         #[cfg(unix)]
-        tokio::select! {
+        select! {
             _ = interrupt.recv() => {}
             _ = terminate.recv() => {}
         }
         #[cfg(not(unix))]
-        if tokio::signal::ctrl_c().await.is_err() {
-            std::future::pending::<()>().await;
+        if ctrl_c().await.is_err() {
+            future_pending::<()>().await;
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
+    use header::AUTHORIZATION;
+    use header::CONTENT_TYPE;
+    use header::WWW_AUTHENTICATE;
+    use serde_json::Value as SerdeJsonValue;
+    use serde_json::from_slice;
+    use serde_json::json as serde_json_json;
+    use std::collections::HashSet;
+    use std::ffi::OsString as FfiOsString;
+    use tokio::test as tokio_test;
+    use uuid::Uuid;
+
     pub(crate) fn assert_error_id(error: &str) {
-        let id = uuid::Uuid::parse_str(error).expect("error response must contain only a UUID");
+        let id = Uuid::parse_str(error).expect("error response must contain only a UUID");
         assert_eq!(id.get_version_num(), 7);
     }
 
-    pub(crate) fn assert_batch_errors(body: &serde_json::Value, count: usize) {
+    pub(crate) fn assert_batch_errors(body: &SerdeJsonValue, count: usize) {
         assert!(body["processed"].is_null(), "{body}");
         let errors = body["errors"].as_array().expect("batch errors array");
         assert_eq!(errors.len(), count, "{body}");
-        let mut ids = std::collections::HashSet::new();
+        let mut ids = HashSet::new();
         for error in errors {
             let error = error.as_str().expect("error ID string");
             assert_error_id(error);
@@ -289,8 +331,8 @@ mod tests {
             assert_eq!(error.kind(), ErrorKind::InvalidInput);
             assert!(error.to_string().contains("COMMAND_WORKERS"));
         }
-        let error = parse_command_workers(Err(VarError::NotUnicode(std::ffi::OsString::new())))
-            .unwrap_err();
+        let error =
+            parse_command_workers(Err(VarError::NotUnicode(FfiOsString::new()))).unwrap_err();
         assert!(error.to_string().contains("COMMAND_WORKERS"));
     }
 
@@ -311,34 +353,34 @@ mod tests {
             .to_vec()
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn health_returns_ok() {
         let response = get("/api/health").await;
         assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(body(response).await, b"ok");
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_health_returns_ok() {
         let request = Request::post("/graphql")
-            .header(header::CONTENT_TYPE, "application/json")
+            .header(CONTENT_TYPE, "application/json")
             .body(Body::from(json!({ "query": "{ health }" }).to_string()))
             .unwrap();
         let response = app(AppState::default()).oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
-        let json: Value = serde_json::from_slice(&body(response).await).unwrap();
+        let json: Value = from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphql_get_query_returns_ok() {
         let response = get("/graphql?query=%7B%20health%20%7D").await;
         assert_eq!(response.status(), StatusCode::OK);
-        let json: Value = serde_json::from_slice(&body(response).await).unwrap();
+        let json: Value = from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "data": { "health": "ok" } }));
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn graphiql_is_served_only_in_debug_builds() {
         let response = get("/graphql/ide").await;
         let expected = if cfg!(debug_assertions) {
@@ -349,11 +391,11 @@ mod tests {
         assert_eq!(response.status(), expected);
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn openapi_spec_matches_routes() {
         let response = get("/api/openapi.json").await;
         assert_eq!(response.status(), StatusCode::OK);
-        let spec: Value = serde_json::from_slice(&body(response).await).unwrap();
+        let spec: Value = from_slice(&body(response).await).unwrap();
 
         assert!(
             spec["paths"]["/health"]["get"].is_object(),
@@ -393,7 +435,7 @@ mod tests {
         assert!(spec["paths"]["/reporting/entry-statuses"]["get"]["responses"]["200"].is_object());
         assert_eq!(
             spec["paths"]["/reporting/entry-statuses"]["get"]["security"],
-            serde_json::json!([{ "bearer": [] }])
+            serde_json_json!([{ "bearer": [] }])
         );
         assert_eq!(spec["servers"][0]["url"], "/api");
 
@@ -406,21 +448,21 @@ mod tests {
 
     async fn post_json(uri: &str, body: Value) -> Response {
         let request = Request::post(uri)
-            .header(header::CONTENT_TYPE, "application/json")
+            .header(CONTENT_TYPE, "application/json")
             .body(Body::from(body.to_string()))
             .unwrap();
         app(AppState::default()).oneshot(request).await.unwrap()
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn sitemap_retrievals_reject_unknown_retailers() {
         let response = post_json("/api/sitemap-retrievals", json!({ "retailers": ["nope"] })).await;
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
-        let json: Value = serde_json::from_slice(&body(response).await).unwrap();
+        let json: Value = from_slice(&body(response).await).unwrap();
         assert_eq!(json, json!({ "error": "unknown retailer code: nope" }));
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn sitemap_retrievals_need_the_workers() {
         let response = post_json(
             "/api/sitemap-retrievals",
@@ -430,7 +472,7 @@ mod tests {
         assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn runs_reject_a_limit_out_of_range() {
         for uri in ["/api/commands/run", "/api/events/run"] {
             for limit in [0, 1001] {
@@ -440,7 +482,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn runs_need_the_bus() {
         for uri in ["/api/commands/run", "/api/events/run"] {
             let response = post_json(uri, json!({ "limit": 1 })).await;
@@ -450,7 +492,7 @@ mod tests {
 
     async fn get_with_token(uri: &str, token: &str) -> Response {
         let request = Request::get(uri)
-            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .header(AUTHORIZATION, format!("Bearer {token}"))
             .body(Body::empty())
             .unwrap();
         app(AppState::default()).oneshot(request).await.unwrap()
@@ -462,20 +504,20 @@ mod tests {
         ("/development/offer-details/sources", 1000),
     ];
 
-    #[tokio::test]
+    #[tokio_test]
     async fn development_sources_need_the_bearer_token() {
         for (path, _) in DEVELOPMENT_SOURCES {
             let uri = format!("/api{path}");
             let response = get(&uri).await;
             assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
-            assert_eq!(response.headers()[header::WWW_AUTHENTICATE], "Bearer");
+            assert_eq!(response.headers()[WWW_AUTHENTICATE], "Bearer");
 
             let response = get_with_token(&uri, "wrong").await;
             assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{uri}");
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn development_sources_reject_a_limit_out_of_range() {
         for (path, max_limit) in DEVELOPMENT_SOURCES {
             for limit in [0, max_limit + 1] {
@@ -486,7 +528,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn development_sources_need_the_database() {
         for (path, max_limit) in DEVELOPMENT_SOURCES {
             for query in [
@@ -501,20 +543,20 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn swagger_ui_is_served() {
         let response = get("/api/docs/").await;
         assert_eq!(response.status(), StatusCode::OK);
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn features_stay_off_without_a_database() {
         let state = start_features(Err(VarError::NotPresent)).await.unwrap();
         assert!(state.bus.is_none());
         assert!(state.db.is_none());
     }
 
-    #[tokio::test]
+    #[tokio_test]
     async fn features_stay_off_with_an_empty_database_url() {
         let state = start_features(Ok(String::new())).await.unwrap();
         assert!(state.bus.is_none());

@@ -1,6 +1,8 @@
+use diesel::allow_tables_to_appear_in_same_query;
+use diesel::table;
 // @generated automatically by Diesel CLI.
 
-diesel::table! {
+table! {
     offer_details_extracted (id) {
         id -> Uuid,
         offer_id -> Uuid,
@@ -9,7 +11,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     offer_details_normalized (id) {
         id -> Uuid,
         offer_id -> Uuid,
@@ -18,7 +20,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     offer_details_raw (id) {
         id -> Uuid,
         offer_id -> Uuid,
@@ -29,7 +31,7 @@ diesel::table! {
     }
 }
 
-diesel::table! {
+table! {
     offer_details_structuralized (id) {
         id -> Uuid,
         offer_id -> Uuid,
@@ -38,7 +40,7 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
+allow_tables_to_appear_in_same_query!(
     offer_details_extracted,
     offer_details_normalized,
     offer_details_raw,

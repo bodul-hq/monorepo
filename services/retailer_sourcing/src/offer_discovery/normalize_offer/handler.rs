@@ -1,5 +1,12 @@
+use crate::platform::object_storage::Error as ObjectStorageError;
+use crate::platform::object_storage::OfferStorageMetadata;
+use serde_json::Error as SerdeJsonError;
 use serde_json::Value;
+use serde_json::from_str as serde_json_from_str;
 use shared::retailer::RetailerCode;
+use thiserror::Error as ThiserrorError;
+use tracing::debug;
+use tracing::info;
 use uuid::Uuid;
 
 use super::command::NormalizeOffer;
@@ -15,14 +22,14 @@ pub trait Store: Send + Sync + 'static {
     fn extracted_offer(
         &self,
         offer_id: Uuid,
-        storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+        storage: Option<OfferStorageMetadata>,
     ) -> Result<Option<ExtractedOffer>, StoreError>;
 
     /// Stores the normalized document, replacing any stored for the offer before.
     fn store_normalized_offer(
         &self,
         entity: &NormalizedOffer,
-    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError>;
+    ) -> Result<OfferStorageMetadata, StoreError>;
 }
 
 /// The retailer step this slice runs.
@@ -41,7 +48,7 @@ impl Normalize for Retailers {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum HandlerError {
     #[error(transparent)]
     Store(#[from] StoreError),
@@ -55,7 +62,7 @@ pub enum HandlerError {
     #[error("the normalized document of offer {offer_id} is not JSON: {source}")]
     NotJson {
         offer_id: Uuid,
-        source: serde_json::Error,
+        source: SerdeJsonError,
     },
 }
 
@@ -79,7 +86,7 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
         let scraped_at = command.storage.and_then(|storage| storage.scraped_at);
         if command.scraped_at != scraped_at {
             return Err(HandlerError::Store(StoreError::ObjectStorage(
-                crate::platform::object_storage::Error::InvalidRecord,
+                ObjectStorageError::InvalidRecord,
             )));
         }
         let input = self
@@ -88,7 +95,7 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
             .ok_or(HandlerError::MissingInput(command.offer_id))?;
 
         // A failure fails the command, so the bus retries it later.
-        tracing::debug!(object_storage_id = %input.object_storage_id, "input object loaded");
+        debug!(object_storage_id = %input.object_storage_id, "input object loaded");
         let output = self
             .retailers
             .normalize(command.retailer_code, &input.document.to_string())
@@ -99,7 +106,7 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
         let Some(output) = output else {
             // The retailer produces no document for this offer: nothing to
             // store, and nothing follows.
-            tracing::info!(
+            info!(
                 offer_id = %command.offer_id,
                 url = %command.url,
                 "offer not normalized: the retailer produces no normalized document"
@@ -108,7 +115,7 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
         };
 
         let document: Value =
-            serde_json::from_str(&output).map_err(|source| HandlerError::NotJson {
+            serde_json_from_str(&output).map_err(|source| HandlerError::NotJson {
                 offer_id: command.offer_id,
                 source,
             })?;
@@ -118,7 +125,7 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
             offer_id: input.offer_id,
             document,
         })?;
-        tracing::info!(
+        info!(
             object_storage_id = %stored.object_storage_id,
             offer_id = %command.offer_id,
             url = %command.url,
@@ -139,6 +146,16 @@ impl<S: Store, R: Normalize> Handle for Handler<S, R> {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str as decode_json_str;
+    use serde_json::from_value as decode_json_value;
+
+    use crate::platform::object_storage::Error as ObjectStorageError;
+    use crate::platform::object_storage::OfferStorageMetadata;
+    use chrono::DateTime;
+    use serde_json::json as serde_json_json;
+    use serde_json::to_value;
+    use uuid::Uuid;
+
     use std::sync::Mutex;
 
     use super::*;
@@ -165,30 +182,28 @@ mod tests {
         fn extracted_offer(
             &self,
             offer_id: Uuid,
-            _storage: Option<crate::platform::object_storage::OfferStorageMetadata>,
+            _storage: Option<OfferStorageMetadata>,
         ) -> Result<Option<ExtractedOffer>, StoreError> {
             Ok(self.input.map(|input| ExtractedOffer {
-                object_storage_id: uuid::Uuid::now_v7(),
+                object_storage_id: Uuid::now_v7(),
                 offer_id,
-                document: serde_json::from_str(input).unwrap(),
+                document: decode_json_str(input).unwrap(),
             }))
         }
 
         fn store_normalized_offer(
             &self,
             entity: &NormalizedOffer,
-        ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
+        ) -> Result<OfferStorageMetadata, StoreError> {
             if self.fail {
-                return Err(StoreError::ObjectStorage(
-                    crate::platform::object_storage::Error::InvalidRecord,
-                ));
+                return Err(StoreError::ObjectStorage(ObjectStorageError::InvalidRecord));
             }
 
             self.stored
                 .lock()
                 .unwrap()
                 .push((entity.offer_id, entity.document.clone()));
-            Ok(crate::platform::object_storage::OfferStorageMetadata {
+            Ok(OfferStorageMetadata {
                 scraped_at: entity.scraped_at,
                 content_size: 0,
                 external_id: Uuid::nil(),
@@ -244,7 +259,7 @@ mod tests {
             *handler.store.stored.lock().unwrap(),
             vec![(
                 command.offer_id,
-                serde_json::from_str::<Value>(r#"{"title":"offer"}"#).unwrap()
+                decode_json_str::<Value>(r#"{"title":"offer"}"#).unwrap()
             )]
         );
     }
@@ -307,16 +322,16 @@ mod tests {
             FakeStep(Some(Some(r#"{"variations":[]}"#))),
         );
         let mut command = command();
-        let mut json = serde_json::to_value(&command).unwrap();
+        let mut json = to_value(&command).unwrap();
         json.as_object_mut().unwrap().remove("scraped_at");
-        let old: NormalizeOffer = serde_json::from_value(json.clone()).unwrap();
+        let old: NormalizeOffer = decode_json_value(json.clone()).unwrap();
         assert!(old.scraped_at.is_none());
-        json["scraped_at"] = serde_json::json!("bad");
-        assert!(serde_json::from_value::<NormalizeOffer>(json).is_err());
-        let time = chrono::DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap();
+        json["scraped_at"] = serde_json_json!("bad");
+        assert!(decode_json_value::<NormalizeOffer>(json).is_err());
+        let time = DateTime::from_timestamp_micros(1_700_000_000_123_456).unwrap();
         command.scraped_at = Some(time);
         assert!(handler.handle(command.clone()).is_err());
-        command.storage = Some(crate::platform::object_storage::OfferStorageMetadata {
+        command.storage = Some(OfferStorageMetadata {
             scraped_at: Some(time),
             object_storage_id: Uuid::now_v7(),
             external_id: Uuid::now_v7(),

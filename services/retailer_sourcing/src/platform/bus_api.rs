@@ -9,6 +9,7 @@ use eventing::prelude::axum::{EventsRunResponse, RunEvents};
 use outbox::prelude::axum::{OutboxAdapter, OutboxHttpError, OutboxRunResponse, RunOutbox};
 use serde::Serialize;
 use utoipa::ToSchema;
+use utoipa::path as utoipa_path;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -29,7 +30,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
 }
 
 /// Processes up to `limit` queued commands that are due, and waits for them.
-#[utoipa::path(
+#[utoipa_path(
     post,
     path = "/commands/run",
     request_body = RunCommands,
@@ -50,7 +51,7 @@ async fn run_commands(State(bus): State<Option<BusHandle>>, request: RunCommands
 }
 
 /// Processes up to `limit` queued events that are due, and waits for them.
-#[utoipa::path(
+#[utoipa_path(
     post,
     path = "/events/run",
     request_body = RunEvents,
@@ -71,7 +72,7 @@ async fn run_events(State(bus): State<Option<BusHandle>>, request: RunEvents) ->
 }
 
 /// Delivers up to `limit` queued outbox messages through Mulac's adapter.
-#[utoipa::path(post, path = "/outbox/run", request_body = RunOutbox,
+#[utoipa_path(post, path = "/outbox/run", request_body = RunOutbox,
     responses(
         (status = 200, description = "Batch result; item failures are reported in errors", body = OutboxRunResponse),
         (status = 400, description = "Invalid JSON or limit", body = String),

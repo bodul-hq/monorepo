@@ -1,7 +1,28 @@
-fn reporting_now() -> chrono::DateTime<chrono::Utc> {
-    chrono::DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
+use super::prelude::routes_with_clock;
+use crate::app as crate_app;
+use crate::platform::auth::BEARER_TOKEN;
+use crate::platform::state::AppState;
+use axum::Router;
+use chrono::DateTime;
+use chrono::Utc;
+use diesel::dsl::sql;
+use diesel::result::Error as ResultError;
+use diesel::select;
+use diesel::sql_query;
+use diesel::sql_types::BigInt;
+use diesel::sql_types::Text;
+use serde_json::Value;
+use serde_json::from_slice;
+use serde_json::json;
+use store::load;
+use store::load_entry_statuses_at;
+use tokio::runtime::Runtime;
+use tokio::test as tokio_test;
+use uuid::Uuid;
+fn reporting_now() -> DateTime<Utc> {
+    DateTime::parse_from_rfc3339("2026-12-31T23:59:59Z")
         .unwrap()
-        .with_timezone(&chrono::Utc)
+        .with_timezone(&Utc)
 }
 
 use super::store;
@@ -29,14 +50,12 @@ fn postgres_report_covers_active_schema_statistics_and_storage() {
     connection
         .batch_execute("SELECT pg_stat_clear_snapshot()")
         .unwrap();
-    let report = store::load(&mut connection).unwrap();
+    let report = load(&mut connection).unwrap();
     assert_eq!(
         report.schema_name,
-        diesel::select(diesel::dsl::sql::<diesel::sql_types::Text>(
-            "current_schema()::text"
-        ))
-        .get_result::<String>(&mut connection)
-        .unwrap()
+        select(sql::<Text>("current_schema()::text"))
+            .get_result::<String>(&mut connection)
+            .unwrap()
     );
     assert!(
         report
@@ -71,19 +90,19 @@ fn postgres_report_covers_active_schema_statistics_and_storage() {
     assert_eq!(table.total_bytes, table.table_bytes + table.index_bytes);
     #[derive(QueryableByName)]
     struct Size {
-        #[diesel(sql_type=diesel::sql_types::BigInt)]
+        #[diesel(sql_type=BigInt)]
         bytes: i64,
     }
-    let size: Size = diesel::sql_query("SELECT pg_total_relation_size('report_sample') AS bytes")
+    let size: Size = sql_query("SELECT pg_total_relation_size('report_sample') AS bytes")
         .get_result(&mut connection)
         .unwrap();
     assert_eq!(table.total_bytes, size.bytes as u64);
-    connection.test_transaction::<_, diesel::result::Error, _>(|connection| {
-        let empty = format!("report_empty_{}", uuid::Uuid::now_v7().simple());
+    connection.test_transaction::<_, ResultError, _>(|connection| {
+        let empty = format!("report_empty_{}", Uuid::now_v7().simple());
         connection.batch_execute(&format!(
             "CREATE SCHEMA {empty}; SET LOCAL search_path TO {empty}"
         ))?;
-        let report = store::load(connection)?;
+        let report = load(connection)?;
         assert_eq!(report.schema_name, empty);
         assert!(report.tables.is_empty());
         Ok(())
@@ -97,20 +116,17 @@ fn postgres_reporting_route_returns_typed_contract() {
     use http_body_util::BodyExt;
     use tower::ServiceExt;
     let db = Database::new();
-    let app = crate::app(crate::platform::state::AppState {
+    let app = crate_app(AppState {
         db: Some(db.pool.clone()),
         ..Default::default()
     });
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     let response = runtime
         .block_on(
             app.oneshot(
                 Request::builder()
                     .uri("/api/reporting/database-tables")
-                    .header(
-                        "authorization",
-                        format!("Bearer {}", crate::platform::auth::BEARER_TOKEN),
-                    )
+                    .header("authorization", format!("Bearer {}", BEARER_TOKEN))
                     .body(Body::empty())
                     .unwrap(),
             ),
@@ -122,9 +138,9 @@ fn postgres_reporting_route_returns_typed_contract() {
         .block_on(response.into_body().collect())
         .unwrap()
         .to_bytes();
-    let report: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    let report: Value = from_slice(&bytes).unwrap();
     assert_eq!(report["row_count_kind"], "estimated");
-    assert!(chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
+    assert!(DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
     for table in report["tables"].as_array().unwrap() {
         assert_eq!(table.as_object().unwrap().len(), 5);
         assert_eq!(
@@ -139,7 +155,7 @@ fn postgres_reporting_route_returns_typed_contract() {
 fn postgres_entry_statuses_group_counts_and_report_changes() {
     let db = Database::new();
     let mut conn = db.pool.get().unwrap();
-    let empty = store::load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
+    let empty = load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
     assert!(empty.command_entries.is_empty());
     assert!(empty.event_entries.is_empty());
     assert!(empty.inbox_entries.is_empty());
@@ -153,7 +169,7 @@ fn postgres_entry_statuses_group_counts_and_report_changes() {
         INSERT INTO outbox_entries(id,payload,meta,status,scheduled_at) SELECT gen_random_uuid(), '{}', '{}', s,'2026-12-31T12:00:00Z' FROM unnest(ARRAY[5,5,8]) s",
     )
     .unwrap();
-    let report = store::load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
+    let report = load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
     let groups: Vec<_> = report
         .command_entries
         .iter()
@@ -192,7 +208,7 @@ fn postgres_entry_statuses_group_counts_and_report_changes() {
     assert_eq!(report.event_entries[0].count, 2);
     conn.batch_execute("UPDATE command_entries SET status = 5 WHERE status = 0")
         .unwrap();
-    let report = store::load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
+    let report = load_entry_statuses_at(&mut conn, reporting_now()).unwrap();
     assert!(!report.command_entries.iter().any(|r| r.status == 0));
     assert_eq!(
         report
@@ -205,7 +221,7 @@ fn postgres_entry_statuses_group_counts_and_report_changes() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 async fn postgres_entry_statuses_route_returns_exact_contract() {
     use axum::{body::Body, http::Request};
@@ -215,21 +231,16 @@ async fn postgres_entry_statuses_route_returns_exact_contract() {
     db.pool.get().unwrap().batch_execute(
         "INSERT INTO event_entries(id,event_type,payload,status,scheduled_at) VALUES(gen_random_uuid(),'Test','{}',2,'2026-12-31T12:00:00Z')"
     ).unwrap();
-    let router = super::prelude::routes_with_clock(reporting_now).with_state(
-        crate::platform::state::AppState {
-            db: Some(db.pool.clone()),
-            ..Default::default()
-        },
-    );
-    let app = axum::Router::new().nest("/api", router.split_for_parts().0);
+    let router = routes_with_clock(reporting_now).with_state(AppState {
+        db: Some(db.pool.clone()),
+        ..Default::default()
+    });
+    let app = Router::new().nest("/api", router.split_for_parts().0);
     let response = app
         .oneshot(
             Request::builder()
                 .uri("/api/reporting/entry-statuses")
-                .header(
-                    "authorization",
-                    format!("Bearer {}", crate::platform::auth::BEARER_TOKEN),
-                )
+                .header("authorization", format!("Bearer {}", BEARER_TOKEN))
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -238,16 +249,16 @@ async fn postgres_entry_statuses_route_returns_exact_contract() {
     assert_eq!(response.status(), 200);
     assert_eq!(response.headers()["cache-control"], "no-store");
     let bytes = response.into_body().collect().await.unwrap().to_bytes();
-    let report: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert!(chrono::DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
+    let report: Value = from_slice(&bytes).unwrap();
+    assert!(DateTime::parse_from_rfc3339(report["generated_at"].as_str().unwrap()).is_ok());
     assert_eq!(report["generated_at"], "2026-12-31T23:59:59Z");
     assert_eq!(report["window_start"], "2026-12-31T00:00:00Z");
     assert_eq!(report["window_end"], "2027-01-01T00:00:00Z");
-    assert_eq!(report["command_entries"], serde_json::json!([]));
-    assert_eq!(report["inbox_entries"], serde_json::json!([]));
-    assert_eq!(report["outbox_entries"], serde_json::json!([]));
+    assert_eq!(report["command_entries"], json!([]));
+    assert_eq!(report["inbox_entries"], json!([]));
+    assert_eq!(report["outbox_entries"], json!([]));
     assert_eq!(
         report["event_entries"],
-        serde_json::json!([{"status":2,"status_text":"reserved","count":1}])
+        json!([{"status":2,"status_text":"reserved","count":1}])
     );
 }

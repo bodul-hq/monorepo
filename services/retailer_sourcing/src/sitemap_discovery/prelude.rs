@@ -1,6 +1,10 @@
 //! Everything other modules may use from sitemap discovery: its registration,
 //! its routes, and the events other contexts may react to.
 
+use consolidate_sitemap::prelude::register as prelude_register;
+use process_sitemap::prelude::register as process_sitemap_prelude_register;
+use retrieve_sitemap::prelude::register as retrieve_sitemap_prelude_register;
+use retrieve_sitemap::prelude::routes as prelude_routes;
 use utoipa_axum::router::OpenApiRouter;
 
 use super::{consolidate_sitemap, process_sitemap, retrieve_sitemap};
@@ -12,12 +16,12 @@ pub use super::consolidate_sitemap::prelude::SitemapConsolidated;
 
 /// Registers every sitemap discovery slice.
 pub fn register(bus: &mut Bus, platform: &Platform) {
-    retrieve_sitemap::prelude::register(bus, platform);
-    process_sitemap::prelude::register(bus, platform);
-    consolidate_sitemap::prelude::register(bus, platform);
+    retrieve_sitemap_prelude_register(bus, platform);
+    process_sitemap_prelude_register(bus, platform);
+    prelude_register(bus, platform);
 }
 
 /// Sitemap discovery's HTTP routes, to nest under `/api`.
 pub fn routes() -> OpenApiRouter<AppState> {
-    retrieve_sitemap::prelude::routes()
+    prelude_routes()
 }

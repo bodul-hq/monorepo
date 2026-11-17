@@ -1,10 +1,10 @@
 //! PostgreSQL representations and conversions, private to this slice.
-
 use crate::platform::db::Json;
 use crate::platform::object_storage::ObjectStorageMetadata;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::from_str;
 use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
@@ -28,7 +28,7 @@ impl ProcessedSitemapPgRecord {
             retrieval_id: self.retrieval_id,
             object_storage_id: self.storage.0.object_storage_id,
             retailer_code: RetailerCode::try_from(self.retailer_code.as_str())?,
-            document: serde_json::from_str(body)?,
+            document: from_str(body)?,
         })
     }
 }
@@ -44,6 +44,8 @@ pub(super) struct References {
 
 // Preserve the existing lowercase database representation of retailer codes.
 mod retailer_code {
+    use serde::de::Error as DeError;
+
     use serde::{Deserialize, Deserializer, Serializer};
     use shared::retailer::RetailerCode;
 
@@ -55,7 +57,7 @@ mod retailer_code {
         deserializer: D,
     ) -> Result<RetailerCode, D::Error> {
         let code = String::deserialize(deserializer)?;
-        RetailerCode::try_from(code.as_str()).map_err(serde::de::Error::custom)
+        RetailerCode::try_from(code.as_str()).map_err(DeError::custom)
     }
 }
 
@@ -126,6 +128,7 @@ fn stored_count(count: usize) -> Result<u32, StoreError> {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
     #[test]
     fn keeps_counts_representable_in_the_previous_schema() {
@@ -157,6 +160,10 @@ mod tests {
 
 #[cfg(test)]
 mod postgres_tests {
+    use diesel::result::Error as ResultError;
+    use diesel::sql_query;
+    use serde_json::to_value;
+
     use super::*;
     use crate::platform::test_db::Database;
     use diesel::sql_types::Jsonb;
@@ -194,7 +201,7 @@ mod postgres_tests {
             object_storage_id: Uuid::now_v7(),
         });
         let query = r#"SELECT $1 AS "references", $2 AS stats, $3 AS storage"#;
-        let output: Metadata = diesel::sql_query(query)
+        let output: Metadata = sql_query(query)
             .bind::<Jsonb, _>(&references)
             .bind::<Jsonb, _>(&stats)
             .bind::<Jsonb, _>(&storage)
@@ -205,8 +212,8 @@ mod postgres_tests {
         assert_eq!(output.storage, storage);
 
         // Exercise the actual PostgreSQL deserializer, not only Serde in memory.
-        let valid_references = serde_json::to_value(&references.0).unwrap();
-        let valid_stats = serde_json::to_value(&stats.0).unwrap();
+        let valid_references = to_value(&references.0).unwrap();
+        let valid_stats = to_value(&stats.0).unwrap();
         for (field, invalid) in [
             ("processed_sitemap_id", json!("not-a-uuid")),
             ("retrieval_id", json!(42)),
@@ -217,19 +224,19 @@ mod postgres_tests {
             let mut bad = valid_references.clone();
             bad[field] = invalid;
             assert!(matches!(
-                diesel::sql_query(query)
+                sql_query(query)
                     .bind::<Jsonb, _>(bad)
                     .bind::<Jsonb, _>(&stats)
                     .bind::<Jsonb, _>(&storage)
                     .get_result::<Metadata>(&mut conn),
-                Err(diesel::result::Error::DeserializationError(_))
+                Err(ResultError::DeserializationError(_))
             ));
         }
         for field in ["processed_sitemap_id", "retrieval_id", "retailer_code"] {
             let mut bad = valid_references.clone();
             bad.as_object_mut().unwrap().remove(field);
             assert!(
-                diesel::sql_query(query)
+                sql_query(query)
                     .bind::<Jsonb, _>(bad)
                     .bind::<Jsonb, _>(&stats)
                     .bind::<Jsonb, _>(&storage)
@@ -254,18 +261,18 @@ mod postgres_tests {
                 let mut bad = valid_stats.clone();
                 bad[field] = invalid;
                 assert!(matches!(
-                    diesel::sql_query(query)
+                    sql_query(query)
                         .bind::<Jsonb, _>(&references)
                         .bind::<Jsonb, _>(bad)
                         .bind::<Jsonb, _>(&storage)
                         .get_result::<Metadata>(&mut conn),
-                    Err(diesel::result::Error::DeserializationError(_))
+                    Err(ResultError::DeserializationError(_))
                 ));
             }
             let mut bad = valid_stats.clone();
             bad.as_object_mut().unwrap().remove(field);
             assert!(
-                diesel::sql_query(query)
+                sql_query(query)
                     .bind::<Jsonb, _>(&references)
                     .bind::<Jsonb, _>(bad)
                     .bind::<Jsonb, _>(&storage)

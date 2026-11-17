@@ -1,4 +1,10 @@
+use fastrand::Rng;
+use http::Client;
+use std::thread::sleep;
 use std::time::Duration;
+use thiserror::Error as ThiserrorError;
+use tracing::info;
+use tracing::warn;
 
 use shared::retailer::RetailerCode;
 
@@ -14,7 +20,7 @@ use crate::platform::http::{self, FetchError};
 const MIN_SITEMAP_DELAY_SECONDS: u64 = 1;
 const MAX_SITEMAP_DELAY_SECONDS: u64 = 5;
 
-fn sitemap_delay(rng: &mut fastrand::Rng) -> Duration {
+fn sitemap_delay(rng: &mut Rng) -> Duration {
     Duration::from_secs(rng.u64(MIN_SITEMAP_DELAY_SECONDS..=MAX_SITEMAP_DELAY_SECONDS))
 }
 
@@ -31,7 +37,7 @@ pub trait FetchSitemapBody: Send + Sync + 'static {
     fn fetch(&self, url: &str) -> Result<String, FetchError>;
 }
 
-impl FetchSitemapBody for http::Client {
+impl FetchSitemapBody for Client {
     fn fetch(&self, url: &str) -> Result<String, FetchError> {
         self.get(url)
     }
@@ -60,7 +66,7 @@ impl RootSitemaps for Retailers {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum RetrieveSitemapError {
     #[error("no sitemap configuration for retailer {0:?}")]
     NoSitemapConfig(RetailerCode),
@@ -94,8 +100,8 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handle for Handler<S, F, R>
         &self,
         command: RetrieveSitemap,
     ) -> Result<Vec<SitemapRetrieved>, RetrieveSitemapError> {
-        let mut rng = fastrand::Rng::new();
-        self.handle_with_pause(command, || std::thread::sleep(sitemap_delay(&mut rng)))
+        let mut rng = Rng::new();
+        self.handle_with_pause(command, || sleep(sitemap_delay(&mut rng)))
     }
 }
 
@@ -117,15 +123,15 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handler<S, F, R> {
         let (documents, not_greylisted, errors) =
             crawl(&self.fetcher, &root_urls, greylisted, pause);
         for url in &not_greylisted {
-            tracing::info!(%retrieval_id, ?retailer_code, url, "sitemap file not greylisted, not downloaded");
+            info!(%retrieval_id, ?retailer_code, url, "sitemap file not greylisted, not downloaded");
         }
         for error in &errors {
-            tracing::warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");
+            warn!(%retrieval_id, ?retailer_code, "sitemap file skipped: {error}");
         }
 
         let documents = RetrievedSitemapDocument::from_documents(retrieval_id, documents);
         let documents = self.store.store_documents(&documents)?;
-        tracing::info!(
+        info!(
             %retrieval_id,
             ?retailer_code,
             documents = documents.len(),
@@ -144,12 +150,17 @@ impl<S: Store, F: FetchSitemapBody, R: RootSitemaps> Handler<S, F, R> {
 
 #[cfg(test)]
 mod tests {
+    use super::sitemap_delay as super_sitemap_delay;
+    use fastrand::Rng;
+    use std::collections::HashSet;
+    use uuid::Uuid;
+
     #[test]
     fn random_delays_are_whole_seconds_and_include_both_bounds() {
-        let mut rng = fastrand::Rng::with_seed(42);
-        let seconds: std::collections::HashSet<_> = (0..1000)
+        let mut rng = Rng::with_seed(42);
+        let seconds: HashSet<_> = (0..1000)
             .map(|_| {
-                let delay = super::sitemap_delay(&mut rng);
+                let delay = super_sitemap_delay(&mut rng);
                 assert_eq!(delay.subsec_nanos(), 0);
                 assert!((1..=5).contains(&delay.as_secs()));
                 delay.as_secs()
@@ -190,7 +201,7 @@ mod tests {
                 .cloned()
                 .map(|sitemap| StoredSitemapDocument {
                     sitemap,
-                    object_storage_id: uuid::Uuid::now_v7(),
+                    object_storage_id: Uuid::now_v7(),
                 })
                 .collect())
         }

@@ -1,13 +1,22 @@
 use super::*;
+use axum::serve as axum_serve;
 use axum::{Json, Router, http::StatusCode, routing::post};
 use outbox::prelude::OutboxEntryMetadata;
+use serde_json::to_vec as serde_json_to_vec;
 use serde_json::{Value, json};
+use std::net::TcpListener as NetTcpListener;
 use std::sync::{Arc, Mutex};
+use tokio::net::TcpListener as TokioNetTcpListener;
+use tokio::runtime::Runtime;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::task::spawn_blocking;
+use tokio::test as tokio_test;
 use uuid::Uuid;
 
 pub(crate) struct TestServer {
     pub url: String,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 
 impl Drop for TestServer {
@@ -17,17 +26,17 @@ impl Drop for TestServer {
 }
 
 pub(crate) async fn serve(app: Router) -> TestServer {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TokioNetTcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
+    let task = spawn(async move {
+        axum_serve(listener, app).await.unwrap();
     });
     TestServer { url, task }
 }
 
 pub(crate) fn envelope() -> OutboundMessageEnvelope {
     OutboundMessageEnvelope {
-        payload: serde_json::to_vec(&json!({
+        payload: serde_json_to_vec(&json!({
             "retailer_code":"AnkerAu", "title":"USB charger",
             "price":{"amount":9007199254740993_i64,"currency":"AUD"},
             "url":"https://shop.example/Charger?variant=2#offer"
@@ -51,14 +60,14 @@ async fn publish(
     publisher: OffersPublisher,
     message: OutboundMessageEnvelope,
 ) -> Result<(), OutboxError> {
-    tokio::task::spawn_blocking(move || publisher.publish(message))
+    spawn_blocking(move || publisher.publish(message))
         .await
         .unwrap()
 }
 
 #[test]
 fn configuration_reads_offers_url_without_leaking_input() {
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     let handle = || runtime.handle().clone();
     assert!(
         OffersPublisher::from_value(Err(VarError::NotPresent), handle())
@@ -108,7 +117,7 @@ fn rejects_bad_destinations_and_payloads_before_http() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn preserves_the_command_and_delivery_identity_across_retries() {
     let seen = Arc::new(Mutex::new(Vec::<Value>::new()));
     let captured = seen.clone();
@@ -144,7 +153,7 @@ async fn preserves_the_command_and_delivery_identity_across_retries() {
     assert_ne!(message.metadata.message_id, message.metadata.event_id);
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio_test(flavor = "multi_thread")]
 async fn reports_transport_failures_with_offers_messages() {
     let app = Router::new().route(
         "/api/inbox",
@@ -160,7 +169,7 @@ async fn reports_transport_failures_with_offers_messages() {
         err_rejected().to_string()
     );
     drop(server);
-    let unavailable = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let unavailable = NetTcpListener::bind("127.0.0.1:0").unwrap();
     let address = format!("http://{}", unavailable.local_addr().unwrap());
     drop(unavailable);
     let publisher = OffersPublisher::new(&address, Handle::current()).unwrap();

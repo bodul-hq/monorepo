@@ -1,5 +1,8 @@
 use super::{handler, reacts_to, store};
 use crate::platform::{Platform, bus::Bus};
+use handler::Handler;
+use reacts_to::on as reacts_to_on;
+use store::PgStore as StorePgStore;
 
 pub use super::{
     entity::OfferExport,
@@ -8,9 +11,9 @@ pub use super::{
 };
 
 pub fn register(bus: &mut Bus, platform: &Platform) {
-    let store = store::PgStore::new(platform.db.clone(), platform.object_storage.clone());
-    bus.handle(handler::Handler::new(store));
-    bus.on(reacts_to::on);
+    let store = StorePgStore::new(platform.db.clone(), platform.object_storage.clone());
+    bus.handle(Handler::new(store));
+    bus.on(reacts_to_on);
 }
 
 /// Builds exports for other contexts' tests.

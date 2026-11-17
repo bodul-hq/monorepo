@@ -1,3 +1,9 @@
+use db::describe;
+use diesel::result::Error as ResultError;
+use object_storage::Error as ObjectStorageError;
+use serde_json::Error as SerdeJsonError;
+use sitemaps_consolidated::table;
+use thiserror::Error as ThiserrorError;
 mod record;
 
 use diesel::prelude::*;
@@ -10,18 +16,18 @@ use super::handler::Store;
 use crate::platform::db::{self, DbPool};
 use crate::platform::object_storage::{self, CONSOLIDATED_SITEMAPS_BUCKET, ObjectStorage};
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum StoreError {
     #[error(transparent)]
-    ObjectStorage(#[from] object_storage::Error),
+    ObjectStorage(#[from] ObjectStorageError),
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
 
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] ResultError),
 
     #[error("unreadable consolidated sitemap content: {0}")]
-    Content(#[from] serde_json::Error),
+    Content(#[from] SerdeJsonError),
 }
 
 /// Postgres storage for this slice.
@@ -39,7 +45,7 @@ impl PgStore {
 impl Store for PgStore {
     fn consolidated_sitemap(&self, id: Uuid) -> Result<ConsolidatedSitemap, StoreError> {
         let mut connection = self.pool.get()?;
-        let record = sitemaps_consolidated::table
+        let record = table
             .find(id)
             .select(ConsolidatedSitemapPgRecord::as_select())
             .get_result::<ConsolidatedSitemapPgRecord>(&mut connection)?;

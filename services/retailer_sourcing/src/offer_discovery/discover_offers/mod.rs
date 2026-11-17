@@ -13,6 +13,11 @@ mod store;
 
 #[cfg(test)]
 mod serialization_tests {
+    use serde_json::from_value as decode_json_value;
+
+    use serde_json::json;
+    use serde_json::to_value;
+
     use super::{command::DiscoverOffers, event::OfferDiscovered};
     use crate::platform::bus::{Command, Event};
 
@@ -24,31 +29,31 @@ mod serialization_tests {
             ("MinisForumEu", "minisforumeu"),
             ("AnkerNordicsCom", "ankernordicscom"),
         ] {
-            let command_json = serde_json::json!({
+            let command_json = json!({
                 "consolidated_sitemap_id": "00000000-0000-0000-0000-000000000001",
                 "retailer_code": historical
             });
-            let command: DiscoverOffers = serde_json::from_value(command_json.clone()).unwrap();
+            let command: DiscoverOffers = decode_json_value(command_json.clone()).unwrap();
             let mut canonical = command_json;
-            canonical["retailer_code"] = serde_json::json!(slug);
-            assert_eq!(serde_json::to_value(&command).unwrap(), canonical);
+            canonical["retailer_code"] = json!(slug);
+            assert_eq!(to_value(&command).unwrap(), canonical);
             assert_eq!(
-                serde_json::from_value::<DiscoverOffers>(canonical).unwrap(),
+                decode_json_value::<DiscoverOffers>(canonical).unwrap(),
                 command
             );
 
-            let event_json = serde_json::json!({
+            let event_json = json!({
                 "offer_id": "00000000-0000-0000-0000-000000000002",
                 "consolidated_sitemap_id": "00000000-0000-0000-0000-000000000001",
                 "retailer_code": historical,
                 "url": "https://example.com/product"
             });
-            let event: OfferDiscovered = serde_json::from_value(event_json.clone()).unwrap();
+            let event: OfferDiscovered = decode_json_value(event_json.clone()).unwrap();
             let mut canonical = event_json;
-            canonical["retailer_code"] = serde_json::json!(slug);
-            assert_eq!(serde_json::to_value(&event).unwrap(), canonical);
+            canonical["retailer_code"] = json!(slug);
+            assert_eq!(to_value(&event).unwrap(), canonical);
             assert_eq!(
-                serde_json::from_value::<OfferDiscovered>(canonical).unwrap(),
+                decode_json_value::<OfferDiscovered>(canonical).unwrap(),
                 event
             );
         }

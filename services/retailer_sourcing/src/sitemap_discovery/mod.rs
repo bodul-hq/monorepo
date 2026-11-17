@@ -12,6 +12,9 @@
 //! This module holds the domain shared by the slices. Other contexts may only
 //! use [`prelude`].
 
+use retailer_data_extractor::classify_link_for;
+use retailer_data_extractor::sitemap_config_for;
+use retailer_data_extractor::sitemap_greylisted_for;
 pub mod prelude;
 
 mod schema;
@@ -30,13 +33,13 @@ struct Retailers;
 
 impl Retailers {
     fn sitemap_config(self, retailer_code: &RetailerCode) -> Option<SitemapConfig> {
-        retailer_data_extractor::sitemap_config_for(retailer_code)
+        sitemap_config_for(retailer_code)
     }
 
     /// Whether the retailer's crawl downloads the child sitemap at `url`. A
     /// retailer this crate doesn't know downloads every one.
     fn sitemap_greylisted(self, retailer_code: RetailerCode, url: &str) -> bool {
-        retailer_data_extractor::sitemap_greylisted_for(retailer_code, url).unwrap_or(true)
+        sitemap_greylisted_for(retailer_code, url).unwrap_or(true)
     }
 
     fn classify_link(
@@ -46,7 +49,6 @@ impl Retailers {
         source: &str,
         image_count: usize,
     ) -> LinkKind {
-        retailer_data_extractor::classify_link_for(retailer_code, url, source, image_count)
-            .unwrap_or(LinkKind::Unknown)
+        classify_link_for(retailer_code, url, source, image_count).unwrap_or(LinkKind::Unknown)
     }
 }

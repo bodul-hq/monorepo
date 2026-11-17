@@ -6,12 +6,21 @@
 //! Requires DATABASE_URL, OBJECT_STORAGE_URL and OBJECT_STORAGE_TOKEN.
 //! Usage: `export_offer_sources <data_dir>`
 
+use diesel::sql_query;
+use env::args;
+use env::var;
+use fs::create_dir_all;
+use fs::write;
+use panic::catch_unwind;
+use process::exit;
+use retailer_data_extractor::classify_link_for;
 use retailer_sourcing::json::Json;
 use retailer_sourcing::object_storage::{ObjectStorage, OfferStorageMetadata, RAW_OFFERS_BUCKET};
 use std::collections::HashSet;
 use std::panic;
 use std::path::{Path, PathBuf};
 use std::{env, fs, process};
+use tokio::runtime::Runtime;
 
 use diesel::prelude::*;
 use diesel::sql_types::{Integer, Jsonb, Text, Uuid as SqlUuid};
@@ -64,17 +73,17 @@ fn fetch_page(record: PageRecord, objects: &ObjectStorage) -> Result<Page, Strin
 fn main() {
     if let Err(error) = run() {
         eprintln!("error: {error}");
-        process::exit(1);
+        exit(1);
     }
 }
 
 fn run() -> Result<(), String> {
-    let data_dir = env::args()
+    let data_dir = args()
         .nth(1)
         .map(PathBuf::from)
         .ok_or("usage: export_offer_sources <data_dir>")?;
-    let database_url = env::var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
-    let runtime = tokio::runtime::Runtime::new().map_err(|e| e.to_string())?;
+    let database_url = var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
+    let runtime = Runtime::new().map_err(|e| e.to_string())?;
     let objects = ObjectStorage::from_env(runtime.handle().clone()).map_err(|e| e.to_string())?;
 
     let mut written = 0;
@@ -84,7 +93,7 @@ fn run() -> Result<(), String> {
     let mut after = Uuid::nil();
     loop {
         let mut connection = PgConnection::establish(&database_url).map_err(|e| e.to_string())?;
-        let records: Vec<PageRecord> = diesel::sql_query(PAGES_QUERY)
+        let records: Vec<PageRecord> = sql_query(PAGES_QUERY)
             .bind::<SqlUuid, _>(after)
             .bind::<Integer, _>(BATCH_SIZE)
             .load(&mut connection)
@@ -147,7 +156,7 @@ fn disowns(retailer: RetailerCode, url: &str, unclassifiable: &mut HashSet<Retai
         return false;
     }
 
-    match panic::catch_unwind(|| retailer_data_extractor::classify_link_for(retailer, url, "", 0)) {
+    match catch_unwind(|| classify_link_for(retailer, url, "", 0)) {
         Ok(kind) => kind == Some(LinkKind::NotInterested),
         Err(_) => {
             unclassifiable.insert(retailer);
@@ -161,10 +170,10 @@ fn write_page(data_dir: &Path, retailer: RetailerCode, page: &Page) -> Result<()
         .join(retailer.as_str())
         .join("offer_details")
         .join("sources");
-    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    create_dir_all(&dir).map_err(|e| e.to_string())?;
 
     let path = dir.join(file_name(&page.url)?);
-    fs::write(&path, &page.body).map_err(|e| format!("{}: {e}", path.display()))
+    write(&path, &page.body).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// The decoded URL path with `/` replaced by `-`, as in the data repos:
@@ -187,6 +196,11 @@ mod test_objects;
 
 #[cfg(test)]
 mod tests {
+    use fs::read_to_string;
+    use fs::remove_dir_all;
+    use std::env::temp_dir;
+    use test_objects::Server;
+
     use super::*;
 
     #[test]
@@ -256,7 +270,7 @@ mod tests {
 
     #[test]
     fn exports_exact_object_body_and_rejects_missing_objects() {
-        let server = test_objects::Server::new();
+        let server = Server::new();
         let objects = server.client();
         let body = "<html>ž 🔎</html>";
         let storage = objects.create_offer(RAW_OFFERS_BUCKET, body).unwrap();
@@ -267,13 +281,13 @@ mod tests {
             storage: Json(storage),
         };
         let page = fetch_page(record(), &objects).unwrap();
-        let dir = std::env::temp_dir().join(format!("offer-export-{}", Uuid::now_v7()));
+        let dir = temp_dir().join(format!("offer-export-{}", Uuid::now_v7()));
         write_page(&dir, RetailerCode::AnkerAu, &page).unwrap();
         assert_eq!(
-            fs::read_to_string(dir.join("ankerau/offer_details/sources/page.html")).unwrap(),
+            read_to_string(dir.join("ankerau/offer_details/sources/page.html")).unwrap(),
             body
         );
-        fs::remove_dir_all(dir).unwrap();
+        remove_dir_all(dir).unwrap();
         server.data.lock().unwrap().get_response = Some((404, "{}".into()));
         assert!(fetch_page(record(), &objects).is_err());
     }

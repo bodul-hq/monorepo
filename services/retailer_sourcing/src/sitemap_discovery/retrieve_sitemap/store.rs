@@ -1,3 +1,10 @@
+use db::describe;
+use diesel::insert_into;
+use diesel::result::Error as ResultError;
+use object_storage::Error as ObjectStorageError;
+use record::validate;
+use sitemaps_raw::table;
+use thiserror::Error as ThiserrorError;
 mod record;
 
 use diesel::prelude::*;
@@ -10,14 +17,14 @@ use super::handler::Store;
 use crate::platform::db::{self, DbPool};
 use crate::platform::object_storage::{self, ObjectStorage, RAW_SITEMAPS_BUCKET};
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum StoreError {
     #[error("connection pool error: {0}")]
     Connection(#[from] PoolError),
-    #[error("database error: {}", db::describe(.0))]
-    Database(#[from] diesel::result::Error),
+    #[error("database error: {}", describe(.0))]
+    Database(#[from] ResultError),
     #[error(transparent)]
-    ObjectStorage(#[from] object_storage::Error),
+    ObjectStorage(#[from] ObjectStorageError),
     #[error("raw sitemap body is too large for storage: {0} bytes")]
     BodyTooLarge(usize),
     #[error("raw sitemap size does not match the body")]
@@ -41,7 +48,7 @@ impl Store for PgStore {
         documents: &[RetrievedSitemapDocument],
     ) -> Result<Vec<StoredSitemapDocument>, StoreError> {
         for document in documents {
-            record::validate(document)?;
+            validate(document)?;
         }
         let stored = documents
             .iter()
@@ -66,11 +73,9 @@ impl Store for PgStore {
             .collect();
         // No connection or transaction is held during the HTTP uploads. An
         // unsuccessful local commit can leave unreferenced immutable objects.
-        self.pool.get()?.transaction(|connection| {
-            diesel::insert_into(sitemaps_raw::table)
-                .values(&records)
-                .execute(connection)
-        })?;
+        self.pool
+            .get()?
+            .transaction(|connection| insert_into(table).values(&records).execute(connection))?;
         Ok(stored)
     }
 }

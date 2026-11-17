@@ -1,3 +1,7 @@
+use super::super::entity::SCHEMA_VERSION;
+use super::super::prelude::testing::stored_source;
+use serde_json::Value;
+use serde_json::from_value;
 use std::collections::HashSet;
 
 use super::*;
@@ -5,10 +9,10 @@ use crate::offer_discovery::prelude::export_testing::{assert_fact_payloads, fact
 use crate::platform::object_storage::ObjectStorageMetadata;
 
 fn source_with_facts(objects: &ObjectStorage) -> ExportSource {
-    super::super::prelude::testing::stored_source(objects, &fact_document().to_string())
+    stored_source(objects, &fact_document().to_string())
 }
 
-fn row(db: &Database, id: Uuid) -> serde_json::Value {
+fn row(db: &Database, id: Uuid) -> Value {
     rows(db)
         .as_array()
         .unwrap()
@@ -22,7 +26,7 @@ fn assert_uploaded_body(objects: &ObjectStorage, db: &Database, export: &OfferEx
     let record = row(db, export.id);
     assert_eq!(record["status"], "completed");
     assert!(record["prepared_body"].is_null());
-    let storage: ObjectStorageMetadata = serde_json::from_value(record["storage"].clone()).unwrap();
+    let storage: ObjectStorageMetadata = from_value(record["storage"].clone()).unwrap();
     assert_eq!(storage.content_size, body.len() as u64);
     assert_eq!(
         objects
@@ -36,9 +40,7 @@ fn assert_uploaded_body(objects: &ObjectStorage, db: &Database, export: &OfferEx
 pub(super) fn verify_current_round_trip(db: &Database, objects: ObjectStorage) {
     let source = source_with_facts(&objects);
     let store = PgStore::new(db.pool.clone(), objects.clone());
-    let prepared = store
-        .prepare(source.clone(), super::super::entity::SCHEMA_VERSION)
-        .unwrap();
+    let prepared = store.prepare(source.clone(), SCHEMA_VERSION).unwrap();
     let expected = prepared.snapshot.clone();
     let body = prepared.body.clone();
     assert_fact_payloads(&expected, &fact_document());
@@ -232,8 +234,7 @@ fn malformed_observations_never_persist_an_export_preparation() {
     ] {
         let mut document = fact_document();
         document["variations"][0][field] = value;
-        let source =
-            super::super::prelude::testing::stored_source(&server.client(), &document.to_string());
+        let source = stored_source(&server.client(), &document.to_string());
         assert!(store.prepare(source, version).is_err());
         assert_eq!(rows(&db), json!([]));
     }

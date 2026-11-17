@@ -1,4 +1,20 @@
+use super::prelude::register;
+use crate::app as crate_app;
+use crate::tests::assert_batch_errors;
+use axum::Router;
+use axum::body::Body;
+use axum::body::to_bytes;
+use axum::http::Request;
+use axum::http::StatusCode;
+use diesel::sql_query;
+use http::Client;
+use outbox::record;
+use serde_json::from_slice;
+use serde_json::from_str as decode_json_str;
+use serde_json::to_string as serde_json_to_string;
+use serde_json::to_value;
 use std::sync::{Arc, Barrier};
+use std::thread::scope as thread_scope;
 
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
@@ -68,7 +84,7 @@ fn export(db: &Database, server: &Server, document: &str) -> OfferExport {
 /// Queues `payload` as an event, as Mulac stores one a handler produced.
 fn seed_event(db: &Database, event_type: &str, payload: &Value, meta: Option<Value>) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO event_entries (id, event_type, payload, meta, status) VALUES ($1, $2, $3, $4, 0)",
     )
     .bind::<SqlUuid, _>(id)
@@ -93,25 +109,25 @@ fn seed_export_event(db: &Database, export: &OfferExport, context: &EventContext
     seed_event(
         db,
         OfferExportWasPrepared::NAME,
-        &serde_json::to_value(event(export)).unwrap(),
+        &to_value(event(export)).unwrap(),
         Some(meta(context)),
     )
 }
 
 /// The service's routes over a bus with only this slice registered.
-fn app(db: &Database, server: &Server) -> axum::Router {
+fn app(db: &Database, server: &Server) -> Router {
     let platform = Platform {
         db: db.pool.clone(),
-        http: http::Client,
+        http: Client,
         offer_http: Default::default(),
         object_storage: server.client(),
     };
     let mut bus = Bus::default();
-    super::prelude::register(&mut bus, &platform);
+    register(&mut bus, &platform);
     let entered = server.runtime.enter();
     let bus = bus.start(db.pool.clone()).unwrap();
     drop(entered);
-    crate::app(AppState {
+    crate_app(AppState {
         bus: Some(bus),
         db: Some(db.pool.clone()),
         object_storage: Some(server.client()),
@@ -119,18 +135,16 @@ fn app(db: &Database, server: &Server) -> axum::Router {
     })
 }
 
-fn run_events(server: &Server, app: &axum::Router) -> Value {
-    let request = axum::http::Request::post("/api/events/run")
+fn run_events(server: &Server, app: &Router) -> Value {
+    let request = Request::post("/api/events/run")
         .header("content-type", "application/json")
-        .body(axum::body::Body::from(r#"{"limit":10}"#))
+        .body(Body::from(r#"{"limit":10}"#))
         .unwrap();
     server.runtime.block_on(async {
         let response = app.clone().oneshot(request).await.unwrap();
-        assert_eq!(response.status(), axum::http::StatusCode::OK);
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
-        serde_json::from_slice(&body).unwrap()
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        from_slice(&body).unwrap()
     })
 }
 
@@ -178,7 +192,7 @@ fn postgres_queued_event_records_each_entry_once_with_its_envelope_metadata() {
         assert!(row["reservation_id"].is_null());
         assert_eq!(
             row["payload"],
-            json!(serde_json::to_string(&entry.payload).unwrap())
+            json!(serde_json_to_string(&entry.payload).unwrap())
         );
         assert_eq!(
             row["meta"],
@@ -229,11 +243,11 @@ fn postgres_retry_after_partial_recording_completes_the_set_and_keeps_delivered_
     let export = export(&db, &server, MIXED);
     let first = context();
     let delivered = &export.entries[0];
-    outbox::record(
+    record(
         &mut db.pool.get().unwrap(),
         &[OutgoingMessage {
             id: delivered.id,
-            payload: serde_json::to_string(&delivered.payload).unwrap(),
+            payload: serde_json_to_string(&delivered.payload).unwrap(),
             routing_key: "offers",
             event_type: OfferExportWasPrepared::NAME,
         }],
@@ -241,7 +255,7 @@ fn postgres_retry_after_partial_recording_completes_the_set_and_keeps_delivered_
     )
     .unwrap();
     // As if the publisher delivered it after one failed attempt.
-    diesel::sql_query(
+    sql_query(
         "UPDATE outbox_entries SET status = 5, attempts = 2, reservation_id = $2,
          reserved_at = now(), processed_at = now(), last_error = 'earlier failure'
          WHERE id = $1",
@@ -281,11 +295,11 @@ fn postgres_conflicting_entry_identity_fails_and_records_nothing() {
     let reused = &export.entries[1];
     let mut payload = reused.payload.clone();
     payload.title = "Something else".into();
-    outbox::record(
+    record(
         &mut db.pool.get().unwrap(),
         &[OutgoingMessage {
             id: reused.id,
-            payload: serde_json::to_string(&payload).unwrap(),
+            payload: serde_json_to_string(&payload).unwrap(),
             routing_key: "offers",
             event_type: OfferExportWasPrepared::NAME,
         }],
@@ -315,7 +329,7 @@ fn postgres_conflicting_entry_identity_fails_and_records_nothing() {
         event_type: OfferExportWasPrepared::NAME,
     };
     assert!(matches!(
-        outbox::record(
+        record(
             &mut db.pool.get().unwrap(),
             &[message.clone(), message],
             &context()
@@ -334,7 +348,7 @@ fn postgres_concurrent_notifications_record_one_row_per_entry() {
     let listener = Arc::new(listener(&db, &server));
     let barrier = Arc::new(Barrier::new(2));
     let contexts = [context(), context()];
-    std::thread::scope(|scope| {
+    thread_scope(|scope| {
         for context in &contexts {
             let (listener, barrier, event) = (listener.clone(), barrier.clone(), event(&export));
             scope.spawn(move || {
@@ -414,19 +428,19 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
         seed_event(
             &db,
             OfferExportWasPrepared::NAME,
-            &serde_json::to_value(payload).unwrap(),
+            &to_value(payload).unwrap(),
             Some(meta(&context())),
         );
     }
     seed_event(
         &db,
         OfferExportWasPrepared::NAME,
-        &serde_json::to_value(event(&stored)).unwrap(),
+        &to_value(event(&stored)).unwrap(),
         None,
     );
 
     let report = run_events(&server, &app);
-    crate::tests::assert_batch_errors(&report, 5);
+    assert_batch_errors(&report, 5);
     let errors = event_rows(&db).to_string();
     for expected in [
         "is not completed",
@@ -481,7 +495,10 @@ fn postgres_unavailable_or_invalid_exports_fail_visibly_and_retry() {
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_replay() {
-    use crate::platform::bus_api::{outbox_postgres_tests as http, outbox_tests::run};
+    use crate::platform::bus_api::{
+        outbox_postgres_tests::{inbox as http_inbox, state as http_state},
+        outbox_tests::run,
+    };
 
     let db = Database::new();
     let receiver = Database::new();
@@ -492,10 +509,10 @@ fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_
     listener.listen(event(&export), &first).unwrap();
 
     // Recording is complete here; HTTP acceptance is the separate publisher's.
-    let inbox = server.runtime.block_on(http::inbox(&receiver));
+    let inbox = server.runtime.block_on(http_inbox(&receiver));
     let state = {
         let _entered = server.runtime.enter();
-        http::state(&db, &inbox.url)
+        http_state(&db, &inbox.url)
     };
     assert_eq!(
         server
@@ -518,7 +535,7 @@ fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_
         "SELECT jsonb_agg(to_jsonb(t) ORDER BY id) AS value FROM inbox_entries t",
     );
     assert_eq!(accepted.as_array().unwrap().len(), 2);
-    let mut fixture: Value = serde_json::from_str(IMPORT_FIXTURE).unwrap();
+    let mut fixture: Value = decode_json_str(IMPORT_FIXTURE).unwrap();
     // Keep the historical fixture intact; newly serialized exports use slugs.
     fixture["retailer_code"] = json!("ankerau");
     let first_entry = &export.entries[0];
@@ -529,7 +546,7 @@ fn postgres_recorded_messages_are_accepted_by_the_offers_inbox_and_not_reset_by_
         .find(|row| row["id"] == json!(first_entry.id))
         .unwrap();
     assert_eq!(
-        serde_json::from_str::<Value>(row["payload"].as_str().unwrap()).unwrap(),
+        decode_json_str::<Value>(row["payload"].as_str().unwrap()).unwrap(),
         fixture
     );
     assert_eq!(row["meta"]["routing_key"], "ImportOfferDetails");
@@ -574,8 +591,8 @@ fn both_export_versions_replay_with_stable_message_ids_and_payload_shapes() {
                 .iter()
                 .find(|row| row["id"] == entry.id.to_string())
                 .unwrap();
-            let payload: Value = serde_json::from_str(row["payload"].as_str().unwrap()).unwrap();
-            assert_eq!(payload, serde_json::to_value(&entry.payload).unwrap());
+            let payload: Value = decode_json_str(row["payload"].as_str().unwrap()).unwrap();
+            assert_eq!(payload, to_value(&entry.payload).unwrap());
             assert_eq!(payload.get("images").is_some(), version == 2);
         }
     }
@@ -618,10 +635,10 @@ fn fact_versions_keep_exact_delivery_payloads_and_ids_across_replayed_events() {
             assert_eq!(row["meta"]["event_id"], json!(first_context.event_id));
             assert_eq!(
                 row["payload"],
-                serde_json::to_string(&entry.payload).unwrap()
+                serde_json_to_string(&entry.payload).unwrap()
             );
-            let payload: Value = serde_json::from_str(row["payload"].as_str().unwrap()).unwrap();
-            assert_eq!(payload, serde_json::to_value(&entry.payload).unwrap());
+            let payload: Value = decode_json_str(row["payload"].as_str().unwrap()).unwrap();
+            assert_eq!(payload, to_value(&entry.payload).unwrap());
         }
         // A new export notification must preserve the original payload text, identity and metadata.
         seed_export_event(&db, &export, &context());

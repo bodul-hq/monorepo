@@ -5,6 +5,7 @@ use crate::platform::object_storage::{ObjectStorage, ObjectStorageMetadata, RAW_
 use crate::platform::test_db::{Database, json_query};
 use crate::platform::test_objects::Server;
 use diesel::connection::SimpleConnection;
+use serde_json::from_value;
 use serde_json::json;
 use sitemap::RawSitemapDocument;
 use uuid::Uuid;
@@ -49,8 +50,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
             row["storage"],
             json!({"content_size": input.document.body_size,"object_storage_id":stored.object_storage_id})
         );
-        let metadata: ObjectStorageMetadata =
-            serde_json::from_value(row["storage"].clone()).unwrap();
+        let metadata: ObjectStorageMetadata = from_value(row["storage"].clone()).unwrap();
         assert_eq!(
             objects
                 .get(RAW_SITEMAPS_BUCKET, input.id, &metadata)

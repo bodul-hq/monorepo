@@ -1,5 +1,7 @@
 //! Everything other modules may use from this slice.
 
+use handler::Handler;
+use store::PgStore;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -13,12 +15,8 @@ pub use super::event::SitemapRetrieved;
 
 /// Registers the slice's handler.
 pub fn register(bus: &mut Bus, platform: &Platform) {
-    let store = store::PgStore::new(platform.db.clone(), platform.object_storage.clone());
-    bus.handle(handler::Handler::new(
-        store,
-        platform.http.clone(),
-        Retailers,
-    ));
+    let store = PgStore::new(platform.db.clone(), platform.object_storage.clone());
+    bus.handle(Handler::new(store, platform.http.clone(), Retailers));
 }
 
 /// The slice's HTTP routes, to nest under `/api`.

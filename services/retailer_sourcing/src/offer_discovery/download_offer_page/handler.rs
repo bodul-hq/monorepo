@@ -1,4 +1,13 @@
+use crate::platform::object_storage::OfferStorageMetadata;
+use chrono::DateTime;
+use chrono::Utc;
+use http::OfferClient;
+use retailer_data_extractor::offer_request_for;
+use retailer_data_extractor::validate_offer_download;
+use std::thread::sleep as thread_sleep;
 use std::time::Duration;
+use thiserror::Error as ThiserrorError;
+use tracing::info;
 
 use super::command::DownloadOfferPage;
 use super::entity::RawOffer;
@@ -12,10 +21,7 @@ const DOWNLOAD_OFFER_PAGE_DELAY: Duration = Duration::from_secs(6);
 /// The storage this slice needs.
 pub trait Store: Send + Sync + 'static {
     /// Stores the page, replacing any page stored for the offer before.
-    fn store_raw_offer(
-        &self,
-        entity: &RawOffer,
-    ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError>;
+    fn store_raw_offer(&self, entity: &RawOffer) -> Result<OfferStorageMetadata, StoreError>;
 }
 
 /// Fetches the body of one offer page.
@@ -29,17 +35,17 @@ pub trait FetchOfferPage: Send + Sync + 'static {
     }
 }
 
-impl FetchOfferPage for http::OfferClient {
+impl FetchOfferPage for OfferClient {
     fn fetch(&self, url: &str) -> Result<String, FetchError> {
         self.get(url)
     }
 
     fn post_json(&self, url: &str, body: &str) -> Result<String, FetchError> {
-        http::OfferClient::post_json(self, url, body)
+        OfferClient::post_json(self, url, body)
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum DownloadOfferPageError {
     #[error("offer page download failed for {url}: {error}")]
     Fetch { url: String, error: FetchError },
@@ -68,7 +74,7 @@ impl<S: Store, F: FetchOfferPage> Handle for Handler<S, F> {
         &self,
         command: DownloadOfferPage,
     ) -> Result<Vec<OfferPageWasDownloaded>, DownloadOfferPageError> {
-        self.handle_with_sleep(command, std::thread::sleep)
+        self.handle_with_sleep(command, thread_sleep)
     }
 }
 
@@ -79,11 +85,12 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
         sleep: impl FnOnce(Duration),
     ) -> Result<Vec<OfferPageWasDownloaded>, DownloadOfferPageError> {
         let request =
-            retailer_data_extractor::offer_request_for(command.retailer_code, &command.url)
-                .map_err(|message| DownloadOfferPageError::Fetch {
+            offer_request_for(command.retailer_code, &command.url).map_err(|message| {
+                DownloadOfferPageError::Fetch {
                     url: command.url.clone(),
                     error: FetchError { message },
-                })?;
+                }
+            })?;
         // Pacing is per handler invocation; concurrent workers may still fetch together.
         sleep(DOWNLOAD_OFFER_PAGE_DELAY);
         // A failed download fails the command, so it is retried later.
@@ -95,18 +102,14 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
             url: request.url,
             error,
         })?;
-        retailer_data_extractor::validate_offer_download(
-            command.retailer_code,
-            &command.url,
-            &body,
-        )
-        .map_err(|message| DownloadOfferPageError::Fetch {
-            url: command.url.clone(),
-            error: FetchError { message },
+        validate_offer_download(command.retailer_code, &command.url, &body).map_err(|message| {
+            DownloadOfferPageError::Fetch {
+                url: command.url.clone(),
+                error: FetchError { message },
+            }
         })?;
 
-        let scraped_at =
-            chrono::DateTime::from_timestamp_micros(chrono::Utc::now().timestamp_micros());
+        let scraped_at = DateTime::from_timestamp_micros(Utc::now().timestamp_micros());
         let entity = RawOffer {
             scraped_at,
             offer_id: command.offer_id,
@@ -115,7 +118,7 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
             body,
         };
         let stored = self.store.store_raw_offer(&entity)?;
-        tracing::info!(
+        info!(
             object_storage_id = %stored.object_storage_id,
             offer_id = %command.offer_id,
             url = %command.url,
@@ -136,6 +139,12 @@ impl<S: Store, F: FetchOfferPage> Handler<S, F> {
 
 #[cfg(test)]
 mod tests {
+    use crate::platform::object_storage::Error as ObjectStorageError;
+    use crate::platform::object_storage::OfferStorageMetadata;
+    use chrono::Utc;
+    use serde_json::Value;
+    use serde_json::from_str;
+
     use shared::retailer::RetailerCode;
     use std::sync::Mutex;
     use uuid::Uuid;
@@ -158,7 +167,7 @@ mod tests {
                     url,
                     "https://ankerneu.myshopify.com/api/2026-10/graphql.json"
                 );
-                let body: serde_json::Value = serde_json::from_str(body).unwrap();
+                let body: Value = from_str(body).unwrap();
                 assert_eq!(body["variables"]["country"], "FI");
                 assert_eq!(body["variables"]["handle"], "t90r0121");
                 Ok(if self.wrong_market {
@@ -201,21 +210,16 @@ mod tests {
     }
 
     impl Store for FakeStore {
-        fn store_raw_offer(
-            &self,
-            entity: &RawOffer,
-        ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError> {
+        fn store_raw_offer(&self, entity: &RawOffer) -> Result<OfferStorageMetadata, StoreError> {
             if self.fail {
-                return Err(StoreError::ObjectStorage(
-                    crate::platform::object_storage::Error::InvalidRecord,
-                ));
+                return Err(StoreError::ObjectStorage(ObjectStorageError::InvalidRecord));
             }
 
             self.log(format!(
                 "stored {:?} {}: {}",
                 entity.retailer_code, entity.url, entity.body
             ))?;
-            Ok(crate::platform::object_storage::OfferStorageMetadata {
+            Ok(OfferStorageMetadata {
                 scraped_at: entity.scraped_at,
                 content_size: 0,
                 external_id: Uuid::nil(),
@@ -292,8 +296,7 @@ mod tests {
             fn store_raw_offer(
                 &self,
                 entity: &RawOffer,
-            ) -> Result<crate::platform::object_storage::OfferStorageMetadata, StoreError>
-            {
+            ) -> Result<OfferStorageMetadata, StoreError> {
                 self.order.lock().unwrap().push("store");
                 assert_eq!(entity.body, "<html>offer</html>");
                 FakeStore {
@@ -352,11 +355,11 @@ mod tests {
         let handler = Handler::new(FakeStore::default(), Page(Some("<html>offer</html>")));
         let command = command();
 
-        let before = chrono::Utc::now();
+        let before = Utc::now();
         let events = handler.handle_with_sleep(command.clone(), |_| {}).unwrap();
         let time = events[0].scraped_at.unwrap();
         assert!(time.timestamp_micros() >= before.timestamp_micros());
-        assert!(time <= chrono::Utc::now());
+        assert!(time <= Utc::now());
         assert_eq!(time.timestamp_subsec_nanos() % 1000, 0);
         assert_eq!(events[0].storage.unwrap().scraped_at, Some(time));
 

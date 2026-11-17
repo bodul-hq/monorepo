@@ -1,7 +1,10 @@
 //! Storage migrations run in isolated schemas, including populated rollbacks.
+
 use super::test_db::{Database, json_query};
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use serde_json::{Value, json};
@@ -92,7 +95,7 @@ fn seed_legacy(conn: &mut PgConnection) {
                     document.clone(),
                 ),
             };
-            diesel::sql_query(format!(
+            sql_query(format!(
                 "INSERT INTO {table} (id,{columns}) VALUES ($1,{values})"
             ))
             .bind::<SqlUuid, _>(id)
@@ -103,7 +106,7 @@ fn seed_legacy(conn: &mut PgConnection) {
             } else {
                 "$2"
             };
-            diesel::sql_query(format!(
+            sql_query(format!(
                 "INSERT INTO {payload} (id,{payload_column}) VALUES ($1,{expression})"
             ))
             .bind::<SqlUuid, _>(id)
@@ -214,7 +217,7 @@ fn postgres_storage_downgrade_rejects_invalid_sizes_atomically() {
             json!({"content_size": 1.5}),
             json!({"content_size": 2147483648_i64}),
         ] {
-            diesel::sql_query(format!("UPDATE {table} SET storage=$1"))
+            sql_query(format!("UPDATE {table} SET storage=$1"))
                 .bind::<Jsonb, _>(bad)
                 .execute(&mut conn)
                 .unwrap();
@@ -226,7 +229,7 @@ fn postgres_storage_downgrade_rejects_invalid_sizes_atomically() {
                 "20261015000010"
             );
         }
-        diesel::sql_query(format!("UPDATE {table} SET storage=$1"))
+        sql_query(format!("UPDATE {table} SET storage=$1"))
             .bind::<Jsonb, _>(valid)
             .execute(&mut conn)
             .unwrap();
@@ -247,15 +250,15 @@ fn postgres_typed_storage_round_trips_unsigned_sizes() {
     let mut conn = db.pool.get().unwrap();
     for content_size in [0, 7, u64::MAX] {
         let input = Json(Storage { content_size });
-        let output: Row = diesel::sql_query("SELECT $1 AS value")
+        let output: Row = sql_query("SELECT $1 AS value")
             .bind::<Jsonb, _>(&input)
             .get_result(&mut conn)
             .unwrap();
         assert_eq!(output.value, input);
     }
     assert!(matches!(
-        diesel::sql_query("SELECT NULL::jsonb AS value").get_result::<Row>(&mut conn),
-        Err(diesel::result::Error::DeserializationError(_))
+        sql_query("SELECT NULL::jsonb AS value").get_result::<Row>(&mut conn),
+        Err(ResultError::DeserializationError(_))
     ));
 }
 

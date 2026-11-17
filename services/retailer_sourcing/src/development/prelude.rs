@@ -2,6 +2,9 @@
 //! its routes.
 
 use axum::middleware;
+use middleware::from_fn;
+use offer_details::routes as offer_details_routes;
+use sitemaps::routes as sitemaps_routes;
 use utoipa_axum::router::OpenApiRouter;
 
 use super::{offer_details, sitemaps};
@@ -16,7 +19,7 @@ pub fn register(_bus: &mut Bus, _platform: &Platform) {}
 /// Development's HTTP routes, to nest under `/api`. Each needs the bearer
 /// token.
 pub fn routes() -> OpenApiRouter<AppState> {
-    sitemaps::routes()
-        .merge(offer_details::routes())
-        .route_layer(middleware::from_fn(require_bearer_token))
+    sitemaps_routes()
+        .merge(offer_details_routes())
+        .route_layer(from_fn(require_bearer_token))
 }

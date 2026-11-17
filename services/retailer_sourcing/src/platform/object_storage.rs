@@ -1,8 +1,20 @@
 //! Object storage client for blocking workers and command-line exports.
+
+use chrono::DateTime;
+use chrono::Utc;
+use object_storage_client::Error as ObjectStorageClientError;
 use object_storage_client::{Client, CreateRecord, Transport, Uuid};
+use reqwest::Client as ReqwestClient;
+use reqwest::redirect::Policy;
+use reqwest::retry::never as retry_never;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::env::var;
 use std::time::Duration;
+use thiserror::Error as ThiserrorError;
 use tokio::runtime::Handle;
+use utoipa::ToSchema;
+use uuid::Variant;
 
 pub const RAW_SITEMAPS_BUCKET: &str = "sitemaps_raw";
 pub const PROCESSED_SITEMAPS_BUCKET: &str = "sitemaps_processed";
@@ -21,12 +33,12 @@ pub struct Stored<T> {
 }
 
 /// Offers keep a stable row identity while each replacement uploads a new object.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct OfferStorageMetadata {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schema(value_type = Option<String>)]
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
     pub content_size: u64,
     #[schema(value_type = String, format = "uuid")]
     pub object_storage_id: Uuid,
@@ -41,12 +53,12 @@ pub struct ObjectStorageMetadata {
     pub object_storage_id: Uuid,
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum Error {
     #[error("{0}")]
     Configuration(&'static str),
     #[error("object storage: {0}")]
-    Client(#[from] object_storage_client::Error),
+    Client(#[from] ObjectStorageClientError),
     #[error("object storage record does not match its local reference")]
     InvalidRecord,
 }
@@ -59,20 +71,20 @@ pub struct ObjectStorage {
 
 impl ObjectStorage {
     pub fn from_env(runtime: Handle) -> Result<Self, Error> {
-        let url = std::env::var("OBJECT_STORAGE_URL")
+        let url = var("OBJECT_STORAGE_URL")
             .map_err(|_| Error::Configuration("OBJECT_STORAGE_URL is required"))?;
-        let token = std::env::var("OBJECT_STORAGE_TOKEN")
+        let token = var("OBJECT_STORAGE_TOKEN")
             .map_err(|_| Error::Configuration("OBJECT_STORAGE_TOKEN is required"))?;
         Self::new(&url, &token, runtime)
     }
 
     pub fn new(url: &str, token: &str, runtime: Handle) -> Result<Self, Error> {
-        let http = reqwest::Client::builder()
+        let http = ReqwestClient::builder()
             .timeout(Duration::from_secs(30))
-            .redirect(reqwest::redirect::Policy::none())
-            .retry(reqwest::retry::never())
+            .redirect(Policy::none())
+            .retry(retry_never())
             .build()
-            .map_err(object_storage_client::Error::from)?;
+            .map_err(ObjectStorageClientError::from)?;
         let client = Client::with_http_client(http, url, token, Transport::Rest)?;
         Ok(Self { client, runtime })
     }
@@ -82,10 +94,10 @@ impl ObjectStorage {
         let input = CreateRecord {
             idempotency_key: external_id,
             payload: body.to_owned(),
-            metadata: serde_json::Value::Object(Default::default()),
+            metadata: Value::Object(Default::default()),
         };
         let id = self.runtime.block_on(self.client.create(bucket, &input))?;
-        if id.get_version_num() != 7 || id.get_variant() != uuid::Variant::RFC4122 {
+        if id.get_version_num() != 7 || id.get_variant() != Variant::RFC4122 {
             return Err(Error::InvalidRecord);
         }
         Ok(id)

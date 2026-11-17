@@ -1,5 +1,10 @@
 //! Compatibility with rows written using the original Mulac queue schema.
+
+use crate::app as crate_app;
+use diesel::sql_query;
+use serde_json::from_str;
 use std::sync::{Arc, Mutex};
+use tokio::test as tokio_test;
 
 use axum::Router;
 use diesel::prelude::*;
@@ -70,7 +75,7 @@ fn app(db: &Database, finished: Arc<Mutex<Vec<i32>>>) -> Router {
     bus.handle(PingHandler);
     bus.handle(FinishHandler(finished));
     bus.on::<Pong, Finish>(|event| Some(Finish { value: event.value }));
-    crate::app(AppState {
+    crate_app(AppState {
         bus: Some(bus.start(db.pool.clone()).unwrap()),
         db: Some(db.pool.clone()),
         object_storage: None,
@@ -95,7 +100,7 @@ fn rows(db: &Database, table: &str) -> Vec<Value> {
 // metadata/extra_info must remain readable after the dependency changes.
 fn seed_command(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO command_entries \
          (id, command_type, payload, meta, status, attempts, scheduled_at, received_at, updated_at, extra_info) \
          VALUES ($1, 'UpgradePing', $2, $3, 4, 2, now() - interval '1 day', \
@@ -110,7 +115,7 @@ fn seed_command(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
 
 fn seed_event(db: &Database, payload: &str, meta: Option<Value>) -> Uuid {
     let id = Uuid::now_v7();
-    diesel::sql_query(
+    sql_query(
         "INSERT INTO event_entries \
          (id, event_type, payload, meta, status, attempts, scheduled_at, received_at, updated_at, extra_info) \
          VALUES ($1, 'UpgradePong', $2, $3, 4, 2, now() - interval '1 day', \
@@ -143,7 +148,7 @@ fn assert_completed(before: &Value, after: &Value) {
     assert!(after["processed_at"].is_string());
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 async fn old_command_rows_advance_only_through_separate_queue_runs() {
     let db = Database::new();
@@ -172,7 +177,7 @@ async fn old_command_rows_advance_only_through_separate_queue_runs() {
         correlation_id.to_string()
     );
     assert_eq!(
-        serde_json::from_str::<Value>(events[0]["payload"].as_str().unwrap()).unwrap(),
+        from_str::<Value>(events[0]["payload"].as_str().unwrap()).unwrap(),
         json!({"value":7})
     );
     assert!(finished.lock().unwrap().is_empty());
@@ -195,7 +200,7 @@ async fn old_command_rows_advance_only_through_separate_queue_runs() {
     assert_eq!(*finished.lock().unwrap(), [7]);
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 async fn legacy_null_metadata_and_event_metadata_remain_compatible() {
     let db = Database::new();
@@ -258,7 +263,7 @@ async fn legacy_null_metadata_and_event_metadata_remain_compatible() {
     assert_completed(&command, &after);
 }
 
-#[tokio::test]
+#[tokio_test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 async fn partial_batches_complete_successes_and_reschedule_failures() {
     let db = Database::new();

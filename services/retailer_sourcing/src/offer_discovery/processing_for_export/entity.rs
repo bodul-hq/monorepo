@@ -1,6 +1,23 @@
+use chrono::DateTime;
+use chrono::Utc;
 use money::Money;
+use retailer_sauce::availability::Availability;
+use retailer_sauce::identifier::ExternalIdentifiers;
+use retailer_sauce::identifier::Gtin;
+use retailer_sauce::identifier::ProductIdentifiers;
+use retailer_sauce::identifier::Sku;
+use retailer_sauce::identifier::external_object as retailer_sauce_identifier_external_object;
+use retailer_sauce::item_condition::ItemCondition;
+use retailer_sauce::localization::Localization;
+use retailer_sauce::localization::TargetMarket;
+use retailer_sauce::localization::observation as retailer_sauce_localization_observation;
 use retailer_sauce::observation::Observation;
+use retailer_sauce::observation::object_observation as retailer_sauce_observation_object_observation;
+use retailer_sauce::structuralized::content::Content;
+use retailer_sauce::structuralized::content::observation as retailer_sauce_structuralized_content_observation;
+use serde::Deserializer;
 use serde::{Deserialize, Serialize};
+use shared::images::filter;
 use shared::retailer::RetailerCode;
 use uuid::Uuid;
 
@@ -30,38 +47,38 @@ pub struct OfferImport {
     #[serde(
         default,
         skip_serializing_if = "Observation::is_missing",
-        deserialize_with = "retailer_sauce::observation::object_observation"
+        deserialize_with = "retailer_sauce_observation_object_observation"
     )]
     pub was_price: Observation<Money>,
     #[serde(default, skip_serializing_if = "Observation::is_missing")]
-    pub availability: Observation<retailer_sauce::availability::Availability>,
+    pub availability: Observation<Availability>,
     #[serde(default, skip_serializing_if = "Observation::is_missing")]
-    pub item_condition: Observation<retailer_sauce::item_condition::ItemCondition>,
+    pub item_condition: Observation<ItemCondition>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
-        deserialize_with = "retailer_sauce::structuralized::content::observation"
+        deserialize_with = "retailer_sauce_structuralized_content_observation"
     )]
-    pub content: Option<retailer_sauce::structuralized::content::Content>,
+    pub content: Option<Content>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub gtin: Option<retailer_sauce::identifier::Gtin>,
+    pub gtin: Option<Gtin>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sku: Option<retailer_sauce::identifier::Sku>,
+    pub sku: Option<Sku>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
-        deserialize_with = "retailer_sauce::identifier::external_object"
+        deserialize_with = "retailer_sauce_identifier_external_object"
     )]
-    pub external_identifiers: Option<retailer_sauce::identifier::ExternalIdentifiers>,
+    pub external_identifiers: Option<ExternalIdentifiers>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
-        deserialize_with = "retailer_sauce::localization::observation"
+        deserialize_with = "retailer_sauce_localization_observation"
     )]
-    pub localization: Option<retailer_sauce::localization::Localization>,
+    pub localization: Option<Localization>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub scraped_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub scraped_at: Option<DateTime<Utc>>,
     #[serde(
         default,
         skip_serializing_if = "Option::is_none",
@@ -74,7 +91,7 @@ pub struct OfferImport {
     pub url: String,
 }
 
-fn image_array<'de, D: serde::Deserializer<'de>>(
+fn image_array<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<Vec<String>>, D::Error> {
     Vec::<String>::deserialize(deserializer).map(Some)
@@ -124,14 +141,10 @@ impl OfferExport {
                     .as_ref()
                     .and_then(|value| value.target_market.as_ref());
                 match market {
-                    Some(retailer_sauce::localization::TargetMarket::Region { .. })
-                        if self.schema_version < 9 =>
-                    {
+                    Some(TargetMarket::Region { .. }) if self.schema_version < 9 => {
                         return false;
                     }
-                    Some(retailer_sauce::localization::TargetMarket::LegacyRegion { .. })
-                        if self.schema_version >= 9 =>
-                    {
+                    Some(TargetMarket::LegacyRegion { .. }) if self.schema_version >= 9 => {
                         return false;
                     }
                     _ => {}
@@ -165,7 +178,7 @@ impl OfferExport {
                 {
                     return false;
                 }
-                let identifiers = retailer_sauce::identifier::ProductIdentifiers {
+                let identifiers = ProductIdentifiers {
                     gtin: entry.payload.gtin.clone(),
                     sku: entry.payload.sku.clone(),
                     external_identifiers: entry
@@ -201,7 +214,7 @@ impl OfferExport {
                     entry.payload.images.is_none()
                 } else {
                     entry.payload.images.as_ref().is_some_and(|images| {
-                        let (filtered, skipped) = shared::images::filter(images.clone());
+                        let (filtered, skipped) = filter(images.clone());
                         skipped == 0 && &filtered == images
                     })
                 }
@@ -219,27 +232,31 @@ pub(super) struct PreparedExport {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_value;
+
+    use serde_json::Value;
+    use serde_json::from_str;
+    use serde_json::json as serde_json_json;
+
     use super::*;
     #[test]
     fn payload_images_distinguish_omission_from_malformed_null() {
-        let mut value: serde_json::Value = serde_json::from_str(include_str!(
+        let mut value: Value = from_str(include_str!(
             "../../../tests/fixtures/offer_export/import_payload.json"
         ))
         .unwrap();
         assert!(
-            serde_json::from_value::<OfferImport>(value.clone())
+            from_value::<OfferImport>(value.clone())
                 .unwrap()
                 .images
                 .is_none()
         );
-        value["images"] = serde_json::json!([]);
+        value["images"] = serde_json_json!([]);
         assert_eq!(
-            serde_json::from_value::<OfferImport>(value.clone())
-                .unwrap()
-                .images,
+            from_value::<OfferImport>(value.clone()).unwrap().images,
             Some(vec![])
         );
-        value["images"] = serde_json::Value::Null;
-        assert!(serde_json::from_value::<OfferImport>(value).is_err());
+        value["images"] = Value::Null;
+        assert!(from_value::<OfferImport>(value).is_err());
     }
 }

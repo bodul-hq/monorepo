@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+
+use axum::serve;
 use axum::{
     Json, Router,
     extract::{Path, State},
@@ -12,7 +14,9 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
+use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
+use tokio::sync::Barrier;
 use uuid::Uuid;
 
 pub const TOKEN: &str = "sitemap-object-test-token";
@@ -24,7 +28,7 @@ pub struct Data {
     pub get_response: Option<(u16, String)>,
     pub reads: Vec<(String, Uuid)>,
     /// Gate one bucket's reads to exercise concurrent initial preparation.
-    pub read_barrier: Option<(String, Arc<tokio::sync::Barrier>)>,
+    pub read_barrier: Option<(String, Arc<Barrier>)>,
 }
 pub struct Server {
     pub runtime: Runtime,
@@ -39,12 +43,10 @@ impl Server {
             .route("/api/buckets/{bucket}/records", post(create))
             .route("/api/buckets/{bucket}/records/{id}", get(retrieve))
             .with_state(data.clone());
-        let listener = runtime
-            .block_on(tokio::net::TcpListener::bind("127.0.0.1:0"))
-            .unwrap();
+        let listener = runtime.block_on(TcpListener::bind("127.0.0.1:0")).unwrap();
         let url = format!("http://{}", listener.local_addr().unwrap());
         runtime.spawn(async move {
-            axum::serve(listener, router).await.unwrap();
+            serve(listener, router).await.unwrap();
         });
         Self { runtime, url, data }
     }

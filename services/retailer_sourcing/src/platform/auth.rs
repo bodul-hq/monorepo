@@ -5,6 +5,8 @@ use axum::extract::Request;
 use axum::http::{StatusCode, header};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
+use header::AUTHORIZATION;
+use header::WWW_AUTHENTICATE;
 use serde_json::json;
 
 /// The token callers send as `Authorization: Bearer <token>`. Hardcoded, so
@@ -19,7 +21,7 @@ pub const SECURITY_SCHEME: &str = "bearer";
 pub async fn require_bearer_token(request: Request, next: Next) -> Response {
     let token = request
         .headers()
-        .get(header::AUTHORIZATION)
+        .get(AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
         .and_then(|value| value.strip_prefix("Bearer "));
 
@@ -29,7 +31,7 @@ pub async fn require_bearer_token(request: Request, next: Next) -> Response {
         }
         _ => (
             StatusCode::UNAUTHORIZED,
-            [(header::WWW_AUTHENTICATE, "Bearer")],
+            [(WWW_AUTHENTICATE, "Bearer")],
             Json(json!({ "error": "a valid bearer token is required" })),
         )
             .into_response(),

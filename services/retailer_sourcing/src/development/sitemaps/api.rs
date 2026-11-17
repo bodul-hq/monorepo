@@ -5,8 +5,11 @@ use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use diesel::prelude::*;
+use diesel::sql_query;
 use diesel::sql_types::{BigInt, Jsonb, Nullable, Text, Uuid as SqlUuid};
 use serde::{Deserialize, Serialize};
+use tokio::task::spawn_blocking;
+use utoipa::path as utoipa_path;
 use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
@@ -89,7 +92,7 @@ pub struct ErrorBody {
 }
 
 /// Lists the fetched sitemap files, newest first.
-#[utoipa::path(
+#[utoipa_path(
     get,
     path = "/development/sitemaps/sources",
     params(Page),
@@ -113,7 +116,7 @@ pub async fn list_sources(State(state): State<AppState>, Query(page): Query<Page
     };
 
     // Diesel's connections block, so query off the async runtime.
-    match tokio::task::spawn_blocking(move || load_sources(&db, &objects, &page)).await {
+    match spawn_blocking(move || load_sources(&db, &objects, &page)).await {
         Ok(Ok(sources)) => Json(SourcesResponse { sources }).into_response(),
         Ok(Err(message)) => error(StatusCode::INTERNAL_SERVER_ERROR, message),
         Err(join) => error(StatusCode::INTERNAL_SERVER_ERROR, join.to_string()),
@@ -122,7 +125,7 @@ pub async fn list_sources(State(state): State<AppState>, Query(page): Query<Page
 
 fn load_sources(db: &DbPool, objects: &ObjectStorage, page: &Page) -> Result<Vec<Source>, String> {
     let mut connection = db.get().map_err(|error| error.to_string())?;
-    let records = diesel::sql_query(SOURCES_QUERY)
+    let records = sql_query(SOURCES_QUERY)
         .bind::<BigInt, _>(i64::from(page.limit))
         .bind::<BigInt, _>(i64::from(page.offset))
         .load::<SourceRecord>(&mut connection)
@@ -151,6 +154,11 @@ fn error(status: StatusCode, error: String) -> Response {
 
 #[cfg(test)]
 mod postgres_tests {
+    use crate::app as crate_app;
+    use crate::platform::auth::BEARER_TOKEN;
+    use diesel::sql_query;
+    use serde_json::from_slice;
+
     use super::*;
     use crate::platform::test_db::Database;
     use crate::platform::test_objects::Server;
@@ -170,11 +178,11 @@ mod postgres_tests {
         let retrieval = Uuid::now_v7();
         let body = "<urlset>ž 🔎</urlset>";
         let object_id = objects.create(RAW_SITEMAPS_BUCKET, id, body).unwrap();
-        diesel::sql_query("INSERT INTO sitemaps_raw (id,retrieval_id,url,storage) VALUES ($1,$2,'https://shop.test/a',$3)")
+        sql_query("INSERT INTO sitemaps_raw (id,retrieval_id,url,storage) VALUES ($1,$2,'https://shop.test/a',$3)")
             .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(retrieval)
             .bind::<Jsonb,_>(DbJson(ObjectStorageMetadata { content_size:body.len() as u64, object_storage_id:object_id }))
             .execute(&mut db.pool.get().unwrap()).unwrap();
-        let app = crate::app(AppState {
+        let app = crate_app(AppState {
             db: Some(db.pool.clone()),
             object_storage: Some(objects),
             ..Default::default()
@@ -182,10 +190,7 @@ mod postgres_tests {
         let request = || {
             Request::builder()
                 .uri("/api/development/sitemaps/sources?limit=1")
-                .header(
-                    "authorization",
-                    format!("Bearer {}", crate::platform::auth::BEARER_TOKEN),
-                )
+                .header("authorization", format!("Bearer {}", BEARER_TOKEN))
                 .body(Body::empty())
                 .unwrap()
         };
@@ -199,7 +204,7 @@ mod postgres_tests {
             .block_on(response.into_body().collect())
             .unwrap()
             .to_bytes();
-        let value: Value = serde_json::from_slice(&bytes).unwrap();
+        let value: Value = from_slice(&bytes).unwrap();
         assert_eq!(
             value,
             json!({"sources":[{"id":id,"retrieval_id":retrieval,"url":"https://shop.test/a","retailer_code":null,"body":body}]})

@@ -1,3 +1,22 @@
+use super::prelude::register;
+use super::store::StoreError;
+use crate::app as crate_app;
+use crate::platform::http::Client;
+use axum::body::Body;
+use axum::body::to_bytes;
+use axum::http::Request;
+use axum::http::StatusCode;
+use diesel::result::DatabaseErrorKind;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
+use facts::verify_current_round_trip;
+use serde_json::Value;
+use serde_json::from_slice;
+use serde_json::to_value;
+use std::sync::Arc;
+use std::sync::Barrier as SyncBarrier;
+use std::thread::scope as thread_scope;
+use tokio::sync::Barrier as TokioSyncBarrier;
 mod facts;
 
 use diesel::connection::SimpleConnection;
@@ -28,7 +47,7 @@ fn stored_source(objects: &ObjectStorage) -> ExportSource {
     source
 }
 
-fn rows(db: &Database) -> serde_json::Value {
+fn rows(db: &Database) -> Value {
     json_query(
         &mut db.pool.get().unwrap(),
         "SELECT coalesce(jsonb_agg(to_jsonb(e)), '[]') AS value FROM offer_export e",
@@ -125,21 +144,19 @@ fn postgres_source_replacement_and_concurrent_preparation_do_not_change_pinned_e
     let replacement = objects
         .create_offer(STRUCTURALIZED_OFFERS_BUCKET, r#"{"variations":[]}"#)
         .unwrap();
-    diesel::sql_query(
-        "INSERT INTO offer_details_structuralized (id,offer_id,storage) VALUES ($1,$2,$3)",
-    )
-    .bind::<SqlUuid, _>(Uuid::now_v7())
-    .bind::<SqlUuid, _>(source.offer_id)
-    .bind::<Jsonb, _>(Json(replacement))
-    .execute(&mut db.pool.get().unwrap())
-    .unwrap();
-    let barrier = std::sync::Barrier::new(2);
-    let prepared_barrier = std::sync::Barrier::new(2);
+    sql_query("INSERT INTO offer_details_structuralized (id,offer_id,storage) VALUES ($1,$2,$3)")
+        .bind::<SqlUuid, _>(Uuid::now_v7())
+        .bind::<SqlUuid, _>(source.offer_id)
+        .bind::<Jsonb, _>(Json(replacement))
+        .execute(&mut db.pool.get().unwrap())
+        .unwrap();
+    let barrier = SyncBarrier::new(2);
+    let prepared_barrier = SyncBarrier::new(2);
     server.data.lock().unwrap().read_barrier = Some((
         STRUCTURALIZED_OFFERS_BUCKET.into(),
-        std::sync::Arc::new(tokio::sync::Barrier::new(2)),
+        Arc::new(TokioSyncBarrier::new(2)),
     ));
-    let completed: Vec<OfferExport> = std::thread::scope(|scope| {
+    let completed: Vec<OfferExport> = thread_scope(|scope| {
         let handles: Vec<_> = (0..2)
             .map(|_| {
                 let barrier = &barrier;
@@ -208,7 +225,7 @@ fn postgres_failures_preserve_preparation_and_reject_bad_sources() {
     conflicting.url.push_str("?other");
     assert!(matches!(
         store.prepare(conflicting, 1),
-        Err(super::store::StoreError::SourceConflict)
+        Err(StoreError::SourceConflict)
     ));
     let complete = store.complete(store.prepare(source, 1).unwrap()).unwrap();
     server.data.lock().unwrap().get_response = Some((404, "{}".into()));
@@ -242,7 +259,7 @@ fn postgres_export_migration_is_additive_and_reversible() {
         .unwrap_err();
     assert!(matches!(
         error,
-        diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::CheckViolation, _)
+        ResultError::DatabaseError(DatabaseErrorKind::CheckViolation, _)
     ));
 }
 
@@ -278,7 +295,7 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
     let source = stored_source(&server.client());
     let platform = Platform {
         db: db.pool.clone(),
-        http: crate::platform::http::Client,
+        http: Client,
         offer_http: Default::default(),
         object_storage: server.client(),
     };
@@ -292,29 +309,27 @@ fn postgres_manual_queue_batches_prepare_export_without_downstream_services() {
     };
     let mut bus = Bus::default();
     bus.handle(Emit(event));
-    super::prelude::register(&mut bus, &platform);
+    register(&mut bus, &platform);
     let entered = server.runtime.enter();
     let bus = bus.start(db.pool.clone()).unwrap();
     drop(entered);
     bus.dispatcher().dispatch(&Trigger, "export-test").unwrap();
-    let app = crate::app(AppState {
+    let app = crate_app(AppState {
         outbox: None,
         bus: Some(bus),
         db: Some(db.pool.clone()),
         object_storage: Some(server.client()),
     });
     let run = |path: &str| {
-        let request = axum::http::Request::post(path)
+        let request = Request::post(path)
             .header("content-type", "application/json")
-            .body(axum::body::Body::from(r#"{"limit":10}"#))
+            .body(Body::from(r#"{"limit":10}"#))
             .unwrap();
         server.runtime.block_on(async {
             let response = app.clone().oneshot(request).await.unwrap();
-            assert_eq!(response.status(), axum::http::StatusCode::OK);
-            let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-                .await
-                .unwrap();
-            let report: serde_json::Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(response.status(), StatusCode::OK);
+            let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+            let report: Value = from_slice(&body).unwrap();
             assert_eq!(report, json!({"processed":1,"errors":[]}));
         });
     };
@@ -361,14 +376,14 @@ fn versions_coexist_without_rewriting_pending_or_completed_v1() {
     assert_eq!(retry.body, old_body);
     assert_eq!(retry.snapshot, old_snapshot);
     assert!(
-        serde_json::to_value(&retry.snapshot.entries[0].payload)
+        to_value(&retry.snapshot.entries[0].payload)
             .unwrap()
             .get("images")
             .is_none()
     );
     assert_eq!(store.load(new.id).unwrap(), Some(new));
     assert!(store.prepare(source, 99).is_err());
-    diesel::sql_query("UPDATE offer_export SET schema_version = 3 WHERE id = $1")
+    sql_query("UPDATE offer_export SET schema_version = 3 WHERE id = $1")
         .bind::<SqlUuid, _>(old_snapshot.id)
         .execute(&mut db.pool.get().unwrap())
         .unwrap();
@@ -376,5 +391,5 @@ fn versions_coexist_without_rewriting_pending_or_completed_v1() {
 }
 
 pub(super) fn verify_current_facts_round_trip(db: &Database, objects: ObjectStorage) {
-    facts::verify_current_round_trip(db, objects);
+    verify_current_round_trip(db, objects);
 }

@@ -6,10 +6,15 @@ use crate::platform::object_storage::{
     ObjectStorage, ObjectStorageMetadata, PROCESSED_SITEMAPS_BUCKET,
 };
 use crate::platform::test_db::{Database, json_query};
+use crate::platform::test_objects::Server;
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
+use serde_json::from_value;
 use serde_json::json;
+use serde_json::to_string as serde_json_to_string;
 use shared::retailer::RetailerCode;
 use sitemap::SitemapDocument;
 use uuid::Uuid;
@@ -18,7 +23,7 @@ use uuid::Uuid;
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_processing_reads_entities_and_writes_atomically() {
     let db = Database::new();
-    let server = crate::platform::test_objects::Server::new();
+    let server = Server::new();
     let objects = server.client();
     let store = PgStore::new(db.pool.clone(), objects.clone());
     let mut conn = db.pool.get().unwrap();
@@ -27,7 +32,7 @@ fn postgres_processing_reads_entities_and_writes_atomically() {
     for (second, body) in [(2, "second 🔎"), (1, "first ž")] {
         let id = Uuid::now_v7();
         let object_id = objects.create("sitemaps_raw", id, body).unwrap();
-        diesel::sql_query(format!("INSERT INTO sitemaps_raw (id,retrieval_id,url,storage,fetched_at) VALUES ($1,$2,'https://shop.test/{second}',jsonb_build_object('content_size',{},'object_storage_id','{object_id}'),'2026-10-15T00:00:0{second}Z')",body.len()))
+        sql_query(format!("INSERT INTO sitemaps_raw (id,retrieval_id,url,storage,fetched_at) VALUES ($1,$2,'https://shop.test/{second}',jsonb_build_object('content_size',{},'object_storage_id','{object_id}'),'2026-10-15T00:00:0{second}Z')",body.len()))
             .bind::<SqlUuid,_>(id).bind::<SqlUuid,_>(retrieval_id).execute(&mut conn).unwrap();
     }
     let entities = store.raw_documents(retrieval_id).unwrap();
@@ -57,15 +62,13 @@ fn postgres_processing_reads_entities_and_writes_atomically() {
         json!({"content_size": 1.5}),
         json!({"content_size": 7, "body_size": 7}),
     ] {
-        diesel::sql_query("UPDATE sitemaps_raw SET storage=$1")
+        sql_query("UPDATE sitemaps_raw SET storage=$1")
             .bind::<Jsonb, _>(storage)
             .execute(&mut conn)
             .unwrap();
         assert!(matches!(
             store.raw_documents(retrieval_id),
-            Err(StoreError::Database(
-                diesel::result::Error::DeserializationError(_)
-            ))
+            Err(StoreError::Database(ResultError::DeserializationError(_)))
         ));
     }
     conn.batch_execute(
@@ -116,13 +119,13 @@ fn postgres_processing_reads_entities_and_writes_atomically() {
     assert_eq!(row["id"], entity.id.to_string());
     assert_eq!(row["retrieval_id"], retrieval_id.to_string());
     assert_eq!(row["url_count"], entity.url_count());
-    let storage: ObjectStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+    let storage: ObjectStorageMetadata = from_value(row["storage"].clone()).unwrap();
     assert_eq!(storage.object_storage_id, stored.object_storage_id);
     assert_eq!(
         objects
             .get(PROCESSED_SITEMAPS_BUCKET, entity.id, &storage)
             .unwrap(),
-        serde_json::to_string(entity.document()).unwrap()
+        serde_json_to_string(entity.document()).unwrap()
     );
 }
 
@@ -139,12 +142,12 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
         &mut db.pool.get().unwrap(),
         "SELECT to_jsonb(p) AS value FROM sitemaps_processed p",
     );
-    let storage: ObjectStorageMetadata = serde_json::from_value(row["storage"].clone()).unwrap();
+    let storage: ObjectStorageMetadata = from_value(row["storage"].clone()).unwrap();
     assert_eq!(storage.object_storage_id, stored.object_storage_id);
     assert_eq!(
         objects
             .get(PROCESSED_SITEMAPS_BUCKET, entity.id, &storage)
             .unwrap(),
-        serde_json::to_string(entity.document()).unwrap()
+        serde_json_to_string(entity.document()).unwrap()
     );
 }

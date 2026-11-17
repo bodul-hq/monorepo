@@ -5,7 +5,10 @@ use crate::platform::object_storage::{ObjectStorage, OfferStorageMetadata, RAW_O
 use crate::platform::test_db::{Database, json_query};
 use crate::platform::test_objects::Server;
 use diesel::connection::SimpleConnection;
+use serde_json::from_value;
 use shared::retailer::RetailerCode;
+use std::sync::Barrier;
+use std::thread::scope as thread_scope;
 use uuid::Uuid;
 
 const ROW: &str = "SELECT to_jsonb(o) AS value FROM offer_details_raw o";
@@ -30,7 +33,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
         before["storage"]["object_storage_id"],
         stored.object_storage_id.to_string()
     );
-    let storage: OfferStorageMetadata = serde_json::from_value(before["storage"].clone()).unwrap();
+    let storage: OfferStorageMetadata = from_value(before["storage"].clone()).unwrap();
     assert_eq!(
         objects.get_offer(RAW_OFFERS_BUCKET, &storage).unwrap(),
         entity.body
@@ -51,7 +54,7 @@ pub(super) fn verify_round_trip(db: &Database, objects: ObjectStorage) {
         after["storage"]["object_storage_id"],
         before["storage"]["object_storage_id"]
     );
-    let storage: OfferStorageMetadata = serde_json::from_value(after["storage"].clone()).unwrap();
+    let storage: OfferStorageMetadata = from_value(after["storage"].clone()).unwrap();
     assert_eq!(storage.content_size, entity.body.len() as u64);
     assert_eq!(
         objects.get_offer(RAW_OFFERS_BUCKET, &storage).unwrap(),
@@ -110,8 +113,8 @@ fn postgres_concurrent_updates_keep_identity_and_complete_references() {
     let entity = entity();
     store.store_raw_offer(&entity).unwrap();
     let before = json_query(&mut db.pool.get().unwrap(), ROW);
-    let barrier = std::sync::Barrier::new(2);
-    std::thread::scope(|scope| {
+    let barrier = Barrier::new(2);
+    thread_scope(|scope| {
         for value in ["left", "right"] {
             let mut entity = entity.clone();
             entity.body = value.to_string();
@@ -125,7 +128,7 @@ fn postgres_concurrent_updates_keep_identity_and_complete_references() {
     });
     let after = json_query(&mut db.pool.get().unwrap(), ROW);
     assert_eq!(before["id"], after["id"]);
-    let storage: OfferStorageMetadata = serde_json::from_value(after["storage"].clone()).unwrap();
+    let storage: OfferStorageMetadata = from_value(after["storage"].clone()).unwrap();
     let body = objects.get_offer(RAW_OFFERS_BUCKET, &storage).unwrap();
     assert!(["left", "right"].contains(&body.as_str()));
     assert_eq!(server.data.lock().unwrap().records.len(), 3);

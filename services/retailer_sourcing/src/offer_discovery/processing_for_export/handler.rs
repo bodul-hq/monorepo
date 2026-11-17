@@ -3,6 +3,9 @@ use super::entity::{ExportSource, OfferExport, PreparedExport};
 use super::event::OfferExportWasPrepared;
 use super::store::StoreError;
 use crate::platform::bus::Handle;
+use thiserror::Error as ThiserrorError;
+use tracing::info;
+use uuid::Uuid;
 
 pub(super) trait Store: Send + Sync + 'static {
     fn prepare(
@@ -13,14 +16,14 @@ pub(super) trait Store: Send + Sync + 'static {
     fn complete(&self, prepared: PreparedExport) -> Result<OfferExport, StoreError>;
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, ThiserrorError)]
 pub enum HandlerError {
     #[error("scrape time disagrees with the pinned structuralized artifact")]
     ConflictingScrapeTime,
     #[error(
         "offer {0} has no pinned structuralized source; run fresh structuralization before exporting"
     )]
-    UnpinnedSource(uuid::Uuid),
+    UnpinnedSource(Uuid),
     #[error(transparent)]
     Store(#[from] StoreError),
 }
@@ -56,7 +59,7 @@ impl<S: Store> Handle for Handler<S> {
         };
         let prepared = self.store.prepare(source, command.schema_version)?;
         let snapshot = self.store.complete(prepared)?;
-        tracing::info!(
+        info!(
             export_id = %snapshot.id,
             offer_id = %snapshot.source.offer_id,
             exported = snapshot.entries.len(),
@@ -73,6 +76,11 @@ impl<S: Store> Handle for Handler<S> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::reacts_to::on;
+    use serde_json::from_value;
+    use serde_json::to_string as serde_json_to_string;
+    use serde_json::to_value;
+
     use super::super::conversion::{
         convert,
         tests::{ANKER, source},
@@ -96,7 +104,7 @@ mod tests {
             }
             let snapshot = convert(source, ANKER, schema_version)?;
             Ok(PreparedExport {
-                body: serde_json::to_string(&snapshot)?,
+                body: serde_json_to_string(&snapshot)?,
                 snapshot,
                 storage: None,
             })
@@ -158,11 +166,11 @@ mod tests {
 
     #[test]
     fn legacy_event_decodes_but_requires_fresh_structuralization() {
-        let mut json = serde_json::to_value(command()).unwrap();
+        let mut json = to_value(command()).unwrap();
         json.as_object_mut().unwrap().remove("storage");
-        let legacy: OfferWasStructuralized = serde_json::from_value(json).unwrap();
+        let legacy: OfferWasStructuralized = from_value(json).unwrap();
         assert!(legacy.storage.is_none());
-        let command = super::super::reacts_to::on(&legacy).unwrap();
+        let command = on(&legacy).unwrap();
         let handler = Handler::new(FakeStore {
             fail_prepare: true,
             fail_complete: true,
@@ -174,14 +182,11 @@ mod tests {
 
     #[test]
     fn queued_commands_without_a_version_stay_v1_and_new_commands_select_v9() {
-        let mut value = serde_json::to_value(command()).unwrap();
+        let mut value = to_value(command()).unwrap();
         value.as_object_mut().unwrap().remove("schema_version");
-        let legacy: ProcessOfferForExport = serde_json::from_value(value.clone()).unwrap();
+        let legacy: ProcessOfferForExport = from_value(value.clone()).unwrap();
         assert_eq!(legacy.schema_version, 1);
-        let source: OfferWasStructuralized = serde_json::from_value(value).unwrap();
-        assert_eq!(
-            super::super::reacts_to::on(&source).unwrap().schema_version,
-            9
-        );
+        let source: OfferWasStructuralized = from_value(value).unwrap();
+        assert_eq!(on(&source).unwrap().schema_version, 9);
     }
 }

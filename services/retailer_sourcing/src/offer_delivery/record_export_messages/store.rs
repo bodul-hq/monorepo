@@ -1,3 +1,4 @@
+use outbox::record as outbox_record;
 use uuid::Uuid;
 
 use super::listener::{Store, StoreError};
@@ -32,6 +33,6 @@ impl Store for PgStore {
         context: &EventContext,
     ) -> Result<(), StoreError> {
         let mut conn = self.pool.get()?;
-        Ok(outbox::record(&mut conn, messages, context)?)
+        Ok(outbox_record(&mut conn, messages, context)?)
     }
 }

@@ -5,6 +5,8 @@ use crate::platform::object_storage::{CONSOLIDATED_SITEMAPS_BUCKET, ObjectStorag
 use crate::platform::test_db::Database;
 use crate::platform::test_objects::Server;
 use diesel::prelude::*;
+use diesel::result::Error as ResultError;
+use diesel::sql_query;
 use diesel::sql_types::{Jsonb, Uuid as SqlUuid};
 use serde_json::json;
 use uuid::Uuid;
@@ -19,7 +21,7 @@ fn postgres_discovery_returns_entities_and_rejects_bad_content() {
     let mut conn = db.pool.get().unwrap();
     assert!(matches!(
         store.consolidated_sitemap(Uuid::now_v7()),
-        Err(StoreError::Database(diesel::result::Error::NotFound))
+        Err(StoreError::Database(ResultError::NotFound))
     ));
     for (content, valid) in [
         (
@@ -34,7 +36,7 @@ fn postgres_discovery_returns_entities_and_rejects_bad_content() {
         let object_storage_id = objects
             .create(CONSOLIDATED_SITEMAPS_BUCKET, id, &body)
             .unwrap();
-        diesel::sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,'{}','{}',$2)")
+        sql_query("INSERT INTO sitemaps_consolidated (id,stats,\"references\",storage) VALUES ($1,'{}','{}',$2)")
             .bind::<SqlUuid,_>(id).bind::<Jsonb,_>(Json(ObjectStorageMetadata { content_size: body.len() as u64, object_storage_id }))
             .execute(&mut conn).unwrap();
         let result = store.consolidated_sitemap(id);
