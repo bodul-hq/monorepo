@@ -1,0 +1,46 @@
+meta {
+  name: Start all Anker initial offer fills
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{retailerSourcingBaseUrl}}/api/initial-offer-fills
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "retailers": [
+      "ankerau",
+      "ankerca",
+      "ankercom",
+      "ankerde",
+      "ankerdk",
+      "ankereu",
+      "ankerfi",
+      "ankerfr",
+      "ankeris",
+      "ankeritalycom",
+      "ankerjapancom",
+      "ankerno",
+      "ankernz",
+      "ankerpl",
+      "ankerse",
+      "ankeruk",
+      "ankervn"
+    ]
+  }
+}
+
+docs {
+  Queues initial fills for all 17 supported Anker retailers, excluding Korea
+  and the retired Nordic aggregate. Returns fills with each retailer and run_id.
+  A dispatch failure returns confirmed prior successes in fills; those runs stay
+  queued. An unexpected queue-task failure omits fills because outcomes are unknown.
+  Commands run through the existing workers or POST /api/commands/run.
+  Run POST /api/events/run to advance reactions: token acquisition where required,
+  batches of up to 500 product IDs, then one complete GraphQL fetch per product.
+  OfferDetailsFetched is terminal.
+}
