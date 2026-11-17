@@ -1,15 +1,23 @@
+use axum::serve;
 use axum::{
     Router,
     body::{Body, to_bytes},
     extract::Request,
     http::{HeaderMap, Response},
 };
+use chrono::SecondsFormat;
 use object_storage_client::{Client, CreateRecord, Error, ErrorKind, Transport, Uuid, Value};
+use serde_json::from_slice;
+use serde_json::from_str;
 use serde_json::json;
 use std::{
     collections::VecDeque,
     sync::{Arc, Mutex},
 };
+use tokio::net::TcpListener;
+use tokio::spawn;
+use tokio::task::JoinHandle;
+use tokio::test as tokio_test;
 
 const TOKEN: &str = "client-test-credential";
 const ID: &str = "019a1234-5678-7000-8000-000000000001";
@@ -41,7 +49,7 @@ struct Captured {
 struct Server {
     url: String,
     requests: Arc<Mutex<Vec<Captured>>>,
-    task: tokio::task::JoinHandle<()>,
+    task: JoinHandle<()>,
 }
 impl Drop for Server {
     fn drop(&mut self) {
@@ -79,10 +87,10 @@ impl Server {
                 response.body(Body::from(reply.body)).unwrap()
             }
         });
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let url = format!("http://{}", listener.local_addr().unwrap());
-        let task = tokio::spawn(async move {
-            axum::serve(listener, router).await.unwrap();
+        let task = spawn(async move {
+            serve(listener, router).await.unwrap();
         });
         Self {
             url,
@@ -96,7 +104,7 @@ impl Server {
 }
 fn input() -> CreateRecord {
     CreateRecord { idempotency_key: Uuid::parse_str(KEY).unwrap(), payload: "Živjo 雪 🌍\n".into(),
-        metadata: serde_json::from_str(r#"{"integer":123456789012345678901234567890,"decimal":0.123456789012345678901234567890,"array":[1,2]}"#).unwrap() }
+        metadata: from_str(r#"{"integer":123456789012345678901234567890,"decimal":0.123456789012345678901234567890,"array":[1,2]}"#).unwrap() }
 }
 fn record() -> Value {
     let input = input();
@@ -106,7 +114,7 @@ fn problem(status: u16) -> Value {
     json!({"type":"about:blank","title":"Test error","status":status,"detail":"Sanitized failure."})
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn rest_sends_auth_and_strict_body_and_preserves_precision() {
     let server = Server::new(vec![
         Reply::json(201, "application/json", json!({"id":ID})),
@@ -125,7 +133,7 @@ async fn rest_sends_auth_and_strict_body_and_preserves_precision() {
     assert_eq!(
         stored
             .created_at
-            .to_rfc3339_opts(chrono::SecondsFormat::AutoSi, true),
+            .to_rfc3339_opts(SecondsFormat::AutoSi, true),
         "2026-10-15T12:34:56.123456Z"
     );
     let requests = server.requests.lock().unwrap();
@@ -141,7 +149,7 @@ async fn rest_sends_auth_and_strict_body_and_preserves_precision() {
     }
     assert_eq!(requests[0].method, "POST");
     assert_eq!(requests[0].headers["content-type"], "application/json");
-    let sent: Value = serde_json::from_slice(&requests[0].body).unwrap();
+    let sent: Value = from_slice(&requests[0].body).unwrap();
     assert_eq!(
         sent,
         json!({"idempotency_key":KEY,"payload":input.payload,"metadata":input.metadata})
@@ -150,7 +158,7 @@ async fn rest_sends_auth_and_strict_body_and_preserves_precision() {
     assert!(!format!("{client:?}").contains(TOKEN));
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn graphql_uses_variables_aliases_and_the_same_record_type() {
     let server = Server::new(vec![
         Reply::json(
@@ -186,14 +194,14 @@ async fn graphql_uses_variables_aliases_and_the_same_record_type() {
                 .contains("application/graphql-response+json")
         );
     }
-    let create: Value = serde_json::from_slice(&requests[0].body).unwrap();
+    let create: Value = from_slice(&requests[0].body).unwrap();
     assert_eq!(create["operationName"], "CreateRecord");
     assert_eq!(
         create["variables"]["input"],
         json!({"bucket":"sitemap_raw","idempotencyKey":KEY,"payload":input.payload,"metadata":input.metadata})
     );
     assert!(!create["query"].as_str().unwrap().contains(&input.payload));
-    let get: Value = serde_json::from_slice(&requests[1].body).unwrap();
+    let get: Value = from_slice(&requests[1].body).unwrap();
     assert_eq!(get["operationName"], "GetRecord");
     assert_eq!(get["variables"], json!({"bucket":"sitemap_raw","id":ID}));
     assert!(
@@ -210,7 +218,7 @@ async fn graphql_uses_variables_aliases_and_the_same_record_type() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn health_authenticates_even_with_graphql_transport() {
     let server = Server::new(vec![Reply {
         status: 200,
@@ -228,7 +236,7 @@ async fn health_authenticates_even_with_graphql_transport() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn both_transports_handle_problem_details_and_non_json_http_errors() {
     for transport in [Transport::Rest, Transport::Graphql] {
         for (status, expected) in [
@@ -283,7 +291,7 @@ async fn both_transports_handle_problem_details_and_non_json_http_errors() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn graphql_errors_never_become_false_successes() {
     for (status, code, kind) in [
         (200, "NOT_FOUND", ErrorKind::NotFound),
@@ -345,7 +353,7 @@ async fn graphql_errors_never_become_false_successes() {
     );
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn rejects_malformed_or_missing_success_data() {
     for (transport, media, bodies) in [
         (
@@ -417,7 +425,7 @@ fn validates_configuration_without_echoing_credentials() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn does_not_follow_redirects_or_retry_failed_mutations() {
     let target = Server::new(vec![]).await;
     let server = Server::new(vec![Reply {
@@ -453,7 +461,7 @@ async fn does_not_follow_redirects_or_retry_failed_mutations() {
     assert_eq!(server.requests.lock().unwrap().len(), 1);
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn preserves_large_bodies_in_both_directions() {
     for transport in [Transport::Rest, Transport::Graphql] {
         let mut input = input();
@@ -484,9 +492,9 @@ async fn preserves_large_bodies_in_both_directions() {
     }
 }
 
-#[tokio::test]
+#[tokio_test]
 async fn connection_failures_are_transport_errors() {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     drop(listener);
     let error = Client::new(&url, TOKEN, Transport::Rest)

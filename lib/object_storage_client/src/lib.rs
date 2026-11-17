@@ -4,6 +4,15 @@
 //! GraphQL transports. Both transports share record types and error kinds.
 //! Callers supply and retain UUIDv7 idempotency keys; operations are not retried
 //! automatically. See the crate README for setup and runnable examples.
+
+use reqwest::Response;
+use reqwest::redirect::Policy;
+use reqwest::retry::never as retry_never;
+use serde_json::from_slice;
+use serde_json::from_value;
+use std::fmt::Debug as FmtDebug;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 mod error;
 
 use chrono::{DateTime, Utc};
@@ -68,8 +77,8 @@ pub struct Client {
     authorization: HeaderValue,
     transport: Transport,
 }
-impl std::fmt::Debug for Client {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl FmtDebug for Client {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         f.debug_struct("Client")
             .field("base_url", &self.base_url)
             .field("transport", &self.transport)
@@ -82,8 +91,8 @@ impl Client {
     /// HTTP and HTTPS are supported. A base-path prefix is preserved.
     pub fn new(base_url: &str, token: &str, transport: Transport) -> Result<Self, Error> {
         let http = HttpClient::builder()
-            .redirect(reqwest::redirect::Policy::none())
-            .retry(reqwest::retry::never())
+            .redirect(Policy::none())
+            .retry(retry_never())
             .build()?;
         Self::with_http_client(http, base_url, token, transport)
     }
@@ -294,14 +303,14 @@ impl Client {
                 status,
                 detail: "GraphQL response omitted operation data",
             })?;
-        serde_json::from_value(value).map_err(|_| Error::Protocol {
+        from_value(value).map_err(|_| Error::Protocol {
             status,
             detail: "invalid operation response",
         })
     }
 }
 
-fn media_type(response: &reqwest::Response) -> String {
+fn media_type(response: &Response) -> String {
     response
         .headers()
         .get(CONTENT_TYPE)
@@ -314,7 +323,7 @@ fn media_type(response: &reqwest::Response) -> String {
         .to_ascii_lowercase()
 }
 fn decode<T: DeserializeOwned>(body: &[u8], status: u16) -> Result<T, Error> {
-    serde_json::from_slice(body).map_err(|_| Error::Protocol {
+    from_slice(body).map_err(|_| Error::Protocol {
         status,
         detail: "invalid JSON response",
     })
@@ -322,6 +331,6 @@ fn decode<T: DeserializeOwned>(body: &[u8], status: u16) -> Result<T, Error> {
 fn http_error(status: u16, body: &[u8]) -> Error {
     Error::Http {
         status,
-        problem: serde_json::from_slice(body).ok(),
+        problem: from_slice(body).ok(),
     }
 }
