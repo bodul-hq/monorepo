@@ -1,5 +1,8 @@
 # retailers_wip
 
-Reserved retailer integration workspace. Inventory, locale request contracts and
-initial-fill interfaces now live in `retailer_sauce`. Shopify GraphQL acquisition
-is implemented by `retailer_sauce::shopify::graphql::Engine`.
+Work-in-progress retailer integrations. The crate has no code yet.
+
+The structuralized Shopify document it used to hold now lives in
+`retailer_sauce::shopify::structuralized`. Retailer crates expose it through
+`structuralize_offer_details_v2_for`, and
+`retailer_data_extractor::structuralize_v2_for` dispatches to them.
