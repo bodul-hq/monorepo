@@ -113,6 +113,10 @@ and [ADR 22](docs/adr/0022-customer-facing-offer-projection.md).
 
 ### apps
 
+The [Back Office app](apps/back_office/README.md) provides a protected home page
+and PostgreSQL-backed login sessions.
+
+
 `customers` and `development` are poem servers that render HTML on the server.
 Each serves an index page at `/`. The [customers app](apps/customers/README.md)
 shows 30 offers per page with responsive HTML/CSS cards, Previous/Next links,

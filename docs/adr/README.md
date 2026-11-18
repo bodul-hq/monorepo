@@ -149,3 +149,5 @@ Decision, Consequences) and give it the next number.
 - [87: Initial-fill boundaries](0087-initial-fill-boundaries.md)
 
 - [88: Single-command catalog traversal](0088-single-command-catalog-traversal.md)
+
+- [89: Back Office sessions](0089-back-office-sessions.md)

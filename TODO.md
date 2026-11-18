@@ -17,3 +17,5 @@ Flow: `[ ]` → `[.]` → `[>]` → `[~]` → `[x]`.
 - [x] Add offline integration tests with three raw/extracted fixture pairs per storefront from `data2` in the retailer crates. Copied 141 unchanged pairs across 47 storefronts into each brand's `tests/fixtures`, documented their origins, and verified full extraction and JSON round trips. `make ci` passes in all three brand crates.
 
 - [x] Sync `retailers_anker`, `retailers_minisforum` and `retailers_ugreen` into the standalone `~/work/space/bodul_hq/lib_retailers_*` repositories, keeping them buildable and publishable to `bodul`. [Plan](docs/plans/retailer-crates-bodul-hq-sync.md).
+
+- [x] Add Back Office with PostgreSQL-backed authentication and bodul credentials. Workspace CI, PostgreSQL persistence tests and live login/logout smoke checks pass.

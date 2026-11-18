@@ -1,0 +1,1 @@
+CREATE TABLE sessions (id TEXT PRIMARY KEY, data JSONB NOT NULL, expires_at TIMESTAMPTZ NOT NULL); CREATE INDEX sessions_expiry ON sessions(expires_at);
