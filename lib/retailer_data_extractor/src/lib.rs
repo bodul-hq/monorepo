@@ -34,7 +34,7 @@ use serde_json::to_value;
 use std::io::Error;
 use std::io::ErrorKind;
 
-pub use v2::extract_v2_for;
+pub use v2::{extract_v2_for, structuralize_v2_for};
 mod initial_fill_process;
 pub mod localization;
 mod pretty;
