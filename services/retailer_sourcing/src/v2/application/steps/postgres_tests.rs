@@ -1,7 +1,8 @@
 //! Durable end-to-end tests in an isolated schema, with local object-storage fixtures.
+use super::extract_offer_details::register as register_extraction;
 use super::{
     offer_details as details, product_catalog_ids as catalog,
-    tests::{connection, product, token_value},
+    tests::{connection, token_value},
 };
 use crate::app;
 use crate::platform::{
@@ -37,6 +38,7 @@ use retailer_sauce::prelude::Http;
 use retailer_sauce::prelude::StorefrontToken;
 use serde_json::from_slice;
 use serde_json::from_str;
+use serde_json::from_value;
 use serde_json::to_string;
 use serde_json::to_value;
 use serde_json::{Value, json};
@@ -71,7 +73,11 @@ impl Http for Source {
             ),
             "OfferDetails" => {
                 let id = operation.variables["id"].as_str().unwrap();
-                let value = product(id);
+                let mut value: Value = from_str(include_str!(
+                    "../../../../tests/fixtures/anker/ankerau_product.json"
+                ))
+                .unwrap();
+                value["id"] = json!(id);
                 Ok(json!({"data":{"product":value},"extensions":{"context":context}}))
             }
             _ => Err("unexpected continuation".into()),
@@ -108,19 +114,19 @@ fn run(server: &Server, app: &Router, path: &str) {
 }
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_initial_fill_reaches_terminal_stored_events_without_downstream_work() {
+fn postgres_initial_fill_extracts_stored_details() {
     run_initial_fill(RetailerCode::AnkerAu);
 }
 
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_canadian_initial_fill_reaches_terminal_stored_events_without_downstream_work() {
+fn postgres_canadian_initial_fill_extracts_stored_details() {
     run_initial_fill(RetailerCode::AnkerCa);
 }
 
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_remaining_inventory_locales_preserve_terminal_event_contract() {
+fn postgres_remaining_inventory_locales_extract_stored_details() {
     for retailer in RetailerCode::ALL {
         if !matches!(retailer, RetailerCode::AnkerAu | RetailerCode::AnkerCa)
             && get_storefront_config(retailer).is_some()
@@ -200,7 +206,7 @@ fn run_initial_fill(retailer: RetailerCode) {
         .initial_fill_contexts()
         .unwrap();
     let attempts_token = get_storefront_config(retailer).unwrap().attempts_token();
-    let expected_commands = usize::from(attempts_token) + contexts.len() * 4;
+    let expected_commands = usize::from(attempts_token) + contexts.len() * 7;
     let db = Database::new();
     let server = Server::new();
     let mut bus = Bus::default();
@@ -210,6 +216,7 @@ fn run_initial_fill(retailer: RetailerCode) {
         fetcher: Source,
         store: server.client(),
     });
+    register_extraction(&mut bus, server.client());
     bus.on_many_keyed(start_catalog_for_locales);
     bus.on_many_keyed(fetch_details_for_catalog_products);
     let guard = server.runtime.enter();
@@ -272,18 +279,30 @@ fn run_initial_fill(retailer: RetailerCode) {
     assert_eq!(terminal.len(), contexts.len() * 3);
     // Check the actual upload destination against object storage's existing
     // contract, independently of the handler's bucket constant.
-    let data = server.data.lock().unwrap();
-    assert_eq!(data.uploads.len(), contexts.len() * 3);
-    assert!(
-        data.uploads
-            .iter()
-            .all(|(bucket, _)| bucket == "offer_details_raw")
-    );
-    drop(data);
+    let extracted: Vec<_> = events
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|row| row["event_type"] == "OfferDetailsExtracted")
+        .map(|row| from_str::<Value>(row["payload"].as_str().unwrap()).unwrap())
+        .collect();
+    assert_eq!(extracted.len(), terminal.len());
     for row in terminal {
         assert_eq!(row["status"], 5);
         let event: OfferDetailsFetched = from_str(row["payload"].as_str().unwrap()).unwrap();
         assert_eq!(event.retailer_code, retailer);
+        let output = extracted
+            .iter()
+            .find(|output| output["fetched"] == to_value(&event).unwrap())
+            .unwrap();
+        let storage = from_value(output["storage"].clone()).unwrap();
+        let document = server
+            .client()
+            .get_offer("offer_details_extracted", &storage)
+            .unwrap();
+        let document: Value = from_str(&document).unwrap();
+        assert_eq!(document["context"], to_value(&event.context).unwrap());
+        assert!(!document["product"]["identifiers"]["id"].is_null());
         let artifact = server.client().get_offer(BUCKET, &event.storage).unwrap();
         let artifact: Value = from_str(&artifact).unwrap();
         assert_eq!(artifact["schema_version"], 2);

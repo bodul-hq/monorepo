@@ -23,5 +23,5 @@ docs {
   and returns its retailer and run_id in fills. Commands run through the existing
   workers or POST /api/commands/run. Run POST /api/events/run to advance reactions:
   token acquisition where required, batches of up to 500 product IDs, then one
-  complete GraphQL fetch per product. OfferDetailsFetched is terminal.
+  complete GraphQL fetch per product. OfferDetailsFetched queues extraction.
 }

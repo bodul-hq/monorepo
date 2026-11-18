@@ -7,5 +7,4 @@ pub fn register(bus: &mut Bus, platform: &Platform) {
         store: platform.object_storage.clone(),
     });
     bus.on_many_keyed(fetch_details_for_catalog_products);
-    // OfferDetailsFetched is deliberately terminal: no subscriber or outbox registration.
 }
