@@ -23,19 +23,19 @@ SIGINT/SIGTERM drain HTTP requests and shut down the Mulac kernel.
 
 ## Routes and processing
 
-| Route | Behavior |
-| --- | --- |
-| `GET /api/health` | Liveness, returns `ok` |
-| `/api/openapi.json`, `/api/docs` | OpenAPI and Swagger UI |
-| `/graphql` | GET/POST GraphQL health query |
-| `/graphql/ide` | GraphiQL in debug builds only; release returns 404 |
-| `POST /api/inbox` | Durable message acceptance, returns 202 with message UUID |
-| `POST /api/inbox/run` | Queue commands from inbox messages |
-| `POST /api/commands/run` | Execute a command batch |
-| `POST /api/events/run` | Dispatch an event batch |
-| `POST /api/outbox/run` | Returns 503: no publisher is configured |
-| `GET /api/reporting/database-tables` | Estimated row counts and storage |
-| `GET /api/reporting/entry-statuses` | Exact queue counts scheduled today in UTC |
+| Route                                | Behavior                                                  |
+| ------------------------------------ | --------------------------------------------------------- |
+| `GET /api/health`                    | Liveness, returns `ok`                                    |
+| `/api/openapi.json`, `/api/docs`     | OpenAPI and Swagger UI                                    |
+| `/graphql`                           | GET/POST GraphQL health query                             |
+| `/graphql/ide`                       | GraphiQL in debug builds only; release returns 404        |
+| `POST /api/inbox`                    | Durable message acceptance, returns 202 with message UUID |
+| `POST /api/inbox/run`                | Queue commands from inbox messages                        |
+| `POST /api/commands/run`             | Execute a command batch                                   |
+| `POST /api/events/run`               | Dispatch an event batch                                   |
+| `POST /api/outbox/run`               | Returns 503: no publisher is configured                   |
+| `GET /api/reporting/database-tables` | Estimated row counts and storage                          |
+| `GET /api/reporting/entry-statuses`  | Exact queue counts scheduled today in UTC                 |
 
 Queue APIs use Mulac's Offers-compatible contracts. Batch bodies are
 `{"limit":100}`, with integer limits 1–1000. Invalid requests return 400;

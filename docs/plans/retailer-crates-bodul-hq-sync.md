@@ -37,16 +37,16 @@ and changes to the monorepo crates themselves.
 
 ## Monorepo couplings to resolve
 
-| Coupling                                                                    | Handling                                                                                                                                         |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `name.workspace = true` dependencies                                        | Pin the versions from `lib/Cargo.toml` `[workspace.dependencies]`, with registries.                                                               |
-| Makefile includes `../../make/rust.mk`                                      | Keep the target's standalone Makefile unchanged.                                                                                                 |
-| README links to `../../docs/…`, `../../services/…`, `../../README.md`       | They already dangle in 0.1.1. See decision 2.                                                                                                     |
-| Ignored corpus tests read `CARGO_MANIFEST_DIR/../../../data/…`              | The data folder is missing in both locations. Keep the tests: they are `#[ignore]` and fail only when selected, as the monorepo documents.        |
-| Rustdoc plain links to `../../../../docs/retailer.md`                       | rustdoc doesn't check them. Leave them.                                                                                                          |
-| `#[cfg(test)] #[path = "../../../../tests/html/…"]` in anker `src`          | Works inside the crate. It is test-only, so excluding `tests/` from the package is safe.                                                         |
-| `retailers_anker/.idea/`                                                    | Don't copy it (already ignored in the target).                                                                                                   |
-| Toolchain pinned to 1.98.0 in the monorepo; target CI uses `stable`         | No change needed. Confirm `make ci` with the local 1.98.0.                                                                                       |
+| Coupling                                                              | Handling                                                                                                                                   |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name.workspace = true` dependencies                                  | Pin the versions from `lib/Cargo.toml` `[workspace.dependencies]`, with registries.                                                        |
+| Makefile includes `../../make/rust.mk`                                | Keep the target's standalone Makefile unchanged.                                                                                           |
+| README links to `../../docs/…`, `../../services/…`, `../../README.md` | They already dangle in 0.1.1. See decision 2.                                                                                              |
+| Ignored corpus tests read `CARGO_MANIFEST_DIR/../../../data/…`        | The data folder is missing in both locations. Keep the tests: they are `#[ignore]` and fail only when selected, as the monorepo documents. |
+| Rustdoc plain links to `../../../../docs/retailer.md`                 | rustdoc doesn't check them. Leave them.                                                                                                    |
+| `#[cfg(test)] #[path = "../../../../tests/html/…"]` in anker `src`    | Works inside the crate. It is test-only, so excluding `tests/` from the package is safe.                                                   |
+| `retailers_anker/.idea/`                                              | Don't copy it (already ignored in the target).                                                                                             |
+| Toolchain pinned to 1.98.0 in the monorepo; target CI uses `stable`   | No change needed. Confirm `make ci` with the local 1.98.0.                                                                                 |
 
 ## Rules for the implementer
 
@@ -143,11 +143,11 @@ Confirmed on 2026-11-17:
 Source: monorepo `1b6ba6af` (the last commit touching the three crates; the
 branch HEAD was `5a0fe4b8`).
 
-| Crate      | Branch                   | Commits (copy, README, exclude, release)  | `make ci`                         | `.crate` size |
-| ---------- | ------------------------ | ----------------------------------------- | --------------------------------- | ------------- |
-| anker      | `dev`                    | 961fd43, 11a4e1e, 8ea11c0, 07f3713       | pass: 565 + 17 tests, 17 ignored  | 626,588 B     |
-| minisforum | `sync-monorepo-1b6ba6af` | 4ab1e79, bd8a475, d8fdcdf, 8e63546       | pass: 472 + 9 tests, 28 ignored   | 234,338 B     |
-| ugreen     | `sync-monorepo-1b6ba6af` | 08db2ea, 1117632, c615b7a, 91df8d0       | pass: 759 + 21 tests, 53 ignored  | 449,246 B     |
+| Crate      | Branch                   | Commits (copy, README, exclude, release) | `make ci`                        | `.crate` size |
+| ---------- | ------------------------ | ---------------------------------------- | -------------------------------- | ------------- |
+| anker      | `dev`                    | 961fd43, 11a4e1e, 8ea11c0, 07f3713       | pass: 565 + 17 tests, 17 ignored | 626,588 B     |
+| minisforum | `sync-monorepo-1b6ba6af` | 4ab1e79, bd8a475, d8fdcdf, 8e63546       | pass: 472 + 9 tests, 28 ignored  | 234,338 B     |
+| ugreen     | `sync-monorepo-1b6ba6af` | 08db2ea, 1117632, c615b7a, 91df8d0       | pass: 759 + 21 tests, 53 ignored | 449,246 B     |
 
 - Lockfiles: after `cargo check`, every resolved version already matched the
   monorepo `Cargo.lock`; no `cargo update --precise` was needed.
