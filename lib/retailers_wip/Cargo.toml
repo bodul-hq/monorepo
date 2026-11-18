@@ -5,6 +5,3 @@ edition = "2024"
 publish = ["null-labs-hq"]
 
 [dependencies]
-retailer_sauce.workspace = true
-serde.workspace = true
-serde_json.workspace = true

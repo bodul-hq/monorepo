@@ -7,9 +7,9 @@ publish = ["null-labs-hq"]
 [dependencies]
 html-extractor.workspace = true
 retailer_sauce.workspace = true
-retailers_anker = { version = "0.2.0", registry = "bodul" }
-retailers_minisforum = { version = "0.2.0", registry = "bodul" }
-retailers_ugreen = { version = "0.2.0", registry = "bodul" }
+retailers_anker.workspace = true
+retailers_minisforum.workspace = true
+retailers_ugreen.workspace = true
 scraper.workspace = true
 serde.workspace = true
 serde_json.workspace = true
