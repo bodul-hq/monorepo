@@ -2,6 +2,7 @@
 //! offer fill.
 
 pub(crate) mod acquire_storefront_token;
+pub(crate) mod extract_offer_details;
 pub(crate) mod offer_details;
 pub(crate) mod product_catalog_ids;
 
