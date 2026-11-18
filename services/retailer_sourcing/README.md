@@ -1064,7 +1064,12 @@ Authentication is excluded. The subscriber queues `ExtractOfferDetails`, which
 reads the raw artifact, runs the retailer’s v2 extractor, and stores the JSON
 in `offer_details_extracted`. After storage succeeds, `OfferDetailsExtracted`
 carries the original event in `fetched` and the extracted object reference in
-`storage`.
+`storage`. This event queues `StructuralizeOfferDetails` for the pinned
+extracted object. The handler stores the retailer's v2 document in
+`offer_details_structuralized` and emits `OfferDetailsStructuralized` with its
+object reference. A listener records one outbox message per variant with a
+known price and storefront URL. The offers publisher submits those messages
+as `ImportOfferDetails` to the offers inbox when the outbox runs.
 
 Command workers run as configured. Advance reactions with `/api/events/run`;
 use `/api/commands/run` when `COMMAND_WORKERS=0`. Repeat those explicit runners

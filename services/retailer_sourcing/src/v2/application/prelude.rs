@@ -6,7 +6,8 @@ pub(crate) use super::{
 };
 
 pub(crate) use super::steps::{
-    acquire_storefront_token, extract_offer_details, offer_details, product_catalog_ids,
+    acquire_storefront_token, extract_offer_details, offer_details, prepare_offer_imports,
+    product_catalog_ids, structuralize_offer_details,
 };
 
 pub(crate) use super::steps::product_catalog_ids::prelude::ProductCatalogIdsRetrieved;
