@@ -4,7 +4,9 @@
 
 use super::application::prelude::extract_offer_details::register as register_extraction;
 use super::application::prelude::offer_details::prelude::register as register_offer_details;
+use super::application::prelude::prepare_offer_imports::register as register_imports;
 use super::application::prelude::product_catalog_ids::prelude::register as register_product_catalog_ids;
+use super::application::prelude::structuralize_offer_details::register as register_structuralization;
 pub use super::ui::prelude::routes;
 use crate::platform::Platform;
 use crate::platform::bus::Bus;
@@ -21,6 +23,8 @@ pub fn register(bus: &mut Bus, platform: &Platform) {
 
     register_offer_details(bus, platform);
     register_extraction(bus, platform.object_storage.clone());
+    register_structuralization(bus, platform.object_storage.clone());
+    register_imports(bus, platform.db.clone(), platform.object_storage.clone());
 }
 
 pub(crate) use super::application::prelude::ProductCatalogIdsRetrieved;

@@ -1,3 +1,6 @@
+mod shopify;
+
+use chrono::{DateTime, Utc};
 use retailer_sauce::prelude::Availability;
 use retailer_sauce::prelude::ExternalIdentifiers;
 use retailer_sauce::prelude::Gtin;
@@ -11,6 +14,8 @@ use serde_json::from_str;
 use serde_json::from_value;
 use serde_json::json as serde_json_json;
 use shared::images::filter;
+use shared::retailer::RetailerCode;
+pub(crate) use shopify::shopify_imports;
 use tracing::info;
 use url::Url;
 
@@ -102,88 +107,29 @@ pub(super) fn convert(
     let mut exclusions = Vec::new();
     let mut urls = HashSet::new();
     for (variation_index, variation) in input.variations.into_iter().enumerate() {
-        variation.guard(variation_index)?;
-        let localization = if schema_version >= 9 {
-            variation
-                .localization
-                .for_write()
-                .map_err(ConversionError)?
-        } else {
-            variation.localization.legacy()
-        };
         if !urls.insert(variation.url.clone()) {
             return Err(ConversionError(format!(
                 "variation {variation_index} repeats a retailer/URL identity"
             )));
         }
-        let images = if schema_version >= 2 {
-            let (images, skipped) = filter(
-                from_value(variation.images).map_err(|error| ConversionError(error.to_string()))?,
-            );
-            info!(skipped_images = skipped, "filtered offer images");
-            Some(images)
-        } else {
-            None
-        };
-        let identifiers = variation.identifiers.into_identifiers();
-        identifiers.guard().map_err(ConversionError)?;
-        let Some(price) = variation.price else {
-            exclusions.push(ExportExclusion {
-                variation_index,
-                url: variation.url,
-                reason: ExclusionReason::MissingPrice,
-            });
-            continue;
-        };
-        entries.push(ExportEntry {
-            id: Uuid::now_v7(),
+        let url = variation.url.clone();
+        match variation.import(
+            source.retailer_code,
+            source.storage.scraped_at,
+            schema_version,
             variation_index,
-            payload: OfferImport {
-                was_price: if schema_version >= 6 {
-                    variation.was_price
-                } else {
-                    Observation::Missing
-                },
-                availability: if schema_version >= 7 {
-                    variation.availability
-                } else {
-                    Observation::Missing
-                },
-                item_condition: if schema_version >= 7 {
-                    variation.item_condition
-                } else {
-                    Observation::Missing
-                },
-                content: if schema_version >= 8 {
-                    variation.content
-                } else {
-                    None
-                },
-                gtin: if schema_version >= 5 {
-                    identifiers.gtin
-                } else {
-                    None
-                },
-                sku: if schema_version >= 5 {
-                    identifiers.sku
-                } else {
-                    None
-                },
-                external_identifiers: (schema_version >= 5)
-                    .then_some(identifiers.external_identifiers),
-                localization: (schema_version >= 4).then_some(localization),
-                scraped_at: if schema_version >= 3 {
-                    source.storage.scraped_at
-                } else {
-                    None
-                },
-                images,
-                retailer_code: source.retailer_code,
-                title: variation.title,
-                price,
-                url: variation.url,
-            },
-        });
+        )? {
+            Some(payload) => entries.push(ExportEntry {
+                id: Uuid::now_v7(),
+                variation_index,
+                payload,
+            }),
+            None => exclusions.push(ExportExclusion {
+                variation_index,
+                url,
+                reason: ExclusionReason::MissingPrice,
+            }),
+        }
     }
     Ok(OfferExport {
         id: Uuid::now_v7(),
@@ -192,6 +138,82 @@ pub(super) fn convert(
         entries,
         exclusions,
     })
+}
+
+impl Variation {
+    fn import(
+        self,
+        retailer_code: RetailerCode,
+        scraped_at: Option<DateTime<Utc>>,
+        schema_version: u32,
+        variation_index: usize,
+    ) -> Result<Option<OfferImport>, ConversionError> {
+        self.guard(variation_index)?;
+        let localization = if schema_version >= 9 {
+            self.localization.for_write().map_err(ConversionError)?
+        } else {
+            self.localization.legacy()
+        };
+        let images = if schema_version >= 2 {
+            let (images, skipped) = filter(
+                from_value(self.images).map_err(|error| ConversionError(error.to_string()))?,
+            );
+            info!(skipped_images = skipped, "filtered offer images");
+            Some(images)
+        } else {
+            None
+        };
+        let identifiers = self.identifiers.into_identifiers();
+        identifiers.guard().map_err(ConversionError)?;
+        let Some(price) = self.price else {
+            return Ok(None);
+        };
+        let payload = OfferImport {
+            was_price: if schema_version >= 6 {
+                self.was_price
+            } else {
+                Observation::Missing
+            },
+            availability: if schema_version >= 7 {
+                self.availability
+            } else {
+                Observation::Missing
+            },
+            item_condition: if schema_version >= 7 {
+                self.item_condition
+            } else {
+                Observation::Missing
+            },
+            content: if schema_version >= 8 {
+                self.content
+            } else {
+                None
+            },
+            gtin: if schema_version >= 5 {
+                identifiers.gtin
+            } else {
+                None
+            },
+            sku: if schema_version >= 5 {
+                identifiers.sku
+            } else {
+                None
+            },
+            external_identifiers: (schema_version >= 5).then_some(identifiers.external_identifiers),
+            localization: (schema_version >= 4).then_some(localization),
+            scraped_at: if schema_version >= 3 {
+                scraped_at
+            } else {
+                None
+            },
+            images,
+            retailer_code,
+            title: self.title,
+            price,
+            url: self.url,
+        };
+        Ok(Some(payload))
+    }
 }
 
 impl Variation {

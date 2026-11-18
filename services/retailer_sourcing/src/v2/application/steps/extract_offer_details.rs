@@ -16,10 +16,10 @@ impl Command for ExtractOfferDetails {
     const NAME: &'static str = "ExtractOfferDetails";
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct OfferDetailsExtracted {
-    fetched: OfferDetailsFetched,
-    storage: OfferStorageMetadata,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub(super) struct OfferDetailsExtracted {
+    pub(super) fetched: OfferDetailsFetched,
+    pub(super) storage: OfferStorageMetadata,
 }
 
 impl Event for OfferDetailsExtracted {
@@ -59,19 +59,10 @@ impl Handle for Handler {
             .entry("acquired_at")
             .or_insert(to_value(fetched.fetched_at).map_err(|e| e.to_string())?);
         let extracted = extract_v2_for(fetched.retailer_code, &artifact.to_string())?;
-        // Object storage scopes idempotency keys by bucket. Every retry for
-        // this immutable input addresses the same extracted artifact.
-        let external_id = fetched.storage.object_storage_id;
-        let object_storage_id = self
+        let storage = self
             .0
-            .create(EXTRACTED_OFFERS_BUCKET, external_id, &extracted)
+            .create_derived_offer(EXTRACTED_OFFERS_BUCKET, &fetched.storage, &extracted)
             .map_err(|e| e.to_string())?;
-        let storage = OfferStorageMetadata {
-            object_storage_id,
-            external_id,
-            content_size: extracted.len() as u64,
-            scraped_at: fetched.storage.scraped_at,
-        };
         Ok(vec![OfferDetailsExtracted { fetched, storage }])
     }
 }

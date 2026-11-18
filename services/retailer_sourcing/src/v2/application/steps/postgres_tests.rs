@@ -1,5 +1,7 @@
 //! Durable end-to-end tests in an isolated schema, with local object-storage fixtures.
 use super::extract_offer_details::register as register_extraction;
+use super::prepare_offer_imports::register as register_imports;
+use super::structuralize_offer_details::register as register_structuralization;
 use super::{
     offer_details as details, product_catalog_ids as catalog,
     tests::{connection, token_value},
@@ -206,7 +208,7 @@ fn run_initial_fill(retailer: RetailerCode) {
         .initial_fill_contexts()
         .unwrap();
     let attempts_token = get_storefront_config(retailer).unwrap().attempts_token();
-    let expected_commands = usize::from(attempts_token) + contexts.len() * 7;
+    let expected_commands = usize::from(attempts_token) + contexts.len() * 10;
     let db = Database::new();
     let server = Server::new();
     let mut bus = Bus::default();
@@ -217,6 +219,8 @@ fn run_initial_fill(retailer: RetailerCode) {
         store: server.client(),
     });
     register_extraction(&mut bus, server.client());
+    register_structuralization(&mut bus, server.client());
+    register_imports(&mut bus, db.pool.clone(), server.client());
     bus.on_many_keyed(start_catalog_for_locales);
     bus.on_many_keyed(fetch_details_for_catalog_products);
     let guard = server.runtime.enter();
@@ -234,7 +238,7 @@ fn run_initial_fill(retailer: RetailerCode) {
     );
     assert_eq!(status, StatusCode::ACCEPTED);
     let run_id = response["fills"][0]["run_id"].as_str().unwrap();
-    for _ in 0..4 {
+    for _ in 0..5 {
         run(&server, &app, "/api/commands/run");
         run(&server, &app, "/api/events/run");
     }
@@ -331,9 +335,89 @@ fn run_initial_fill(retailer: RetailerCode) {
         rows(&db, "command_entries").as_array().unwrap().len(),
         expected_commands
     );
-    assert!(rows(&db, "outbox_entries").as_array().unwrap().is_empty());
+    let outbox = rows(&db, "outbox_entries");
+    let messages = outbox.as_array().unwrap();
+    assert_eq!(messages.len(), contexts.len() * 3);
+    for message in messages {
+        let meta = &message["meta"];
+        assert_eq!(meta["routing_key"], "offers");
+        assert_eq!(meta["correlation_id"], run_id);
+        assert_eq!(meta["event_type"], "OfferDetailsStructuralized");
+        let row = events
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|e| e["id"] == meta["event_id"])
+            .unwrap();
+        let event: Value = from_str(row["payload"].as_str().unwrap()).unwrap();
+        let storage = from_value(event["storage"].clone()).unwrap();
+        let body = server
+            .client()
+            .get_offer("offer_details_structuralized", &storage)
+            .unwrap();
+        let document: Value = from_str(&body).unwrap();
+        let variation = &document["variations"][0];
+        let payload: Value = from_str(message["payload"].as_str().unwrap()).unwrap();
+        assert_eq!(payload["retailer_code"], retailer.as_str());
+        assert_eq!(payload["url"], variation["content"]["url"]);
+        assert_eq!(payload["title"], variation["content"]["title"]);
+        assert_eq!(payload["price"], variation["pricing"]["Standard"]);
+        assert_eq!(
+            payload["localization"]["target_market"]["code"],
+            variation["market"]
+        );
+        assert_eq!(
+            payload["scraped_at"],
+            event["extracted"]["fetched"]["fetched_at"]
+        );
+    }
+    db.pool.get().unwrap().batch_execute("UPDATE event_entries SET status=0, scheduled_at=now() WHERE event_type IN ('OfferDetailsExtracted','OfferDetailsStructuralized')").unwrap();
+    run(&server, &app, "/api/events/run");
+    assert_eq!(
+        rows(&db, "command_entries").as_array().unwrap().len(),
+        expected_commands
+    );
+    assert_eq!(
+        rows(&db, "outbox_entries").as_array().unwrap().len(),
+        messages.len()
+    );
+    if retailer == RetailerCode::AnkerAu {
+        assert_inbox_delivery(&db, &server, messages);
+    }
     bus.shutdown();
 }
+fn assert_inbox_delivery(sender: &Database, server: &Server, messages: &[Value]) {
+    use crate::platform::bus_api::outbox_postgres_tests::{inbox, state};
+    use crate::platform::bus_api::outbox_tests::run as run_outbox;
+
+    let receiver = Database::new();
+    let inbox = server.runtime.block_on(inbox(&receiver));
+    let state = {
+        let _guard = server.runtime.enter();
+        state(sender, &inbox.url)
+    };
+    let (_, result) = server
+        .runtime
+        .block_on(run_outbox(state, json!({"limit":100})));
+    assert_eq!(result, json!({"processed": messages.len(), "errors":[]}));
+    let inbox = rows(&receiver, "inbox_entries");
+    let received = inbox.as_array().unwrap();
+    assert_eq!(received.len(), messages.len());
+    for message in messages {
+        let row = received.iter().find(|r| r["id"] == message["id"]).unwrap();
+        assert_eq!(row["meta"]["routing_key"], "ImportOfferDetails");
+        assert_eq!(
+            row["meta"]["correlation_id"],
+            message["meta"]["correlation_id"]
+        );
+        let payload: Value = from_str(row["payload"].as_str().unwrap()).unwrap();
+        assert_eq!(
+            payload,
+            from_str::<Value>(message["payload"].as_str().unwrap()).unwrap()
+        );
+    }
+}
+
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_partial_fanout_replay_deduplicates_command_rows() {

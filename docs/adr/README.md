@@ -151,3 +151,5 @@ Decision, Consequences) and give it the next number.
 - [88: Single-command catalog traversal](0088-single-command-catalog-traversal.md)
 
 - [89: Back Office sessions](0089-back-office-sessions.md)
+
+- [90: Deliver v2 structuralized variants through the offers outbox](0090-v2-structuralized-offer-delivery.md)
