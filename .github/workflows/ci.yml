@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        crate: [lib/retailer_data_extractor, services/offers, services/products, services/training, apps/development, services/retailer_sourcing, services/customer_facing, apps/customers]
+        crate: [apps/back_office, lib/retailer_data_extractor, services/offers, services/products, services/training, apps/development, services/retailer_sourcing, services/customer_facing, apps/customers]
     steps:
       - uses: actions/checkout@v4
         with:
