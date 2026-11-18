@@ -47,6 +47,6 @@ consolidate-sitemap-sources:
 dump-offer-details-v2:
 	cargo run --release --bin dump-offer-details-v2 -- $(DATA_DIR) $(RETAILERS)
 
-.PHONY: extract-offer-details-v2
-extract-offer-details-v2:
-	cargo run --release --bin extract-offer-details-v2 -- $(DATA_DIR) $(RETAILERS)
+.PHONY: extract-offer-details-v2 structuralize-offer-details-v2
+extract-offer-details-v2 structuralize-offer-details-v2:
+	cargo run --release --bin $@ -- $(DATA_DIR) $(RETAILERS)
