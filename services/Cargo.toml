@@ -26,7 +26,7 @@ money = { version = "0.1.2", registry = "bodul" }
 outbox = { version = "0.5.0", registry = "null-labs-hq", package = "mulac-outbox" }
 poem = "3.1.12"
 poem-openapi = { version = "5.1.16", features = ["swagger-ui"] }
-retailer_sauce = { version = "0.3.0", registry = "bodul" }
+retailer_sauce = { version = "0.3.7", registry = "bodul" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 shared = { version = "0.1.1", registry = "bodul" }

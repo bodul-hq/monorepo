@@ -29,7 +29,7 @@ serde.workspace = true
 serde_json.workspace = true
 sha1 = "0.10.7"
 shared.workspace = true
-sitemap = { version = "0.1.0", registry = "bodul" }
+sitemap = { version = "0.1.1", registry = "bodul" }
 strum = { version = "0.27", features = ["derive"] }
 thiserror.workspace = true
 tokio.workspace = true
