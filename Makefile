@@ -58,6 +58,6 @@ wip:
 dump-offer-details-v2:
 	$(MAKE) -C apps/development dump-offer-details-v2 DATA_DIR=$(abspath $(DATA_DIR)) RETAILERS="$(RETAILERS)"
 
-.PHONY: extract-offer-details-v2
-extract-offer-details-v2:
-	$(MAKE) -C apps/development extract-offer-details-v2 DATA_DIR=$(abspath $(DATA_DIR)) RETAILERS="$(RETAILERS)"
+.PHONY: extract-offer-details-v2 structuralize-offer-details-v2
+extract-offer-details-v2 structuralize-offer-details-v2:
+	$(MAKE) -C apps/development $@ DATA_DIR=$(abspath $(DATA_DIR)) RETAILERS="$(RETAILERS)"

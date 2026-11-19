@@ -16,6 +16,7 @@ storefronts.
 | `extract-offer-details`       | `offer_details/sources/*.html` to `offer_details/extracted/*.json`                      |
 | `normalize-offer-details`     | Extracted offers to `offer_details/normalized/`                                         |
 | `structuralize-offer-details` | Normalized offers to `offer_details/structuralized/`                                    |
+| `structuralize-offer-details-v2` | `offer_details_v2/extracted/**/*.json` to matching paths under `offer_details_v2/structuralized/` (Anker, Minisforum and Ugreen storefronts) |
 | `process-offer-details`       | All offer stages through the extractor crate's CLI; its final folder is `structurized/` |
 
 Paths are under `<DATA_DIR>/<retailer>/`. Failed offer stages remove stale

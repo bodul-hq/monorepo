@@ -21,6 +21,7 @@ use crate::platform::bus::Bus;
 )]
 pub use super::structuralize_offer::prelude::OfferWasStructuralized;
 
+pub(crate) use super::processing_for_export::prelude::shopify_imports;
 #[cfg(test)]
 pub(crate) use super::processing_for_export::prelude::testing as export_testing;
 pub use super::processing_for_export::prelude::{

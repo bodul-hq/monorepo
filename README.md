@@ -27,7 +27,10 @@ top-level folder is its own Cargo workspace, with its own `Cargo.lock`.
 | `everyday_infra`          | Serialization and chrono adapters for everyday value types              |
 | `retailer_sauce`          | Retailer integrations                                                   |
 | `retailer_data_extractor` | Extracting data from retailers                                          |
+| `retailers_anker`         | Integration for the Anker retailer                                      |
 | `retailers_mi`            | Integration for the Mi retailer                                         |
+| `retailers_minisforum`    | Integration for the Minisforum retailer                                 |
+| `retailers_ugreen`        | Integration for the Ugreen retailer                                     |
 | `retailers_wip`           | Integration for the WIP retailer                                        |
 | `sitemap`                 | Parsing sitemap XML and building a crawl's sitemap tree                 |
 | `testimony`               | Event sourcing abstractions, aggregate repositories, and query dispatch |
@@ -146,7 +149,7 @@ shows exact inbox/command/event/outbox status counts for the three pipeline serv
   The services lockfile pins resolved versions and checksums; no sibling Mulac
   checkout is required. See [ADR 42](docs/adr/0042-published-mulac-crates.md)
   and the [0.5 integration changes](docs/adr/0043-mulac-0-5-integration.md).
-- Access to the `bodul` Cargo registry for the published `retailer_sauce` 0.3.0 package.
+- Access to the `bodul` Cargo registry for the published `retailer_sauce` 0.3.7 package.
 - PostgreSQL 16 or later for `object_storage`, `offers`, and `customer_facing` (separate UTF8 databases), and to run the `retailer_sourcing` pipeline.
 - The `retailer_sourcing` pipeline also requires a running object storage service, configured with `OBJECT_STORAGE_URL` and `OBJECT_STORAGE_TOKEN`; see its [setup](services/retailer_sourcing/README.md).
 - PostgreSQL `pg_trgm`, provisioned in the trusted `customer_facing_extensions` schema before customer-facing migrations; see its README for setup.

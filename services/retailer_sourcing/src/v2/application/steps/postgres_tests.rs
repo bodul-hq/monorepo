@@ -1,7 +1,10 @@
 //! Durable end-to-end tests in an isolated schema, with local object-storage fixtures.
+use super::extract_offer_details::register as register_extraction;
+use super::prepare_offer_imports::register as register_imports;
+use super::structuralize_offer_details::register as register_structuralization;
 use super::{
     offer_details as details, product_catalog_ids as catalog,
-    tests::{connection, product, token_value},
+    tests::{connection, token_value},
 };
 use crate::app;
 use crate::platform::{
@@ -37,6 +40,7 @@ use retailer_sauce::prelude::Http;
 use retailer_sauce::prelude::StorefrontToken;
 use serde_json::from_slice;
 use serde_json::from_str;
+use serde_json::from_value;
 use serde_json::to_string;
 use serde_json::to_value;
 use serde_json::{Value, json};
@@ -71,7 +75,11 @@ impl Http for Source {
             ),
             "OfferDetails" => {
                 let id = operation.variables["id"].as_str().unwrap();
-                let value = product(id);
+                let mut value: Value = from_str(include_str!(
+                    "../../../../tests/fixtures/anker/ankerau_product.json"
+                ))
+                .unwrap();
+                value["id"] = json!(id);
                 Ok(json!({"data":{"product":value},"extensions":{"context":context}}))
             }
             _ => Err("unexpected continuation".into()),
@@ -108,19 +116,19 @@ fn run(server: &Server, app: &Router, path: &str) {
 }
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_initial_fill_reaches_terminal_stored_events_without_downstream_work() {
+fn postgres_initial_fill_extracts_stored_details() {
     run_initial_fill(RetailerCode::AnkerAu);
 }
 
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_canadian_initial_fill_reaches_terminal_stored_events_without_downstream_work() {
+fn postgres_canadian_initial_fill_extracts_stored_details() {
     run_initial_fill(RetailerCode::AnkerCa);
 }
 
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
-fn postgres_remaining_inventory_locales_preserve_terminal_event_contract() {
+fn postgres_remaining_inventory_locales_extract_stored_details() {
     for retailer in RetailerCode::ALL {
         if !matches!(retailer, RetailerCode::AnkerAu | RetailerCode::AnkerCa)
             && get_storefront_config(retailer).is_some()
@@ -200,7 +208,7 @@ fn run_initial_fill(retailer: RetailerCode) {
         .initial_fill_contexts()
         .unwrap();
     let attempts_token = get_storefront_config(retailer).unwrap().attempts_token();
-    let expected_commands = usize::from(attempts_token) + contexts.len() * 4;
+    let expected_commands = usize::from(attempts_token) + contexts.len() * 10;
     let db = Database::new();
     let server = Server::new();
     let mut bus = Bus::default();
@@ -210,6 +218,9 @@ fn run_initial_fill(retailer: RetailerCode) {
         fetcher: Source,
         store: server.client(),
     });
+    register_extraction(&mut bus, server.client());
+    register_structuralization(&mut bus, server.client());
+    register_imports(&mut bus, db.pool.clone(), server.client());
     bus.on_many_keyed(start_catalog_for_locales);
     bus.on_many_keyed(fetch_details_for_catalog_products);
     let guard = server.runtime.enter();
@@ -227,7 +238,7 @@ fn run_initial_fill(retailer: RetailerCode) {
     );
     assert_eq!(status, StatusCode::ACCEPTED);
     let run_id = response["fills"][0]["run_id"].as_str().unwrap();
-    for _ in 0..4 {
+    for _ in 0..5 {
         run(&server, &app, "/api/commands/run");
         run(&server, &app, "/api/events/run");
     }
@@ -272,18 +283,30 @@ fn run_initial_fill(retailer: RetailerCode) {
     assert_eq!(terminal.len(), contexts.len() * 3);
     // Check the actual upload destination against object storage's existing
     // contract, independently of the handler's bucket constant.
-    let data = server.data.lock().unwrap();
-    assert_eq!(data.uploads.len(), contexts.len() * 3);
-    assert!(
-        data.uploads
-            .iter()
-            .all(|(bucket, _)| bucket == "offer_details_raw")
-    );
-    drop(data);
+    let extracted: Vec<_> = events
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|row| row["event_type"] == "OfferDetailsExtracted")
+        .map(|row| from_str::<Value>(row["payload"].as_str().unwrap()).unwrap())
+        .collect();
+    assert_eq!(extracted.len(), terminal.len());
     for row in terminal {
         assert_eq!(row["status"], 5);
         let event: OfferDetailsFetched = from_str(row["payload"].as_str().unwrap()).unwrap();
         assert_eq!(event.retailer_code, retailer);
+        let output = extracted
+            .iter()
+            .find(|output| output["fetched"] == to_value(&event).unwrap())
+            .unwrap();
+        let storage = from_value(output["storage"].clone()).unwrap();
+        let document = server
+            .client()
+            .get_offer("offer_details_extracted", &storage)
+            .unwrap();
+        let document: Value = from_str(&document).unwrap();
+        assert_eq!(document["context"], to_value(&event.context).unwrap());
+        assert!(!document["product"]["identifiers"]["id"].is_null());
         let artifact = server.client().get_offer(BUCKET, &event.storage).unwrap();
         let artifact: Value = from_str(&artifact).unwrap();
         assert_eq!(artifact["schema_version"], 2);
@@ -312,9 +335,89 @@ fn run_initial_fill(retailer: RetailerCode) {
         rows(&db, "command_entries").as_array().unwrap().len(),
         expected_commands
     );
-    assert!(rows(&db, "outbox_entries").as_array().unwrap().is_empty());
+    let outbox = rows(&db, "outbox_entries");
+    let messages = outbox.as_array().unwrap();
+    assert_eq!(messages.len(), contexts.len() * 3);
+    for message in messages {
+        let meta = &message["meta"];
+        assert_eq!(meta["routing_key"], "offers");
+        assert_eq!(meta["correlation_id"], run_id);
+        assert_eq!(meta["event_type"], "OfferDetailsStructuralized");
+        let row = events
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|e| e["id"] == meta["event_id"])
+            .unwrap();
+        let event: Value = from_str(row["payload"].as_str().unwrap()).unwrap();
+        let storage = from_value(event["storage"].clone()).unwrap();
+        let body = server
+            .client()
+            .get_offer("offer_details_structuralized", &storage)
+            .unwrap();
+        let document: Value = from_str(&body).unwrap();
+        let variation = &document["variations"][0];
+        let payload: Value = from_str(message["payload"].as_str().unwrap()).unwrap();
+        assert_eq!(payload["retailer_code"], retailer.as_str());
+        assert_eq!(payload["url"], variation["content"]["url"]);
+        assert_eq!(payload["title"], variation["content"]["title"]);
+        assert_eq!(payload["price"], variation["pricing"]["Standard"]);
+        assert_eq!(
+            payload["localization"]["target_market"]["code"],
+            variation["market"]
+        );
+        assert_eq!(
+            payload["scraped_at"],
+            event["extracted"]["fetched"]["fetched_at"]
+        );
+    }
+    db.pool.get().unwrap().batch_execute("UPDATE event_entries SET status=0, scheduled_at=now() WHERE event_type IN ('OfferDetailsExtracted','OfferDetailsStructuralized')").unwrap();
+    run(&server, &app, "/api/events/run");
+    assert_eq!(
+        rows(&db, "command_entries").as_array().unwrap().len(),
+        expected_commands
+    );
+    assert_eq!(
+        rows(&db, "outbox_entries").as_array().unwrap().len(),
+        messages.len()
+    );
+    if retailer == RetailerCode::AnkerAu {
+        assert_inbox_delivery(&db, &server, messages);
+    }
     bus.shutdown();
 }
+fn assert_inbox_delivery(sender: &Database, server: &Server, messages: &[Value]) {
+    use crate::platform::bus_api::outbox_postgres_tests::{inbox, state};
+    use crate::platform::bus_api::outbox_tests::run as run_outbox;
+
+    let receiver = Database::new();
+    let inbox = server.runtime.block_on(inbox(&receiver));
+    let state = {
+        let _guard = server.runtime.enter();
+        state(sender, &inbox.url)
+    };
+    let (_, result) = server
+        .runtime
+        .block_on(run_outbox(state, json!({"limit":100})));
+    assert_eq!(result, json!({"processed": messages.len(), "errors":[]}));
+    let inbox = rows(&receiver, "inbox_entries");
+    let received = inbox.as_array().unwrap();
+    assert_eq!(received.len(), messages.len());
+    for message in messages {
+        let row = received.iter().find(|r| r["id"] == message["id"]).unwrap();
+        assert_eq!(row["meta"]["routing_key"], "ImportOfferDetails");
+        assert_eq!(
+            row["meta"]["correlation_id"],
+            message["meta"]["correlation_id"]
+        );
+        let payload: Value = from_str(row["payload"].as_str().unwrap()).unwrap();
+        assert_eq!(
+            payload,
+            from_str::<Value>(message["payload"].as_str().unwrap()).unwrap()
+        );
+    }
+}
+
 #[test]
 #[ignore = "requires DATABASE_URL_TEST; run make test-postgres"]
 fn postgres_partial_fanout_replay_deduplicates_command_rows() {

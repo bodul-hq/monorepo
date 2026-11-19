@@ -2,10 +2,13 @@
 use retailer_sauce::shopify::graphql::raw::RawOfferDetails;
 use retailers_anker::extracted::ExtractedOfferDetails;
 use retailers_anker::prelude::get_storefront_config as retailers_anker_get_storefront_config;
+use retailers_anker::prelude::structuralize_offer_details_v2_for as retailers_anker_structuralize_offer_details_v2_for;
 use retailers_minisforum::extracted::ExtractedOfferDetails as RetailersMinisforumExtractedExtractedOfferDetails;
 use retailers_minisforum::prelude::get_storefront_config as retailers_minisforum_get_storefront_config;
+use retailers_minisforum::prelude::structuralize_offer_details_v2_for as retailers_minisforum_structuralize_offer_details_v2_for;
 use retailers_ugreen::extracted::ExtractedOfferDetails as RetailersUgreenExtractedExtractedOfferDetails;
 use retailers_ugreen::prelude::get_storefront_config as retailers_ugreen_get_storefront_config;
+use retailers_ugreen::prelude::structuralize_offer_details_v2_for as retailers_ugreen_structuralize_offer_details_v2_for;
 use serde_json::from_str;
 use serde_json::to_string as serde_json_to_string;
 
@@ -34,10 +37,18 @@ pub fn extract_v2_for(code: RetailerCode, json: &str) -> Result<String, String> 
     Err(format!("no v2 extractor for {code:?}"))
 }
 
+/// Structuralize a retailer's v2 extracted model into the shared Shopify
+/// document, serialized as JSON. The brand whose inventory holds the
+/// retailer's storefront owns the step.
+pub fn structuralize_v2_for(code: RetailerCode, json: &str) -> Result<String, String> {
+    retailers_anker_structuralize_offer_details_v2_for(code, json)
+        .or_else(|| retailers_minisforum_structuralize_offer_details_v2_for(code, json))
+        .or_else(|| retailers_ugreen_structuralize_offer_details_v2_for(code, json))
+        .unwrap_or_else(|| Err(format!("no v2 structuralizer for {code:?}")))
+}
+
 #[cfg(test)]
 use serde_json::Value as SerdeJsonValue;
-#[cfg(test)]
-use std::collections::HashSet;
 
 #[cfg(test)]
 mod tests {
@@ -172,9 +183,17 @@ mod anker_tests {
 
 #[cfg(test)]
 pub(crate) fn assert_extracted_contract(output: &SerdeJsonValue, source: &SerdeJsonValue) {
-    assert_eq!(
-        output["product"]["identifiers"]["id"],
-        source["product"]["id"]
+    let output_id = &output["product"]["identifiers"]["id"];
+    let source_id = &source["product"]["id"];
+    // Anker output serializes Shopify gids as their numeric id.
+    let numeric_source_id = source_id
+        .as_str()
+        .and_then(|id| id.strip_prefix("gid://shopify/Product/"))
+        .and_then(|id| id.parse::<u64>().ok());
+    assert!(
+        output_id == source_id
+            || numeric_source_id.is_some_and(|id| output_id.as_u64() == Some(id)),
+        "unexpected product id {output_id} for source {source_id}"
     );
     assert_eq!(
         output["product"]["content"]["title"],
@@ -192,13 +211,71 @@ pub(crate) fn assert_extracted_contract(output: &SerdeJsonValue, source: &SerdeJ
             .unwrap()
             .len()
     );
-    let images = output["images"].as_array().unwrap();
-    let ids: HashSet<_> = images
-        .iter()
-        .map(|image| image["id"].as_str().unwrap())
-        .collect();
-    assert_eq!(images.len(), ids.len());
+    let images = output["images"].as_object().unwrap();
+    for (key, image) in images {
+        assert_eq!(key, &image["id"].to_string());
+    }
     for id in output["product"]["content"]["images"].as_array().unwrap() {
-        assert!(ids.contains(id.as_str().unwrap()));
+        assert!(images.contains_key(&id.to_string()));
+    }
+}
+
+#[cfg(test)]
+mod structuralize_tests {
+    use serde_json::{Value, from_str, json};
+
+    use super::{extract_v2_for, structuralize_v2_for};
+    use crate::get_storefront_config;
+    use shared::retailer::RetailerCode;
+
+    #[test]
+    fn structuralizes_each_familys_extracted_artifact() {
+        for (code, fixture) in [
+            (
+                RetailerCode::AnkerAu,
+                include_str!("../tests/fixtures/v2/ankerau.json"),
+            ),
+            (
+                RetailerCode::MinisForumAu,
+                include_str!("../tests/fixtures/v2/minisforumau.json"),
+            ),
+            (
+                RetailerCode::UgreenCa,
+                include_str!("../tests/fixtures/v2/ugreenca.json"),
+            ),
+        ] {
+            let raw = json!({"schema_version":2, "context":{"country":"CA","language":"FR","currency":"CAD"}, "acquired_at":"2026-11-12T00:00:00Z", "product":from_str::<Value>(fixture).unwrap(), "pages":[]});
+            let extracted = extract_v2_for(code, &raw.to_string()).unwrap();
+            let document: Value =
+                from_str(&structuralize_v2_for(code, &extracted).unwrap()).unwrap();
+            let source: Value = from_str(&extracted).unwrap();
+            let variants = source["product"]["variants"].as_array().unwrap();
+            let variations = document["variations"].as_array().unwrap();
+            assert_eq!(variations.len(), variants.len(), "{code:?}");
+            for (variation, variant) in variations.iter().zip(variants) {
+                assert_eq!(variation["market"], "CA");
+                assert_eq!(variation["pricing"], variant["pricing"]);
+                assert_eq!(variation["content"]["language"], "FR");
+            }
+        }
+    }
+
+    #[test]
+    fn every_initial_fill_retailer_has_a_v2_structuralizer() {
+        for code in RetailerCode::ALL {
+            if get_storefront_config(code).is_some() {
+                let error = structuralize_v2_for(code, "{}").unwrap_err();
+                assert!(!error.contains("no v2 structuralizer"), "{code:?}: {error}");
+            }
+        }
+    }
+
+    #[test]
+    fn rejects_unsupported_retailers() {
+        assert!(
+            structuralize_v2_for(RetailerCode::MiCom, "{}")
+                .unwrap_err()
+                .contains("no v2 structuralizer")
+        );
     }
 }

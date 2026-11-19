@@ -1058,10 +1058,18 @@ an explicit network check. No public token is hardcoded in production.
 `scraped_at`). Its bucket is `offer_details_raw` (see
 [ADR 51](../../docs/adr/0051-initial-fill-raw-offer-bucket.md)). New artifacts have
 `schema_version: 2`, observed `context` (country, language, currency), `product`,
-and `pages`, each containing `request` and `response`. The terminal event carries
+and `pages`, each containing `request` and `response`. The fetched event carries
 the same observed context. Historical context-free schema-1 data remains readable.
-Authentication is excluded. No listener, normalization, export,
-or outbox delivery follows this terminal event.
+Authentication is excluded. The subscriber queues `ExtractOfferDetails`, which
+reads the raw artifact, runs the retailer’s v2 extractor, and stores the JSON
+in `offer_details_extracted`. After storage succeeds, `OfferDetailsExtracted`
+carries the original event in `fetched` and the extracted object reference in
+`storage`. This event queues `StructuralizeOfferDetails` for the pinned
+extracted object. The handler stores the retailer's v2 document in
+`offer_details_structuralized` and emits `OfferDetailsStructuralized` with its
+object reference. A listener records one outbox message per variant with a
+known price and storefront URL. The offers publisher submits those messages
+as `ImportOfferDetails` to the offers inbox when the outbox runs.
 
 Command workers run as configured. Advance reactions with `/api/events/run`;
 use `/api/commands/run` when `COMMAND_WORKERS=0`. Repeat those explicit runners

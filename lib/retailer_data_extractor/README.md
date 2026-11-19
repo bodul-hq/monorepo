@@ -8,6 +8,11 @@ in `retailers_anker::extracted`. It preserves every modeled raw field using the
 AU/CA-style grouping. Minisforum and Ugreen continue typed raw v2 parsing.
 Localization and JSON pretty printing remain available.
 
+`extract_v2_for(code, json)` turns a raw v2 artifact into the retailer's
+extracted model. `structuralize_v2_for(code, json)` turns that extracted model
+into the shared `retailer_sauce::shopify::structuralized::ShopifyDocument`
+through the family crate's `structuralize_offer_details_v2_for`.
+
 The five Nordic Anker country codes route their legacy downloads and processing
 through `retailers_anker::prelude::legacy_offer_source_for`. The historical
 `ankernordicscom` code still deserializes, but has no extraction or sitemap
